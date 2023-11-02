@@ -6,7 +6,7 @@ import {
   getMorphoDefaultMarketsConfig,
   getMorphoDefaultOraclesConfig,
   MarketSupplyConfig,
-  MorphoSystem,
+  MorphoTestDeployment,
   setupMarkets,
   TokensDeployment,
 } from '@morpho-blue'
@@ -15,7 +15,7 @@ import { ethers } from 'ethers'
 export async function deployMorphoBlueSystem(
   snapshot: Snapshot,
   debug = false,
-): Promise<MorphoSystem> {
+): Promise<MorphoTestDeployment> {
   const helpers = snapshot.testSystem.helpers
   const signer = snapshot.config.signer
   const signerAddress = snapshot.config.address
@@ -24,21 +24,27 @@ export async function deployMorphoBlueSystem(
   const tokensDeployment: TokensDeployment = {
     DAI: {
       contract: helpers.fakeDAI.connect(signer),
+      decimals: 18,
     },
     USDT: {
       contract: helpers.fakeUSDT.connect(signer),
+      decimals: 6,
     },
     WBTC: {
       contract: helpers.fakeWBTC.connect(signer),
+      decimals: 8,
     },
     WETH: {
       contract: helpers.fakeWETH.connect(signer),
+      decimals: 18,
     },
     USDC: {
       contract: helpers.fakeUSDC.connect(signer),
+      decimals: 6,
     },
     WSTETH: {
       contract: helpers.fakeWSTETH.connect(signer),
+      decimals: 18,
     },
   }
 
@@ -58,16 +64,20 @@ export async function deployMorphoBlueSystem(
   )
 
   const supplyConfig: MarketSupplyConfig = {
-    DAI: ethers.utils.parseEther('1000000'),
-    USDT: ethers.utils.parseEther('1000000'),
-    WBTC: ethers.utils.parseEther('1000'),
-    WETH: ethers.utils.parseEther('1000'),
-    USDC: ethers.utils.parseEther('1000000'),
-    WSTETH: ethers.utils.parseEther('1000'),
+    DAI: ethers.utils.parseUnits('1000000'),
+    USDT: ethers.utils.parseUnits('1000000', 6),
+    WBTC: ethers.utils.parseUnits('1000', 8),
+    WETH: ethers.utils.parseUnits('1000'),
+    USDC: ethers.utils.parseUnits('1000000', 6),
+    WSTETH: ethers.utils.parseUnits('1000'),
   }
+
   await setupMarkets(morphoBlueSystem, supplyConfig, signer, signerAddress)
 
   showConsoleLogs(true)
 
-  return morphoBlueSystem
+  return {
+    system: morphoBlueSystem,
+    supplyConfig: supplyConfig,
+  }
 }

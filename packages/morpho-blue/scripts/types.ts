@@ -1,4 +1,5 @@
 import { IrmMock, Morpho } from '@typechain'
+import { MarketParamsStruct } from '@typechain/contracts/Morpho'
 import { BigNumber, Contract, ContractFactory } from 'ethers'
 
 export type Address = string
@@ -21,6 +22,7 @@ export type TokensConfig = {
 export type TokensDeployment = {
   [key: string]: {
     contract: Contract
+    decimals: number
   }
 }
 
@@ -63,7 +65,6 @@ export type MorphoMarket = {
   loanToken: string
   collateralToken: string
   lltv: string
-  id?: string
 }
 
 export type MorphoMarketsConfig = {
@@ -75,6 +76,7 @@ export type MorphoMarketsConfig = {
  */
 export type MorphoMarketInfo = MorphoMarket & {
   id: string
+  solidityParams: MarketParamsStruct
 }
 
 /**
@@ -86,4 +88,12 @@ export type MorphoSystem = {
   oraclesDeployment: OraclesDeployment
   morpho: Morpho
   irm: IrmMock
+}
+
+/**
+ * @notice Morpho test deployment info
+ */
+export type MorphoTestDeployment = {
+  system: MorphoSystem
+  supplyConfig: MarketSupplyConfig
 }

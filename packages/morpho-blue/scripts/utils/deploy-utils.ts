@@ -11,7 +11,7 @@ import type {
   TokensConfig,
   TokensDeployment,
 } from '@types'
-import { Contract, Signer } from 'ethers'
+import { BigNumber, Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
 import { MorphoLLTVPrecision, MorphoPricePrecision } from '../config'
@@ -73,8 +73,11 @@ export async function deployTokens(
       signer,
     )
 
+    const decimals = (await contract.decimals()) as BigNumber
+
     tokensDeployment[tokenName] = {
       contract,
+      decimals: decimals.toNumber(),
     }
   }
 
@@ -163,13 +166,7 @@ export async function createMarkets(
       await morpho.enableLltv(lltv)
     }
 
-    await morpho.createMarket({
-      loanToken: loanToken.contract.address,
-      collateralToken: collateralToken.contract.address,
-      oracle: oracle.contract.address,
-      irm: irm.address,
-      lltv: lltv,
-    })
+    await morpho.createMarket(marketParams)
 
     const configuredParams = await morpho.idToMarketParams(marketId)
     if (
@@ -189,6 +186,7 @@ export async function createMarkets(
     marketsInfo.push({
       ...market,
       id: marketId,
+      solidityParams: marketParams,
     })
   }
 
@@ -254,9 +252,6 @@ export async function setupMarkets(
       throw new Error(`Supply amount for ${market.loanToken} not found`)
     }
 
-    const balance = await morphoSystem.tokensDeployment[market.loanToken].contract.balanceOf(
-      signerAddress,
-    )
     console.log(`Supplying ${supplyAmount.toString()} ${market.loanToken} to ${market.label}...`)
 
     await morphoSystem.tokensDeployment[market.loanToken].contract

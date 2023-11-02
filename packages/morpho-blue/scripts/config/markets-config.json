@@ -1,7 +1,7 @@
 {
   "markets": [
     {
-      "label": "DAI-WBTC-80 (deprecated)",
+      "label": "DAI-WBTC-80",
       "loanToken": "DAI",
       "collateralToken": "WBTC",
       "lltv": "0.8"

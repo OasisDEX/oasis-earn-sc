@@ -4,6 +4,7 @@ export {
   MorphoMarketInfo,
   MorphoMarketsConfig,
   MorphoSystem,
+  MorphoTestDeployment,
   OraclesConfig,
   OraclesDeployment,
   TokenConfig,
