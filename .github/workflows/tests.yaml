@@ -71,3 +71,8 @@ jobs:
           (github.event.inputs.force_run_tests == 'true') ||
           (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'packages/'))
         run: yarn test
+        env:
+          BLOCK_NUMBER: 17776518
+          NETWORK_FORK: mainnet
+          MAINNET_URL: ${{ secrets.MAINNET_URL }}
+          PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}
