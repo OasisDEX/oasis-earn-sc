@@ -127,9 +127,7 @@ const config = {
     hardhat: {
       forking: {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        url: forkConfig
-          ? forkConfig.nodeURL
-          : 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
+        url: forkConfig ? forkConfig.nodeURL : 'http://localhost:8545',
         blockNumber: forkConfig ? parseInt(forkConfig.blockNumber) : 0,
         enabled: !!forkConfig,
       },
