@@ -138,10 +138,6 @@ describe("AjnaProxyActions", function () {
   const deployWithoutInitialization = () => deploy(false);
   describe("DPM - borrower - AjnaProxyActions - WETH", function () {
     it("should depositCollateral", async () => {
-      console.log(`MAINNET_URL: ${process.env.MAINNET_URL}`);
-      console.log(`NETWORK_FORK: ${process.env.NETWORK_FORK}`);
-      console.log(`BLOCK_NUMBER: ${process.env.BLOCK_NUMBER}`);
-      console.log(`PRIV_KEY_MAINNET: ${process.env.PRIV_KEY_MAINNET}`);
       const { weth, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, poolContractWeth } =
         await loadFixture(deploy);
 
