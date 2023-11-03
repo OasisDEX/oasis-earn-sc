@@ -21,10 +21,6 @@ export function getMorphoBlueCloseOperationDefinition(network: Network) {
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.SET_EMODE),
-        optional: false,
-      },
-      {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.WITHDRAW),
         optional: false,
       },

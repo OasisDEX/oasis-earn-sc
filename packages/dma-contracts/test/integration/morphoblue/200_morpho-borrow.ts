@@ -1,7 +1,9 @@
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
+import { Network } from '@deploy-configurations/types/network'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
+import { deposit } from '@dma-library/operations/morphoblue/borrow/deposit'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
@@ -12,12 +14,19 @@ import {
   OraclesDeployment,
 } from '@morpho-blue'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { expect } from 'chai'
 import { Signer } from 'ethers'
 import hre from 'hardhat'
 
-import { deployMorphoBlueSystem } from '../utils'
+import { deployMorphoBlueSystem } from './utils'
+import {
+  expectMarketStatus,
+  expectPosition,
+  getMaxSupplyCollateral,
+} from './utils/morpho-test-utils'
+import { toMorphoBlueDepositArgs, toMorphoBlueStrategyAddresses } from './utils/type-casts'
 
-describe.skip('TEST GROUP | MorphoBlue | TEST CATEGORY', async () => {
+describe('Borrow Operations | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let provider: JsonRpcProvider
   let owner: Signer
@@ -39,6 +48,7 @@ describe.skip('TEST GROUP | MorphoBlue | TEST CATEGORY', async () => {
   let oraclesDeployment: OraclesDeployment
   let morphoBlue: MorphoSystem
   let supplyConfig: MarketSupplyConfig
+  let network: Network
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
   beforeEach(async () => {
@@ -61,6 +71,7 @@ describe.skip('TEST GROUP | MorphoBlue | TEST CATEGORY', async () => {
     oraclesDeployment = snapshot.testSystem.extraDeployment.oraclesDeployment
     morphoBlue = snapshot.testSystem.extraDeployment.system
     supplyConfig = snapshot.testSystem.extraDeployment.supplyConfig
+    network = hre.network.name as Network
 
     WETH = helpers.fakeWETH.connect(owner)
     DAI = helpers.fakeDAI.connect(owner)
@@ -77,11 +88,61 @@ describe.skip('TEST GROUP | MorphoBlue | TEST CATEGORY', async () => {
     await WBTC.mint(user.address, hre.ethers.utils.parseUnits('100000000', 8))
     await USDC.mint(user.address, hre.ethers.utils.parseUnits('100000000', 6))
     await WSTETH.mint(user.address, hre.ethers.utils.parseUnits('100000000'))
+
+    // Make user the default signer
+    morphoBlue.morpho = morphoBlue.morpho.connect(user)
+
+    // Disable the interest rate model by default
+    await morphoBlue.irm.setForcedRate(0)
+    await morphoBlue.irm.setForcedRateEnabled(true)
   })
 
-  it('test title in lowercase', async () => {
-    // YOUR TEST HERE
-    //
-    // Also remove the .skip from the describe.skip above
+  it('should be able to deposit', async () => {
+    for (const market of morphoBlue.marketsInfo) {
+      const collateralToken = morphoBlue.tokensDeployment[market.collateralToken].contract
+
+      const supplyAmount = await getMaxSupplyCollateral(morphoBlue, market)
+      const depositArgs = toMorphoBlueDepositArgs(morphoBlue, market, supplyAmount, user)
+      const addresses = toMorphoBlueStrategyAddresses(morphoBlue)
+
+      const collateralBalanceBefore = await collateralToken.balanceOf(user.address)
+
+      const depositCalls = await deposit(depositArgs, addresses, Network.MAINNET)
+
+      await collateralToken
+        .connect(user)
+        .approve(system.OperationExecutor.contract.address, supplyAmount)
+      await system.OperationExecutor.contract
+        .connect(user)
+        .executeOp(depositCalls.calls, depositCalls.operationName)
+
+      const collateralBalanceAfter = await collateralToken.balanceOf(user.address)
+
+      expect(collateralBalanceBefore).to.be.gte(supplyAmount)
+      expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.sub(supplyAmount))
+      await expectPosition(
+        morphoBlue,
+        market,
+        system.OperationExecutor.contract.address,
+        supplyAmount,
+        0,
+        0,
+      )
+
+      // Check the market
+      const marketStatus = await morphoBlue.morpho.market(market.id)
+      const totalSupplyAssets = supplyConfig[market.loanToken]
+
+      await expectMarketStatus(
+        morphoBlue,
+        market,
+        totalSupplyAssets,
+        marketStatus.totalSupplyShares,
+        0,
+        0,
+        marketStatus.lastUpdate, // Last update timestamp is only updated on createMarket, supply and borrow
+        0,
+      )
+    }
   })
 })

@@ -1,7 +1,12 @@
 import { AjnaProtocolContracts } from '@deploy-configurations/types/deployment-config/ajna-protocol'
 
 import { AaveV2ProtocolContracts, AaveV3ProtocolContracts } from './aave-protocol'
-import { ActionContracts, OptionalAaveV2Contracts, OptionalSparkContracts } from './actions'
+import {
+  ActionContracts,
+  OptionalAaveV2Contracts,
+  OptionalMorphoBlueContracts,
+  OptionalSparkContracts,
+} from './actions'
 import { AutomationContracts } from './automation'
 import { CommonContracts } from './common'
 import { CoreContracts, CoreMainnetOnlyContracts, OptionalUSwapContract } from './core'
@@ -18,7 +23,10 @@ import { TestContracts } from './test'
 export type SystemConfig = {
   mpa: {
     core: CoreContracts & CoreMainnetOnlyContracts & OptionalUSwapContract
-    actions: ActionContracts & OptionalAaveV2Contracts & OptionalSparkContracts
+    actions: ActionContracts &
+      OptionalAaveV2Contracts &
+      OptionalSparkContracts &
+      OptionalMorphoBlueContracts
   }
   common: CommonContracts
   aave: {

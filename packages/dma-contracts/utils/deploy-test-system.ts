@@ -30,10 +30,25 @@ export type TestHelpers = {
 export type TestDeploymentSystem = {
   deployment: System
   helpers: TestHelpers
+  extraDeployment?: any
 }
+
+export type PostDeploymentFunction = (
+  hre: HardhatRuntimeEnvironment,
+  ds: DeploymentSystem,
+  helpers: TestHelpers,
+  extraDeployment: any,
+) => Promise<any>
+
+export const DefaultPostDeploymentFunctions = [
+  postDeploymentTestOperations,
+  postDeploymentMockExchange,
+  postDeploymentSystemOverrides,
+]
 
 export async function deployTestSystem(
   hre: HardhatRuntimeEnvironment,
+  postDeploymentFunctions: PostDeploymentFunction[] = DefaultPostDeploymentFunctions,
   showLogs = false,
   useFallbackSwap = true,
 ): Promise<TestDeploymentSystem> {
@@ -43,7 +58,6 @@ export async function deployTestSystem(
   const provider = ethers.provider
   const signer = provider.getSigner()
   const signerAddress = await signer.getAddress()
-  const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TEST)
 
   console.log('-----------------------------')
   console.log('    Deployment System')
@@ -52,38 +66,83 @@ export async function deployTestSystem(
   console.log(`Using Fallback Swap: ${useFallbackSwap}`)
   console.log('-----------------------------')
 
-  // Deploy mocks
-
   const ds = new DeploymentSystem(hre)
   await ds.init()
   await ds.loadConfig('test.conf')
   await ds.deployAll()
 
-  // Override OneInchAggregator with the MockExchange
-  const mockExchangeAddress = ds.getSystem().system.MockExchange.contract.address
-  ds.addConfigOverrides({
-    common: {
-      OneInchAggregator: {
-        name: 'OneInchAggregator',
-        address: mockExchangeAddress,
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
-      },
-    },
+  const helpers = await deployTestHelpers(hre, ds)
+
+  let extraDeployment: any = {}
+
+  postDeploymentFunctions.forEach(async postDeploymentFunction => {
+    extraDeployment = await postDeploymentFunction(hre, ds, helpers, extraDeployment)
   })
 
   await ds.addAllEntries()
 
-  const deployment = ds.getSystem()
+  showConsoleLogs(true)
 
-  // User Proxy
+  return {
+    deployment: ds.getSystem(),
+    helpers,
+    extraDeployment,
+  }
+}
+
+async function deployTestHelpers(
+  hre: HardhatRuntimeEnvironment,
+  ds: DeploymentSystem,
+): Promise<TestHelpers> {
+  // Fake WETH
+  const fakeWETH = (await ds.deployContractByName('FakeWETH', [])) as FakeWETH
+
+  // Fake DAI
+  const fakeDAI = (await ds.deployContractByName('FakeDAI', [])) as FakeDAI
+
+  // Fake USDT
+  const fakeUSDT = (await ds.deployContractByName('FakeUSDT', [])) as FakeUSDT
+
+  // Fake WBTC
+  const fakeWBTC = (await ds.deployContractByName('FakeWBTC', [])) as FakeWBTC
+
+  // Fake WSTETH
+  const fakeWSTETH = (await ds.deployContractByName('FakeWSTETH', [])) as FakeWSTETH
+
+  // Fake USDC
+  const fakeUSDC = (await ds.deployContractByName('FakeUSDC', [])) as FakeUSDC
+
+  // User proxy
   const userProxy: DSProxy = (await getOrCreateProxy(
-    deployment.system.DSProxyRegistry.contract,
+    ds.getSystem().system.DSProxyRegistry.contract,
     ds.signer,
   )) as DSProxy
 
+  return {
+    userProxy,
+    fakeWETH,
+    fakeDAI,
+    fakeUSDT,
+    fakeWBTC,
+    fakeWSTETH,
+    fakeUSDC,
+  }
+}
+
+async function postDeploymentTestOperations(
+  hre: HardhatRuntimeEnvironment,
+  ds: DeploymentSystem,
+  helpers: TestHelpers,
+  extraDeployment: any,
+): Promise<any> {
+  const testDeploymentSystem = ds.getSystem()
+  const signer = hre.ethers.provider.getSigner()
+
+  const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TEST)
+
   // Test Operation
   const operationsRegistry = new OperationRegistryWrapper(
-    deployment.system.OperationsRegistry.contract.address,
+    testDeploymentSystem.system.OperationsRegistry.contract.address,
     signer,
   )
 
@@ -104,77 +163,52 @@ export async function deployTestSystem(
     { hash: Action2Hash, optional: true },
     { hash: Action3Hash, optional: true },
   ])
+}
 
-  // Fake WETH
-  const fakeWETH = (await ds.deployContractByName('FakeWETH', [])) as FakeWETH
+async function postDeploymentMockExchange(
+  hre: HardhatRuntimeEnvironment,
+  ds: DeploymentSystem,
+  helpers: TestHelpers,
+  extraDeployment: any,
+): Promise<any> {
+  const testDeploymentSystem = ds.getSystem()
 
-  // Fake DAI
-  const fakeDAI = (await ds.deployContractByName('FakeDAI', [])) as FakeDAI
-
-  // Fake USDT
-  const fakeUSDT = (await ds.deployContractByName('FakeUSDT', [])) as FakeUSDT
-
-  // Fake WBTC
-  const fakeWBTC = (await ds.deployContractByName('FakeWBTC', [])) as FakeWBTC
-
-  // Fake WSTETH
-  const fakeWSTETH = (await ds.deployContractByName('FakeWSTETH', [])) as FakeWSTETH
-
-  // Fake USDC
-  const fakeUSDC = (await ds.deployContractByName('FakeUSDC', [])) as FakeUSDC
+  const mockExchange = testDeploymentSystem.system.MockExchange.contract
 
   // Mint fake tokens for the mock exchange
-  await fakeWETH.mint(
-    deployment.system.MockExchange.contract.address,
-    utils.parseEther('1000000000'),
-  )
-  await fakeDAI.mint(
-    deployment.system.MockExchange.contract.address,
-    utils.parseEther('1000000000'),
-  )
-  await fakeUSDT.mint(
-    deployment.system.MockExchange.contract.address,
-    utils.parseUnits('1000000000', 6),
-  )
-  await fakeWBTC.mint(
-    deployment.system.MockExchange.contract.address,
-    utils.parseUnits('1000000000', 8),
-  )
-  await fakeWSTETH.mint(
-    deployment.system.MockExchange.contract.address,
-    utils.parseEther('1000000000'),
-  )
-  await fakeUSDC.mint(
-    deployment.system.MockExchange.contract.address,
-    utils.parseUnits('1000000000', 6),
-  )
+  await helpers.fakeWETH.mint(mockExchange.address, utils.parseEther('1000000000'))
+  await helpers.fakeDAI.mint(mockExchange.address, utils.parseEther('1000000000'))
+  await helpers.fakeUSDT.mint(mockExchange.address, utils.parseUnits('1000000000', 6))
+  await helpers.fakeWBTC.mint(mockExchange.address, utils.parseUnits('1000000000', 8))
+  await helpers.fakeWSTETH.mint(mockExchange.address, utils.parseEther('1000000000'))
+  await helpers.fakeUSDC.mint(mockExchange.address, utils.parseUnits('1000000000', 6))
 
   // Set sensible price for DAI and WETH
-  await deployment.system.MockExchange.contract.setPrice(fakeWETH.address, utils.parseEther('1800'))
-  await deployment.system.MockExchange.contract.setPrice(fakeDAI.address, utils.parseEther('1'))
-  await deployment.system.MockExchange.contract.setPrice(fakeUSDT.address, utils.parseEther('1'))
-  await deployment.system.MockExchange.contract.setPrice(
-    fakeWBTC.address,
-    utils.parseEther('31000'),
-  )
-  await deployment.system.MockExchange.contract.setPrice(
-    fakeWSTETH.address,
-    utils.parseEther('1800'),
-  )
-  await deployment.system.MockExchange.contract.setPrice(fakeUSDC.address, utils.parseEther('1'))
+  await mockExchange.setPrice(helpers.fakeWETH.address, utils.parseEther('1800'))
+  await mockExchange.setPrice(helpers.fakeDAI.address, utils.parseEther('1'))
+  await mockExchange.setPrice(helpers.fakeUSDT.address, utils.parseEther('1'))
+  await mockExchange.setPrice(helpers.fakeWBTC.address, utils.parseEther('31000'))
+  await mockExchange.setPrice(helpers.fakeWSTETH.address, utils.parseEther('1800'))
+  await mockExchange.setPrice(helpers.fakeUSDC.address, utils.parseEther('1'))
+}
 
-  showConsoleLogs(true)
+async function postDeploymentSystemOverrides(
+  hre: HardhatRuntimeEnvironment,
+  ds: DeploymentSystem,
+  helpers: TestHelpers,
+  extraDeployment: any,
+): Promise<any> {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TEST)
 
-  return {
-    deployment,
-    helpers: {
-      userProxy,
-      fakeWETH,
-      fakeDAI,
-      fakeUSDT,
-      fakeWBTC,
-      fakeWSTETH,
-      fakeUSDC,
+  // Override OneInchAggregator with the MockExchange
+  const mockExchangeAddress = ds.getSystem().system.MockExchange.contract.address
+  ds.addConfigOverrides({
+    common: {
+      OneInchAggregator: {
+        name: 'OneInchAggregator',
+        address: mockExchangeAddress,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
+      },
     },
-  }
+  })
 }

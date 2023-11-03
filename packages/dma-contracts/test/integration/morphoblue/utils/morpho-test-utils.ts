@@ -51,8 +51,8 @@ export async function getMaxBorrowableAmount(
 export async function getMaxSupplyCollateral(
   morphoSystem: MorphoSystem,
   market: MorphoMarketInfo,
-  marketStatus: MorphoMarketStatus,
 ): Promise<BigNumber> {
+  const marketStatus = await morphoSystem.morpho.market(market.id)
   const oracle = morphoSystem.oraclesDeployment[market.loanToken][market.collateralToken]
   const priceLoanPerCollateral = await oracle.contract.price()
   const priceFactor = BigNumber.from(10).pow(MorphoPricePrecision)
@@ -127,8 +127,7 @@ export async function supplyMaxCollateral(
 }> {
   const { morpho, tokensDeployment } = morphoSystem
 
-  const marketStatus = await morpho.market(market.id)
-  const maxCollateral = await getMaxSupplyCollateral(morphoSystem, market, marketStatus)
+  const maxCollateral = await getMaxSupplyCollateral(morphoSystem, market)
   const collateralToken = tokensDeployment[market.collateralToken].contract
 
   const collateralBalanceBefore = await collateralToken.balanceOf(user.address)
@@ -237,12 +236,12 @@ export async function repayWithShares(
 export async function expectPosition(
   morphoSystem: MorphoSystem,
   market: MorphoMarketInfo,
-  user: SignerWithAddress,
+  userAddress: string,
   collateral: BigNumberish,
   supplyShares: BigNumberish,
   borrowShares: BigNumberish,
 ): Promise<void> {
-  const position = await morphoSystem.morpho.position(market.id, user.address)
+  const position = await morphoSystem.morpho.position(market.id, userAddress)
 
   expect(position.collateral).to.be.equal(collateral)
   expect(position.supplyShares).to.be.equal(supplyShares)

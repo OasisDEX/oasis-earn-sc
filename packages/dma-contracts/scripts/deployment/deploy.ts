@@ -26,6 +26,15 @@ import {
   getAjnaCloseToCollateralOperationDefinition,
   getAjnaCloseToQuoteOperationDefinition,
   getAjnaOpenOperationDefinition,
+  getMorphoBlueAdjustDownOperationDefinition,
+  getMorphoBlueAdjustUpOperationDefinition,
+  getMorphoBlueBorrowOperationDefinition,
+  getMorphoBlueCloseOperationDefinition,
+  getMorphoBlueDepositBorrowOperationDefinition,
+  getMorphoBlueDepositOperationDefinition,
+  getMorphoBlueOpenDepositBorrowOperationDefinition,
+  getMorphoBlueOpenOperationDefinition,
+  getMorphoBluePaybackWithdrawOperationDefinition,
   getSparkAdjustDownOperationDefinition,
   getSparkAdjustUpOperationDefinition,
   getSparkBorrowOperationDefinition,
@@ -796,6 +805,20 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
   }
 
+  async addMorphoBlueEntries() {
+    if (!this.config) throw new Error('No config set')
+    const morpho = Object.values(this.config.morphoblue).filter(
+      (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
+    )
+    console.log('MORPHO BLUE ENTRIES', morpho)
+    console.log('CONFIG', this.config.morphoblue)
+    await this.addRegistryEntries(
+      Object.values(this.config.morphoblue).filter(
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+  }
+
   /**
    * Adds operation definitions to the OperationRegistry
    * Operations can be logged out to the console if you set the log flag
@@ -976,6 +999,74 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       sparkAdjustDownOperationDefinition.actions,
     )
     this.logOp(sparkAdjustDownOperationDefinition)
+
+    // MorphoBlue
+    const morphoblueBorrowOperationDefinition = getMorphoBlueBorrowOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueBorrowOperationDefinition.name,
+      morphoblueBorrowOperationDefinition.actions,
+    )
+    this.logOp(morphoblueBorrowOperationDefinition)
+
+    const morphoblueDepositOperationDefinition = getMorphoBlueDepositOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueDepositOperationDefinition.name,
+      morphoblueDepositOperationDefinition.actions,
+    )
+    this.logOp(morphoblueDepositOperationDefinition)
+
+    const morphoblueDepositBorrowOperationDefinition =
+      getMorphoBlueDepositBorrowOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueDepositBorrowOperationDefinition.name,
+      morphoblueDepositBorrowOperationDefinition.actions,
+    )
+    this.logOp(morphoblueDepositBorrowOperationDefinition)
+
+    const morphoblueOpenDepositBorrowOperationDefinition =
+      getMorphoBlueOpenDepositBorrowOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueOpenDepositBorrowOperationDefinition.name,
+      morphoblueOpenDepositBorrowOperationDefinition.actions,
+    )
+    this.logOp(morphoblueOpenDepositBorrowOperationDefinition)
+
+    const morphobluePaybackWithdrawOperationDefinition =
+      getMorphoBluePaybackWithdrawOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphobluePaybackWithdrawOperationDefinition.name,
+      morphobluePaybackWithdrawOperationDefinition.actions,
+    )
+    this.logOp(morphobluePaybackWithdrawOperationDefinition)
+
+    const morphoblueOpenOperationDefinition = getMorphoBlueOpenOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueOpenOperationDefinition.name,
+      morphoblueOpenOperationDefinition.actions,
+    )
+    this.logOp(morphoblueOpenOperationDefinition)
+
+    const morphoblueCloseOperationDefinition = getMorphoBlueCloseOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueCloseOperationDefinition.name,
+      morphoblueCloseOperationDefinition.actions,
+    )
+    this.logOp(morphoblueCloseOperationDefinition)
+
+    const morphoblueAdjustUpOperationDefinition = getMorphoBlueAdjustUpOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueAdjustUpOperationDefinition.name,
+      morphoblueAdjustUpOperationDefinition.actions,
+    )
+    this.logOp(morphoblueAdjustUpOperationDefinition)
+
+    const morphoblueAdjustDownOperationDefinition =
+      getMorphoBlueAdjustDownOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueAdjustDownOperationDefinition.name,
+      morphoblueAdjustDownOperationDefinition.actions,
+    )
+    this.logOp(morphoblueAdjustDownOperationDefinition)
   }
 
   async addAllEntries() {
@@ -983,6 +1074,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await this.addAaveEntries()
     await this.addMakerEntries()
     await this.addAjnaEntries()
+    await this.addMorphoBlueEntries()
     await this.addOperationEntries()
   }
 

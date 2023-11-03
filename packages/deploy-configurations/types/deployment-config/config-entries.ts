@@ -2,7 +2,7 @@ import { ContractNames } from '@deploy-configurations/constants'
 import { Address } from '@deploy-configurations/types/address'
 
 import { AaveV2Protocol, AaveV3Protocol } from './aave-protocol'
-import { AaveV2Actions, Actions, SparkActions } from './actions'
+import { AaveV2Actions, Actions, MorphoBlueActions, SparkActions } from './actions'
 import { AjnaProtocol } from './ajna-protocol'
 import { Automation } from './automation'
 import { Common } from './common'
@@ -31,6 +31,7 @@ export type SystemContracts =
   | Actions
   | AaveV2Actions
   | SparkActions
+  | MorphoBlueActions
   | TestContractNames
 
 export type Contracts = SystemContracts | ExternalContracts

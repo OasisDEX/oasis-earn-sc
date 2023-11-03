@@ -20,7 +20,13 @@ export function morphoBlueDeposit(
     [calldataTypes.morphoblue.Deposit],
     [
       {
-        morphoBlueMarket: args.morphoBlueMarket,
+        marketParams: {
+          loanToken: args.morphoBlueMarket.loanToken,
+          collateralToken: args.morphoBlueMarket.collateralToken,
+          oracle: args.morphoBlueMarket.oracle,
+          irm: args.morphoBlueMarket.irm,
+          lltv: args.morphoBlueMarket.lltv.toFixed(0),
+        },
         amount: args.amount.toFixed(0),
         sumAmounts: args.sumAmounts,
       },
@@ -41,7 +47,13 @@ export function morphoBlueBorrow(
     [calldataTypes.morphoblue.Borrow],
     [
       {
-        morphoBlueMarket: args.morphoBlueMarket,
+        marketParams: {
+          loanToken: args.morphoBlueMarket.loanToken,
+          collateralToken: args.morphoBlueMarket.collateralToken,
+          oracle: args.morphoBlueMarket.oracle,
+          irm: args.morphoBlueMarket.irm,
+          lltv: args.morphoBlueMarket.lltv.toFixed(0),
+        },
         amount: args.amount.toFixed(0),
       },
     ],
@@ -60,7 +72,13 @@ export function morphoBlueWithdraw(
     [calldataTypes.morphoblue.Withdraw],
     [
       {
-        morphoBlueMarket: args.morphoBlueMarket,
+        marketParams: {
+          loanToken: args.morphoBlueMarket.loanToken,
+          collateralToken: args.morphoBlueMarket.collateralToken,
+          oracle: args.morphoBlueMarket.oracle,
+          irm: args.morphoBlueMarket.irm,
+          lltv: args.morphoBlueMarket.lltv.toFixed(0),
+        },
         amount: args.amount.toFixed(0),
         to: args.to,
       },
@@ -81,7 +99,13 @@ export function morphoBluePayback(
     [calldataTypes.morphoblue.Payback],
     [
       {
-        morphoBlueMarket: args.morphoBlueMarket,
+        marketParams: {
+          loanToken: args.morphoBlueMarket.loanToken,
+          collateralToken: args.morphoBlueMarket.collateralToken,
+          oracle: args.morphoBlueMarket.oracle,
+          irm: args.morphoBlueMarket.irm,
+          lltv: args.morphoBlueMarket.lltv.toFixed(0),
+        },
         amount: args.amount.toFixed(0),
       },
       paramsMapping,

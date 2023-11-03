@@ -2,13 +2,17 @@ import { RuntimeConfig } from '@dma-common/types/common'
 import { resetNode } from '@dma-common/utils/init'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { deployTestSystem, TestDeploymentSystem } from './deploy-test-system'
+import {
+  DefaultPostDeploymentFunctions,
+  deployTestSystem,
+  PostDeploymentFunction,
+  TestDeploymentSystem,
+} from './deploy-test-system'
 
 export type Snapshot = {
   id: string
   testSystem: TestDeploymentSystem
   config: RuntimeConfig
-  extraDeployment?: any
 }
 
 // Cached values
@@ -22,7 +26,7 @@ export async function restoreSnapshot(
     useFallbackSwap?: boolean
     debug?: boolean
   },
-  extraDeploymentCallback?: (snapshot: Snapshot, debug: boolean) => Promise<any>,
+  extraDeploymentCallbacks: PostDeploymentFunction[] = [],
 ): Promise<{ snapshot: Snapshot }> {
   const { hre, blockNumber, useFallbackSwap } = args
   const debug = args.debug || false
@@ -59,7 +63,8 @@ export async function restoreSnapshot(
     }
     await resetNode(provider, _blockNumber, debug)
 
-    const system = await deployTestSystem(hre, debug, useFallbackSwap)
+    extraDeploymentCallbacks.push(...DefaultPostDeploymentFunctions)
+    const system = await deployTestSystem(hre, extraDeploymentCallbacks, debug, useFallbackSwap)
 
     const config: RuntimeConfig = {
       provider: provider,
@@ -73,15 +78,8 @@ export async function restoreSnapshot(
       config,
     }
 
-    // This is useful to also capture the extra deployment in the snapshot
-    let extraDeploymentResult = undefined
-    if (extraDeploymentCallback) {
-      extraDeploymentResult = await extraDeploymentCallback(snapshot, debug)
-    }
-
     const snapshotId = await provider.send('evm_snapshot', [])
     snapshot.id = snapshotId
-    snapshot.extraDeployment = extraDeploymentResult
     snapshotCache[cacheKey] = snapshot
 
     return { snapshot }

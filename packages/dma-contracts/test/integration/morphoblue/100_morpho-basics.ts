@@ -56,20 +56,23 @@ describe('Basics | MorphoBlue | Integration', async () => {
         hre,
         blockNumber: testBlockNumber,
       },
-      deployMorphoBlueSystem,
+      [deployMorphoBlueSystem],
     )
 
+    if (!snapshot.testSystem.extraDeployment) {
+      throw new Error('Missing extra deployment for MorphoBlue')
+    }
     provider = snapshot.config.provider
     owner = snapshot.config.signer
     ownerAddress = snapshot.config.address
     config = snapshot.config
     system = snapshot.testSystem.deployment.system
     helpers = snapshot.testSystem.helpers
-    marketsConfig = snapshot.extraDeployment.marketsConfig
-    oraclesConfig = snapshot.extraDeployment.oraclesConfig
-    oraclesDeployment = snapshot.extraDeployment.oraclesDeployment
-    morphoBlue = snapshot.extraDeployment.system
-    supplyConfig = snapshot.extraDeployment.supplyConfig
+    marketsConfig = snapshot.testSystem.extraDeployment.marketsConfig
+    oraclesConfig = snapshot.testSystem.extraDeployment.oraclesConfig
+    oraclesDeployment = snapshot.testSystem.extraDeployment.oraclesDeployment
+    morphoBlue = snapshot.testSystem.extraDeployment.system
+    supplyConfig = snapshot.testSystem.extraDeployment.supplyConfig
 
     WETH = helpers.fakeWETH.connect(owner)
     DAI = helpers.fakeDAI.connect(owner)
@@ -90,7 +93,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
     // Make user the default signer
     morphoBlue.morpho = morphoBlue.morpho.connect(user)
 
-    // Disable the interest rate model
+    // Disable the interest rate model by default
     await morphoBlue.irm.setForcedRate(0)
     await morphoBlue.irm.setForcedRateEnabled(true)
   })
@@ -112,7 +115,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
 
       expect(collateralBalanceBefore).to.be.gte(maxCollateral)
       expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.sub(maxCollateral))
-      await expectPosition(morphoBlue, market, user, maxCollateral, 0, 0)
+      await expectPosition(morphoBlue, market, user.address, maxCollateral, 0, 0)
 
       // Check the market
       const marketStatus = await morphoBlue.morpho.market(market.id)
@@ -137,7 +140,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
       const { loanTokenBalanceBefore, loanTokenBalanceAfter, borrowAmount, borrowShares } =
         await borrowMaxLoanToken(morphoBlue, market, user)
 
-      await expectPosition(morphoBlue, market, user, maxCollateral, 0, borrowShares)
+      await expectPosition(morphoBlue, market, user.address, maxCollateral, 0, borrowShares)
 
       // Check the balance of the user
       expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.add(borrowAmount))
@@ -157,7 +160,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
       expect(loanTokenBalanceBefore).to.be.gte(borrowAmount)
       expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(borrowAmount))
 
-      await expectPosition(morphoBlue, market, user, maxCollateral, 0, 0)
+      await expectPosition(morphoBlue, market, user.address, maxCollateral, 0, 0)
     }
   })
   it('should be able to repay with shares (interest rate = 0%)', async () => {
@@ -171,7 +174,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
       expect(repayAssetsAmount).to.be.equal(borrowAmount)
       expect(loanTokenBalanceBefore).to.be.gte(borrowAmount)
       expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(borrowAmount))
-      await expectPosition(morphoBlue, market, user, maxCollateral, 0, 0)
+      await expectPosition(morphoBlue, market, user.address, maxCollateral, 0, 0)
     }
   })
   it('should be able to repay with shares (interest rate = 2%)', async () => {
@@ -192,7 +195,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
       expect(repayAssetsAmount).to.be.gte(borrowAmount)
       expect(loanTokenBalanceBefore).to.be.gte(borrowAmount)
       expect(loanTokenBalanceAfter).to.be.gte(loanTokenBalanceBefore.sub(repayAssetsAmount))
-      await expectPosition(morphoBlue, market, user, maxCollateral, 0, 0)
+      await expectPosition(morphoBlue, market, user.address, maxCollateral, 0, 0)
     }
   })
 })

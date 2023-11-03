@@ -99,7 +99,6 @@ export const deposit: MorphoBlueDepositOperation = async (
       from: depositorAddress,
     }),
   ]
-
   const isAssetEth = userFundsTokenAddress === addresses.tokens.ETH
   if (isAssetEth) {
     //Asset IS eth
@@ -117,6 +116,41 @@ export const deposit: MorphoBlueDepositOperation = async (
     addresses,
     network,
   )
+
+  return {
+    calls: [
+      ...tokenTransferCalls,
+      ...swapCalls,
+      actions.common.setApproval(
+        network,
+        {
+          asset: morphoBlueMarket.collateralToken,
+          delegate: addresses.morphoblue,
+          // Check the explanation about the deposit action.
+          // This approval is about the amount that's going to be deposit in the following action
+          amount: userFundsTokenAmount,
+          sumAmounts: false,
+        },
+        [0, 0, isSwapNeeded ? 1 : 0, 0],
+      ),
+      // If there is a 1 in the mapping for this param,
+      // that means that the actual value that will be deposited
+      // is amount that was received from the swap therefore no matter what is provided here
+      // it will be ignored.
+      // On other note, if mapping is 0, that means that no swap is required
+      // therefore the actual deposited value will be used.
+      actions.morphoblue.deposit(
+        network,
+        {
+          morphoBlueMarket: morphoBlueMarket,
+          amount: userFundsTokenAmount,
+          sumAmounts: false,
+        },
+        [0, isSwapNeeded ? 1 : 0],
+      ),
+    ],
+    operationName: getMorphoBlueDepositOperationDefinition(network).name,
+  }
 
   return {
     calls: [

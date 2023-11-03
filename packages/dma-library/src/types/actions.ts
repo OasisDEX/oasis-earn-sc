@@ -6,7 +6,7 @@ const aaveLike = {
   SetEMode: `tuple(uint8 categoryId)`,
 }
 
-const morphoBlueMarketParams = `tuple(address loanToken, address collateralToken, address oracle, address irm, uint256 lltv)`
+const morphoBlueMarketParams = `tuple(address loanToken, address collateralToken, address oracle, address irm, uint256 lltv) marketParams`
 
 export const calldataTypes = {
   common: {
@@ -35,10 +35,10 @@ export const calldataTypes = {
     CdpAllow: `tuple(uint256 vaultId, address userAddress)`,
   },
   aave: {
-    Deposit: `tuple(${morphoBlueMarketParams}, uint256 amount, bool sumAmounts)`,
-    Withdraw: `tuple(${morphoBlueMarketParams}, uint256 amount, address to)`,
-    Borrow: `tuple(${morphoBlueMarketParams}, uint256 amount)`,
-    Payback: `tuple(${morphoBlueMarketParams}, uint256 amount, bool paybackAll)`,
+    Borrow: `tuple(address asset, uint256 amount, address to)`,
+    Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
+    Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
+    Withdraw: `tuple(address asset, uint256 amount, address to)`,
   },
   aaveV3: {
     ...aaveLike,
@@ -47,10 +47,10 @@ export const calldataTypes = {
     ...aaveLike,
   },
   morphoblue: {
-    Borrow: `tuple(address asset, uint256 amount, address to)`,
-    Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
-    Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
-    Withdraw: `tuple(address asset, uint256 amount, address to)`,
+    Deposit: `tuple(${morphoBlueMarketParams}, uint256 amount, bool sumAmounts)`,
+    Withdraw: `tuple(${morphoBlueMarketParams}, uint256 amount, address to)`,
+    Borrow: `tuple(${morphoBlueMarketParams}, uint256 amount)`,
+    Payback: `tuple(${morphoBlueMarketParams}, uint256 amount)`,
   },
   ajna: {
     DepositBorrow: `tuple(address quoteToken, address collateralToken, uint256 depositAmount, uint256 borrowAmount, bool sumDepositAmounts, uint256 price)`,

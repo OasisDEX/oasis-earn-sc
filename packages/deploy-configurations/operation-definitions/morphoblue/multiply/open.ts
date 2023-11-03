@@ -32,7 +32,6 @@ export function getMorphoBlueOpenOperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.DEPOSIT),
         optional: false,
       },
-      { hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.SET_EMODE), optional: true },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.BORROW),
         optional: false,

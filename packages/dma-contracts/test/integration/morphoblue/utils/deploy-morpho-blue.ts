@@ -1,5 +1,7 @@
-import { showConsoleLogs } from '@dma-common/test-utils/console'
-import { Snapshot } from '@dma-contracts/utils'
+import { loadContractNames } from '@deploy-configurations/constants'
+import { Network } from '@deploy-configurations/types/network'
+import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
+import { TestHelpers } from '@dma-contracts/utils'
 import {
   deployMorphoBlue,
   deployOracles,
@@ -11,14 +13,17 @@ import {
   TokensDeployment,
 } from '@morpho-blue'
 import { ethers } from 'ethers'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 export async function deployMorphoBlueSystem(
-  snapshot: Snapshot,
-  debug = false,
+  hre: HardhatRuntimeEnvironment,
+  ds: DeploymentSystem,
+  helpers: TestHelpers,
+  extraDeployment: any,
 ): Promise<MorphoTestDeployment> {
-  const helpers = snapshot.testSystem.helpers
-  const signer = snapshot.config.signer
-  const signerAddress = snapshot.config.address
+  const provider = hre.ethers.provider
+  const signer = provider.getSigner()
+  const signerAddress = await signer.getAddress()
 
   // Deploy Morpho Blue
   const tokensDeployment: TokensDeployment = {
@@ -51,8 +56,6 @@ export async function deployMorphoBlueSystem(
   const marketsConfig = getMorphoDefaultMarketsConfig()
   const oraclesConfig = getMorphoDefaultOraclesConfig()
 
-  showConsoleLogs(debug)
-
   const oraclesDeployment = await deployOracles(oraclesConfig, marketsConfig, signer)
 
   const morphoBlueSystem = await deployMorphoBlue(
@@ -74,7 +77,19 @@ export async function deployMorphoBlueSystem(
 
   await setupMarkets(morphoBlueSystem, supplyConfig, signer, signerAddress)
 
-  showConsoleLogs(true)
+  // Add MorphoBlue to the service registry
+  const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TEST)
+
+  // Override MorphoBlue address in the deployment system config
+  ds.addConfigOverrides({
+    morphoblue: {
+      MorphoBlue: {
+        name: 'MorphoBlue',
+        address: morphoBlueSystem.morpho.address,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+      },
+    },
+  })
 
   return {
     system: morphoBlueSystem,

@@ -289,6 +289,38 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
+      MorphoBlueBorrow: {
+        name: 'MorphoBlueBorrow',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.BORROW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBlueWithdraw: {
+        name: 'MorphoBlueWithdraw',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBlueDeposit: {
+        name: 'MorphoBlueDeposit',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.DEPOSIT,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBluePayback: {
+        name: 'MorphoBluePayback',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.PAYBACK,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
     },
   },
   common: {
@@ -1268,6 +1300,13 @@ export const config: SystemConfig = {
       name: 'ERC20PoolFactory',
       address: ADDRESS_ZERO,
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
+    },
+  },
+  morphoblue: {
+    MorphoBlue: {
+      name: 'MorphoBlue',
+      address: ADDRESS_ZERO,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
     },
   },
 }
