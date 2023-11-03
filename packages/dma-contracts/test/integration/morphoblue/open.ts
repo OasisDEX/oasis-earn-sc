@@ -2,7 +2,6 @@ import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
-//import { borrow } from '@dma-library/operations/morphoblue/borrow/borrow'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
@@ -17,8 +16,15 @@ import { expect } from 'chai'
 import { Signer } from 'ethers'
 import hre from 'hardhat'
 
-import { deployMorphoBlueSystem, getMaxSupplyCollateral } from './utils'
-import { calculateShares, getMaxBorrowableAmount } from './utils/morpho-utils'
+import { deployMorphoBlueSystem } from './utils'
+import {
+  borrowMaxLoanToken,
+  expectMarketStatus,
+  expectPosition,
+  repayWithLoanToken,
+  repayWithShares,
+  supplyMaxCollateral,
+} from './utils/morpho-test-utils'
 
 describe('Basics | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -80,10 +86,13 @@ describe('Basics | MorphoBlue | Integration', async () => {
     await WBTC.mint(user.address, hre.ethers.utils.parseUnits('100000000', 8))
     await USDC.mint(user.address, hre.ethers.utils.parseUnits('100000000', 6))
     await WSTETH.mint(user.address, hre.ethers.utils.parseUnits('100000000'))
-  })
 
-  afterEach(async () => {
-    await restoreSnapshot({ hre, blockNumber: testBlockNumber })
+    // Make user the default signer
+    morphoBlue.morpho = morphoBlue.morpho.connect(user)
+
+    // Disable the interest rate model
+    await morphoBlue.irm.setForcedRate(0)
+    await morphoBlue.irm.setForcedRateEnabled(true)
   })
 
   it('should have market liquidity', async () => {
@@ -98,72 +107,92 @@ describe('Basics | MorphoBlue | Integration', async () => {
   })
   it('should be able to supply collateral', async () => {
     for (const market of morphoBlue.marketsInfo) {
-      const marketStatus = await morphoBlue.morpho.market(market.id)
-      const maxCollateral = await getMaxSupplyCollateral(morphoBlue, market, marketStatus)
-      const collateralToken = morphoBlue.tokensDeployment[market.collateralToken].contract
+      const { collateralBalanceBefore, collateralBalanceAfter, maxCollateral } =
+        await supplyMaxCollateral(morphoBlue, market, user)
 
-      const collateralBalanceBefore = await collateralToken.balanceOf(user.address)
       expect(collateralBalanceBefore).to.be.gte(maxCollateral)
-
-      await collateralToken.connect(user).approve(morphoBlue.morpho.address, maxCollateral)
-      await morphoBlue.morpho
-        .connect(user)
-        .supplyCollateral(market.solidityParams, maxCollateral, user.address, [])
-
-      // Check the position
-      const position = await morphoBlue.morpho.position(market.id, user.address)
-      expect(position.collateral).to.be.equal(maxCollateral)
-      expect(position.supplyShares).to.be.equal(0)
-      expect(position.borrowShares).to.be.equal(0)
+      expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.sub(maxCollateral))
+      await expectPosition(morphoBlue, market, user, maxCollateral, 0, 0)
 
       // Check the market
-      const marketStatusAfterSupply = await morphoBlue.morpho.market(market.id)
+      const marketStatus = await morphoBlue.morpho.market(market.id)
       const totalSupplyAssets = supplyConfig[market.loanToken]
 
-      expect(marketStatusAfterSupply.totalSupplyAssets).to.be.equal(totalSupplyAssets)
-      expect(marketStatusAfterSupply.totalSupplyShares).to.be.equal(marketStatus.totalSupplyShares)
-      expect(marketStatusAfterSupply.totalBorrowAssets).to.be.equal(0)
-      expect(marketStatusAfterSupply.totalBorrowShares).to.be.equal(0)
-
-      // Last update timestamp is only updated on createMarket, supply and borrow
-      expect(marketStatusAfterSupply.lastUpdate).to.be.equal(marketStatus.lastUpdate)
+      await expectMarketStatus(
+        morphoBlue,
+        market,
+        totalSupplyAssets,
+        marketStatus.totalSupplyShares,
+        0,
+        0,
+        marketStatus.lastUpdate, // Last update timestamp is only updated on createMarket, supply and borrow
+        0,
+      )
     }
   })
   it('should be able to borrow loan token', async () => {
     for (const market of morphoBlue.marketsInfo) {
-      const marketStatus = await morphoBlue.morpho.market(market.id)
-      const maxCollateral = await getMaxSupplyCollateral(morphoBlue, market, marketStatus)
-      const collateralToken = morphoBlue.tokensDeployment[market.collateralToken].contract
-      const loanToken = morphoBlue.tokensDeployment[market.loanToken].contract
+      const { maxCollateral } = await supplyMaxCollateral(morphoBlue, market, user)
 
-      const loanTokenBalanceBefore = await loanToken.balanceOf(user.address)
-      const collateralBalanceBefore = await collateralToken.balanceOf(user.address)
-      expect(collateralBalanceBefore).to.be.gte(maxCollateral)
+      const { loanTokenBalanceBefore, loanTokenBalanceAfter, borrowAmount, borrowShares } =
+        await borrowMaxLoanToken(morphoBlue, market, user)
 
-      await collateralToken.connect(user).approve(morphoBlue.morpho.address, maxCollateral)
-
-      await morphoBlue.morpho
-        .connect(user)
-        .supplyCollateral(market.solidityParams, maxCollateral, user.address, [])
-
-      const positionBefore = await morphoBlue.morpho.position(market.id, user.address)
-      const borrowAmount = await getMaxBorrowableAmount(morphoBlue, market, positionBefore)
-
-      await morphoBlue.morpho
-        .connect(user)
-        .borrow(market.solidityParams, borrowAmount, 0, user.address, user.address)
-
-      // Check the position
-      const positionAfter = await morphoBlue.morpho.position(market.id, user.address)
-      const borrowShares = calculateShares(marketStatus, borrowAmount)
-
-      expect(positionAfter.collateral).to.be.equal(maxCollateral)
-      expect(positionAfter.supplyShares).to.be.equal(0)
-      expect(positionAfter.borrowShares).to.be.equal(borrowShares)
+      await expectPosition(morphoBlue, market, user, maxCollateral, 0, borrowShares)
 
       // Check the balance of the user
-      const loanTokenBalanceAfter = await loanToken.balanceOf(user.address)
       expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.add(borrowAmount))
+    }
+  })
+  it('should be able to repay loan token (interest rate = 0%)', async () => {
+    for (const market of morphoBlue.marketsInfo) {
+      const { maxCollateral } = await supplyMaxCollateral(morphoBlue, market, user)
+      const { borrowAmount } = await borrowMaxLoanToken(morphoBlue, market, user)
+
+      const { loanTokenBalanceBefore, loanTokenBalanceAfter } = await repayWithLoanToken(
+        morphoBlue,
+        market,
+        user,
+        borrowAmount,
+      )
+      expect(loanTokenBalanceBefore).to.be.gte(borrowAmount)
+      expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(borrowAmount))
+
+      await expectPosition(morphoBlue, market, user, maxCollateral, 0, 0)
+    }
+  })
+  it('should be able to repay with shares (interest rate = 0%)', async () => {
+    for (const market of morphoBlue.marketsInfo) {
+      const { maxCollateral } = await supplyMaxCollateral(morphoBlue, market, user)
+      const { borrowAmount } = await borrowMaxLoanToken(morphoBlue, market, user)
+
+      const { loanTokenBalanceBefore, loanTokenBalanceAfter, repayAssetsAmount } =
+        await repayWithShares(morphoBlue, market, user)
+
+      expect(repayAssetsAmount).to.be.equal(borrowAmount)
+      expect(loanTokenBalanceBefore).to.be.gte(borrowAmount)
+      expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(borrowAmount))
+      await expectPosition(morphoBlue, market, user, maxCollateral, 0, 0)
+    }
+  })
+  it('should be able to repay with shares (interest rate = 2%)', async () => {
+    await morphoBlue.irm.setForcedRate(hre.ethers.utils.parseUnits('0.02'))
+    await morphoBlue.irm.setForcedRateEnabled(true)
+
+    for (const market of morphoBlue.marketsInfo) {
+      const { maxCollateral } = await supplyMaxCollateral(morphoBlue, market, user)
+      const { borrowAmount } = await borrowMaxLoanToken(morphoBlue, market, user)
+
+      // Add 10 seconds safety margin to the elapsed time
+      const now = (await hre.ethers.provider.getBlock('latest')).timestamp
+      const expectedExecutionTimestampWithMargin = now + 10
+
+      const { loanTokenBalanceBefore, loanTokenBalanceAfter, repayAssetsAmount } =
+        await repayWithShares(morphoBlue, market, user, expectedExecutionTimestampWithMargin)
+
+      expect(repayAssetsAmount).to.be.gte(borrowAmount)
+      expect(loanTokenBalanceBefore).to.be.gte(borrowAmount)
+      expect(loanTokenBalanceAfter).to.be.gte(loanTokenBalanceBefore.sub(repayAssetsAmount))
+      await expectPosition(morphoBlue, market, user, maxCollateral, 0, 0)
     }
   })
 })

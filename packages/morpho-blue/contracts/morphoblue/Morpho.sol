@@ -30,6 +30,8 @@ import { SharesMathLib } from "./libraries/SharesMathLib.sol";
 import { MarketParamsLib } from "./libraries/MarketParamsLib.sol";
 import { SafeTransferLib } from "./libraries/SafeTransferLib.sol";
 
+import "hardhat/console.sol";
+
 /// @title Morpho
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
@@ -288,6 +290,9 @@ contract Morpho is IMorpho {
     if (assets > 0)
       shares = assets.toSharesDown(market[id].totalBorrowAssets, market[id].totalBorrowShares);
     else assets = shares.toAssetsUp(market[id].totalBorrowAssets, market[id].totalBorrowShares);
+
+    // console.log("repay assets: %s", assets);
+    // console.log("repay shares: %s", shares);
 
     position[id][onBehalf].borrowShares -= shares.toUint128();
     market[id].totalBorrowShares -= shares.toUint128();
@@ -548,10 +553,11 @@ contract Morpho is IMorpho {
     Id id,
     address borrower
   ) internal view returns (bool) {
+    // console.log("isHealthy borrowShares: %s", position[id][borrower].borrowShares);
     if (position[id][borrower].borrowShares == 0) return true;
 
     uint256 collateralPrice = IOracle(marketParams.oracle).price();
-
+    // console.log("isHealthy collateralPrice: %s", collateralPrice);
     return _isHealthy(marketParams, id, borrower, collateralPrice);
   }
 
@@ -573,6 +579,11 @@ contract Morpho is IMorpho {
       .mulDivDown(collateralPrice, ORACLE_PRICE_SCALE)
       .wMulDown(marketParams.lltv);
 
+    // console.log("isHealthy collateral: %s", position[id][borrower].collateral);
+    // console.log("isHealthy collateralPrice: %s", collateralPrice);
+    // console.log("isHealthy borrowed: %s", borrowed);
+    // console.log("isHealthy maxBorrow: %s", maxBorrow);
+    // console.log("isHealthy LLTV: %s", marketParams.lltv);
     return maxBorrow >= borrowed;
   }
 
