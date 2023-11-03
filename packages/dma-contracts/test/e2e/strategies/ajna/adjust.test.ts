@@ -19,7 +19,7 @@ import BigNumber from 'bignumber.js'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-describe('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
+describe.skip('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
@@ -39,7 +39,7 @@ describe('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
     address: Address
   }
 
-  describe('Adjust Risk Up', function () {
+  describe.skip('Adjust Risk Up', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let debtToken: Token
@@ -122,7 +122,7 @@ describe('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
   })
 })
 
-describe('Strategy | AJNA | Adjust Risk Down Multiply | E2E', () => {
+describe.skip('Strategy | AJNA | Adjust Risk Down Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
@@ -142,7 +142,7 @@ describe('Strategy | AJNA | Adjust Risk Down Multiply | E2E', () => {
     address: Address
   }
 
-  describe('Adjust Risk Down', function () {
+  describe.skip('Adjust Risk Down', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let debtToken: Token

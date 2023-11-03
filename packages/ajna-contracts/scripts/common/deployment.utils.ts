@@ -64,11 +64,7 @@ export async function deployTokens(receiver: string, mainnetTokens: boolean) {
   const weth = mainnetTokens
     ? await utils.getContract<WETH>("WETH", ADDRESSES.mainnet.common.WETH)
     : await utils.deployContract<WETH>("WETH", []);
-  console.log("usdc", usdc.address);
-  console.log("wbtc", wbtc.address);
-  console.log("ajna", ajna.address);
-  console.log("weth", weth.address);
-  console.log("mainnet tokens:", mainnetTokens);
+
   return { usdc, wbtc, ajna, weth };
 }
 
@@ -197,7 +193,6 @@ export async function deployPool(
   const hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
   let poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
   if (poolAddress === hre.ethers.constants.AddressZero && deployPools) {
-    console.log("Deploying pool");
     const tx = await erc20PoolFactory.deployPool(collateral, quote, "25000000000000000");
     await tx.wait();
     poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);

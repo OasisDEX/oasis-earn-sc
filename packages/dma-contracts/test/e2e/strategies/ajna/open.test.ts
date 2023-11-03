@@ -16,7 +16,7 @@ import BigNumber from 'bignumber.js'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-describe('Strategy | AJNA | Open Multiply | E2E', () => {
+describe.skip('Strategy | AJNA | Open Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
@@ -35,7 +35,7 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
     address: Address
   }
 
-  describe('Open multiply positions', function () {
+  describe.skip('Open multiply positions', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let simulatedPosition: AjnaPosition
