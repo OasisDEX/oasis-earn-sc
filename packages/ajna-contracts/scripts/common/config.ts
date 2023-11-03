@@ -87,5 +87,5 @@ export const CONFIG = {
   initializeStakingRewards: false,
   deployPools: false,
   deployer: "0x8E78CC7089509B568a401f593F64B3074693d25E",
-  logGasUsage: true,
+  logGasUsage: false,
 };

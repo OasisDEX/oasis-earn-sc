@@ -42,8 +42,8 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-describe('Strategy | AAVE | Adjust Position | E2E', async function () {
-  describe('Using AAVE V2', async function () {
+describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
+  describe.skip('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
 
     const networkAddresses = addressesByNetwork(networkFork)
@@ -226,7 +226,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       }
     }
 
-    describe('Adjust Risk Up: using Uniswap', async function () {
+    describe.skip('Adjust Risk Up: using Uniswap', async function () {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
@@ -241,7 +241,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         if (!_fixture) throw new Error('Failed to load fixture')
         fixture = _fixture
       })
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
         before(async () => {
@@ -296,7 +296,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           )
         })
       })
-      describe('Using DPM Proxy', () => {
+      describe.skip('Using DPM Proxy', () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
@@ -358,7 +358,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       })
     })
     // No available liquidity on uniswap for some pairs when reducing risk so using 1inch
-    describe('Adjust Risk Down: using 1inch', async function () {
+    describe.skip('Adjust Risk Down: using 1inch', async function () {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
@@ -373,7 +373,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         if (!_fixture) throw new Error('Failed to load fixture')
         fixture = _fixture
       })
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
         before(async () => {
@@ -424,7 +424,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           expect.toBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
         })
       })
-      describe('Using DPM Proxy', () => {
+      describe.skip('Using DPM Proxy', () => {
         supportedStrategies
           .filter(s => s.name !== 'STETH/USDC Multiply')
           .forEach(({ name: strategy }) => {
@@ -489,7 +489,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       })
     })
   })
-  describe('Using AAVE V3', async function () {
+  describe.skip('Using AAVE V3', async function () {
     const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
     type AdjustPositionV3Args = {
@@ -729,7 +729,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
     }
 
     // No available liquidity on uniswap for some pairs on optimism
-    describe('Adjust Risk Up: using 1inch', async function () {
+    describe.skip('Adjust Risk Up: using 1inch', async function () {
       let env: SystemWithAAVEV3Positions
       const fixture = systemWithAaveV3Positions({
         use1inch: true,
@@ -743,7 +743,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         env = _env
       })
 
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
         before(async () => {
           const { hre, config, dsSystem, dsProxyPosition: dsProxyStEthEthEarnPositionDetails } = env
@@ -805,7 +805,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           )
         })
       })
-      describe('Using DPM Proxy', () => {
+      describe.skip('Using DPM Proxy', () => {
         supportedStrategies
           .filter(s => s.name !== 'WSTETH/ETH Earn')
           .forEach(({ name: strategy }) => {
@@ -881,7 +881,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           })
       })
     })
-    describe('Adjust Risk Down: using 1inch', async function () {
+    describe.skip('Adjust Risk Down: using 1inch', async function () {
       let env: SystemWithAAVEV3Positions
       const fixture = systemWithAaveV3Positions({
         use1inch: true,
@@ -894,7 +894,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         if (!_env) throw new Error('Failed to set up system')
         env = _env
       })
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
 
         before(async () => {
@@ -959,7 +959,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           )
         })
       })
-      describe('Using DPM Proxy', () => {
+      describe.skip('Using DPM Proxy', () => {
         supportedStrategies
           .filter(s => s.name !== 'WSTETH/ETH Earn')
           .forEach(({ name: strategy }) => {

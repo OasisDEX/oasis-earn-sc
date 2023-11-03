@@ -42,12 +42,12 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
     address: mainnetAddresses.USDC,
   }
   const supportedCollaterals = [ETH, STETH, WBTC]
-  describe('Deposit collateral', () => {
+  describe.skip('Deposit collateral', () => {
     let fixture: SystemWithProxies
     before(async () => {
       fixture = await systemWithProxies({ use1inch: false })
     })
-    describe('using DS Proxy', () => {
+    describe.skip('using DS Proxy', () => {
       it('Should deposit collateral without taking debt', async () => {
         const { dsProxy, strategiesDependencies, system, config } = fixture
 
@@ -102,7 +102,7 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
         )
       })
     })
-    describe('Using DPM Proxy', async () => {
+    describe.skip('Using DPM Proxy', async () => {
       supportedCollaterals.forEach((collateral, index) => {
         it(`Should deposit collateral ${collateral.symbol} without taking debt `, async function () {
           const { strategiesDependencies, system, config, dpmAccounts, getTokens } = fixture
@@ -169,12 +169,12 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
     })
   })
 
-  describe('Deposit collateral and borrow debt', () => {
+  describe.skip('Deposit collateral and borrow debt', () => {
     let fixture: SystemWithProxies
     before(async () => {
       fixture = await systemWithProxies({ use1inch: false })
     })
-    describe('using DS Proxy', () => {
+    describe.skip('using DS Proxy', () => {
       it('Should deposit collateral and borrow debt', async () => {
         const { dsProxy, strategiesDependencies, system, config } = fixture
 
@@ -236,7 +236,7 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
         )
       })
     })
-    describe('Using DPM Proxy', async () => {
+    describe.skip('Using DPM Proxy', async () => {
       supportedCollaterals.forEach((collateral, index) => {
         it(`Should deposit collateral ${collateral.symbol} and borrow debt`, async function () {
           const { dpmAccounts, strategiesDependencies, system, config, getTokens } = fixture

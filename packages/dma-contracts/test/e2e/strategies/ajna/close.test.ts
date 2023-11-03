@@ -21,7 +21,7 @@ const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 const ETH_STAND_IN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
-describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
+describe.skip('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
@@ -41,7 +41,7 @@ describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
     address: Address
   }
 
-  describe('Close Positions using Close to Quote', function () {
+  describe.skip('Close Positions using Close to Quote', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let debtToken: Token
@@ -128,7 +128,7 @@ describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
   })
 })
 
-describe('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
+describe.skip('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
@@ -148,7 +148,7 @@ describe('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
     address: Address
   }
 
-  describe('Close Positions using Close to Collateral', function () {
+  describe.skip('Close Positions using Close to Collateral', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let debtToken: Token

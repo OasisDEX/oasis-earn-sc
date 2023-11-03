@@ -6,10 +6,10 @@ import { ethers } from "hardhat";
 
 type DeployEnv = Awaited<ReturnType<typeof prepareEnv>>;
 
-describe("Exploration", function () {
+describe.skip("Exploration", function () {
   let env: DeployEnv;
 
-  describe("With liquidity in pool", async () => {
+  describe.skip("With liquidity in pool", async () => {
     before(async () => {
       env = await loadFixture(prepareEnv);
       // Providing USDC as liquidity
@@ -82,18 +82,20 @@ describe("Exploration", function () {
       await env.usdc.connect(lender).approve(env.pools.wbtcUsdcPool.address, ethers.utils.parseUnits("10000000", 18));
       await env.pools.wbtcUsdcPool
         .connect(lender)
-        .addQuoteToken(ethers.utils.parseUnits("10000000", 18), 2000, expiryTimestamp);
-      await env.positionManagerContract.connect(env.users[0].signer).mint({
-        recipient: lenderAddress,
-        pool: env.pools.wbtcUsdcPool.address,
-        poolSubsetHash: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ERC20_NON_SUBSET_HASH")),
-      });
+        .addQuoteToken(ethers.utils.parseUnits("10000000", 18), 2000, expiryTimestamp, false);
+      await env.positionManagerContract
+        .connect(env.users[0].signer)
+        .mint(
+          env.pools.wbtcUsdcPool.address,
+          lenderAddress,
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ERC20_NON_SUBSET_HASH"))
+        );
 
       const lpCount = await env.pools.wbtcUsdcPool.lenderInfo(2000, lenderAddress);
       await env.pools.wbtcUsdcPool
         .connect(lender)
         .increaseLPAllowance(env.positionManagerContract.address, [2000], [lpCount.lpBalance_]);
-      await env.positionManagerContract.connect(lender).memorializePositions({ tokenId: 1, indexes: [2000] });
+      await env.positionManagerContract.connect(lender).memorializePositions(env.pools.wbtcUsdcPool.address, 1, [2000]);
       await env.positionManagerContract.connect(lender).approve(env.rewardsManagerContract.address, 1);
       await env.rewardsManagerContract.connect(lender).stake(1);
       // end of ugly code

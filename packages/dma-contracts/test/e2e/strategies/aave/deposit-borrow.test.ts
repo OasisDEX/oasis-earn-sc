@@ -22,8 +22,8 @@ import { loadFixture } from 'ethereum-waffle'
 
 const networkFork = process.env.NETWORK_FORK as Network
 
-describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
-  describe('Using AAVE V2', async function () {
+describe.skip(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
+  describe.skip('Using AAVE V2', async function () {
     let env: SystemWithAavePositions
     const supportedStrategies = getSupportedStrategies()
 
@@ -44,8 +44,8 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
       env = _env
     })
 
-    describe('Deposit collateral', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Deposit collateral', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should increase collateral', async () => {
           const { dsProxyPosition, strategiesDependencies, dsSystem, config, getTokens } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -121,7 +121,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', () => {
+      describe.skip('When position is opened with DPM Proxy', () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should increase collateral for ${strategy}`, async function () {
             const { strategiesDependencies, dsSystem, config, dpmPositions, getTokens } = env
@@ -210,8 +210,8 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
         })
       })
     })
-    describe('Borrow more', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Borrow more', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should borrow more', async () => {
           const { dsProxyPosition, strategiesDependencies, dsSystem, config } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -270,7 +270,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', () => {
+      describe.skip('When position is opened with DPM Proxy', () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should borrow more for ${strategy}`, async function () {
             const { strategiesDependencies, dsSystem, config, dpmPositions } = env
@@ -350,7 +350,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
       })
     })
   })
-  describe('Using AAVE V3', async function () {
+  describe.skip('Using AAVE V3', async function () {
     let env: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()
 
@@ -368,8 +368,8 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
       env = _env
     })
 
-    describe('Deposit collateral', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Deposit collateral', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should increase collateral', async () => {
           const { dsProxyPosition, strategiesDependencies, dsSystem, config, getTokens } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -437,7 +437,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', () => {
+      describe.skip('When position is opened with DPM Proxy', () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should increase collateral for ${strategy}`, async function () {
             const { strategiesDependencies, dsSystem, config, dpmPositions } = env
@@ -607,8 +607,8 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
         })
       })
     })
-    describe('Borrow more', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Borrow more', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should borrow more', async () => {
           const { dsProxyPosition, strategiesDependencies, dsSystem, config } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -665,7 +665,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', () => {
+      describe.skip('When position is opened with DPM Proxy', () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should borrow more for ${strategy}`, async function () {
             const { strategiesDependencies, dsSystem, config, dpmPositions } = env

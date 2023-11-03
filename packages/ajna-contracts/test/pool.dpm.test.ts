@@ -34,16 +34,6 @@ const REVERT_IF_BELOW_LUP = false;
 
 describe("AjnaProxyActions", function () {
   async function deploy(initializeStaking = true) {
-    await hre.network.provider.request({
-      method: "hardhat_reset",
-      params: [
-        {
-          forking: {
-            jsonRpcUrl: process.env.MAINNET_URL,
-          },
-        },
-      ],
-    });
     const [deployer, lender, borrower, bidder] = await hre.ethers.getSigners();
 
     const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address, false);
@@ -540,7 +530,6 @@ describe("AjnaProxyActions", function () {
       );
       let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
       const t0npBefore = borrowerInfo.t0Np_.toString();
-      console.log(`Neutral price before : ${borrowerInfo.t0Np_.toString()}`);
 
       await depositCollateral(
         ajnaProxyActionsContract,
@@ -560,7 +549,6 @@ describe("AjnaProxyActions", function () {
       };
       borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
       const t0npAfter = borrowerInfo.t0Np_.toString();
-      console.log(`Neutral price after stamploan : ${borrowerInfo.t0Np_.toString()}`);
 
       expect(t0npAfter).to.be.equal(t0npBefore);
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.ONE.mul(2)));
@@ -595,7 +583,6 @@ describe("AjnaProxyActions", function () {
       );
       let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
       const t0npBefore = borrowerInfo.t0Np_.toString();
-      console.log(`Neutral price before : ${borrowerInfo.t0Np_.toString()}`);
 
       await depositCollateral(
         ajnaProxyActionsContract,
@@ -615,7 +602,7 @@ describe("AjnaProxyActions", function () {
       };
       borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
       const t0npAfter = borrowerInfo.t0Np_.toString();
-      console.log(`Neutral price after stamploan : ${borrowerInfo.t0Np_.toString()}`);
+
       expect(t0npAfter).to.not.be.equal(t0npBefore);
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.ONE.mul(2)));
     });
@@ -709,7 +696,7 @@ describe("AjnaProxyActions", function () {
 
       let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
       const t0npBefore = borrowerInfo.t0Np_.toString();
-      console.log(`Neutral price before : ${borrowerInfo.t0Np_.toString()}`);
+
       await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
 
       const balancesQuoteAfter = {
@@ -722,7 +709,7 @@ describe("AjnaProxyActions", function () {
       };
       borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
       const t0npAfter = borrowerInfo.t0Np_.toString();
-      console.log(`Neutral price after stamploan : ${borrowerInfo.t0Np_.toString()}`);
+
       expect(t0npAfter).to.be.equal(t0npBefore);
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.TEN));
@@ -754,7 +741,7 @@ describe("AjnaProxyActions", function () {
 
       let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
       const t0npBefore = borrowerInfo.t0Np_.toString();
-      console.log(`Neutral price before stamploan : ${borrowerInfo.t0Np_.toString()}`);
+
       await repayDebt(
         ajnaProxyActionsContract,
         poolContract,
@@ -777,7 +764,7 @@ describe("AjnaProxyActions", function () {
       };
       borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
       const t0npAfter = borrowerInfo.t0Np_.toString();
-      console.log(`Neutral price after stamploan : ${borrowerInfo.t0Np_.toString()}`);
+
       expect(t0npAfter).to.be.not.equal(t0npBefore);
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.TEN));

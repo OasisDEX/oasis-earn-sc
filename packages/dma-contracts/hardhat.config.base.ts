@@ -136,7 +136,7 @@ const config = {
     hardhat: {
       forking: {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        url: forkConfig ? forkConfig.nodeURL : 'http://127.0.0.1:8545',
+        url: forkConfig ? forkConfig.nodeURL : 'http://localhost:8545',
         blockNumber: forkConfig ? parseInt(forkConfig.blockNumber) : 0,
         enabled: !!forkConfig,
       },

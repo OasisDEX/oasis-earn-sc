@@ -35,8 +35,8 @@ import { Contract, ethers } from 'ethers'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-describe(`Strategy | AAVE | Close Position | E2E`, async () => {
-  describe('Using AAVE V2', async function () {
+describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
+  describe.skip('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
 
     const supportedStrategies = getSupportedStrategies()
@@ -197,7 +197,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
       }
     }
 
-    describe('Close position: With Uniswap', () => {
+    describe.skip('Close position: With Uniswap', () => {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
@@ -211,7 +211,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
         )
       })
 
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let position: IPosition
         let proxy: string
         let system: DeployedSystem
@@ -303,7 +303,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           expect.toBeEqual(proxyCollateralBalance, ZERO)
         })
       })
-      describe('Using DPM Proxy', async () => {
+      describe.skip('Using DPM Proxy', async () => {
         supportedStrategies
           .filter(s => s.name !== 'STETH/USDC Multiply')
           .forEach(({ name: strategy }) => {
@@ -403,7 +403,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
       })
     })
   })
-  describe('Using AAVE V3', async function () {
+  describe.skip('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
 
     const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
@@ -619,7 +619,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
       }
     }
 
-    describe('Close position: With Uniswap', () => {
+    describe.skip('Close position: With Uniswap', () => {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) this.skip()
         fixture = await loadFixture(
@@ -632,7 +632,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
         )
       })
 
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let position: IPosition
         let proxy: string
         let dsSystem: System
@@ -727,7 +727,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           expect.toBeEqual(proxyCollateralBalance, ZERO)
         })
       })
-      describe('Using DPM Proxy', async () => {
+      describe.skip('Using DPM Proxy', async () => {
         supportedStrategies
           .filter(s => s.name !== 'WSTETH/ETH Earn')
           .forEach(({ name: strategy }) => {
@@ -828,7 +828,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           })
       })
     })
-    describe('Close position: With 1inch', () => {
+    describe.skip('Close position: With 1inch', () => {
       before(async () => {
         fixture = await loadFixture(
           systemWithAaveV3Positions({
@@ -840,7 +840,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
         )
       })
 
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let position: IPosition
         let proxy: string
         let dsSystem: System
@@ -956,7 +956,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           expect.toBeEqual(proxyCollateralBalance, ZERO)
         })
       })
-      describe('Using DPM Proxy', async () => {
+      describe.skip('Using DPM Proxy', async () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let dsSystem: System

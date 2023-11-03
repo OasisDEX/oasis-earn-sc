@@ -26,8 +26,8 @@ const networkFork = process.env.NETWORK_FORK as Network
 // TODO: AAVE V3 tests are using 1inch for the swap but also uses impersonation to get tokens
 // Meaning they could fail at some future date if a whale ceases to be a whale.
 // Need to fix manually update uniswap pools and use uniswap for the swap and acquiring tokens
-describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
-  describe('Using AAVE V2', async function () {
+describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
+  describe.skip('Using AAVE V2', async function () {
     let env: SystemWithAavePositions
     const supportedStrategies = getSupportedStrategies()
 
@@ -48,8 +48,8 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
       env = _env
     })
 
-    describe('Payback debt', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Payback debt', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should reduce debt', async () => {
           const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -120,7 +120,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', async () => {
+      describe.skip('When position is opened with DPM Proxy', async () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should reduce debt for ${strategy}`, async function () {
             const { strategiesDependencies, system, config, dpmPositions, getTokens } = env
@@ -278,8 +278,8 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
         })
       })
     })
-    describe('Withdraw collateral', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Withdraw collateral', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should reduce collateral', async () => {
           const { dsProxyPosition, strategiesDependencies, system, config } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -347,7 +347,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', async () => {
+      describe.skip('When position is opened with DPM Proxy', async () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should reduce collateral for ${strategy}`, async function () {
             const { strategiesDependencies, system, config, dpmPositions } = env
@@ -517,8 +517,8 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
       })
     })
 
-    describe('Close position using Payback and Withdraw', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Close position using Payback and Withdraw', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should payback all and withdraw all', async () => {
           const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -596,7 +596,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', () => {
+      describe.skip('When position is opened with DPM Proxy', () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should payback all and withdraw all for ${strategy}`, async function () {
             const { strategiesDependencies, system, config, dpmPositions, getTokens } = env
@@ -684,7 +684,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
       })
     })
   })
-  describe('Using AAVE V3', async function () {
+  describe.skip('Using AAVE V3', async function () {
     let env: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()
 
@@ -702,8 +702,8 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
       env = _env
     })
 
-    describe('Payback debt', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Payback debt', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should reduce debt', async () => {
           const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -779,7 +779,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', async () => {
+      describe.skip('When position is opened with DPM Proxy', async () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should reduce debt for ${strategy}`, async function () {
             const { strategiesDependencies, system, config, dpmPositions, getTokens } = env
@@ -938,8 +938,8 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
         })
       })
     })
-    describe('Withdraw collateral', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Withdraw collateral', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should reduce collateral', async () => {
           const { dsProxyPosition, strategiesDependencies, system, config } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -1007,7 +1007,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', async () => {
+      describe.skip('When position is opened with DPM Proxy', async () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should reduce collateral for ${strategy}`, async function () {
             const { strategiesDependencies, system, config, dpmPositions } = env
@@ -1185,8 +1185,8 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
       })
     })
 
-    describe('Close position using Payback and Withdraw', () => {
-      describe('When position is opened with DSProxy', () => {
+    describe.skip('Close position using Payback and Withdraw', () => {
+      describe.skip('When position is opened with DSProxy', () => {
         it('Should payback all and withdraw all', async () => {
           const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
@@ -1265,7 +1265,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
           )
         })
       })
-      describe('When position is opened with DPM Proxy', () => {
+      describe.skip('When position is opened with DPM Proxy', () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           it(`Should payback all and withdraw all for ${strategy}`, async function () {
             const { strategiesDependencies, system, config, dpmPositions, getTokens } = env

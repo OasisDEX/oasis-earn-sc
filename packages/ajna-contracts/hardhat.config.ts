@@ -42,7 +42,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         enabled: true,
-        url: process.env.MAINNET_URL || "https://eth-goerli.g.alchemy.com/v2/8pU3VS_K57r5DcgdmC9QEEhDcObR56Zx",
+        url: process.env.MAINNET_URL || "https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44",
         blockNumber: 17663832,
       },
       chainId: 2137,
