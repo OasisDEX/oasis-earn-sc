@@ -1,4 +1,5 @@
 import { Network } from '@deploy-configurations/types/network'
+import { green, red } from 'console-log-colors'
 
 import { ActionsDatabase, OperationsDatabase } from '../common'
 import { SupportedTxDecoders } from './config'
@@ -7,45 +8,77 @@ import {
   ContractParameter,
   ContractParameterMaybe,
   DecodingResult,
+  DecodingResultType,
 } from './types'
 
-// function validateOperationRegistryTx(network: Network, tx: SafeMultisigTransactionResponse) {
-//   if (!tx.data) {
-//     throw new Error('Multisig transaction contains no calldata')
-//   }
+export type AddOperationDecodedParam = {
+  actions: string[]
+  optional: boolean[]
+  operationName: string
+}
 
-//   const operationsDatabase: OperationsDatabase = new OperationsDatabase(network)
-//   const actionsDatabase = new ActionsDatabase(network)
+const OperationRegistryDecoderDefinition = {
+  decoder: decodeOperationRegistryTx,
+  printer: printDecodedOperation,
+  supportedMethods: ['addOperation'],
+  //'mpa.core.ServiceRegistry'
+  // 'mpa.core.Swap'
+}
 
-//   const operationDefinition = operationsDatabase.findByCallData(tx.data)
-//   if (!operationDefinition) {
-//     throw new Error(
-//       'Multisig transaction does not match with any known operations in the current branch',
-//     )
-//   }
+export function printDecodedAddOperation(decodingResult: DecodingResult) {
+  if (!decodingResult.executionData.parameters[0].decodedValue) {
+    console.log(`Operation nof fully decoded, some unknown error occurred`)
+    return
+  }
 
-//   const actionsNames = operationDefinition.actions.map(action =>
-//     actionsDatabase.getActionName(action.hash),
-//   )
+  const decodedValue = decodingResult.executionData.parameters[0]
+    .decodedValue as AddOperationDecodedParam
 
-//   console.log(`\n============ OPERATION FOUND ============`)
-//   console.log(`Contract: OperationRegistry`)
-//   console.log(`Operation: ${operationDefinition.name}`)
-//   console.log(`\n========== OPERATION DEFINITION ============`)
-//   console.log(
-//     ` [Optional]  [Hash]                                                                [Name]`,
-//   )
-//   operationDefinition.actions.forEach((action, index) => {
-//     console.log(
-//       `  ${action.optional ? 'True      ' : 'False     '}  ${action.hash}    ${
-//         actionsNames[index]
-//       }`,
-//     )
-//   })
-//   console.log(`=======================================`)
+  console.log(`\n========== OPERATION DEFINITION ============`)
+  console.log(`Contract: ${decodingResult.executionData.to.name}`)
+  console.log(`Address: ${decodingResult.executionData.to.address}`)
+  console.log(`Operation: ${decodedValue.operationName}`)
+  console.log(`----------------------------------------------`)
+  console.log(
+    ` [Optional]  [Hash]                                                                [Name]`,
+  )
 
-//   console.log(`\nOperation validated successfully!!`)
-// }
+  decodedValue.actions.forEach((actionName, index) => {
+    const actionHash = decodingResult.executionData.parameters[0].value[0][index]
+    const optional = decodedValue.optional[index]
+    console.log(
+      `  ${optional ? 'True      ' : 'False     '}  ${actionHash}    ${
+        actionName === '(Unknown)' ? '❌' : '✅'
+      } ${actionName} `,
+    )
+  })
+
+  console.log(`=======================================`)
+
+  if (decodingResult.decodingResultType === DecodingResultType.Error) {
+    console.log(red(`\n[ERROR REASON]: ${decodingResult.decodingMsg}`))
+    console.log(`\nThe Operation could not be fully decoded due to the reason above`)
+    console.log(
+      `This does not mean that the transaction is invalid. However, manual validation is required to ensure that the transaction is valid.`,
+    )
+
+    return
+  }
+
+  console.log(green(`\n[SUCCESS] Operation ${decodedValue.operationName} validated successfully!!`))
+}
+
+export function printDecodedOperation(decodingResult: DecodingResult) {
+  switch (decodingResult.executionData.method) {
+    case 'addOperation':
+      printDecodedAddOperation(decodingResult)
+      break
+    default:
+      console.log(
+        `Operation Registry method ${decodingResult.executionData.method} not supported for decoding`,
+      )
+  }
+}
 
 export function decodeAddOperationParameter(
   network: Network,
@@ -54,30 +87,29 @@ export function decodeAddOperationParameter(
   const actionsDatabase = new ActionsDatabase(network)
   const actionHashes = parameter.value[0] as string[]
 
-  const actions = actionHashes.map(actionHash => actionsDatabase.getActionName(actionHash))
-  if (actions.includes(undefined)) {
-    return undefined
-  }
+  const actions = actionHashes.map(actionHash => {
+    const actionName = actionsDatabase.getActionName(actionHash)
+    return actionName ? actionName : '(Unknown)'
+  })
 
   return {
     ...parameter,
     decodedValue: {
       actions: actions,
-      skip: parameter.value[1],
+      optional: parameter.value[1],
       operationName: parameter.value[2],
-    },
+    } as AddOperationDecodedParam,
   }
 }
 
 export function decodeOperationRegistryTx(
   network: Network,
   executionData: ContractExecution,
-  supportedMethods: string[],
 ): DecodingResult {
-  if (!supportedMethods.includes(executionData.method)) {
+  if (!OperationRegistryDecoderDefinition.supportedMethods.includes(executionData.method)) {
     return {
       executionData,
-      isCalldataValid: false,
+      decodingResultType: DecodingResultType.Error,
       decodingMsg: 'Method not supported',
     }
   }
@@ -85,15 +117,21 @@ export function decodeOperationRegistryTx(
   const operationsDatabase: OperationsDatabase = new OperationsDatabase(network)
 
   // Only 'addOperation' is supported
-  executionData.parameters[0].decodedValue = decodeAddOperationParameter(
-    network,
-    executionData.parameters[0],
-  )
+  const decodedParameter = decodeAddOperationParameter(network, executionData.parameters[0])
+  if (!decodedParameter) {
+    return {
+      executionData,
+      decodingResultType: DecodingResultType.Error,
+      decodingMsg: 'Error decoding parameter',
+    }
+  }
+
+  executionData.parameters[0] = decodedParameter
 
   if (!executionData.calldata) {
     return {
       executionData,
-      isCalldataValid: false,
+      decodingResultType: DecodingResultType.Error,
       decodingMsg: 'Calldata not present',
     }
   }
@@ -102,7 +140,7 @@ export function decodeOperationRegistryTx(
   if (!operationDefinition) {
     return {
       executionData,
-      isCalldataValid: false,
+      decodingResultType: DecodingResultType.Error,
       decodingMsg: 'Operation definition not found in the current branch',
     }
   }
@@ -110,7 +148,7 @@ export function decodeOperationRegistryTx(
   if (operationDefinition.name !== executionData.parameters[0].value[2]) {
     return {
       executionData,
-      isCalldataValid: true,
+      decodingResultType: DecodingResultType.Error,
       decodingMsg: 'Operation name does not match with the definition',
     }
   }
@@ -123,23 +161,18 @@ export function decodeOperationRegistryTx(
   ) {
     return {
       executionData,
-      isCalldataValid: true,
+      decodingResultType: DecodingResultType.Error,
       decodingMsg: 'Operation hashes do not match with the definition',
     }
   }
 
   return {
     executionData,
-    isCalldataValid: true,
+    decodingResultType: DecodingResultType.Success,
     decodingMsg: 'Operation validated successfully',
   }
 }
 
 export function registerOperationRegistryDecoder() {
-  SupportedTxDecoders['mpa.core.OperationsRegistry'] = {
-    decoder: decodeOperationRegistryTx,
-    supportedMethods: ['addOperation'],
-    //'mpa.core.ServiceRegistry'
-    // 'mpa.core.Swap'
-  }
+  SupportedTxDecoders['mpa.core.OperationsRegistry'] = OperationRegistryDecoderDefinition
 }

@@ -22,6 +22,16 @@ export function decodeExecutionData(
 
     const decoderInfo = SupportedTxDecoders[entry?.path || '']
 
-    return decoderInfo?.decoder(network, execution, decoderInfo.supportedMethods)
+    return decoderInfo?.decoder(network, execution)
   })
+}
+
+export function printDecodedResult(network: Network, decodingResult: DecodingResult): void {
+  const systemDatabase = new SystemDatabase(network)
+
+  const entry = systemDatabase.getEntryByAddress(decodingResult.executionData.to.address)
+
+  const decoderInfo = SupportedTxDecoders[entry?.path || '']
+
+  decoderInfo?.printer(decodingResult)
 }

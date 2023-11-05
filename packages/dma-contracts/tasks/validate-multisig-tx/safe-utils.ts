@@ -89,14 +89,16 @@ function parseTransaction(tx: SafeMultisigTransactionResponse): ContractExecutio
 
   if (dataDecoded.method === 'multiSend') {
     return dataDecoded.parameters[0].valueDecoded.map((execution: any) => {
+      console.log('execution', execution)
       const { parameters, signature } = parseDataDecoded(execution.dataDecoded)
 
+      console.log('execution method', execution.method)
       return {
         to: {
           address: execution.to,
         },
         value: execution.value,
-        method: execution.method,
+        method: execution.dataDecoded.method,
         signature: signature,
         parameters: parameters,
         calldata: execution.data,
@@ -127,6 +129,9 @@ export async function getSafeTransaction(
   filter: Filter,
 ): Promise<SafeTransaction> {
   const rawTx = await getRawTransaction(hre, multisigAddress, filter)
+
+  //console.log('rawTx', JSON.stringify(rawTx, null, 2))
+
   const executionData = parseTransaction(rawTx)
 
   return {

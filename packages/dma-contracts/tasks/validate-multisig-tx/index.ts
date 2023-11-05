@@ -2,7 +2,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { task } from 'hardhat/config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { decodeExecutionData, registerDecoders } from './decoders'
+import { decodeExecutionData, printDecodedResult, registerDecoders } from './decoders'
 import { getSafeTransaction } from './safe-utils'
 import { Filter } from './types'
 
@@ -14,19 +14,36 @@ async function validateTransaction(
   filter: Filter,
 ) {
   const { network } = hre
+  const networkName = network.name as Network
 
   registerDecoders()
 
   const safeTransaction = await getSafeTransaction(hre, multisigAddress, filter)
-  const decodedExecutionData = decodeExecutionData(
-    network.name as Network,
-    safeTransaction.executionData,
+
+  const decodingResults = decodeExecutionData(networkName, safeTransaction.executionData)
+
+  if (decodingResults.length === 0) {
+    console.log('The transaction decoding return no results, sorry')
+    return
+  }
+
+  decodingResults.forEach((decodingResult, index) => {
+    console.log(`============ TRANSACTION ${index + 1} of ${decodingResults.length} ============`)
+    printDecodedResult(networkName, decodingResult)
+    console.log(`\n`)
+  })
+
+  const fullSuccess = decodingResults.every(
+    decodingResult => decodingResult.decodingResultType === 'Success',
   )
 
-  const results = decodedExecutionData.map(result => result.decodingMsg)
-
-  // console.log(`Decoding Result: ${JSON.stringify(decodedExecutionData, null, 2)}`)
-  console.log(`Decoding Result: ${JSON.stringify(results, null, 2)}`)
+  console.log(`========================================`)
+  if (fullSuccess) {
+    console.log(`✅ All transactions were successfully decoded!!`)
+  } else {
+    console.log(`❌ Some transactions could not be fully decoded. Please check the above logs...`)
+  }
+  console.log(`========================================`)
 }
 
 task('validate-multisig-tx', 'Validates the given transaction for the given multisig address')

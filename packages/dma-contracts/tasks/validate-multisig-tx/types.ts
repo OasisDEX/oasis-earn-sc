@@ -38,18 +38,21 @@ export type SafeTransaction = {
 export type DecodersMap = {
   [entryPath: string]: {
     decoder: TxDecoder
+    printer: TxPrinter
     supportedMethods: string[]
   }
 }
 
+export enum DecodingResultType {
+  Success = 'Success',
+  Error = 'Error',
+}
+
 export type DecodingResult = {
   executionData: ContractExecution
-  isCalldataValid: boolean
+  decodingResultType?: DecodingResultType
   decodingMsg?: string
 }
 
-export type TxDecoder = (
-  network: Network,
-  executionData: ContractExecution,
-  supportedMethods: string[],
-) => DecodingResult
+export type TxDecoder = (network: Network, executionData: ContractExecution) => DecodingResult
+export type TxPrinter = (decodingResult: DecodingResult) => void
