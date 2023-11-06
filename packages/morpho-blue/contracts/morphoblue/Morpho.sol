@@ -203,6 +203,11 @@ contract Morpho is IMorpho {
     address onBehalf,
     address receiver
   ) external returns (uint256, uint256) {
+    console.log("withdraw assets: %s", assets);
+    console.log("withdraw shares: %s", shares);
+    console.log("withdraw onBehalf: %s", onBehalf);
+    console.log("withdraw receiver: %s", receiver);
+
     Id id = marketParams.id();
     require(market[id].lastUpdate != 0, ErrorsLib.MARKET_NOT_CREATED);
     require(UtilsLib.exactlyOneZero(assets, shares), ErrorsLib.INCONSISTENT_INPUT);
@@ -306,6 +311,9 @@ contract Morpho is IMorpho {
     if (data.length > 0) IMorphoRepayCallback(msg.sender).onMorphoRepay(assets, data);
 
     IERC20(marketParams.loanToken).safeTransferFrom(msg.sender, address(this), assets);
+
+    // console.log("repay assets: %s", assets);
+    // console.log("repay shares: %s", shares);
 
     return (assets, shares);
   }

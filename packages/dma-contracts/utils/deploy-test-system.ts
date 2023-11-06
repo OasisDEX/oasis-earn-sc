@@ -6,6 +6,9 @@ import { showConsoleLogs } from '@dma-common/test-utils/console'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
 import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import {
+  AccountFactory,
+  AccountGuard,
+  AccountImplementation,
   DSProxy,
   FakeDAI,
   FakeUSDC,
@@ -14,17 +17,21 @@ import {
   FakeWETH,
   FakeWSTETH,
 } from '@dma-contracts/typechain'
-import { utils } from 'ethers'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { ContractReceipt, utils } from 'ethers'
+import { EventFragment } from 'ethers/lib/utils'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 export type TestHelpers = {
   userProxy: DSProxy
+  userDPMProxy: AccountImplementation
   fakeWETH: FakeWETH
   fakeDAI: FakeDAI
   fakeUSDT: FakeUSDT
   fakeWBTC: FakeWBTC
   fakeWSTETH: FakeWSTETH
   fakeUSDC: FakeUSDC
+  user: SignerWithAddress
 }
 
 export type TestDeploymentSystem = {
@@ -45,6 +52,60 @@ export const DefaultPostDeploymentFunctions = [
   postDeploymentMockExchange,
   postDeploymentSystemOverrides,
 ]
+
+export function getEvents(
+  hre: HardhatRuntimeEnvironment,
+  receipt: ContractReceipt,
+  eventAbi: EventFragment,
+) {
+  const iface = new hre.ethers.utils.Interface([eventAbi])
+  const filteredEvents = receipt.logs?.filter(
+    ({ topics }) => topics[0] === iface.getEventTopic(eventAbi.name),
+  )
+  return (
+    filteredEvents?.map(x => ({
+      ...iface.parseLog(x),
+      topics: x.topics,
+      data: x.data,
+      address: x.address,
+    })) || []
+  )
+}
+
+export async function deployAccountFactoryAndGuard(
+  hre: HardhatRuntimeEnvironment,
+  ds: DeploymentSystem,
+): Promise<{
+  dpmGuardContract: AccountGuard
+  dpmFactory: AccountFactory
+}> {
+  const dpmGuardContract = (await ds.deployContractByName('AccountGuard', [])) as AccountGuard
+  const dpmFactory = (await ds.deployContractByName('AccountFactory', [
+    dpmGuardContract.address,
+  ])) as AccountFactory
+
+  return { dpmGuardContract, dpmFactory }
+}
+
+export async function newDPMProxy(
+  hre: HardhatRuntimeEnvironment,
+  dmpFactory: AccountFactory,
+  userAddress: string,
+): Promise<AccountImplementation> {
+  const accountTx = await dmpFactory['createAccount(address)'](userAddress)
+  const factoryReceipt = await accountTx.wait()
+  const [AccountCreatedEvent] = getEvents(
+    hre,
+    factoryReceipt,
+    dmpFactory.interface.getEvent('AccountCreated'),
+  )
+  const proxyAddress = AccountCreatedEvent.args.proxy.toString()
+
+  return (await hre.ethers.getContractAt(
+    'AccountImplementation',
+    proxyAddress,
+  )) as AccountImplementation
+}
 
 export async function deployTestSystem(
   hre: HardhatRuntimeEnvironment,
@@ -112,20 +173,32 @@ async function deployTestHelpers(
   // Fake USDC
   const fakeUSDC = (await ds.deployContractByName('FakeUSDC', [])) as FakeUSDC
 
-  // User proxy
+  // User DS Proxy
   const userProxy: DSProxy = (await getOrCreateProxy(
     ds.getSystem().system.DSProxyRegistry.contract,
     ds.signer,
   )) as DSProxy
 
+  // User DPM Proxy
+  const { dpmGuardContract, dpmFactory } = await deployAccountFactoryAndGuard(hre, ds)
+
+  await dpmGuardContract.setWhitelist(
+    ds.getSystem().system.OperationExecutor.contract.address,
+    true,
+  )
+  const user = (await hre.ethers.getSigners())[1]
+  const userDPMProxy = await newDPMProxy(hre, dpmFactory, user.address)
+
   return {
     userProxy,
+    userDPMProxy,
     fakeWETH,
     fakeDAI,
     fakeUSDT,
     fakeWBTC,
     fakeWSTETH,
     fakeUSDC,
+    user,
   }
 }
 

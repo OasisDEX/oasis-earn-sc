@@ -28,13 +28,13 @@ export type MorphoMarketPosition = {
 export async function getMaxBorrowableAmount(
   morphoSystem: MorphoSystem,
   market: MorphoMarketInfo,
-  marketPosition: MorphoMarketPosition,
+  suppliedCollateral: BigNumberish,
 ): Promise<BigNumber> {
   const oracle = morphoSystem.oraclesDeployment[market.loanToken][market.collateralToken]
   const priceLoanPerCollateral = await oracle.contract.price()
 
   const collateralInLoanToken = mulDivDown(
-    marketPosition.collateral,
+    BigNumber.from(suppliedCollateral),
     priceLoanPerCollateral,
     BigNumber.from(10).pow(MorphoPricePrecision),
   )
@@ -156,7 +156,7 @@ export async function borrowMaxLoanToken(
 
   const marketStatus = await morpho.market(market.id)
   const positionBefore = await morpho.position(market.id, user.address)
-  const borrowAmount = await getMaxBorrowableAmount(morphoSystem, market, positionBefore)
+  const borrowAmount = await getMaxBorrowableAmount(morphoSystem, market, positionBefore.collateral)
   const loanToken = tokensDeployment[market.loanToken].contract
 
   const loanTokenBalanceBefore = await loanToken.balanceOf(user.address)
@@ -255,7 +255,6 @@ export async function expectMarketStatus(
   totalSupplyShares: BigNumberish,
   totalBorrowAssets: BigNumberish,
   totalBorrowShares: BigNumberish,
-  lastUpdate: BigNumberish,
   fee: BigNumberish,
 ): Promise<void> {
   const marketStatus = await morphoSystem.morpho.market(market.id)
@@ -264,6 +263,5 @@ export async function expectMarketStatus(
   expect(marketStatus.totalSupplyShares).to.be.equal(totalSupplyShares)
   expect(marketStatus.totalBorrowAssets).to.be.equal(totalBorrowAssets)
   expect(marketStatus.totalBorrowShares).to.be.equal(totalBorrowShares)
-  expect(marketStatus.lastUpdate).to.be.equal(lastUpdate)
   expect(marketStatus.fee).to.be.equal(fee)
 }

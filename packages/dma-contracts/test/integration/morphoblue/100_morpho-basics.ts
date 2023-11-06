@@ -24,7 +24,7 @@ import {
   repayWithLoanToken,
   repayWithShares,
   supplyMaxCollateral,
-} from './utils/morpho-test-utils'
+} from './utils/morpho-direct-test-utils'
 
 describe('Basics | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -108,6 +108,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
       expect(marketStatus.lastUpdate).to.be.gt(0)
     }
   })
+
   it('should be able to supply collateral', async () => {
     for (const market of morphoBlue.marketsInfo) {
       const { collateralBalanceBefore, collateralBalanceAfter, maxCollateral } =
@@ -128,11 +129,11 @@ describe('Basics | MorphoBlue | Integration', async () => {
         marketStatus.totalSupplyShares,
         0,
         0,
-        marketStatus.lastUpdate, // Last update timestamp is only updated on createMarket, supply and borrow
         0,
       )
     }
   })
+
   it('should be able to borrow loan token', async () => {
     for (const market of morphoBlue.marketsInfo) {
       const { maxCollateral } = await supplyMaxCollateral(morphoBlue, market, user)
@@ -146,7 +147,8 @@ describe('Basics | MorphoBlue | Integration', async () => {
       expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.add(borrowAmount))
     }
   })
-  it('should be able to repay loan token (interest rate = 0%)', async () => {
+
+  it('should be able to repay with loan token (interest rate = 0%)', async () => {
     for (const market of morphoBlue.marketsInfo) {
       const { maxCollateral } = await supplyMaxCollateral(morphoBlue, market, user)
       const { borrowAmount } = await borrowMaxLoanToken(morphoBlue, market, user)
@@ -163,6 +165,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
       await expectPosition(morphoBlue, market, user.address, maxCollateral, 0, 0)
     }
   })
+
   it('should be able to repay with shares (interest rate = 0%)', async () => {
     for (const market of morphoBlue.marketsInfo) {
       const { maxCollateral } = await supplyMaxCollateral(morphoBlue, market, user)
@@ -177,6 +180,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
       await expectPosition(morphoBlue, market, user.address, maxCollateral, 0, 0)
     }
   })
+
   it('should be able to repay with shares (interest rate = 2%)', async () => {
     await morphoBlue.irm.setForcedRate(hre.ethers.utils.parseUnits('0.02'))
     await morphoBlue.irm.setForcedRateEnabled(true)

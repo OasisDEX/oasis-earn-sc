@@ -24,15 +24,14 @@ contract MorphoBlueWithdraw is Executable, UseStore {
     WithdrawData memory withdrawData = parseInputs(data);
 
     IMorpho morphoBlue = IMorpho(registry.getRegisteredService(MORPHO_BLUE));
-    (uint256 amountWithdrawn, ) = morphoBlue.withdraw(
+    morphoBlue.withdrawCollateral(
       withdrawData.marketParams,
       withdrawData.amount,
-      0,
       address(this),
       withdrawData.to
     );
 
-    store().write(bytes32(amountWithdrawn));
+    store().write(bytes32(withdrawData.amount));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WithdrawData memory params) {
