@@ -89,10 +89,8 @@ function parseTransaction(tx: SafeMultisigTransactionResponse): ContractExecutio
 
   if (dataDecoded.method === 'multiSend') {
     return dataDecoded.parameters[0].valueDecoded.map((execution: any) => {
-      console.log('execution', execution)
       const { parameters, signature } = parseDataDecoded(execution.dataDecoded)
 
-      console.log('execution method', execution.method)
       return {
         to: {
           address: execution.to,

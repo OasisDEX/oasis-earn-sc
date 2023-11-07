@@ -21,7 +21,6 @@ const OperationRegistryDecoderDefinition = {
   decoder: decodeOperationRegistryTx,
   printer: printDecodedOperation,
   supportedMethods: ['addOperation'],
-  //'mpa.core.ServiceRegistry'
   // 'mpa.core.Swap'
 }
 
