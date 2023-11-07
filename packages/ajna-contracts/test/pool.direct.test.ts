@@ -14,17 +14,6 @@ const usePredeployed = false;
 
 describe.skip("Pool direct test", function () {
   async function deploy() {
-    // await hre.network.provider.request({
-    //   method: "hardhat_reset",
-    //   params: [
-    //     {
-    //       forking: {
-    //         jsonRpcUrl: process.env.ALCHEMY_NODE_GOERLI!,
-    //         blockNumber: 8145848,
-    //       },
-    //     },
-    //   ],
-    // });
     const [deployer, lender, borrower] = await hre.ethers.getSigners();
 
     const addresses: { [key: string]: string } = {};

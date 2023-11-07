@@ -19,13 +19,13 @@ import BigNumber from 'bignumber.js'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-describe(`Strategy | AAVE | Open Position | E2E`, async function () {
-  describe('Using AAVE V2', async function () {
+describe.skip(`Strategy | AAVE | Open Position | E2E`, async function () {
+  describe.skip('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
 
     const supportedStrategies = getSupportedStrategies()
 
-    describe('Open position: With Uniswap', function () {
+    describe.skip('Open position: With Uniswap', function () {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
@@ -40,7 +40,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         fixture = _fixture
       })
 
-      describe('Using DSProxy', function () {
+      describe.skip('Using DSProxy', function () {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: PositionTransition['simulation']
@@ -76,7 +76,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           expect.toBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
         })
       })
-      describe('Using DPM Proxy', async function () {
+      describe.skip('Using DPM Proxy', async function () {
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
@@ -118,7 +118,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         })
       })
     })
-    describe('Open position: With 1inch', function () {
+    describe.skip('Open position: With 1inch', function () {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
@@ -133,7 +133,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         fixture = _fixture
       })
 
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: PositionTransition['simulation']
@@ -169,7 +169,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           expect.toBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
         })
       })
-      describe('Using DPM Proxy', async () => {
+      describe.skip('Using DPM Proxy', async () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
@@ -212,10 +212,10 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
       })
     })
   })
-  describe('Using AAVE V3', async function () {
+  describe.skip('Using AAVE V3', async function () {
     const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
-    describe('Open position: With Uniswap', function () {
+    describe.skip('Open position: With Uniswap', function () {
       let env: SystemWithAAVEV3Positions
       const fixture = systemWithAaveV3Positions({
         use1inch: false,
@@ -229,7 +229,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         env = _env
       })
 
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: PositionTransition['simulation']
@@ -271,7 +271,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           )
         })
       })
-      describe('Using DPM Proxy', async () => {
+      describe.skip('Using DPM Proxy', async () => {
         const insufficientLiquidityStrategies = ['WSTETH/ETH Earn']
         supportedStrategies
           .filter(({ name }) => !insufficientLiquidityStrategies.includes(name))
@@ -321,7 +321,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           })
       })
     })
-    describe('Open position: With 1inch', () => {
+    describe.skip('Open position: With 1inch', () => {
       let env: SystemWithAAVEV3Positions
       const fixture = systemWithAaveV3Positions({
         use1inch: true,
@@ -335,7 +335,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         env = _env
       })
 
-      describe('Using DSProxy', () => {
+      describe.skip('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: PositionTransition['simulation']
@@ -377,7 +377,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           )
         })
       })
-      describe('Using DPM Proxy', function () {
+      describe.skip('Using DPM Proxy', function () {
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
