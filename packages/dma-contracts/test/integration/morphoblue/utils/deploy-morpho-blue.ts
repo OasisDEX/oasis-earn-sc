@@ -19,7 +19,7 @@ export async function deployMorphoBlueSystem(
   hre: HardhatRuntimeEnvironment,
   ds: DeploymentSystem,
   helpers: TestHelpers,
-  extraDeployment: any,
+  extraDeployment: any, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<MorphoTestDeployment> {
   const provider = hre.ethers.provider
   const signer = provider.getSigner()

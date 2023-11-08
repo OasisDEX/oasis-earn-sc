@@ -5,12 +5,12 @@ import {
   MorphoBlueDepositBorrowOperation,
 } from './borrow/deposit-borrow'
 import {
-  openDepositBorrow as morphoBlueOpenDepositBorrow,
   MorphoBlueOpenDepositBorrowOperation,
+  openDepositBorrow as morphoBlueOpenDepositBorrow,
 } from './borrow/open-deposit-and-borrow'
 import {
-  paybackWithdraw as morphoBluePaybackWithdraw,
   MorphoBluePaybackWithdrawOperation,
+  paybackWithdraw as morphoBluePaybackWithdraw,
 } from './borrow/payback-withdraw'
 import {
   adjustRiskDown as morphoBlueAdjustRiskDown,
@@ -21,7 +21,7 @@ import {
   MorphoBlueAdjustUpOperation,
 } from './multiply/adjust-risk-up'
 import { close as morphoBlueClose, MorphoBlueCloseOperation } from './multiply/close'
-import { open as morphoBlueOpen, MorphoBlueOpenOperation } from './multiply/open'
+import { MorphoBlueOpenOperation, open as morphoBlueOpen } from './multiply/open'
 
 const borrow = {
   borrow: morphoBlueBorrow,

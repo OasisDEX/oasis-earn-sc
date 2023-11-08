@@ -63,7 +63,6 @@ export const close: MorphoBlueCloseOperation = async ({
   const paybackDebt = actions.morphoblue.payback(network, {
     morphoBlueMarket: morphoBlueMarket,
     amount: ZERO,
-    paybackAll: true,
   })
 
   const withdrawCollateral = actions.morphoblue.withdraw(network, {

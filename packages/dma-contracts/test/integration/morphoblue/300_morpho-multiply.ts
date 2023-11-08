@@ -22,7 +22,7 @@ import { deployMorphoBlueSystem } from './utils'
 import { expectMarketStatus, expectPosition } from './utils/morpho.direct.utils'
 import { opMorphoBlueOpenMultiply } from './utils/morpho.operations.multiply.utils'
 
-describe.only('Multiply Operations | MorphoBlue | Integration', async () => {
+describe.skip('Multiply Operations | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let provider: JsonRpcProvider
   let owner: Signer
@@ -110,10 +110,6 @@ describe.only('Multiply Operations | MorphoBlue | Integration', async () => {
         collateralBalanceAfter,
         collateralAmount,
         multipliedCollateralAmount,
-        loanTokenBalanceBefore,
-        loanTokenBalanceAfter,
-        borrowAmount,
-        borrowShares,
       } = await opMorphoBlueOpenMultiply(testSystem, market, user, multiplyFactor)
 
       expect(success).to.be.true

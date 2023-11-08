@@ -70,7 +70,6 @@ export const adjustRiskDown: MorphoBlueAdjustDownOperation = async ({
     morphoBlueMarket: morphoBlueMarket,
     // Payback the max amount we can get from the swap
     amount: swap.receiveAtLeast,
-    paybackAll: false,
   })
 
   const withdrawCollateral = actions.morphoblue.withdraw(network, {
