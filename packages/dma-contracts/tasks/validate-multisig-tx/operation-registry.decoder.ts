@@ -13,7 +13,7 @@ import {
 
 export type AddOperationDecodedParam = {
   actions: string[]
-  optional: boolean[]
+  optionals: string[]
   operationName: string
 }
 
@@ -21,7 +21,6 @@ const OperationRegistryDecoderDefinition = {
   decoder: decodeOperationRegistryTx,
   printer: printDecodedOperation,
   supportedMethods: ['addOperation'],
-  // 'mpa.core.Swap'
 }
 
 export function printDecodedAddOperation(decodingResult: DecodingResult) {
@@ -44,9 +43,9 @@ export function printDecodedAddOperation(decodingResult: DecodingResult) {
 
   decodedValue.actions.forEach((actionName, index) => {
     const actionHash = decodingResult.executionData.parameters[0].value[0][index]
-    const optional = decodedValue.optional[index]
+    const optional = decodedValue.optionals[index]
     console.log(
-      `  ${optional ? 'True      ' : 'False     '}  ${actionHash}    ${
+      `  ${optional === 'True' ? 'True ' : 'False'}       ${actionHash}    ${
         actionName === '(Unknown)' ? '❌' : '✅'
       } ${actionName} `,
     )
@@ -85,6 +84,7 @@ export function decodeAddOperationParameter(
 ): ContractParameterMaybe {
   const actionsDatabase = new ActionsDatabase(network)
   const actionHashes = parameter.value[0] as string[]
+  const optionals = parameter.value[1] as string[]
 
   const actions = actionHashes.map(actionHash => {
     const actionName = actionsDatabase.getActionName(actionHash)
@@ -95,7 +95,7 @@ export function decodeAddOperationParameter(
     ...parameter,
     decodedValue: {
       actions: actions,
-      optional: parameter.value[1],
+      optionals: optionals,
       operationName: parameter.value[2],
     } as AddOperationDecodedParam,
   }
