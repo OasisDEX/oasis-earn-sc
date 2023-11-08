@@ -148,36 +148,6 @@ export function decodeServiceRegistryTx(
     }
   }
 
-  // const operationDefinition = operationsDatabase.findByCallData(executionData.calldata)
-  // if (!operationDefinition) {
-  //   return {
-  //     executionData,
-  //     decodingResultType: DecodingResultType.Error,
-  //     decodingMsg: 'Operation definition not found in the current branch',
-  //   }
-  // }
-
-  // if (operationDefinition.name !== executionData.parameters[0].value[2]) {
-  //   return {
-  //     executionData,
-  //     decodingResultType: DecodingResultType.Error,
-  //     decodingMsg: 'Operation name does not match with the definition',
-  //   }
-  // }
-
-  // const operationDefinitionHashes = operationDefinition.actions.map(action => action.hash)
-
-  // if (
-  //   JSON.stringify(operationDefinitionHashes) !==
-  //   JSON.stringify(executionData.parameters[0].value[0])
-  // ) {
-  //   return {
-  //     executionData,
-  //     decodingResultType: DecodingResultType.Error,
-  //     decodingMsg: 'Operation hashes do not match with the definition',
-  //   }
-  // }
-
   return {
     executionData,
     decodingResultType: DecodingResultType.Success,
