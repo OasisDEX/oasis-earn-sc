@@ -22,7 +22,7 @@ import { deployMorphoBlueSystem } from './utils'
 import { expectMarketStatus, expectPosition } from './utils/morpho.direct.utils'
 import { opMorphoBlueOpenMultiply } from './utils/morpho.operations.multiply.utils'
 
-describe.skip('Multiply Operations | MorphoBlue | Integration', async () => {
+describe.only('Multiply Operations | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let provider: JsonRpcProvider
   let owner: Signer
@@ -98,9 +98,10 @@ describe.skip('Multiply Operations | MorphoBlue | Integration', async () => {
   })
 
   // TODO: The multiply test is still not working. It will be stopped now due to a
-  // change of priorities. It currently seems to be flashloaning and swapping
-  // but it fails when trying to borrow from Morpho with 'insufficient liquidity
-  it.skip('should be able to open', async () => {
+  // change of priorities. It still needs the MockExchange to be set as the flashloan
+  // provider and the Swap contract authorised callers need to be fixed properly, because setting
+  // it to the needed value for this tests, breaks the unit tests
+  it('should be able to open', async () => {
     const multiplyFactor = 2
     for (const market of morphoSystem.marketsInfo) {
       const {
