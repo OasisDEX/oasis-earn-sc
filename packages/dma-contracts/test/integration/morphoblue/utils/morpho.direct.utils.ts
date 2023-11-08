@@ -53,15 +53,14 @@ export async function getMaxSupplyCollateral(
   market: MorphoMarketInfo,
 ): Promise<BigNumber> {
   const marketStatus = await morphoSystem.morpho.market(market.id)
-  const oracle = morphoSystem.oraclesDeployment[market.loanToken][market.collateralToken]
-  const priceLoanPerCollateral = await oracle.contract.price()
-  const priceFactor = BigNumber.from(10).pow(MorphoPricePrecision)
   const lltvFactor = BigNumber.from(10).pow(MorphoLLTVPrecision)
 
   // (Total Supply in Loan Assets) / (Price of Collateral in Loan Assets)
-  const loanAmountInCollateral = marketStatus.totalSupplyAssets
-    .mul(priceFactor)
-    .div(priceLoanPerCollateral)
+  const loanAmountInCollateral = await loanTokenToCollateral(
+    morphoSystem,
+    market,
+    marketStatus.totalSupplyAssets,
+  )
 
   // (Total Supply in Collateral Assets) / (LLTV)
   const maximumCollateralToSupply = loanAmountInCollateral
@@ -69,6 +68,30 @@ export async function getMaxSupplyCollateral(
     .div(market.solidityParams.lltv as BigNumber)
 
   return maximumCollateralToSupply
+}
+
+export async function collateralToLoanToken(
+  morphoSystem: MorphoSystem,
+  market: MorphoMarketInfo,
+  collateralAmount: BigNumberish,
+): Promise<BigNumber> {
+  const oracle = morphoSystem.oraclesDeployment[market.loanToken][market.collateralToken]
+  const priceLoanPerCollateral = await oracle.contract.price()
+  const priceFactor = BigNumber.from(10).pow(MorphoPricePrecision)
+
+  return BigNumber.from(collateralAmount).mul(priceLoanPerCollateral).div(priceFactor)
+}
+
+export async function loanTokenToCollateral(
+  morphoSystem: MorphoSystem,
+  market: MorphoMarketInfo,
+  loanTokenAmount: BigNumberish,
+): Promise<BigNumber> {
+  const oracle = morphoSystem.oraclesDeployment[market.loanToken][market.collateralToken]
+  const priceLoanPerCollateral = await oracle.contract.price()
+  const priceFactor = BigNumber.from(10).pow(MorphoPricePrecision)
+
+  return BigNumber.from(loanTokenAmount).mul(priceFactor).div(priceLoanPerCollateral)
 }
 
 export function calculateShares(

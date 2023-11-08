@@ -20,14 +20,14 @@ import { Signer } from 'ethers'
 import hre from 'hardhat'
 
 import { deployMorphoBlueSystem } from './utils'
-import { expectMarketStatus, expectPosition } from './utils/morpho-direct-test-utils'
+import { expectMarketStatus, expectPosition } from './utils/morpho.direct.utils'
 import {
   opMorphoBlueBorrow,
   opMorphoBlueDeposit,
   opMorphoBlueDepositBorrow,
   opMorphoBlueOpenDepositBorrow,
   opMorphoBluePaybackWithdraw,
-} from './utils/morpho-operations-test-utils'
+} from './utils/morpho.operations.borrow.utils'
 
 describe('Borrow Operations | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */

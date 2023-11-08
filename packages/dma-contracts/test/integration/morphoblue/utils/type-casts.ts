@@ -1,3 +1,5 @@
+import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
+import { Network } from '@dma-library'
 import {
   MorphoBlueStrategyAddresses,
   TokenAddresses,
@@ -5,11 +7,14 @@ import {
 import { MorphoBlueBorrowArgs } from '@dma-library/operations/morphoblue/borrow/borrow'
 import { MorphoBlueDepositArgs } from '@dma-library/operations/morphoblue/borrow/deposit'
 import { MorphoBluePaybackWithdrawArgs } from '@dma-library/operations/morphoblue/borrow/payback-withdraw'
-import { MorphoBlueMarket } from '@dma-library/types'
+import { MorphoBlueOpenOperationArgs } from '@dma-library/operations/morphoblue/multiply/open'
+import { FlashloanProvider, MorphoBlueMarket } from '@dma-library/types'
 import { MorphoMarketInfo, MorphoSystem, TokensDeployment } from '@morpho-blue'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { default as BN } from 'bignumber.js'
 import { BigNumberish } from 'ethers'
+
+const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 export function toMorphoBlueMarket(
   morphoSystem: MorphoSystem,
@@ -79,16 +84,79 @@ export function toTokenAddresses(tokensDeployment: TokensDeployment): TokenAddre
     {},
   ) as TokenAddresses
 
-  tokenAddresses.ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+  tokenAddresses.ETH = ETH_ADDRESS
 
   return tokenAddresses
 }
 
 export function toMorphoBlueStrategyAddresses(
   morphoSystem: MorphoSystem,
+  system: DeployedSystem,
 ): MorphoBlueStrategyAddresses {
   return {
     morphoblue: morphoSystem.morpho.address,
+    operationExecutor: system.OperationExecutor.contract.address,
     tokens: toTokenAddresses(morphoSystem.tokensDeployment),
   }
+}
+
+export function toMorphoBlueMultiplyOpenArgs(
+  morphoSystem: MorphoSystem,
+  market: MorphoMarketInfo,
+  initialDepositAmount: BigNumberish,
+  flashloanAmount: BigNumberish,
+  swapCalldata: string,
+  borrowAmount: BigNumberish,
+  user: SignerWithAddress,
+  userProxyAddress: string,
+  addresses: MorphoBlueStrategyAddresses,
+  network: Network,
+): MorphoBlueOpenOperationArgs {
+  const isCollateralETH = market.collateralToken === 'ETH'
+  const isDebtETH = market.loanToken === 'ETH'
+  const multiplyOpenArgs: MorphoBlueOpenOperationArgs = {
+    morphoBlueMarket: toMorphoBlueMarket(morphoSystem, market),
+    collateral: {
+      address: morphoSystem.tokensDeployment[market.collateralToken].contract.address,
+      isEth: isCollateralETH,
+    },
+    debt: {
+      address: morphoSystem.tokensDeployment[market.loanToken].contract.address,
+      isEth: isDebtETH,
+
+      borrow: {
+        amount: new BN(borrowAmount.toString()),
+      },
+    },
+    deposit: {
+      address: morphoSystem.tokensDeployment[market.collateralToken].contract.address,
+      amount: new BN(initialDepositAmount.toString()),
+    },
+    flashloan: {
+      provider: FlashloanProvider.Balancer,
+      token: {
+        address: morphoSystem.tokensDeployment[market.loanToken].contract.address,
+        amount: new BN(flashloanAmount.toString()),
+      },
+      amount: new BN(0), // deprecated
+    },
+    swap: {
+      fee: 0,
+      data: swapCalldata,
+      amount: new BN(flashloanAmount.toString()),
+      collectFeeFrom: 'sourceToken',
+      receiveAtLeast: new BN(0),
+    },
+    proxy: {
+      address: userProxyAddress,
+      owner: user.address,
+      isDPMProxy: true,
+    },
+    position: {
+      type: 'Multiply',
+    },
+    addresses,
+    network,
+  }
+  return multiplyOpenArgs
 }

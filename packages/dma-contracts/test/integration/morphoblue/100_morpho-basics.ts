@@ -24,7 +24,7 @@ import {
   repayWithLoanToken,
   repayWithShares,
   supplyMaxCollateral,
-} from './utils/morpho-direct-test-utils'
+} from './utils/morpho.direct.utils'
 
 describe('Basics | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */

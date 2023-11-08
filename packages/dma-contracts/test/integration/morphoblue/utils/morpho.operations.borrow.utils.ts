@@ -1,86 +1,27 @@
-import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
-import { executeThroughDPMProxy, getDPMParamsForOperationExecutor } from '@dma-common/utils/execute'
-import { TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
+import { TestDeploymentSystem } from '@dma-contracts/utils'
 import { borrow, MorphoBlueBorrowArgs } from '@dma-library/operations/morphoblue/borrow/borrow'
 import { deposit, MorphoBlueDepositArgs } from '@dma-library/operations/morphoblue/borrow/deposit'
 import { depositBorrow } from '@dma-library/operations/morphoblue/borrow/deposit-borrow'
 import { openDepositBorrow } from '@dma-library/operations/morphoblue/borrow/open-deposit-and-borrow'
 import { paybackWithdraw } from '@dma-library/operations/morphoblue/borrow/payback-withdraw'
 import { PositionType } from '@dma-library/types'
-import { MorphoMarketInfo, MorphoSystem, TokensDeployment } from '@morpho-blue'
+import { MorphoMarketInfo } from '@morpho-blue'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { AccountImplementation } from '@typechain'
 import { BigNumber, ContractReceipt } from 'ethers'
 
 import {
   calculateShares,
   getMaxBorrowableAmount,
   getMaxSupplyCollateral,
-} from './morpho-direct-test-utils'
+} from './morpho.direct.utils'
+import { executeOperation, getContextFromTestSystem } from './morpho.operations.common.utils'
 import {
   toMorphoBlueBorrowArgs,
   toMorphoBlueDepositArgs,
   toMorphoBluePaybackWithdrawArgs,
   toMorphoBlueStrategyAddresses,
 } from './type-casts'
-
-export type MorphoMarketStatus = {
-  totalSupplyAssets: BigNumber
-  totalSupplyShares: BigNumber
-  totalBorrowAssets: BigNumber
-  totalBorrowShares: BigNumber
-  lastUpdate: BigNumber
-  fee: BigNumber
-}
-
-export type MorphoMarketPosition = {
-  supplyShares: BigNumber
-  borrowShares: BigNumber
-  collateral: BigNumber
-}
-
-// Helper functions
-function getContextFromTestSystem(testSystem: TestDeploymentSystem): {
-  system: DeployedSystem
-  morphoSystem: MorphoSystem
-  tokensDeployment: TokensDeployment
-  testHelpers: TestHelpers
-  userDPMProxy: AccountImplementation
-} {
-  const system = testSystem.deployment.system
-  const morphoSystem = testSystem.extraDeployment.system as MorphoSystem
-  const tokensDeployment = morphoSystem.tokensDeployment
-  const testHelpers = testSystem.helpers
-  const userDPMProxy = testSystem.helpers.userDPMProxy
-
-  return { system, morphoSystem, tokensDeployment, testHelpers, userDPMProxy }
-}
-
-async function executeOperation(
-  system: DeployedSystem,
-  user: SignerWithAddress,
-  userDPMProxy: AccountImplementation,
-  calls: any[],
-  operationName: string,
-): Promise<{
-  success: boolean
-  receipt: ContractReceipt
-}> {
-  const opExecutorParams = getDPMParamsForOperationExecutor(
-    system.OperationExecutor.contract,
-    calls,
-    operationName,
-  )
-
-  const [success, receipt] = await executeThroughDPMProxy(
-    userDPMProxy.address,
-    opExecutorParams,
-    user,
-  )
-
-  return { success, receipt }
-}
 
 // Prepare arguments functions
 async function calculateDepositArgs(
@@ -92,15 +33,12 @@ async function calculateDepositArgs(
   collateralAmount: BigNumber
   depositArgs: MorphoBlueDepositArgs
 }> {
-  const { morphoSystem, userDPMProxy } = getContextFromTestSystem(testSystem)
+  const { morphoSystem } = getContextFromTestSystem(testSystem)
 
   // Deposit calculations
   const collateralAmount = amountToSupply
     ? amountToSupply
     : await getMaxSupplyCollateral(morphoSystem, market)
-
-  const collateralToken = morphoSystem.tokensDeployment[market.collateralToken].contract
-  await collateralToken.connect(user).approve(userDPMProxy.address, collateralAmount)
 
   const depositArgs = toMorphoBlueDepositArgs(morphoSystem, market, collateralAmount, user)
 
@@ -153,10 +91,10 @@ export async function opMorphoBlueDeposit(
   )
 
   const collateralToken = tokensDeployment[market.collateralToken].contract
-  const collateralBalanceBefore = await collateralToken.balanceOf(user.address)
   await collateralToken.connect(user).approve(userDPMProxy.address, collateralAmount)
+  const collateralBalanceBefore = await collateralToken.balanceOf(user.address)
 
-  const addresses = toMorphoBlueStrategyAddresses(morphoSystem)
+  const addresses = toMorphoBlueStrategyAddresses(morphoSystem, testSystem.deployment.system)
   const depositCalls = await deposit(depositArgs, addresses, Network.TEST)
 
   const { success, receipt } = await executeOperation(
@@ -207,7 +145,7 @@ export async function opMorphoBlueBorrow(
   const loanToken = morphoSystem.tokensDeployment[market.loanToken].contract
   const loanTokenBalanceBefore = await loanToken.balanceOf(user.address)
 
-  const addresses = toMorphoBlueStrategyAddresses(morphoSystem)
+  const addresses = toMorphoBlueStrategyAddresses(morphoSystem, testSystem.deployment.system)
 
   const borrowCalls = await borrow(borrowArgs, addresses, Network.TEST)
 
@@ -270,13 +208,14 @@ export async function opMorphoBlueDepositBorrow(
   )
 
   const collateralToken = morphoSystem.tokensDeployment[market.collateralToken].contract
+  await collateralToken.connect(user).approve(userDPMProxy.address, collateralAmount)
   const collateralBalanceBefore = await collateralToken.balanceOf(user.address)
 
   const loanToken = morphoSystem.tokensDeployment[market.loanToken].contract
   const loanTokenBalanceBefore = await loanToken.balanceOf(user.address)
 
   // Prepare calls
-  const addresses = toMorphoBlueStrategyAddresses(morphoSystem)
+  const addresses = toMorphoBlueStrategyAddresses(morphoSystem, testSystem.deployment.system)
   const depositBorrowCalls = await depositBorrow(depositArgs, borrowArgs, addresses, Network.TEST)
 
   const { success, receipt } = await executeOperation(
@@ -345,13 +284,14 @@ export async function opMorphoBlueOpenDepositBorrow(
   )
 
   const collateralToken = morphoSystem.tokensDeployment[market.collateralToken].contract
+  await collateralToken.connect(user).approve(userDPMProxy.address, collateralAmount)
   const collateralBalanceBefore = await collateralToken.balanceOf(user.address)
 
   const loanToken = morphoSystem.tokensDeployment[market.loanToken].contract
   const loanTokenBalanceBefore = await loanToken.balanceOf(user.address)
 
   // Prepare calls
-  const addresses = toMorphoBlueStrategyAddresses(morphoSystem)
+  const addresses = toMorphoBlueStrategyAddresses(morphoSystem, testSystem.deployment.system)
   const depositBorrowCalls = await openDepositBorrow(
     depositArgs,
     borrowArgs,
@@ -420,7 +360,7 @@ export async function opMorphoBluePaybackWithdraw(
     userDPMProxy.address,
   )
 
-  const addresses = toMorphoBlueStrategyAddresses(morphoSystem)
+  const addresses = toMorphoBlueStrategyAddresses(morphoSystem, testSystem.deployment.system)
   const paybackWithdrawCalls = await paybackWithdraw(paybackWithdrawArgs, addresses, Network.TEST)
 
   const { success, receipt } = await executeOperation(

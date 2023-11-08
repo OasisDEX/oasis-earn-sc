@@ -14,12 +14,15 @@ import {
 } from '@morpho-blue'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { AccountImplementation } from '@typechain'
+import { expect } from 'chai'
 import { Signer } from 'ethers'
 import hre from 'hardhat'
 
-import { deployMorphoBlueSystem } from '../utils'
+import { deployMorphoBlueSystem } from './utils'
+import { expectMarketStatus, expectPosition } from './utils/morpho.direct.utils'
+import { opMorphoBlueOpenMultiply } from './utils/morpho.operations.multiply.utils'
 
-describe.skip('TEST GROUP | MorphoBlue | TEST CATEGORY', async () => {
+describe.skip('Multiply Operations | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let provider: JsonRpcProvider
   let owner: Signer
@@ -94,9 +97,53 @@ describe.skip('TEST GROUP | MorphoBlue | TEST CATEGORY', async () => {
     await morphoSystem.irm.setForcedRateEnabled(true)
   })
 
-  it('test title in lowercase', async () => {
-    // YOUR TEST HERE
-    //
-    // Also remove the .skip from the describe.skip above
+  // TODO: The multiply test is still not working. It will be stopped now due to a
+  // change of priorities. It currently seems to be flashloaning and swapping
+  // but it fails when trying to borrow from Morpho with 'insufficient liquidity
+  it.skip('should be able to open', async () => {
+    const multiplyFactor = 2
+    for (const market of morphoSystem.marketsInfo) {
+      const {
+        success,
+        collateralBalanceBefore,
+        collateralBalanceAfter,
+        collateralAmount,
+        multipliedCollateralAmount,
+        loanTokenBalanceBefore,
+        loanTokenBalanceAfter,
+        borrowAmount,
+        borrowShares,
+      } = await opMorphoBlueOpenMultiply(testSystem, market, user, multiplyFactor)
+
+      expect(success).to.be.true
+
+      expect(collateralAmount).to.be.gt(0)
+      expect(collateralBalanceBefore).to.be.gte(collateralAmount)
+      expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.sub(collateralAmount))
+
+      // Check the position
+      await expectPosition(
+        morphoSystem,
+        market,
+        userDPMProxy.address,
+        multipliedCollateralAmount,
+        0,
+        0,
+      )
+
+      // Check the market
+      const marketStatus = await morphoSystem.morpho.market(market.id)
+      const totalSupplyAssets = supplyConfig[market.loanToken]
+
+      await expectMarketStatus(
+        morphoSystem,
+        market,
+        totalSupplyAssets,
+        marketStatus.totalSupplyShares,
+        0,
+        0,
+        0,
+      )
+    }
   })
 })

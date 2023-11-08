@@ -13,7 +13,10 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { WithAaveLikeStrategyAddresses, WithMorphoBlueMarket } from '@dma-library/types/operations'
+import {
+  WithMorphoBlueMarket,
+  WithMorphpBlueStrategyAddresses,
+} from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -25,7 +28,7 @@ export type MorphoBlueOpenOperationArgs = WithMorphoBlueMarket &
   WithFlashloan &
   WithProxy &
   WithPosition &
-  WithAaveLikeStrategyAddresses &
+  WithMorphpBlueStrategyAddresses &
   WithNetwork
 
 export type MorphoBlueOpenOperation = ({
@@ -97,7 +100,7 @@ export const open: MorphoBlueOpenOperation = async ({
     {
       amount: depositAmount,
       asset: collateral.address,
-      delegate: addresses.lendingPool,
+      delegate: addresses.morphoblue,
       sumAmounts: true,
     },
     [0, 0, swapActionStorageIndex, 0],

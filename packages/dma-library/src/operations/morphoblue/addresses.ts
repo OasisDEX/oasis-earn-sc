@@ -10,5 +10,6 @@ export type TokenAddresses = {
 
 export interface MorphoBlueStrategyAddresses {
   morphoblue: Address
+  operationExecutor: Address
   tokens: TokenAddresses
 }
