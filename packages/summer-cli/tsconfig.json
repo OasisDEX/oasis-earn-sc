@@ -5,7 +5,8 @@
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
-    "target": "es2022"
+    "target": "es2022",
+    "resolveJsonModule": true,
   },
   "include": ["src/**/*"],
   "paths": {

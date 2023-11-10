@@ -1,5 +1,7 @@
 import { Args, Command } from '@oclif/core'
-import { tokens } from '../constants/tokens'
+import { isSupportedToken, tokens } from '../utils/tokens'
+import { getEnvitoment } from '../utils/get-enviroment'
+import { getTokens } from '../logic/common/get-tokens'
 
 export default class GetToken extends Command {
   static description = 'Get ERC20 token to given addreess'
@@ -9,22 +11,26 @@ export default class GetToken extends Command {
   ]
 
   static args = {
-    wallet: Args.string({
-      description: 'Wallet address to get token',
-      required: false,
-    }),
-    // flag with no value (-f, --force)
     token: Args.string({
       description: 'Token to get',
       required: true,
       // parse: input => 'output', // gets address from the token symbol
       options: tokens.map(token => token.toLocaleLowerCase()),
     }),
+    amount: Args.integer({
+      description: 'Token amount',
+      required: true,
+    }),
   }
 
   public async run(): Promise<void> {
     const {args} = await this.parse(GetToken)
+    const enviroment = getEnvitoment()
 
-    this.log(`${args.token} to ${args.wallet}`)
+    if(!isSupportedToken(args.token)) {
+      this.error(`Token not supported: ${args.token}`);
+    }
+
+    await getTokens(enviroment, args.token, 100)
   }
 }

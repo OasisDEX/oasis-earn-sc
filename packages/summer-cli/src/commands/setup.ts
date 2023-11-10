@@ -1,6 +1,6 @@
 import {Command, ux } from '@oclif/core'
 import { isAddress, ethers } from 'ethers'
-import { chainIdToSupportedNetowrk } from '../constants/network';
+import { chainIdToSupportedNetowrk } from '../utils/network';
 
 const Conf = require('conf');
 const config = new Conf();
