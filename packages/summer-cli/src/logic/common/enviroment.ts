@@ -1,5 +1,5 @@
 import { ethers, JsonRpcSigner, JsonRpcProvider } from 'ethers';
-import { SupportedNetowkrs } from '../../utils/network';
+import { SupportedNetowkrs, getSupportedNetwork } from '../../utils/network';
 import { Address } from '@oasisdex/deploy-configurations/types/address';
 
 export interface Enviroment {
@@ -8,12 +8,17 @@ export interface Enviroment {
   network: SupportedNetowkrs;
 }
 
-export function createEnviroment(wallet: Address, rpc: string, network: SupportedNetowkrs): Enviroment {
+export async function createEnviroment(
+  wallet: Address,
+  rpc: string,
+): Promise<Enviroment> {
   const provier = new ethers.JsonRpcProvider(rpc);
+
+  const network = await provier.getNetwork();
 
   return {
     walletSigner: new JsonRpcSigner(provier, wallet),
     provier,
-    network,
+    network: getSupportedNetwork(network.chainId.toString()),
   };
 }

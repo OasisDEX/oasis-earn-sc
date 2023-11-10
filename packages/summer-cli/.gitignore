@@ -1,12 +1,29 @@
-**/.DS_Store
-*-debug.log
-*-error.log
-/.idea
-/.nyc_output
-/dist
-/lib
-/package-lock.json
-/tmp
-node_modules
-oclif.lock
-oclif.manifest.json
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules/
+
+# Coverage
+coverage
+
+# Transpiled files
+build/
+
+# VS Code
+.vscode
+!.vscode/tasks.js
+
+# JetBrains IDEs
+.idea/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Misc
+.DS_Store

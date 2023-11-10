@@ -1,16 +1,27 @@
-
-import { Network } from '@oasisdex/deploy-configurations/types/network'
+import { Network } from '@oasisdex/deploy-configurations/types/network';
 
 export const networkById = {
-  "1": Network.MAINNET,
-  "5": Network.GOERLI,
-  "8453": Network.BASE,
-  "42161": Network.ARBITRUM,
-  "10": Network.OPTIMISM,
+  '1': Network.MAINNET,
+  '5': Network.GOERLI,
+  '8453': Network.BASE,
+  '42161': Network.ARBITRUM,
+  '10': Network.OPTIMISM,
 } as const;
 
-export type SupportedNetowkrs = typeof networkById[keyof typeof networkById];
+export type SupportedNetowkrs = (typeof networkById)[keyof typeof networkById];
 
-export function chainIdToSupportedNetowrk(chainId: string): SupportedNetowkrs | undefined {
-  return networkById[chainId.toString() as keyof typeof networkById]
+export function chainIdToSupportedNetowrk(
+  chainId: string,
+): SupportedNetowkrs | undefined {
+  return networkById[chainId.toString() as keyof typeof networkById];
+}
+
+export function getSupportedNetwork(chainId: string): SupportedNetowkrs {
+  const netowrkCandidate = chainIdToSupportedNetowrk(chainId);
+
+  if (!netowrkCandidate) {
+    throw new Error(`Unsupported network with chainId ${chainId}`);
+  }
+
+  return netowrkCandidate;
 }
