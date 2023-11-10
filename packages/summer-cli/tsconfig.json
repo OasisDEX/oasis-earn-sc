@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "target": "es2022"
+  },
+  "include": ["src/**/*"],
+  "paths": {
+    "@abis/external/*": ["../abis/external/*"],
+    "@abis/system/*": ["../abis/system/*"],
+    "@deploy-configurations/*": ["../deploy-configurations/*"],
+  },
+  "references": [
+    {
+      "path": "../abis"
+    },
+    {
+      "path": "../deploy-configurations"
+    },
+  ],
+}
