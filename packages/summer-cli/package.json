@@ -39,7 +39,7 @@
   "homepage": "https://github.com/OasisDEX/oasis-earn-sc/tree/dev/packages/summer-cli",
   "license": "MIT",
   "main": "dist/index.js",
-  "name": "@oasisdex/cli",
+  "name": "@oasisdex/summer-cli",
   "oclif": {
     "bin": "summer-cli",
     "dirname": "summer-cli",

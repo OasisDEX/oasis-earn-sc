@@ -1,7 +1,8 @@
-import { Address } from "@oasisdex/deploy-configurations/types/address"
-import { Network } from "@oasisdex/deploy-configurations/types/network"
-import { ADDRESSES } from "@oasisdex/deploy-configurations/addresses"
+import { Network } from '@oasisdex/deploy-configurations/types/network'
+import { ADDRESSES } from '@oasisdex/deploy-configurations/addresses'
+import { Address } from '@oasisdex/deploy-configurations/types/address'
 import { SupportedNetowkrs } from "./network"
+import BigNumber from 'bignumber.js'
 
 export const tokens = [
     "WETH",
@@ -10,7 +11,6 @@ export const tokens = [
     "WBTC",
     "STETH",
     "WSTETH",
-    "PEPE",
 ] as const
 
 export type SupportedTokens = typeof tokens[number]
@@ -22,7 +22,6 @@ export const tokenPrecision: Record<SupportedTokens, number> = {
     "WBTC": 8,
     "STETH": 18,
     "WSTETH": 18,
-    "PEPE": 18,
 }
 
 export const tokenHolders: Record<SupportedTokens, Record<SupportedNetowkrs, Address | null>> = {
@@ -69,11 +68,29 @@ export const tokenHolders: Record<SupportedTokens, Record<SupportedNetowkrs, Add
         [Network.ARBITRUM]: null,
         [Network.OPTIMISM]: null,
     },
-    "PEPE": {
-        [Network.MAINNET]: "0xf3B0073E3a7F747C7A38B36B805247B222C302A3",
-        [Network.GOERLI]: ADDRESSES.goerli.common.UNI,
-        [Network.BASE]: ADDRESSES.base.common.UNI,
-        [Network.ARBITRUM]: ADDRESSES.arbitrum.common.UNI,
-        [Network.OPTIMISM]: ADDRESSES.optimism.common.UNI,
-    },
+}
+
+export function isSupportedToken(token: string): token is SupportedTokens {
+    return tokens.includes(token as any)
+}
+
+export function getTokenHolder(token: SupportedTokens, network: SupportedNetowkrs): Address {
+    const holder = tokenHolders[token][network]
+
+    if (!holder) {
+        throw new Error(`Token ${token} is not supported on network ${network}`)
+    }
+
+    return holder
+}
+
+export function getTokenAddress(token: SupportedTokens, network: SupportedNetowkrs): Address {
+    return ADDRESSES[network].common[token]
+}
+
+export function tokenAmountToWei(token: SupportedTokens, amount: number): string {
+    const precision = tokenPrecision[token]
+    const multiplier = new BigNumber(10).pow(precision)
+
+    return new BigNumber(amount).times(multiplier).toString()
 }

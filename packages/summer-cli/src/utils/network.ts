@@ -1,5 +1,5 @@
 
-import { Network } from "@oasisdex/deploy-configurations/types/network"
+import { Network } from '@oasisdex/deploy-configurations/types/network'
 
 export const networkById = {
   "1": Network.MAINNET,
