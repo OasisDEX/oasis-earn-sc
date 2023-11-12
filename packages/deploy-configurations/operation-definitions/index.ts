@@ -18,6 +18,7 @@ export { getAaveDepositBorrowV3OperationDefinition } from './aave/v3/deposit-bor
 export { getAaveOpenV3OperationDefinition } from './aave/v3/open'
 export { getAaveOpenDepositBorrowV3OperationDefinition } from './aave/v3/open-deposit-borrow'
 export { getAavePaybackWithdrawV3OperationDefinition } from './aave/v3/payback-withdraw'
+export { getAaveMigrateEOAV3OperationDefinition } from './aave/v3/migrateEOA'
 
 // AJNA
 export { getAjnaAdjustDownOperationDefinition } from './ajna/adjust-down'
@@ -36,3 +37,4 @@ export { getSparkOpenOperationDefinition } from './spark/multiply'
 export { getSparkCloseOperationDefinition } from './spark/multiply'
 export { getSparkAdjustDownOperationDefinition } from './spark/multiply'
 export { getSparkAdjustUpOperationDefinition } from './spark/multiply'
+export { getSparkMigrateEOAOperationDefinition } from './spark/migrate'

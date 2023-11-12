@@ -17,6 +17,7 @@ export type CommonActions =
   | 'TakeFlashloan'
   | 'ReturnFunds'
   | 'PositionCreated'
+  | 'TokenBalance'
 
 export type AjnaActions = 'AjnaDepositBorrow' | 'AjnaRepayWithdraw'
 

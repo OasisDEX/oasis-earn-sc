@@ -132,3 +132,16 @@ export type WithAjnaBucketPrice = {
 export type WithNetwork = {
   network: Network
 }
+
+export type WithAToken = {
+  aToken: {
+    address: Address
+    amount: BigNumber
+  }
+}
+
+export type WithVDToken = {
+  vdToken: {
+    address: Address
+  }
+}

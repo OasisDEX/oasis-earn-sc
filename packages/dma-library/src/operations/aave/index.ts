@@ -46,6 +46,12 @@ import {
   AaveV3AdjustUpOperation,
   adjustRiskUp as aaveV3AdjustRiskUp,
 } from './multiply/v3/adjust-risk-up'
+// Migrate
+import {
+  AaveV3MigrateEOAOperation,
+  migrateEOA as aaveV3MigrateEOA,
+} from './migrate/migrateEOA'
+
 import { AaveV3CloseOperation, close as aaveV3Close } from './multiply/v3/close'
 import { AaveV3OpenOperation, open as aaveV3Open } from './multiply/v3/open'
 
@@ -81,6 +87,12 @@ const multiply = {
   },
 }
 
+const migrate = {
+  v3: {
+    migrateEOA: aaveV3MigrateEOA,
+  }
+}
+
 export type AaveBorrowOperations = {
   v2: {
     borrow: AaveV2BorrowOperation
@@ -113,12 +125,20 @@ export type AaveMultiplyOperations = {
   }
 }
 
+export type AaveMigrateOperations = {
+  v3: {
+    migrateEOA: AaveV3MigrateEOAOperation
+  }
+}
+
 export type AaveOperations = {
   borrow: AaveBorrowOperations
   multiply: AaveMultiplyOperations
+  migrate: AaveMigrateOperations
 }
 
 export const aaveOperations: AaveOperations = {
   borrow,
   multiply,
+  migrate,
 }

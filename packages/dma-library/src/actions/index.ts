@@ -25,6 +25,7 @@ import {
   takeAFlashLoan,
   unwrapEth,
   wrapEth,
+  tokenBalance,
 } from './common'
 import { sparkBorrow, sparkDeposit, sparkPayback, sparkSetEMode, sparkWithdraw } from './spark'
 
@@ -54,6 +55,7 @@ const common = {
   wrapEth,
   unwrapEth,
   takeAFlashLoan,
+  tokenBalance,
 }
 
 const ajna: {
