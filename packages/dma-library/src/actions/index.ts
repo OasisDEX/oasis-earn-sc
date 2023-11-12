@@ -25,6 +25,7 @@ import {
   takeAFlashLoan,
   unwrapEth,
   wrapEth,
+  tokenBalance,
 } from './common'
 import {
   morphoBlueBorrow,
@@ -60,6 +61,7 @@ const common = {
   wrapEth,
   unwrapEth,
   takeAFlashLoan,
+  tokenBalance,
 }
 
 const ajna: {

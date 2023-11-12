@@ -223,3 +223,16 @@ export type WithCloseToOpenSwap = {
 export type WithAfterOpenSwap = {
   swapAfterOpen: WithSwap['swap']
 }
+
+export type WithAToken = {
+  aToken: {
+    address: Address
+    amount: BigNumber
+  }
+}
+
+export type WithVDToken = {
+  vdToken: {
+    address: Address
+  }
+}

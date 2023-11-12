@@ -16,6 +16,7 @@ import {
   getAaveDepositBorrowV3OperationDefinition,
   getAaveDepositV2OperationDefinition,
   getAaveDepositV3OperationDefinition,
+  getAaveMigrateEOAV3OperationDefinition,
   getAaveOpenDepositBorrowV3OperationDefinition,
   getAaveOpenV2OperationDefinition,
   getAaveOpenV3OperationDefinition,
@@ -41,6 +42,7 @@ import {
   getSparkCloseOperationDefinition,
   getSparkDepositBorrowOperationDefinition,
   getSparkDepositOperationDefinition,
+  getSparkMigrateEOAOperationDefinition,
   getSparkOpenDepositBorrowOperationDefinition,
   getSparkOpenOperationDefinition,
   getSparkPaybackWithdrawOperationDefinition,
@@ -414,6 +416,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.provider) throw new Error('No provider set')
     if (!this.config) throw new Error('No config set')
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
+
     this.log('POST DEPLOYMENT', configItem.name, configItem.address)
 
     // SERVICE REGISTRY addition
@@ -830,6 +833,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
    *
    * Read more at the README at /packages/deploy-configurations/README.md
    */
+
   async addOperationEntries() {
     if (!this.signer) throw new Error('No signer set')
     if (!this.deployedSystem.OperationsRegistry) throw new Error('No OperationsRegistry deployed')
@@ -913,6 +917,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       getAaveBorrowV3OperationDefinition(network).name,
       getAaveBorrowV3OperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAaveMigrateEOAV3OperationDefinition(network).name,
+      getAaveMigrateEOAV3OperationDefinition(network).actions,
     )
 
     // AJNA
@@ -1070,6 +1079,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       morphoblueAdjustDownOperationDefinition.actions,
     )
     this.logOp(morphoblueAdjustDownOperationDefinition)
+
+    const sparkMigrateEOAOperationDefinition = getSparkMigrateEOAOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkMigrateEOAOperationDefinition.name,
+      sparkMigrateEOAOperationDefinition.actions,
+    )
+    this.logOp(sparkMigrateEOAOperationDefinition)
+
   }
 
   async addAllEntries() {

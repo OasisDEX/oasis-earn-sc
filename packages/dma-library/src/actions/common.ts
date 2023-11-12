@@ -208,3 +208,23 @@ export function positionCreated(
     ],
   )
 }
+
+export function tokenBalance(
+  network: Network,
+  args: { asset: string; owner: string;  },
+  paramsMapping: [asset: number, owner: number] = [0, 0],
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE),
+    [calldataTypes.common.TokenBalance],
+    [
+      {
+        asset: args.asset,
+        owner: args.owner,
+      },
+      paramsMapping,
+    ],
+  )
+}

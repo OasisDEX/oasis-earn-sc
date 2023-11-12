@@ -170,6 +170,14 @@ export const config: SystemConfig = {
         history: ['0x645325494A37d35cf6baFc82C3e6bcE4473F2685'],
         constructorArgs: [],
       },
+      TokenBalance: {
+        name: 'TokenBalance',
+        deploy: false,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       AaveBorrow: {
         name: 'AaveBorrow',
         deploy: false,
