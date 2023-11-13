@@ -14,6 +14,7 @@ enum AAVEBorrowRate {
   STABLE = 1,
   VARIABLE = 2,
 }
+
 function getAavePool(enviroment: Enviroment): Pool {
   const aaveAddress = ADDRESSES[enviroment.network].aave.v3.LendingPool;
   const AavePool = new Contract(
@@ -23,6 +24,7 @@ function getAavePool(enviroment: Enviroment): Pool {
   ) as any as Pool;
   return AavePool;
 }
+
 export async function aaveSupply(
   enviroment: Enviroment,
   from: Address,
@@ -42,6 +44,7 @@ export async function aaveSupply(
 
   return sendTxFromAddress(txData, from, enviroment.provider);
 }
+
 export async function setAssetAsCollateral(
   enviroment: Enviroment,
   from: Address,
@@ -58,6 +61,7 @@ export async function setAssetAsCollateral(
 
   return sendTxFromAddress(txData, from, enviroment.provider);
 }
+
 export async function aaveBorrow(
   enviroment: Enviroment,
   debt: SupportedTokens,

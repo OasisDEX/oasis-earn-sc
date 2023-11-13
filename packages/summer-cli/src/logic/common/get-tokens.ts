@@ -19,7 +19,7 @@ export async function getTokens(
   token: SupportedTokens,
   amount: number,
 ): Promise<TransactionReceipt> {
-  const tokenAddress =getTokenAddress(token, enviroment.network);
+  const tokenAddress = getTokenAddress(token, enviroment.network);
   return enviroment.provider.send('tenderly_setErc20Balance', [
     tokenAddress,
     await enviroment.walletSigner.getAddress(),

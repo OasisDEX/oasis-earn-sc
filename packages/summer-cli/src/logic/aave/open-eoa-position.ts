@@ -20,7 +20,9 @@ export async function createEOAPosition(
   const aaveAddress = ADDRESSES[enviroment.network].aave.v3.LendingPool;
   const walletAddress = await enviroment.walletSigner.getAddress();
 
-  await getTokens(enviroment, assetToken, depositAmount).then(throwOnRevertedTx);
+  await getTokens(enviroment, assetToken, depositAmount).then(
+    throwOnRevertedTx,
+  );
 
   await setAllowance(
     enviroment,

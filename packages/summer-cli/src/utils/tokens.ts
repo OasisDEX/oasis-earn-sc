@@ -10,7 +10,7 @@ export const tokens = [
   'STETH',
   'WSTETH',
   'CBETH',
-  'USDBC'
+  'USDBC',
 ] as const;
 
 export type SupportedTokens = (typeof tokens)[number];
@@ -44,7 +44,7 @@ export function getTokenAddress(
     throw new Error(`Token ${token} is not supported on network ${network}`);
   }
 
-  return tokenAddress
+  return tokenAddress;
 }
 
 export function tokenAmountToWei(
