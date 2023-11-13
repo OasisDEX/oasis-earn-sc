@@ -1,6 +1,6 @@
 import { ethers, JsonRpcSigner, JsonRpcProvider } from 'ethers';
 import { SupportedNetowkrs, getSupportedNetwork } from '../../utils/network';
-import { Address } from '@oasisdex/deploy-configurations/types/address';
+import { Address } from '@oasisdex/addresses';
 
 export interface Enviroment {
   walletSigner: JsonRpcSigner;

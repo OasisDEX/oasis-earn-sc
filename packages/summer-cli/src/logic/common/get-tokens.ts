@@ -29,4 +29,6 @@ export async function getTokens(
     await enviroment.walletSigner.getAddress(),
     tokenAmountToWei(token, amount),
   );
+
+  console.log(tx)
 }

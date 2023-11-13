@@ -1,7 +1,5 @@
-import { Network } from '@oasisdex/deploy-configurations/types/network';
-import { ADDRESSES } from '@oasisdex/deploy-configurations/addresses';
-import { Address } from '@oasisdex/deploy-configurations/types/address';
-import { SupportedNetowkrs } from './network';
+import { ADDRESSES, Address } from '@oasisdex/addresses';
+import { Network, SupportedNetowkrs } from './network';
 import BigNumber from 'bignumber.js';
 
 export const tokens = [

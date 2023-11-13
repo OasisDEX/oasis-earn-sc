@@ -1,4 +1,4 @@
-import { Address } from '@oasisdex/deploy-configurations/types/address';
+import { Address } from '@oasisdex/addresses';
 import { createEnviroment, Enviroment } from '../logic/common/enviroment';
 import 'dotenv/config';
 import { isAddress } from 'ethers';
