@@ -1,6 +1,6 @@
 import type { Command } from '../cli/command';
 import * as yup from 'yup';
-import { tokens } from '../utils/tokens';
+import { allowedTokensLowerCased, tokens } from '../utils/tokens';
 import { getTokens } from '../logic/common/get-tokens';
 import { toUpperCase } from '../utils/to-upper-case';
 
@@ -8,12 +8,7 @@ const argsSchema = yup.object().shape({
   token: yup
     .string()
     .required()
-    .oneOf(
-      tokens.map<Lowercase<(typeof tokens)[number]>>(
-        (token) =>
-          token.toLocaleLowerCase() as Lowercase<(typeof tokens)[number]>,
-      ),
-    ),
+    .oneOf(allowedTokensLowerCased),
   amount: yup.number().required().moreThan(0),
 });
 

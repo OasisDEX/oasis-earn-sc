@@ -8,7 +8,9 @@ async function main(args: string[]) {
 
   const commandRunner = makeCommandRunner(commands);
 
-  commandRunner.run(commandName, argsMap)
+  const run = await commandRunner.run(commandName, argsMap);
+
+  console.log(run);
 }
 
 main(process.argv);

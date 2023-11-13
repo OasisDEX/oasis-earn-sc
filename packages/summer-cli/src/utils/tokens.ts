@@ -75,6 +75,11 @@ export function isSupportedToken(token: string): token is SupportedTokens {
   return tokens.includes(token as any);
 }
 
+export const allowedTokensLowerCased = tokens.map<Lowercase<(typeof tokens)[number]>>(
+  (token) =>
+    token.toLocaleLowerCase() as Lowercase<(typeof tokens)[number]>,
+)
+
 export function getTokenHolder(
   token: SupportedTokens,
   network: SupportedNetowkrs,

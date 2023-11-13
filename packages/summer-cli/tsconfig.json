@@ -24,7 +24,8 @@
   "paths": {
     "@abis/external/*": ["../abis/external/*"],
     "@abis/system/*": ["../abis/system/*"],
-    "@deploy-configurations/*": ["../deploy-configurations/*"]
+    "@deploy-configurations/*": ["../deploy-configurations/*"],
+    "@cli": "./src/cli/index.ts"
   },
   "references": [
     {
