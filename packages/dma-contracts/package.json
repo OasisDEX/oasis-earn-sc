@@ -19,6 +19,7 @@
     "test": "yarn test:unit && yarn test:e2e",
     "test:e2e": "yarn clean && yarn compile && npx hardhat test --grep E2E",
     "test:unit": "yarn clean && yarn compile && npx hardhat test --grep Unit",
+    "deploy:tenderly:custop-op": "npx hardhat run ./scripts/deployment/dev/deploy-custom-op.ts --network tenderly",
     "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly",
     "deployment:verify": "npx hardhat verify-deployment",
     "operations:verify": "npx hardhat verify-operations",
