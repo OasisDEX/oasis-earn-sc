@@ -78,7 +78,7 @@ type CommonOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['common']>
  * @dev The `Protocol` type from `@dma-library` is redefined here to avoid dependencies issues.
  * The type should actually be moved here and
  */
-export type RefinanceOperationsNames = `Refinance_${Protocol}_${Protocol}`
+export type RefinanceOperationsNames = `Refinance-${Protocol}-${Protocol}`
 
 export type OperationNames =
   | CommonOperationsNames

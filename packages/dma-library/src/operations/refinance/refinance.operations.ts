@@ -31,12 +31,7 @@ export function registerRefinanceOperation(
   opType: RefinancePartialOperationType,
   opGenerator: RefinancePartialOperation,
 ): void {
-  if (!RefinanceOperations[protocol]) {
-    RefinanceOperations[protocol] = {}
-  }
-  // A cast to string is needed here to stop the compiler from complaining about the
-  // object being undefined. I was not able to find a way to make the compiler happy
-  RefinanceOperations[protocol][opType] = opGenerator
+  RefinanceOperations[protocol] = { ...RefinanceOperations[protocol], [opType]: opGenerator }
 }
 
 /**
@@ -52,18 +47,9 @@ export async function getRefinanceOperation(
   protocolTo: Protocol,
   args: RefinanceOperationArgs,
 ): Promise<IOperation | undefined> {
-  if (!RefinanceOperations[protocolFrom]) {
-    return undefined
-  }
-  if (!RefinanceOperations[protocolTo]) {
-    return undefined
-  }
-
-  const protocolFromCallsGetter =
-    RefinanceOperations[protocolFrom][RefinancePartialOperationType.Close]
+  const protocolFromCallsGetter = RefinanceOperations[protocolFrom]?.Close
   const swapOperationsCallsGetter = refinanceSwap_calls
-  const protocolToOperationsCallsGetter =
-    RefinanceOperations[protocolTo][RefinancePartialOperationType.Open]
+  const protocolToOperationsCallsGetter = RefinanceOperations[protocolTo]?.Open
 
   if (!protocolFromCallsGetter || !swapOperationsCallsGetter || !protocolToOperationsCallsGetter) {
     return undefined
