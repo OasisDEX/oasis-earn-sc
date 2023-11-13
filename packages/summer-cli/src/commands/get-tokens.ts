@@ -5,10 +5,7 @@ import { getTokens } from '../logic/common/get-tokens';
 import { toUpperCase } from '../utils/to-upper-case';
 
 const argsSchema = yup.object().shape({
-  token: yup
-    .string()
-    .required()
-    .oneOf(allowedTokensLowerCased),
+  token: yup.string().required().oneOf(allowedTokensLowerCased),
   amount: yup.number().required().moreThan(0),
 });
 

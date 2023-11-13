@@ -1,4 +1,8 @@
-import { ContractTransaction, JsonRpcProvider, TransactionReceipt } from 'ethers';
+import {
+  ContractTransaction,
+  JsonRpcProvider,
+  TransactionReceipt,
+} from 'ethers';
 
 export async function sendTxFromAddress(
   tx: ContractTransaction,
@@ -12,12 +16,12 @@ export async function sendTxFromAddress(
 
   const txHash = await provider.send('eth_sendTransaction', [txToSend]);
 
-  return provider.getTransactionReceipt(txHash)
+  return provider.getTransactionReceipt(txHash);
 }
 
 export function throwOnRevertedTx(tx: TransactionReceipt): TransactionReceipt {
   if (tx.status === 0) {
-      throw new Error(`Transaction ${tx.hash} reverted`)
+    throw new Error(`Transaction ${tx.hash} reverted`);
   }
   return tx;
 }

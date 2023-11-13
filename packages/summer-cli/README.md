@@ -38,3 +38,9 @@ The `description` will be displayed in help
 `run` is actuall logic of the command, passed args are parsed and validated before invking run.
 
 `args` is yup schema for parsing and validation of the arguments.
+
+## How to
+
+- Add new supported token:
+
+In `utils./tokens.ts` add new token to tokens array, then typescript should hightlight all palces where you will miss data, like decimals and holders map (holders map is used to transfer token from holder to your wallet while running the script)

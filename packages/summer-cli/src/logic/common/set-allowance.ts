@@ -8,7 +8,7 @@ import {
 } from '../../utils/tokens';
 import { sendTxFromAddress } from '../../utils/tx';
 import type { Enviroment } from './enviroment';
-import { Address } from '@oasisdex/addresses'
+import { Address } from '@oasisdex/addresses';
 
 export async function setAllowance(
   enviroment: Enviroment,
