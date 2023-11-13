@@ -1,13 +1,14 @@
-import { Enviroment } from '../common/enviroment';
 import { ADDRESSES } from '@oasisdex/addresses';
+
 import { SupportedTokens } from '../../utils/tokens';
-import { setAllowance } from '../common/set-allowance';
 import { throwOnRevertedTx } from '../../utils/tx';
+import { Enviroment } from '../common/enviroment';
 import { getTokens } from '../common/get-tokens';
+import { setAllowance } from '../common/set-allowance';
 import {
+  aaveBorrow,
   aaveSupply,
   setAssetAsCollateral,
-  aaveBorrow,
 } from './aave-basic-actions';
 
 export async function createEOAPosition(

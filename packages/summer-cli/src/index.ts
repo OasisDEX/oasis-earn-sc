@@ -1,6 +1,6 @@
 import { getCommandName, parseArguments } from './cli';
-import * as commands from './commands';
 import { makeCommandRunner } from './cli/command-runner';
+import * as commands from './commands';
 
 async function main(args: string[]) {
   const commandName = getCommandName(args);

@@ -1,8 +1,9 @@
-import type { Command } from '../cli/command';
 import * as yup from 'yup';
-import { allowedTokensLowerCased } from '../utils/tokens';
+
+import type { Command } from '../cli/command';
 import { createEOAPosition } from '../logic/aave/open-eoa-position';
 import { toUpperCase } from '../utils/to-upper-case';
+import { allowedTokensLowerCased } from '../utils/tokens';
 
 const argsSchema = yup.object().shape({
   assetToken: yup.string().required().oneOf(allowedTokensLowerCased),

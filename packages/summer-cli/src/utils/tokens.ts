@@ -1,6 +1,7 @@
-import { ADDRESSES, Address, ADDRESS_ZERO } from '@oasisdex/addresses';
-import { SupportedNetowkrs } from './network';
+import { Address, ADDRESS_ZERO, ADDRESSES } from '@oasisdex/addresses';
 import BigNumber from 'bignumber.js';
+
+import { SupportedNetowkrs } from './network';
 
 export const tokens = [
   'WETH',

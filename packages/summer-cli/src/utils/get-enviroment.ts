@@ -1,7 +1,9 @@
-import { Address } from '@oasisdex/addresses';
-import { createEnviroment, Enviroment } from '../logic/common/enviroment';
 import 'dotenv/config';
+
+import { Address } from '@oasisdex/addresses';
 import { isAddress } from 'ethers';
+
+import { createEnviroment, Enviroment } from '../logic/common/enviroment';
 
 function getWallet(): Address {
   const wallet = process.env.WALLET;

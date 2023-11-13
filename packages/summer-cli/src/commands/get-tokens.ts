@@ -1,8 +1,9 @@
-import type { Command } from '../cli/command';
 import * as yup from 'yup';
-import { allowedTokensLowerCased, tokens } from '../utils/tokens';
+
+import type { Command } from '../cli/command';
 import { getTokens } from '../logic/common/get-tokens';
 import { toUpperCase } from '../utils/to-upper-case';
+import { allowedTokensLowerCased, tokens } from '../utils/tokens';
 
 const argsSchema = yup.object().shape({
   token: yup.string().required().oneOf(allowedTokensLowerCased),

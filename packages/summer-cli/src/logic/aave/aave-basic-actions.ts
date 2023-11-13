@@ -1,14 +1,16 @@
 import AAVEPoolAbi from '@oasisdex/abis/external/protocols/aave/v3/pool.json';
+// eslint-disable-next-line import/no-unresolved
 import { Pool } from '@oasisdex/abis/types/ethers-contracts/protocols/aave/v3/pool';
+import { Address, ADDRESSES } from '@oasisdex/addresses';
 import { Contract } from 'ethers';
-import { Enviroment } from '../common/enviroment';
-import { ADDRESSES, Address } from '@oasisdex/addresses';
+
 import {
-  SupportedTokens,
   getTokenAddress,
+  SupportedTokens,
   tokenAmountToWei,
 } from '../../utils/tokens';
 import { sendTxFromAddress } from '../../utils/tx';
+import { Enviroment } from '../common/enviroment';
 
 enum AAVEBorrowRate {
   STABLE = 1,

@@ -1,6 +1,6 @@
+import { getEnvitoment } from '../utils/get-enviroment';
 import { Command } from './command';
 import { getCommandsMap } from './get-commands-map';
-import { getEnvitoment } from '../utils/get-enviroment';
 
 interface SuccessfullRun {
   run: 'successfull';

@@ -1,11 +1,11 @@
-import { TransactionReceipt } from 'ethers';
+import { ethers, TransactionReceipt } from 'ethers';
+
 import {
-  SupportedTokens,
   getTokenAddress,
+  SupportedTokens,
   tokenAmountToWei,
 } from '../../utils/tokens';
 import type { Enviroment } from './enviroment';
-import { ethers } from 'ethers';
 
 export async function getTenderlyEth(enviroment: Enviroment, amount: number) {
   return enviroment.provider.send('tenderly_setBalance', [

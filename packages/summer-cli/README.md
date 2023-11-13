@@ -4,6 +4,8 @@ This is simple cli to automate common tasks on tenderly forks. To start you need
 
 ## Usage
 
+Before running make sure that typings in `/abis` are generated, if not go to the package and run `typechain`.
+
 To use cli run
 
 ```
