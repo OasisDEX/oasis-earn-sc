@@ -38,5 +38,6 @@ import './tasks/service-registry'
 import './tasks/operations-registry'
 import './tasks/ownership-tool'
 import './tasks/validate-multisig-tx'
+import './tasks/refinance'
 
 export { default } from './hardhat.config.base'

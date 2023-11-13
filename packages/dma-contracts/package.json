@@ -33,7 +33,8 @@
     "service:help": "npx hardhat service-registry --help",
     "system:checkowners": "npx hardhat ownership-tool",
     "system:changeowners": "npx hardhat ownership-tool --changeowners",
-    "multisig:validatetx": "npx hardhat validate-multisig-tx"
+    "multisig:validatetx": "npx hardhat validate-multisig-tx",
+    "refinance:list": "npx hardhat refinance --list dummy"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.3",

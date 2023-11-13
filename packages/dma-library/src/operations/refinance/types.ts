@@ -1,0 +1,86 @@
+import { ActionCall, Protocol } from '@dma-library/types'
+import {
+  WithAaveLikeStrategyAddresses,
+  WithFlashloanProvider,
+  WithNetwork,
+  WithNewPosition,
+  WithPaybackAll,
+  WithPositionProduct,
+  WithPositionStatus,
+  WithProxy,
+  WithStorageIndex,
+  WithSwap,
+  WithUserCollateral,
+  WithUserDebt,
+} from '@dma-library/types/operations'
+
+/**
+ * Refinance operation arguments
+ *
+ * @dev This type contains all the arguments needed to perform a refinance operation in any of
+ * the protocols supported by the library. Some arguments may not be used in the underlying function
+ * but this allows for consistency across all the protocols.
+ *
+ * @dev If a new argument is needed for a specific protocol, it should be added to this type and
+ * then used in the specific protocol function.
+ */
+export type RefinanceOperationArgs = WithStorageIndex &
+  WithProxy &
+  WithPositionProduct &
+  WithPositionStatus &
+  WithNewPosition &
+  WithUserCollateral &
+  WithUserDebt &
+  WithFlashloanProvider &
+  WithSwap &
+  WithPaybackAll &
+  WithAaveLikeStrategyAddresses &
+  WithNetwork
+
+/**
+ * Refinance operation return type
+ *
+ * @dev This type allows for composition of refinance operations. It contains the calls that
+ * must be executed for the specific operation and the last storage index used. This last index
+ * is used to track the storage used by the partial operation so the next partial operation
+ * in chain can use the next index.
+ */
+export type RefinancePartialOperationReturn = {
+  calls: ActionCall[]
+  lastStorageIndex: number
+}
+
+/**
+ * Refinance operattion function type
+ *
+ * @dev All the operations in the refinance library must have this type. This way they can
+ */
+export type RefinancePartialOperation = (
+  args: RefinanceOperationArgs,
+) => Promise<RefinancePartialOperationReturn>
+
+/**
+ * Refinance partial operation type
+ *
+ * @dev These are the types of partial operations that can be used to compose a refinance operation.
+ * Typically a Refinance operation will be composed of a sequence of partial operations:
+ *   - Close
+ *   - Open
+ */
+export enum RefinancePartialOperationType {
+  Close = 'Close',
+  Open = 'Open',
+}
+
+/**
+ * Refinance operations map
+ *
+ * @dev The map contains the partial operations that can be used to compose a refinance operation.
+ * It is indexed first by the protocol that the partial operation is for and then by the type of
+ * partial operation.
+ */
+export type RefinanceProtocolOperationsMap = Partial<
+  Record<RefinancePartialOperationType, RefinancePartialOperation>
+>
+
+export type RefinanceOperationsMap = Partial<Record<Protocol, RefinanceProtocolOperationsMap>>

@@ -1,3 +1,5 @@
+import { Protocol } from '@deploy-configurations/types/protocol'
+
 export const OPERATION_NAMES = {
   aave: {
     v2: {
@@ -66,6 +68,18 @@ type MakerOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['maker']>
 type AjnaOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['ajna']>
 type SparkOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['spark']>
 type CommonOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['common']>
+
+/**
+ * Refinance operations names
+ *
+ * @dev This type is used to generate the names of the refinance operations. It uses template
+ * literal types from Typescript 4.1 to generate the names
+ *
+ * @dev The `Protocol` type from `@dma-library` is redefined here to avoid dependencies issues.
+ * The type should actually be moved here and
+ */
+export type RefinanceOperationsNames = `Refinance_${Protocol}_${Protocol}`
+
 export type OperationNames =
   | CommonOperationsNames
   | AaveV2OperationsNames
@@ -73,3 +87,4 @@ export type OperationNames =
   | MakerOperationsNames
   | AjnaOperationsNames
   | SparkOperationsNames
+  | RefinanceOperationsNames

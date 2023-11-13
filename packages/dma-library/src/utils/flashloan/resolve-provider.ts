@@ -1,5 +1,5 @@
 import { Network } from '@deploy-configurations/types/network'
-import { Protocol } from '@dma-library/types'
+import { Protocol } from '@deploy-configurations/types/protocol'
 import { FlashloanProvider } from '@dma-library/types/common'
 
 export function resolveFlashloanProvider(

@@ -58,20 +58,32 @@ export type WithOptionalDeposit = Partial<{
   }
 }>
 
-export type WithSwap = {
+export type WithSwapParameters = {
   swap: {
     fee: number
     data: string | number
-    /* Amount to swap in base unit */
-    amount: BigNumber
     collectFeeFrom: 'sourceToken' | 'targetToken'
     receiveAtLeast: BigNumber
   }
 }
 
-export type WithFlashloan = {
+export type WithSwapAmount = {
+  swap: {
+    /* Amount to swap in base unit */
+    amount: BigNumber
+  }
+}
+
+export type WithSwap = WithSwapParameters & WithSwapAmount
+
+export type WithFlashloanProvider = {
   flashloan: {
     provider: FlashloanProvider
+  }
+}
+
+export type WithFlashloan = WithFlashloanProvider & {
+  flashloan: {
     token: {
       amount: BigNumber
       address: Address
@@ -97,14 +109,34 @@ export type WithPosition = {
   }
 }
 
-export type WithPositionAndLockedCollateral = WithPosition & {
-  position: WithPosition['position'] & WithLockedCollateral
+export type WithUserCollateral = {
+  user: WithCollateral & {
+    collateral: {
+      amount: BigNumber
+    }
+  }
 }
 
-type WithLockedCollateral = {
+export type WithUserDebt = {
+  user: WithDebt & {
+    amount: BigNumber
+  }
+}
+
+export type WithLockedCollateral = {
   collateral: {
     amount: BigNumber
   }
+}
+
+export type WithBorrowedDebt = {
+  debt: {
+    amount: BigNumber
+  }
+}
+
+export type WithPositionAndLockedCollateral = WithPosition & {
+  position: WithPosition['position'] & WithLockedCollateral
 }
 
 export type WithAaveLikeStrategyAddresses = {
@@ -131,4 +163,29 @@ export type WithAjnaBucketPrice = {
 
 export type WithNetwork = {
   network: Network
+}
+
+export type WithPaybackAll = {
+  isPaybackAll: boolean
+}
+
+/**
+ * Refinance
+ */
+export type WithPositionProduct = {
+  position: WithPosition['position'] & WithDebt & WithCollateral
+}
+
+export type WithPositionAmounts = {
+  position: WithBorrowedDebt & WithLockedCollateral
+}
+
+export type WithPositionStatus = WithPositionProduct & WithPositionAmounts
+
+export type WithStorageIndex = {
+  lastStorageIndex: number
+}
+
+export type WithNewPosition = {
+  newPosition: WithPosition['position'] & WithDebt & WithCollateral
 }
