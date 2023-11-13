@@ -1,2 +1,2 @@
-export { getCommandName } from './get-script-name'
-export { parseArguments } from './parse-arguments'
+export { getCommandName } from './get-script-name';
+export { parseArguments } from './parse-arguments';

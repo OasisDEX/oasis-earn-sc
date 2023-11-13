@@ -18,13 +18,13 @@
     "noImplicitAny": false,
     "noImplicitThis": false,
     "strictNullChecks": false,
-    "esModuleInterop": true,
+    "esModuleInterop": true
   },
   "include": ["src/**/*.ts", "__tests__/**/*.ts"],
   "paths": {
     "@abis/external/*": ["../abis/external/*"],
     "@abis/system/*": ["../abis/system/*"],
-    "@deploy-configurations/*": ["../deploy-configurations/*"],
+    "@deploy-configurations/*": ["../deploy-configurations/*"]
   },
   "references": [
     {
@@ -32,6 +32,6 @@
     },
     {
       "path": "../deploy-configurations"
-    },
-  ],
+    }
+  ]
 }

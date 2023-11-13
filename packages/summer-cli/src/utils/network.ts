@@ -1,13 +1,13 @@
 // export from the addresses library does not work, it seems like it's just a type not a value
 export enum Network {
-  MAINNET = "mainnet",
-  GOERLI = "goerli",
-  HARDHAT = "hardhat",
-  OPTIMISM = "optimism",
-  ARBITRUM = "arbitrum",
-  BASE = "base",
-  LOCAL = "local",
-  TENDERLY = "tenderly"
+  MAINNET = 'mainnet',
+  GOERLI = 'goerli',
+  HARDHAT = 'hardhat',
+  OPTIMISM = 'optimism',
+  ARBITRUM = 'arbitrum',
+  BASE = 'base',
+  LOCAL = 'local',
+  TENDERLY = 'tenderly',
 }
 
 export const networkById = {

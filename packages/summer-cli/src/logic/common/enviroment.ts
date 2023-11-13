@@ -4,7 +4,7 @@ import { Address } from '@oasisdex/addresses';
 
 export interface Enviroment {
   walletSigner: JsonRpcSigner;
-  provier: JsonRpcProvider;
+  provider: JsonRpcProvider;
   network: SupportedNetowkrs;
 }
 
@@ -12,13 +12,13 @@ export async function createEnviroment(
   wallet: Address,
   rpc: string,
 ): Promise<Enviroment> {
-  const provier = new ethers.JsonRpcProvider(rpc);
+  const provider = new ethers.JsonRpcProvider(rpc);
 
-  const network = await provier.getNetwork();
+  const network = await provider.getNetwork();
 
   return {
-    walletSigner: new JsonRpcSigner(provier, wallet),
-    provier,
+    walletSigner: new JsonRpcSigner(provider, wallet),
+    provider,
     network: getSupportedNetwork(network.chainId.toString()),
   };
 }

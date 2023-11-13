@@ -1,34 +1,14 @@
-import { getCommandName, parseArguments } from './cli'
-import { Command } from './cli/command'
-import { getCommandsMap } from './cli/get-commands-map'
-import * as commands from './commands'
-import { getEnvitoment } from './utils/get-enviroment'
+import { getCommandName, parseArguments } from './cli';
+import * as commands from './commands';
+import { makeCommandRunner } from './cli/command-runner';
 
-async function runCommand(command: Command, args: Record<string, string>) {
-    const enviroment = await getEnvitoment()
+async function main(args: string[]) {
+  const commandName = getCommandName(args);
+  const argsMap = parseArguments(args);
 
-    try {
-        console.log(args)
-        const parsedArgs = await command.args.validate(args)
-        command.run(parsedArgs, enviroment)
+  const commandRunner = makeCommandRunner(commands);
 
-    } catch (error) {
-        console.log('Invalid arguments', error)
-    }
-
+  commandRunner.run(commandName, argsMap)
 }
 
-async function main (args: string[]) {
-    const commandName = getCommandName(args)
-    const commandsMap = getCommandsMap(commands)
-    const avaiableCommands = Object.keys(commandsMap)
-
-    if (commandName !== undefined && avaiableCommands.includes(commandName)) {
-        runCommand(commandsMap[commandName], parseArguments(args))
-    } else {
-        console.log(`Command not found: ${commandName}`)
-    }
-    
-}
-
-main(process.argv)
+main(process.argv);
