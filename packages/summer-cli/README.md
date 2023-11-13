@@ -43,4 +43,9 @@ The `description` will be displayed in help
 
 - Add new supported token:
 
-In `utils./tokens.ts` add new token to tokens array, then typescript should hightlight all palces where you will miss data, like decimals and holders map (holders map is used to transfer token from holder to your wallet while running the script)
+In `utils./tokens.ts` add new token to tokens array, then typescript should hightlight all palces where you will miss data, like decimals.
+
+## Missings stuff
+
+- [] Help displayed when command not found or wrong params
+- [] Autocomplete
