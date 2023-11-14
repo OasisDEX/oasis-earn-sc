@@ -2,11 +2,13 @@ import { OperationNames } from '@deploy-configurations/constants'
 import { Protocol, ProtocolNames } from '@deploy-configurations/types/protocol'
 import { IOperation } from '@dma-library/types'
 
-import { refinanceSwap_calls } from './common/refinance-swap.calls'
+import { refinanceSwap_calls, refinanceSwap_definition } from './common/refinance-swap.calls'
 import {
   RefinanceOperationArgs,
+  RefinanceOperationDefinition,
   RefinanceOperationsMap,
-  RefinancePartialOperation,
+  RefinancePartialOperationDefinition,
+  RefinancePartialOperationGenerator,
   RefinancePartialOperationType,
 } from './types'
 
@@ -29,9 +31,16 @@ export const RefinanceOperations: RefinanceOperationsMap = {}
 export function registerRefinanceOperation(
   protocol: Protocol,
   opType: RefinancePartialOperationType,
-  opGenerator: RefinancePartialOperation,
+  opGenerator: RefinancePartialOperationGenerator,
+  opDefinition: RefinancePartialOperationDefinition,
 ): void {
-  RefinanceOperations[protocol] = { ...RefinanceOperations[protocol], [opType]: opGenerator }
+  RefinanceOperations[protocol] = {
+    ...RefinanceOperations[protocol],
+    [opType]: {
+      generator: opGenerator,
+      definition: opDefinition,
+    },
+  }
 }
 
 /**
@@ -47,9 +56,9 @@ export async function getRefinanceOperation(
   protocolTo: Protocol,
   args: RefinanceOperationArgs,
 ): Promise<IOperation | undefined> {
-  const protocolFromCallsGetter = RefinanceOperations[protocolFrom]?.Close
+  const protocolFromCallsGetter = RefinanceOperations[protocolFrom]?.Close?.generator
   const swapOperationsCallsGetter = refinanceSwap_calls
-  const protocolToOperationsCallsGetter = RefinanceOperations[protocolTo]?.Open
+  const protocolToOperationsCallsGetter = RefinanceOperations[protocolTo]?.Open?.generator
 
   if (!protocolFromCallsGetter || !swapOperationsCallsGetter || !protocolToOperationsCallsGetter) {
     return undefined
@@ -99,4 +108,31 @@ export function getAvailableRefinanceOperationsNames(): OperationNames[] | undef
       return acc
     }, acc as OperationNames[])
   }, [] as OperationNames[])
+}
+
+/**
+ * Returns the operation definition for the given pair of protocols
+ *
+ * @returns The operation definition or undefined if it is not defined
+ */
+export function getOperationDefinition(
+  protocolFrom: Protocol,
+  protocolTo: Protocol,
+): RefinanceOperationDefinition | undefined {
+  const protocolFromDefinition = RefinanceOperations[protocolFrom]?.Close?.definition
+  const swapOperationsDefinition = refinanceSwap_definition
+  const protocolToOperationsDefinition = RefinanceOperations[protocolTo]?.Open?.definition
+
+  if (!protocolFromDefinition || !swapOperationsDefinition || !protocolToOperationsDefinition) {
+    return undefined
+  }
+
+  return {
+    name: getRefinanceOperationName(protocolFrom, protocolTo),
+    actions: [
+      ...protocolFromDefinition,
+      ...swapOperationsDefinition,
+      ...protocolToOperationsDefinition,
+    ],
+  }
 }

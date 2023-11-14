@@ -7,7 +7,7 @@ import {
   WithSwapParameters,
 } from '@dma-library/types/operations'
 
-import { RefinancePartialOperation } from '../types'
+import { RefinancePartialOperationDefinition, RefinancePartialOperationGenerator } from '../types'
 
 export type RefinanceSwapOperationArgs = WithStorageIndex &
   WithPositionStatus &
@@ -15,7 +15,7 @@ export type RefinanceSwapOperationArgs = WithStorageIndex &
   WithSwapParameters &
   WithNetwork
 
-export const refinanceSwap_calls: RefinancePartialOperation = async _args => {
+export const refinanceSwap_calls: RefinancePartialOperationGenerator = async _args => {
   const args = _args as RefinanceSwapOperationArgs
   const { network, position, newPosition, swap } = args
 
@@ -40,3 +40,11 @@ export const refinanceSwap_calls: RefinancePartialOperation = async _args => {
     lastStorageIndex,
   }
 }
+
+// Operation definition
+export const refinanceSwap_definition: RefinancePartialOperationDefinition = [
+  {
+    serviceNamePath: 'common.SWAP_ACTION',
+    optional: true,
+  },
+]

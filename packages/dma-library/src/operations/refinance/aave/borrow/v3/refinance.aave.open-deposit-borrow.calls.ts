@@ -4,7 +4,8 @@ import { borrow } from '@dma-library/operations/aave/borrow/v3/borrow'
 import { deposit } from '@dma-library/operations/aave/borrow/v3/deposit'
 import { registerRefinanceOperation } from '@dma-library/operations/refinance/refinance.operations'
 import {
-  RefinancePartialOperation,
+  RefinancePartialOperationDefinition,
+  RefinancePartialOperationGenerator,
   RefinancePartialOperationType,
 } from '@dma-library/operations/refinance/types'
 import {
@@ -18,9 +19,10 @@ import {
   WithUserDebt,
 } from '@dma-library/types/operations'
 
-import { toBorrowArgs, toDepositArgs } from '../../common/refinance-aave-casts'
+import { toBorrowArgs, toDepositArgs } from '../../common/refinance.aave.casts'
 
-export type RefinanceAaveV3OpenDepositBorrowOperationArgs = WithStorageIndex &
+// Arguments type
+type RefinanceAaveV3OpenDepositBorrowOperationArgs = WithStorageIndex &
   WithPositionProduct &
   WithProxy &
   WithUserCollateral &
@@ -29,7 +31,8 @@ export type RefinanceAaveV3OpenDepositBorrowOperationArgs = WithStorageIndex &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
-export const refinanceOpenDepositBorrow_calls: RefinancePartialOperation = async _args => {
+// Calls generator
+const refinanceOpenDepositBorrow_calls: RefinancePartialOperationGenerator = async _args => {
   const args = _args as RefinanceAaveV3OpenDepositBorrowOperationArgs
   const { position, addresses, network } = args
 
@@ -68,8 +71,33 @@ export const refinanceOpenDepositBorrow_calls: RefinancePartialOperation = async
   }
 }
 
+// Operation definition
+const refinanceOpenDepositBorrow_definition: RefinancePartialOperationDefinition = [
+  {
+    serviceNamePath: 'common.TAKE_A_FLASHLOAN',
+    optional: false,
+  },
+  {
+    serviceNamePath: 'common.SET_APPROVAL',
+    optional: false,
+  },
+  {
+    serviceNamePath: 'common.WRAP_ETH',
+    optional: true,
+  },
+  {
+    serviceNamePath: 'aave.v3.PAYBACK',
+    optional: false,
+  },
+  {
+    serviceNamePath: 'common.UNWRAP_ETH',
+    optional: true,
+  },
+]
+
 registerRefinanceOperation(
   'AAVE_V3',
   RefinancePartialOperationType.Open,
   refinanceOpenDepositBorrow_calls,
+  refinanceOpenDepositBorrow_definition,
 )

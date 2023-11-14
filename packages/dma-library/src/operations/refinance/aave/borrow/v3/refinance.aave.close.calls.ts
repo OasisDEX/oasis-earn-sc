@@ -2,7 +2,8 @@ import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { registerRefinanceOperation } from '@dma-library/operations/refinance/refinance.operations'
 import {
-  RefinancePartialOperation,
+  RefinancePartialOperationDefinition,
+  RefinancePartialOperationGenerator,
   RefinancePartialOperationType,
 } from '@dma-library/operations/refinance/types'
 import { WithProxy } from '@dma-library/types'
@@ -16,7 +17,8 @@ import {
 } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 
-export type RefinanceCloseV3OperationArgs = WithStorageIndex &
+// Arguments type
+type RefinanceCloseV3OperationArgs = WithStorageIndex &
   WithProxy &
   WithFlashloanProvider &
   WithPositionStatus &
@@ -24,7 +26,8 @@ export type RefinanceCloseV3OperationArgs = WithStorageIndex &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
-export const refinanceClose_calls: RefinancePartialOperation = async _args => {
+// Calls generator
+const refinanceClose_calls: RefinancePartialOperationGenerator = async _args => {
   const args = _args as RefinanceCloseV3OperationArgs
   const { network, addresses, flashloan, position, proxy, isPaybackAll } = args
 
@@ -70,4 +73,33 @@ export const refinanceClose_calls: RefinancePartialOperation = async _args => {
   }
 }
 
-registerRefinanceOperation('AAVE_V3', RefinancePartialOperationType.Close, refinanceClose_calls)
+// Operation definition
+const refinanceClose_definition: RefinancePartialOperationDefinition = [
+  {
+    serviceNamePath: 'common.TAKE_A_FLASHLOAN',
+    optional: false,
+  },
+  {
+    serviceNamePath: 'common.SET_APPROVAL',
+    optional: false,
+  },
+  {
+    serviceNamePath: 'common.WRAP_ETH',
+    optional: true,
+  },
+  {
+    serviceNamePath: 'aave.v3.PAYBACK',
+    optional: false,
+  },
+  {
+    serviceNamePath: 'common.UNWRAP_ETH',
+    optional: true,
+  },
+]
+
+registerRefinanceOperation(
+  'AAVE_V3',
+  RefinancePartialOperationType.Close,
+  refinanceClose_calls,
+  refinanceClose_definition,
+)
