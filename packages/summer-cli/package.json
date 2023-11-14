@@ -24,8 +24,6 @@
     "cli": "ts-node src/index.ts",
     "clean": "rimraf coverage build tmp",
     "prebuild": "npm run lint",
-    "build": "tsc -p tsconfig.json",
-    "build:watch": "tsc -w -p tsconfig.json",
     "lint": "eslint . --ext .ts --ext .mts",
     "lint:fix": "eslint . --ext .ts --ext .mts --fix",
     "prettier": "prettier --config .prettierrc --write ."
