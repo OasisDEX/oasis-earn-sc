@@ -4,13 +4,13 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "typechain": "typechain --target=ethers-v6 \"./external/**/**.json\""
+    "typechain": "typechain --target=ethers-v5 \"./external/**/**.json\""
   },
   "devDependencies": {
-    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/ethers-v5": "^11.1.2",
     "typechain": "^8.3.2"
   },
   "dependencies": {
-    "ethers": "^6.8.1"
+    "ethers": "5.7.2"
   }
 }
