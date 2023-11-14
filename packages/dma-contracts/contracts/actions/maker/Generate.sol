@@ -12,7 +12,9 @@ import { IJug } from "../../interfaces/maker/IJug.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { GenerateData } from "../../core/types/Maker.sol";
-import { MCD_MANAGER, MCD_JUG, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
+import { CDP_MANAGER, MCD_JUG, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
+
+import "hardhat/console.sol";
 
 contract MakerGenerate is Executable, UseStore {
   using SafeMath for uint256;
@@ -22,6 +24,9 @@ contract MakerGenerate is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+    
+    console.log('GENERATE INIT' );
+    
     GenerateData memory generateData = parseInputs(data);
     generateData.vaultId = store().readUint(
       bytes32(generateData.vaultId),
@@ -30,11 +35,14 @@ contract MakerGenerate is Executable, UseStore {
     );
 
     uint256 amountGenerated = _generate(generateData);
+
+    console.log('GENERATED FROM VAULT', amountGenerated );
+    
     store().write(bytes32(amountGenerated));
   }
 
   function _generate(GenerateData memory data) internal returns (uint256) {
-    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    IManager manager = IManager(registry.getRegisteredService(CDP_MANAGER));
     IVat vat = manager.vat();
 
     manager.frob(
@@ -50,8 +58,8 @@ contract MakerGenerate is Executable, UseStore {
     );
 
     manager.move(data.vaultId, address(this), data.amount.mul(MathUtils.RAY));
-
     address daiJoin = registry.getRegisteredService(MCD_JOIN_DAI);
+
     if (vat.can(address(this), daiJoin) == 0) {
       vat.hope(daiJoin);
     }

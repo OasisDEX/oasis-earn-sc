@@ -6,7 +6,9 @@ import { UseStore, Write } from "../common/UseStore.sol";
 import { IManager } from "../../interfaces/maker/IManager.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { OpenVaultData } from "../../core/types/Maker.sol";
-import { MCD_MANAGER } from "../../core/constants/Maker.sol";
+import { CDP_MANAGER } from "../../core/constants/Maker.sol";
+
+import "hardhat/console.sol";
 
 contract MakerOpenVault is Executable, UseStore {
   using Write for OperationStorage;
@@ -16,14 +18,23 @@ contract MakerOpenVault is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     OpenVaultData memory openVaultData = parseInputs(data);
 
+    console.log('OPENING VAULT' );
+    
+
     uint256 vaultId = _openVault(openVaultData);
+
+    console.log('OPENED MAKER VAULT', vaultId );
+    
     store().write(bytes32(vaultId));
   }
 
   function _openVault(OpenVaultData memory data) internal returns (uint256) {
     bytes32 ilk = data.joinAddress.ilk();
 
-    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    IManager manager = IManager(registry.getRegisteredService(CDP_MANAGER));
+
+    console.log('MANAGER', address(manager) );
+    
     uint256 vaultId = manager.open(ilk, address(this));
 
     return vaultId;

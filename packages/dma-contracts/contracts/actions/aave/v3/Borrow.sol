@@ -11,6 +11,7 @@ import { BorrowData } from "../../../core/types/Aave.sol";
 import { AAVE_POOL } from "../../../core/constants/Aave.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 
+import "hardhat/console.sol";
 /**
  * @title Borrow | AAVE V3 Action contract
  * @notice Borrows token from AAVE's lending pool
@@ -26,6 +27,8 @@ contract AaveV3Borrow is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     BorrowData memory borrow = parseInputs(data);
 
+    console.log('AAVE BORROWING' );
+    
     IPoolV3(registry.getRegisteredService(AAVE_POOL)).borrow(
       borrow.asset,
       borrow.amount,
@@ -34,6 +37,8 @@ contract AaveV3Borrow is Executable, UseStore {
       address(this)
     );
 
+    console.log('AAVE v3 BORROWED' );
+    
     store().write(bytes32(borrow.amount));
   }
 

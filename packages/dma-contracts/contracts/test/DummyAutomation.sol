@@ -9,7 +9,7 @@ import { SafeMath } from "../libs/SafeMath.sol";
 import { Call } from "../core/types/Common.sol";
 import { Address } from "../libs/Address.sol";
 import { IManager } from "../interfaces/maker/IManager.sol";
-import { MCD_MANAGER } from "../core/constants/Maker.sol";
+import { CDP_MANAGER } from "../core/constants/Maker.sol";
 import { DummyCommand } from "./DummyCommand.sol";
 
 contract DummyAutomation {
@@ -28,7 +28,7 @@ contract DummyAutomation {
     uint256 vaultId,
     address commandAddress
   ) public {
-    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    IManager manager = IManager(registry.getRegisteredService(CDP_MANAGER));
     manager.cdpAllow(vaultId, commandAddress, 1);
     DummyCommand(commandAddress).execute(executionData, opExecutorAddress);
     manager.cdpAllow(vaultId, commandAddress, 0);

@@ -10,6 +10,7 @@ import { SafeMath } from "../../../libs/SafeMath.sol";
 
 import { AAVE_POOL } from "../../../core/constants/Aave.sol";
 
+import "hardhat/console.sol";
 /**
  * @title Deposit | AAVE V3 Action contract
  * @notice Deposits the specified asset as collateral on AAVE's lending pool
@@ -29,6 +30,8 @@ contract AaveV3Deposit is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory deposit = parseInputs(data);
 
+    console.log('AAVE V3 DEPOSITING' );
+    
     uint256 mappedDepositAmount = store().readUint(
       bytes32(deposit.amount),
       paramsMap[1],
@@ -53,6 +56,9 @@ contract AaveV3Deposit is Executable, UseStore {
       );
     }
 
+
+    console.log('AAVE V3 DEPOSITED' );
+    
     store().write(bytes32(actualDepositAmount));
   }
 

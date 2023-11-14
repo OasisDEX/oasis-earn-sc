@@ -26,6 +26,7 @@ import {
   unwrapEth,
   wrapEth,
 } from './common'
+import { makerDeposit, makerGenerate, makerOpen, makerPayback, makerWithdraw } from './maker'
 import { sparkBorrow, sparkDeposit, sparkPayback, sparkSetEMode, sparkWithdraw } from './spark'
 
 const aave = {
@@ -72,6 +73,15 @@ const spark = {
   setEMode: sparkSetEMode,
 }
 
-const actions = { aave, ajna, common, spark }
+const maker = {
+  open: makerOpen,
+  deposit: makerDeposit,
+  generate: makerGenerate,
+  payback: makerPayback,
+  withdraw: makerWithdraw,
+ 
+}
+
+const actions = { aave, ajna, common, spark, maker }
 
 export { actions }

@@ -27,7 +27,15 @@ export type SparkActions =
   | `SparkPayback`
   | `SparkSetEMode`
 
-export type Actions = CommonActions | AaveV3Actions | AjnaActions
+export type MakerActions =
+  | `MakerOpenVault`
+  | `MakerDeposit`
+  | `MakerWithdraw`
+  | `MakerPayback`
+  | `MakerGenerate`
+
+
+export type Actions = CommonActions | AaveV3Actions | AjnaActions | MakerActions
 
 import { SystemConfigEntry } from './config-entries'
 

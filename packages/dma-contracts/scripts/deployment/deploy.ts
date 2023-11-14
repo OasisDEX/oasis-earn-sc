@@ -525,6 +525,29 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
+  async replaceDummySwapContracts() {
+    if (!this.provider) throw new Error('No provider set')
+    if (!this.signerAddress) throw new Error('No signerAddress set')
+    if (!this.deployedSystem.ServiceRegistry) throw new Error('No ServiceRegistry instance')
+    
+    if (this.deployedSystem.DummySwap) {
+      const serviceRegistry = this.deployedSystem.ServiceRegistry
+      const swapHash = this.getRegistryEntryHash('Swap')
+      const encode = (types: any[], values: any[]) =>
+        this.ethers.utils.defaultAbiCoder.encode(types, values)
+      const slot = this.ethers.utils.keccak256(encode(['bytes32', 'uint'], [swapHash, 1]))
+      const paddedAddress = ethers.utils.hexZeroPad(this.deployedSystem.DummySwap.contract.address, 32)
+
+      console.log('PADDED ADDRESS', paddedAddress );
+      
+      await this.provider.send('hardhat_setStorageAt', [
+        serviceRegistry.contract.address,
+        slot,
+        paddedAddress,
+      ])
+    }
+  }
+
   async instantiateContracts(addressesConfig: SystemConfigEntry[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
@@ -782,6 +805,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.maker.common).filter(
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+
+    await this.addRegistryEntries(
+      Object.values(this.config.maker.joins).filter(
         (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )

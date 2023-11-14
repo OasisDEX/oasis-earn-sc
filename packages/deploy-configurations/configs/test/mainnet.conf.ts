@@ -92,6 +92,14 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      McdView: {
+        name: 'McdView',
+        deploy: true,
+        address: '',
+        serviceRegistryName: 'McdView',
+        history: [],
+        constructorArgs: [],
+      }
     },
     actions: {
       PositionCreated: {
@@ -258,6 +266,46 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
+      MakerOpenVault: {
+        name: 'MakerOpenVault',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.OPEN_VAULT,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MakerDeposit: {
+        name: 'MakerDeposit',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.DEPOSIT,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MakerGenerate: {
+        name: 'MakerGenerate',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.GENERATE,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MakerPayback: {
+        name: 'MakerPayback',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.PAYBACK,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MakerWithdraw: {
+        name: 'MakerWithdraw',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      }
     },
   },
   common: {
@@ -539,6 +587,7 @@ export const config: SystemConfig = {
       CdpManager: {
         name: 'CdpManager',
         address: '0x5ef30b9986345249bc32d8928B7ee64DE9435E39',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.CDP_MANAGER,
       },
       GetCdps: {
         name: 'GetCdps',
@@ -547,6 +596,7 @@ export const config: SystemConfig = {
       Jug: {
         name: 'Jug',
         address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.MCD_JUG,
       },
       Pot: {
         name: 'Pot',
@@ -574,7 +624,11 @@ export const config: SystemConfig = {
       },
     },
     joins: {
-      MCD_JOIN_DAI: { name: 'MCD_JOIN_DAI', address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28' },
+      MCD_JOIN_DAI: { 
+        name: 'MCD_JOIN_DAI',
+        address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.MCD_JOIN_DAI,
+      },
       MCD_JOIN_ETH_A: {
         name: 'MCD_JOIN_ETH_A',
         address: '0x2F0b23f53734252Bda2277357e97e1517d6B042A',

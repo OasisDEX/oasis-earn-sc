@@ -68,7 +68,7 @@ export const SERVICE_REGISTRY_NAMES = {
 
     MCD_VIEW: 'McdView',
     FLASH_MINT_MODULE: 'McdFlashMintModule',
-    MCD_MANAGER: 'McdManager',
+    CDP_MANAGER: 'CdpManager',
     MCD_JUG: 'McdJug',
     MCD_JOIN_DAI: 'McdJoinDai',
     CDP_ALLOW: 'CdpAllow',

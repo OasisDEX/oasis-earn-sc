@@ -18,6 +18,7 @@ import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./co
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 import { BALANCER_VAULT } from "./constants/Balancer.sol";
 
+import "hardhat/console.sol";
 error UntrustedLender(address lender);
 error InconsistentAsset(address flashloaned, address required);
 error InconsistentAmount(uint256 flashloaned, uint256 required);
@@ -133,6 +134,8 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
     checkIfFlashloanedAmountIsTheRequiredOne(asset, flData.amount);
 
+    console.log('FLASHLOANED', flData.amount );
+    
     processFlashloan(flData, initiator);
 
     uint256 paybackAmount = amount.add(fee);
@@ -192,6 +195,8 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
 
   function processFlashloan(FlashloanData memory flData, address initiator) private {
     if (flData.isProxyFlashloan) {
+      console.log('FLASHLOAN INITIATOR', initiator );
+      
       IERC20(flData.asset).safeTransfer(initiator, flData.amount);
       IDSProxy(payable(initiator)).execute(
         address(this),

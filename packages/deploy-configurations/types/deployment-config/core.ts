@@ -1,7 +1,7 @@
 import { SystemConfigEntry } from './config-entries'
 
 export type USwapContract = 'uSwap'
-export type CoreMainnetOnly = 'ChainLogView'
+export type CoreMainnetOnly = 'ChainLogView' | 'McdView'
 export type Core =
   | 'ServiceRegistry'
   | 'OperationExecutor'
