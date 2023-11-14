@@ -111,7 +111,7 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
     network,
     {
       asset: aToken.address,
-      amount: aToken.amount,
+      amount: new BigNumber(MAX_UINT),
       from: proxy.owner,
     }
   )
