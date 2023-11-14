@@ -1,5 +1,5 @@
 import { Address, ADDRESS_ZERO, ADDRESSES } from '@oasisdex/addresses';
-import BigNumber from 'bignumber.js';
+import { ethers } from 'ethers';
 
 import { SupportedNetowkrs } from './network';
 
@@ -53,7 +53,7 @@ export function tokenAmountToWei(
   amount: number,
 ): string {
   const precision = tokenPrecision[token];
-  const multiplier = new BigNumber(10).pow(precision);
+  const multiplier = ethers.BigNumber.from(10).pow(precision);
 
-  return new BigNumber(amount).times(multiplier).toString();
+  return ethers.BigNumber.from(amount).mul(multiplier).toString();
 }

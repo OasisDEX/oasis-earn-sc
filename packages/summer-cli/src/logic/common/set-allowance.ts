@@ -1,7 +1,7 @@
 import ERC20 from '@oasisdex/abis/external/tokens/IERC20.json';
 import { IERC20 } from '@oasisdex/abis/types/ethers-contracts/tokens/IERC20';
 import { Address } from '@oasisdex/addresses';
-import { Contract, TransactionReceipt } from 'ethers';
+import { Contract, ethers } from 'ethers';
 
 import {
   getTokenAddress,
@@ -17,7 +17,7 @@ export async function setAllowance(
   allowedAddress: Address,
   token: SupportedTokens,
   amount: number,
-): Promise<TransactionReceipt> {
+): Promise<ethers.providers.TransactionReceipt> {
   const tokenAddress = getTokenAddress(token, enviroment.network);
 
   const contract = new Contract(
@@ -26,7 +26,7 @@ export async function setAllowance(
     enviroment.provider,
   ) as any as IERC20;
 
-  const txData = await contract.approve.populateTransaction(
+  const txData = await contract.populateTransaction.approve(
     allowedAddress,
     tokenAmountToWei(token, amount),
   );

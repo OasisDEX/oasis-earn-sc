@@ -1,14 +1,10 @@
-import {
-  ContractTransaction,
-  JsonRpcProvider,
-  TransactionReceipt,
-} from 'ethers';
+import { ethers } from 'ethers';
 
 export async function sendTxFromAddress(
-  tx: ContractTransaction,
+  tx: ethers.PopulatedTransaction,
   from: string,
-  provider: JsonRpcProvider,
-): Promise<TransactionReceipt> {
+  provider: ethers.providers.JsonRpcProvider,
+): Promise<ethers.providers.TransactionReceipt> {
   const txToSend = {
     ...tx,
     from,
@@ -19,9 +15,11 @@ export async function sendTxFromAddress(
   return provider.getTransactionReceipt(txHash);
 }
 
-export function throwOnRevertedTx(tx: TransactionReceipt): TransactionReceipt {
+export function throwOnRevertedTx(
+  tx: ethers.providers.TransactionReceipt,
+): ethers.providers.TransactionReceipt {
   if (tx.status === 0) {
-    throw new Error(`Transaction ${tx.hash} reverted`);
+    throw new Error(`Transaction ${tx.transactionHash} reverted`);
   }
   return tx;
 }

@@ -1,14 +1,12 @@
-import 'dotenv/config';
-
 import { Address } from '@oasisdex/addresses';
-import { isAddress } from 'ethers';
+import { ethers } from 'ethers';
 
 import { createEnviroment, Enviroment } from '../logic/common/enviroment';
 
 function getWallet(): Address {
   const wallet = process.env.WALLET;
 
-  if (!isAddress(wallet)) {
+  if (!ethers.utils.isAddress(wallet)) {
     throw new Error(`Invalid wallet address ${wallet}`);
   }
 

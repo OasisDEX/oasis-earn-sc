@@ -1,11 +1,13 @@
+import 'dotenv/config';
+
 import { Address } from '@oasisdex/addresses';
-import { ethers, JsonRpcProvider, JsonRpcSigner } from 'ethers';
+import { ethers } from 'ethers';
 
 import { getSupportedNetwork, SupportedNetowkrs } from '../../utils/network';
 
 export interface Enviroment {
-  walletSigner: JsonRpcSigner;
-  provider: JsonRpcProvider;
+  walletSigner: ethers.Signer;
+  provider: ethers.providers.JsonRpcProvider;
   network: SupportedNetowkrs;
 }
 
@@ -13,12 +15,12 @@ export async function createEnviroment(
   wallet: Address,
   rpc: string,
 ): Promise<Enviroment> {
-  const provider = new ethers.JsonRpcProvider(rpc);
+  const provider = new ethers.providers.JsonRpcProvider(rpc);
 
   const network = await provider.getNetwork();
 
   return {
-    walletSigner: new JsonRpcSigner(provider, wallet),
+    walletSigner: new ethers.VoidSigner(wallet, provider),
     provider,
     network: getSupportedNetwork(network.chainId.toString()),
   };

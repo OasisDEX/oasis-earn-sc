@@ -37,7 +37,7 @@ export async function aaveSupply(
   const AavePool = getAavePool(enviroment);
   const assetAddress = getTokenAddress(asset, enviroment.network);
 
-  const txData = await AavePool.supply.populateTransaction(
+  const txData = await AavePool.populateTransaction.supply(
     assetAddress,
     tokenAmountToWei(asset, amount),
     onBehalfOf,
@@ -56,7 +56,7 @@ export async function setAssetAsCollateral(
   const assetAddress = getTokenAddress(asset, enviroment.network);
 
   const txData =
-    await AavePool.setUserUseReserveAsCollateral.populateTransaction(
+    await AavePool.populateTransaction.setUserUseReserveAsCollateral(
       assetAddress,
       true,
     );
@@ -73,7 +73,7 @@ export async function aaveBorrow(
   const AavePool = getAavePool(enviroment);
   const debtAddress = getTokenAddress(debt, enviroment.network);
 
-  const txData = await AavePool.borrow.populateTransaction(
+  const txData = await AavePool.populateTransaction.borrow(
     debtAddress,
     tokenAmountToWei(debt, amount),
     rate,
