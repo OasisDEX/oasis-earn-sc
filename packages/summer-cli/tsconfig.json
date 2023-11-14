@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "CommonJS",
+    "resolveJsonModule": true,
+    "lib": ["ES2022"],
+    "rootDir": ".",
+    "outDir": "build",
+    "allowSyntheticDefaultImports": true,
+    "importHelpers": true,
+    "alwaysStrict": true,
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictNullChecks": false,
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*.ts", "__tests__/**/*.ts"],
+  "paths": {
+    "@abis/external/*": ["../abis/external/*"],
+    "@abis/system/*": ["../abis/system/*"],
+    "@deploy-configurations/*": ["../deploy-configurations/*"],
+    "@cli": "./src/cli/index.ts"
+  },
+  "references": [
+    {
+      "path": "../abis"
+    },
+    {
+      "path": "../deploy-configurations"
+    }
+  ]
+}
