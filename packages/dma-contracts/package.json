@@ -34,7 +34,9 @@
     "system:checkowners": "npx hardhat ownership-tool",
     "system:changeowners": "npx hardhat ownership-tool --changeowners",
     "multisig:validatetx": "npx hardhat validate-multisig-tx",
-    "refinance:list": "npx hardhat refinance --list dummy"
+    "refinance:list": "npx hardhat refinance-list",
+    "refinance:getdefinition": "npx hardhat refinance-get-definition",
+    "refinance:getdefinition:full": "npx hardhat refinance-get-definition --mode full"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.3",

@@ -1,8 +1,6 @@
-import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { registerRefinanceOperation } from '@dma-library/operations/refinance/refinance.operations'
 import {
-  RefinancePartialOperationDefinition,
   RefinancePartialOperationGenerator,
   RefinancePartialOperationType,
 } from '@dma-library/operations/refinance/types'
@@ -15,7 +13,7 @@ import {
   WithPositionStatus,
   WithStorageIndex,
 } from '@dma-library/types/operations'
-import BigNumber from 'bignumber.js'
+import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 
 // Arguments type
 type RefinanceCloseV3OperationArgs = WithStorageIndex &
@@ -33,15 +31,11 @@ const refinanceClose_calls: RefinancePartialOperationGenerator = async _args => 
 
   let lastStorageIndex = args.lastStorageIndex
 
-  const setDebtApprovalOnLendingPool = actions.common.setApproval(network, {
+  const setApproval = actions.common.setApproval(network, {
     amount: position.debt.amount,
     asset: position.debt.address,
     delegate: addresses.lendingPool,
     sumAmounts: false,
-  })
-
-  const wrapEth = actions.common.wrapEth(network, {
-    amount: position.debt.amount,
   })
 
   // +1 write to storage
@@ -52,11 +46,7 @@ const refinanceClose_calls: RefinancePartialOperationGenerator = async _args => 
   })
   lastStorageIndex += 1
 
-  const unwrapEthDebt = actions.common.unwrapEth(network, {
-    amount: new BigNumber(MAX_UINT),
-  })
-
-  const flashloanCalls = [setDebtApprovalOnLendingPool, wrapEth, paybackDebt, unwrapEthDebt]
+  const flashloanCalls = [setApproval, paybackDebt]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
@@ -74,7 +64,7 @@ const refinanceClose_calls: RefinancePartialOperationGenerator = async _args => 
 }
 
 // Operation definition
-const refinanceClose_definition: RefinancePartialOperationDefinition = [
+const refinanceClose_definition: ActionPathDefinition[] = [
   {
     serviceNamePath: 'common.TAKE_A_FLASHLOAN',
     optional: false,
@@ -84,16 +74,8 @@ const refinanceClose_definition: RefinancePartialOperationDefinition = [
     optional: false,
   },
   {
-    serviceNamePath: 'common.WRAP_ETH',
-    optional: true,
-  },
-  {
     serviceNamePath: 'aave.v3.PAYBACK',
     optional: false,
-  },
-  {
-    serviceNamePath: 'common.UNWRAP_ETH',
-    optional: true,
   },
 ]
 

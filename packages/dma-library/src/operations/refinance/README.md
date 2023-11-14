@@ -44,11 +44,16 @@ to call the `getRefinanceOperation` function. This function receives the origin 
 protocol and the list of arguments for the refinance operation. It returns a list of calls to be
 executed in the form of an `IOperation`, same as the rest of the operations defined in the library.
 
-A couple of helper functions are also provided. One to retrieve the name of an operation given the
-origin and target protocols, `getRefinanceOperationName`. And another to retrieve all of the defined
-refinance operations that are available, called `getAvailableRefinanceOperationsNames`.
+Three helper functions are also provided:
 
-TODO `getRefinanceOperationDefinition`
+- `getRefinanceOperationName`: retrieves the name of an operation given the origin and target
+  protocols
+- `getAvailableRefinanceOperationsNames`: retrieves all of the defined refinance operations that are
+  available
+- `getRefinanceOperationDefinition`: retrieves the operation definition, including the name of the
+  operation, the different actions that are used and their optionality. This can be used to create a
+  tool that generates the corresponding operation definitions in the `package/deploy-configurations`
+  folder
 
 # Directory and files structure
 

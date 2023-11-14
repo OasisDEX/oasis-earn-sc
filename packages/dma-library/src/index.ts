@@ -30,6 +30,7 @@ export { RiskRatio } from '@domain'
 export {
   getAvailableRefinanceOperationsNames,
   getRefinanceOperation,
+  getRefinanceOperationDefinition,
   getRefinanceOperationName,
 } from './operations'
 

@@ -1,10 +1,9 @@
 import { Protocol } from '@deploy-configurations/types/protocol'
 import { actions } from '@dma-library/actions'
-import { borrow } from '@dma-library/operations/aave/borrow/v3/borrow'
-import { deposit } from '@dma-library/operations/aave/borrow/v3/deposit'
+import { borrow, borrow_definition } from '@dma-library/operations/aave/borrow/v3/borrow'
+import { deposit, deposit_definition } from '@dma-library/operations/aave/borrow/v3/deposit'
 import { registerRefinanceOperation } from '@dma-library/operations/refinance/refinance.operations'
 import {
-  RefinancePartialOperationDefinition,
   RefinancePartialOperationGenerator,
   RefinancePartialOperationType,
 } from '@dma-library/operations/refinance/types'
@@ -18,6 +17,7 @@ import {
   WithUserCollateral,
   WithUserDebt,
 } from '@dma-library/types/operations'
+import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 
 import { toBorrowArgs, toDepositArgs } from '../../common/refinance.aave.casts'
 
@@ -72,26 +72,12 @@ const refinanceOpenDepositBorrow_calls: RefinancePartialOperationGenerator = asy
 }
 
 // Operation definition
-const refinanceOpenDepositBorrow_definition: RefinancePartialOperationDefinition = [
+const refinanceOpenDepositBorrow_definition: ActionPathDefinition[] = [
+  ...deposit_definition,
+  ...borrow_definition,
   {
-    serviceNamePath: 'common.TAKE_A_FLASHLOAN',
+    serviceNamePath: 'common.POSITION_CREATED',
     optional: false,
-  },
-  {
-    serviceNamePath: 'common.SET_APPROVAL',
-    optional: false,
-  },
-  {
-    serviceNamePath: 'common.WRAP_ETH',
-    optional: true,
-  },
-  {
-    serviceNamePath: 'aave.v3.PAYBACK',
-    optional: false,
-  },
-  {
-    serviceNamePath: 'common.UNWRAP_ETH',
-    optional: true,
   },
 ]
 

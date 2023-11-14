@@ -13,6 +13,7 @@ import {
   WithUserCollateral,
   WithUserDebt,
 } from '@dma-library/types/operations'
+import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 
 /**
  * Refinance operation arguments
@@ -60,37 +61,6 @@ export type RefinancePartialOperationGenerator = (
 ) => Promise<RefinancePartialOperationReturn>
 
 /**
- * Refinance action definition
- *
- * @dev This type defines an action that can be used in a refinance operation. It contains the
- * hash of the action and whether it is optional or not.
- */
-export type RefinanceActionDefinition = {
-  serviceNamePath: string
-  optional: boolean
-}
-
-/**
- * Refinance partial operation definition
- *
- * @dev This type defines a partial operation definition that can be used to compose the definition
- * of a full refinance operation. It is just a list of action definitions
- */
-export type RefinancePartialOperationDefinition = RefinanceActionDefinition[]
-
-/**
- * Refinance operation definition
- *
- * @dev This type defines a full refinance operation. It contains the name of the operation and
- * the partial operations that compose it. It follows the schema of `packages/deploy-configurations/operations-definitions`
- * and it is intended in aiding the automatic generation of those files
- */
-export type RefinanceOperationDefinition = {
-  name: string
-  actions: RefinancePartialOperationDefinition
-}
-
-/**
  * Refinance partial operation type
  *
  * @dev These are the types of partial operations that can be used to compose a refinance operation.
@@ -111,7 +81,7 @@ export enum RefinancePartialOperationType {
  * partial operation.
  */
 export type RefinancePartialOperation = {
-  definition: RefinancePartialOperationDefinition
+  definition: ActionPathDefinition[]
   generator: RefinancePartialOperationGenerator
 }
 

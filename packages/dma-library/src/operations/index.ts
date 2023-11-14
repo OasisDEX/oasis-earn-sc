@@ -22,5 +22,6 @@ export const operations: {
 export {
   getAvailableRefinanceOperationsNames,
   getRefinanceOperation,
+  getRefinanceOperationDefinition,
   getRefinanceOperationName,
 } from './refinance'

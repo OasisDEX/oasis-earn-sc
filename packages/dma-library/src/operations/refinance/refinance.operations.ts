@@ -1,13 +1,15 @@
 import { OperationNames } from '@deploy-configurations/constants'
 import { Protocol, ProtocolNames } from '@deploy-configurations/types/protocol'
 import { IOperation } from '@dma-library/types'
+import {
+  ActionPathDefinition,
+  OperationPathsDefinition,
+} from '@dma-library/types/operations-definition'
 
 import { refinanceSwap_calls, refinanceSwap_definition } from './common/refinance-swap.calls'
 import {
   RefinanceOperationArgs,
-  RefinanceOperationDefinition,
   RefinanceOperationsMap,
-  RefinancePartialOperationDefinition,
   RefinancePartialOperationGenerator,
   RefinancePartialOperationType,
 } from './types'
@@ -32,7 +34,7 @@ export function registerRefinanceOperation(
   protocol: Protocol,
   opType: RefinancePartialOperationType,
   opGenerator: RefinancePartialOperationGenerator,
-  opDefinition: RefinancePartialOperationDefinition,
+  opDefinition: ActionPathDefinition[],
 ): void {
   RefinanceOperations[protocol] = {
     ...RefinanceOperations[protocol],
@@ -115,10 +117,10 @@ export function getAvailableRefinanceOperationsNames(): OperationNames[] | undef
  *
  * @returns The operation definition or undefined if it is not defined
  */
-export function getOperationDefinition(
+export function getRefinanceOperationDefinition(
   protocolFrom: Protocol,
   protocolTo: Protocol,
-): RefinanceOperationDefinition | undefined {
+): OperationPathsDefinition | undefined {
   const protocolFromDefinition = RefinanceOperations[protocolFrom]?.Close?.definition
   const swapOperationsDefinition = refinanceSwap_definition
   const protocolToOperationsDefinition = RefinanceOperations[protocolTo]?.Open?.definition

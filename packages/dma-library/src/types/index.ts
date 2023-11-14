@@ -1,4 +1,4 @@
-import { Protocol } from '@deploy-configurations/types/protocol'
+import { isProtocol, Protocol, ProtocolNames } from '@deploy-configurations/types/protocol'
 
 import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
@@ -98,6 +98,7 @@ export type {
 
 export type { PositionType }
 export type { Protocol }
+export { isProtocol, ProtocolNames }
 export type {
   IViewPositionParams,
   WithBorrowDebt,

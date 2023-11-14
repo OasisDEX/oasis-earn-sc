@@ -9,3 +9,5 @@ export const ProtocolNames = [
 ] as const
 
 export type Protocol = (typeof ProtocolNames)[number]
+
+export const isProtocol = (x: any): x is Protocol => ProtocolNames.includes(x)
