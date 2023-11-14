@@ -86,13 +86,13 @@ async function main() {
   await poolContract.supply(WETHAddress, supplyAmount, address, 0)
   await poolContract.setUserUseReserveAsCollateral(WETHAddress, true)
 
-  const aBal2 = await aWETHContract.balanceOf(address)
+  const wethBalance = await aWETHContract.balanceOf(address);
+
+  const aBal2 = new BigNumber(wethBalance.toString())  
 
   const usdcBorrowAmount = BN.from("1000000").mul(100)
 
   await poolContract.borrow(USDCaddress, usdcBorrowAmount, 2, 0, address)
-
-  const usdcBal = await usdcContract.balanceOf(address)
 
   const aaveCollInfo = await aaveProtocolDataProviderContract.getUserReserveData(WETHAddress, address)
   const aaveDebtInfo = await aaveProtocolDataProviderContract.getUserReserveData(USDCaddress, address)
@@ -102,8 +102,8 @@ async function main() {
 
   const [dpmProxy] = await createDPMAccount(system.AccountFactory.contract)
     
-  await aWETHContract.approve(dpmProxy, aBal2) //aave aToken approval
-
+  await aWETHContract.approve(dpmProxy, aBal2.times(new BigNumber(1.01)).toFixed(0)) //aave aToken approval - slightly bigger, as aToken balance grows constantly
+  
   const flAmount = new BigNumber(aaveDebtInfo.currentVariableDebt.toString()).times(TEN.pow(12)).times(100) //usdc precision is 6, so need to multiply by 10^12
   
   const op = await migrateEOA({
@@ -121,7 +121,7 @@ async function main() {
     },
     aToken: {
       address: aWETHaddress,
-      amount: new BigNumber(aBal2.toString()),
+      amount: aBal2,
     },
     vdToken: {
       address: vdUsdc,
@@ -172,6 +172,9 @@ async function main() {
 
   console.log('aaveCollInfo post op DPM', aaveCollInfo3);
   console.log('aaveDebtInfo post op DPM', aaveDebtInfo3);
+
+  const aBal3 = await aWETHContract.balanceOf(address)
+  console.log('EOA atoken bal: ', aBal3.toString());
 
   const aBal4 = await aWETHContract.balanceOf(dpmProxy)
   console.log('DPM atoken bal: ', aBal4.toString());
