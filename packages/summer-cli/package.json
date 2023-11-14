@@ -36,7 +36,7 @@
   "author": "Summer.fi",
   "license": "Apache-2.0",
   "dependencies": {
-    "@oasisdex/addresses": "^0.1.13",
+    "@oasisdex/addresses": "*",
     "dotenv": "^16.3.1",
     "ethers": "5.7.2",
     "ts-node": "^10.9.1",
