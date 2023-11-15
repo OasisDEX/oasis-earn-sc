@@ -42,6 +42,7 @@ export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,
     paybackAll: args.isPaybackAll,
+    onBehalfOf: args.proxy,
   })
   const unwrapEthDebt = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),

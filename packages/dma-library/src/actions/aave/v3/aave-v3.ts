@@ -78,7 +78,9 @@ export function aaveV3Withdraw(
 export function aaveV3Payback(
   network: Network,
   args: { asset: string; amount: BigNumber; paybackAll: boolean; onBehalfOf: string },
-  paramsMapping: [asset: number, amount: number, paybackAll: number, onBehalfOf: number] = [0, 0, 0, 0],
+  paramsMapping: [asset: number, amount: number, paybackAll: number, onBehalfOf: number] = [
+    0, 0, 0, 0,
+  ],
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 

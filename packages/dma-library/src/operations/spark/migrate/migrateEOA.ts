@@ -7,11 +7,16 @@ import {
   WithPositionType,
   WithProxy,
 } from '@dma-library/types'
-import { WithAToken, WithAaveLikeStrategyAddresses, WithDebt, WithVDToken } from '@dma-library/types/operations'
+import {
+  WithAaveLikeStrategyAddresses,
+  WithAToken,
+  WithDebt,
+  WithVDToken,
+} from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 
 export type MigrateEOAOperationArgs = WithDebt &
-WithAToken &
+  WithAToken &
   WithVDToken &
   WithFlashloan &
   WithProxy &
@@ -38,18 +43,14 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
   network,
   positionType,
 }) => {
-
   const amount = flashloan.token.amount
   const depositToken = flashloan.token.address
   const borrowToken = debt.address
 
-  const tokenBalance = actions.common.tokenBalance(
-    network,
-    {
-      asset: vdToken.address,
-      owner: proxy.owner,
-    }
-  )
+  const tokenBalance = actions.common.tokenBalance(network, {
+    asset: vdToken.address,
+    owner: proxy.owner,
+  })
 
   const approvalAction = actions.common.setApproval(
     network,
@@ -80,7 +81,7 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
       amount: new BigNumber(0), // from mapping
       to: proxy.owner,
     },
-    [0, 1, 0]
+    [0, 1, 0],
   )
 
   const approval2Action = actions.common.setApproval(
@@ -102,36 +103,27 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
       paybackAll: false,
       onBehalfOf: proxy.owner,
     },
-    [0, 1, 0, 0]
+    [0, 1, 0, 0],
   )
 
-  const pullTokenAction2 = actions.common.pullToken(
-    network,
-    {
-      asset: aToken.address,
-      amount: aToken.amount,
-      from: proxy.owner,
-    }
-  )
+  const pullTokenAction2 = actions.common.pullToken(network, {
+    asset: aToken.address,
+    amount: aToken.amount,
+    from: proxy.owner,
+  })
 
-  const withdrawAction = actions.spark.withdraw(
-    network,
-    {
-      asset: depositToken,
-      amount: amount,
-      to: addresses.operationExecutor,
-    }
-  )
+  const withdrawAction = actions.spark.withdraw(network, {
+    asset: depositToken,
+    amount: amount,
+    to: addresses.operationExecutor,
+  })
 
-  const positionCreated = actions.common.positionCreated(
-    network,
-    {
-      protocol: "Spark",
-      positionType,
-      collateralToken: depositToken,
-      debtToken: borrowToken,
-    }
-  )
+  const positionCreated = actions.common.positionCreated(network, {
+    protocol: 'Spark',
+    positionType,
+    collateralToken: depositToken,
+    debtToken: borrowToken,
+  })
 
   const calls = [
     tokenBalance,
@@ -145,17 +137,14 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
     positionCreated,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan(
-    network,
-    {
-      flashloanAmount: amount,
-      asset: depositToken,
-      isProxyFlashloan: true,
-      isDPMProxy: true,
-      provider: flashloan.provider,
-      calls: calls,
-    }
-  )
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
+    flashloanAmount: amount,
+    asset: depositToken,
+    isProxyFlashloan: true,
+    isDPMProxy: true,
+    provider: flashloan.provider,
+    calls: calls,
+  })
 
   return {
     calls: [takeAFlashLoan],
