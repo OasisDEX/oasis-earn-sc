@@ -44,6 +44,10 @@ export function getAaveMigrateEOAV3OperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW),
         optional: false,
       },
+      {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.MIGRATE_EOA),
+        optional: false,
+      },
     ],
   }
 }

@@ -1,26 +1,26 @@
-import { getAaveMigrateEOAV3OperationDefinition, getAaveOpenV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { MAX_UINT, NULL_ADDRESS, ZERO } from '@dma-common/constants'
+import { getAaveMigrateEOAV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import {
   IOperation,
-  WithCollateral,
   WithFlashloan,
   WithNetwork,
-  WithPosition,
+  WithPositionType,
   WithProxy,
 } from '@dma-library/types'
 import { WithAToken, WithAaveLikeStrategyAddresses, WithDebt, WithVDToken } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-import { BigNumber as BN } from "ethers";
 
-export type MigrateEOAV3OperationArgs = WithDebt &
-WithAToken &
+
+export type MigrateEOAV3OperationArgs = & 
+  WithDebt &
+  WithAToken &
   WithVDToken &
   WithFlashloan &
   WithProxy &
   WithAaveLikeStrategyAddresses &
-  WithNetwork
+  WithNetwork &
+  WithPositionType
 
 export type AaveV3MigrateEOAOperation = ({
   aToken,
@@ -39,6 +39,7 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
   proxy,
   addresses,
   network,
+  positionType
 }) => {
 
   const amount = flashloan.token.amount
@@ -125,6 +126,16 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
     }
   )
 
+  const positionCreated = actions.common.positionCreated(
+    network,
+    {
+      protocol: "AAVE_V3",
+      positionType,
+      collateralToken: depositToken,
+      debtToken: borrowToken,
+    }
+  )
+
   const calls = [
     tokenBalance,
     approvalAction,
@@ -134,6 +145,7 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
     paybackAction,
     pullTokenAction2,
     withdrawAction,
+    positionCreated,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(

@@ -4,6 +4,7 @@ import {
   IOperation,
   WithFlashloan,
   WithNetwork,
+  WithPositionType,
   WithProxy,
 } from '@dma-library/types'
 import { WithAToken, WithAaveLikeStrategyAddresses, WithDebt, WithVDToken } from '@dma-library/types/operations'
@@ -15,7 +16,8 @@ WithAToken &
   WithFlashloan &
   WithProxy &
   WithAaveLikeStrategyAddresses &
-  WithNetwork
+  WithNetwork &
+  WithPositionType
 
 export type SparkMigrateEOAOperation = ({
   aToken,
@@ -34,6 +36,7 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
   proxy,
   addresses,
   network,
+  positionType,
 }) => {
 
   const amount = flashloan.token.amount
@@ -120,6 +123,16 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
     }
   )
 
+  const positionCreated = actions.common.positionCreated(
+    network,
+    {
+      protocol: "Spark",
+      positionType,
+      collateralToken: depositToken,
+      debtToken: borrowToken,
+    }
+  )
+
   const calls = [
     tokenBalance,
     approvalAction,
@@ -129,6 +142,7 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
     paybackAction,
     pullTokenAction2,
     withdrawAction,
+    positionCreated,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(
