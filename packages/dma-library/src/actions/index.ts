@@ -23,9 +23,9 @@ import {
   setApproval,
   swap,
   takeAFlashLoan,
+  tokenBalance,
   unwrapEth,
   wrapEth,
-  tokenBalance,
 } from './common'
 import { sparkBorrow, sparkDeposit, sparkPayback, sparkSetEMode, sparkWithdraw } from './spark'
 

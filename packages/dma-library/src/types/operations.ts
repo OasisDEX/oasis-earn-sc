@@ -5,10 +5,10 @@ import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { BigNumber } from 'bignumber.js'
 
 import { AjnaStrategyAddresses } from '../operations/ajna'
+import { AaveLikePosition } from './aave-like'
 import { ActionCall } from './action-call'
 import { FlashloanProvider } from './common'
 import { PositionType } from './position-type'
-import { AaveLikePosition } from './aave-like'
 
 export interface IOperation {
   calls: ActionCall[]

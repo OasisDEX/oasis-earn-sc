@@ -211,7 +211,7 @@ export function positionCreated(
 
 export function tokenBalance(
   network: Network,
-  args: { asset: string; owner: string;  },
+  args: { asset: string; owner: string },
   paramsMapping: [asset: number, owner: number] = [0, 0],
 ) {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)

@@ -7,10 +7,10 @@ import {
   paybackWithdraw as sparkPaybackWithdraw,
   SparkPaybackWithdraw,
 } from './borrow/payback-withdraw'
+import { migrateSparkFromEOA } from './migrate/migrate-from-eoa'
 import { adjust as sparkAdjust, SparkAdjust } from './multiply/adjust'
 import { close as sparkClose, SparkClose } from './multiply/close'
 import { open as sparkOpen, SparkOpen } from './multiply/open'
-import { migrateSparkFromEOA } from "./migrate/migrate-from-eoa"
 
 export const spark: {
   borrow: {

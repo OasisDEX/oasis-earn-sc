@@ -15,10 +15,10 @@ import {
   AaveV3PaybackWithdraw,
   paybackWithdraw,
 } from './borrow/payback-withdraw'
+import { migrateAaveFromEOA } from './migrate/migrate-from-eoa'
 import { AaveV2Adjust, AaveV3Adjust, adjust } from './multiply/adjust'
 import { AaveV2Close, AaveV3Close, close } from './multiply/close'
 import { AaveV2Open, AaveV3Open, open } from './multiply/open'
-import { migrateAaveFromEOA } from './migrate/migrate-from-eoa'
 
 export const aave: {
   borrow: {
