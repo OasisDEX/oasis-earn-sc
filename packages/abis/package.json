@@ -2,5 +2,16 @@
   "name": "@oasisdex/abis",
   "version": "1.0.0",
   "private": true,
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "typechain": "typechain --target=ethers-v5 \"./external/**/**.json\"",
+    "postinstall": "yarn typechain"
+  },
+  "devDependencies": {
+    "@typechain/ethers-v5": "^11.1.2",
+    "typechain": "^8.3.2"
+  },
+  "dependencies": {
+    "ethers": "5.7.2"
+  }
 }

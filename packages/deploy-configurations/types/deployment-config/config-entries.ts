@@ -48,3 +48,11 @@ export type SystemConfigEntry = ConfigEntry & {
   history: Address[]
   constructorArgs?: Array<number | string>
 }
+
+export function isConfigEntry(entry: any): entry is ConfigEntry {
+  return entry.name !== undefined && entry.address !== undefined
+}
+
+export function isSystemConfigEntry(entry: any): entry is SystemConfigEntry {
+  return entry.deploy !== undefined && entry.history !== undefined && isConfigEntry(entry)
+}
