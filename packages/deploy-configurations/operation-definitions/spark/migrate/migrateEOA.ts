@@ -44,6 +44,10 @@ export function getSparkMigrateEOAOperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.WITHDRAW),
         optional: false,
       },
+      {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.MIGRATE_EOA),
+        optional: false,
+      },
     ],
   }
 }
