@@ -8,6 +8,7 @@ import { AjnaStrategyAddresses } from '../operations/ajna'
 import { ActionCall } from './action-call'
 import { FlashloanProvider } from './common'
 import { PositionType } from './position-type'
+import { AaveLikePosition } from './aave-like'
 
 export interface IOperation {
   calls: ActionCall[]
@@ -95,6 +96,10 @@ export type WithPosition = {
   position: {
     type: PositionType
   }
+}
+
+export type WithAaveLikePosition = {
+  position: AaveLikePosition
 }
 
 export type WithPositionAndLockedCollateral = WithPosition & {

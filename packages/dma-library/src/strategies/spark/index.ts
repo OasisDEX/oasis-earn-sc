@@ -10,6 +10,7 @@ import {
 import { adjust as sparkAdjust, SparkAdjust } from './multiply/adjust'
 import { close as sparkClose, SparkClose } from './multiply/close'
 import { open as sparkOpen, SparkOpen } from './multiply/open'
+import { migrateSparkFromEOA } from "./migrate/migrate-from-eoa"
 
 export const spark: {
   borrow: {
@@ -22,6 +23,7 @@ export const spark: {
     close: SparkClose
     adjust: SparkAdjust
   }
+  migrateFromEOA: typeof migrateSparkFromEOA
 } = {
   borrow: {
     depositBorrow: sparkDepositBorrow,
@@ -33,4 +35,5 @@ export const spark: {
     close: sparkClose,
     adjust: sparkAdjust,
   },
+  migrateFromEOA: migrateSparkFromEOA,
 }
