@@ -18,6 +18,7 @@ import {
 import { AaveV2Adjust, AaveV3Adjust, adjust } from './multiply/adjust'
 import { AaveV2Close, AaveV3Close, close } from './multiply/close'
 import { AaveV2Open, AaveV3Open, open } from './multiply/open'
+import { migrateAaveFromEOA } from './migrate/migrate-from-eoa'
 
 export const aave: {
   borrow: {
@@ -45,6 +46,7 @@ export const aave: {
       adjust: AaveV3Adjust
     }
   }
+  migrateFromEOA: typeof migrateAaveFromEOA
 } = {
   borrow: {
     v2: {
@@ -73,6 +75,7 @@ export const aave: {
       adjust: (args, dependencies) => withV3Protocol(adjust, args, dependencies),
     },
   },
+  migrateFromEOA: migrateAaveFromEOA,
 }
 
 type DepsWithV2Protocol<T> = T & WithV2Protocol

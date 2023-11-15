@@ -10,6 +10,7 @@ import { ActionCall } from './action-call'
 import { FlashloanProvider } from './common'
 import { MorphoBlueMarket } from './morphoblue'
 import { PositionType } from './position-type'
+import { AaveLikePosition } from './aave-like'
 
 export interface IOperation {
   calls: ActionCall[]
@@ -135,6 +136,10 @@ export type WithBorrowedDebt = {
   debt: {
     amount: BigNumber
   }
+}
+
+export type WithAaveLikePosition = {
+  position: AaveLikePosition
 }
 
 export type WithPositionAndLockedCollateral = WithPosition & {
