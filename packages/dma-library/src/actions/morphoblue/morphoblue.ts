@@ -1,6 +1,7 @@
-import { loadContractNames } from '@deploy-configurations/constants'
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
 import { getActionHash } from '@deploy-configurations/utils/action-hash'
+import { Address } from '@dma-common/types'
 import { ActionFactory } from '@dma-library/actions/action-factory'
 import { ActionCall, calldataTypes, MorphoBlueMarket } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
@@ -89,7 +90,11 @@ export function morphoBlueWithdraw(
 // Import ActionCall as it assists type generation
 export function morphoBluePayback(
   network: Network,
-  args: { morphoBlueMarket: MorphoBlueMarket; amount: BigNumber },
+  args: {
+    morphoBlueMarket: MorphoBlueMarket
+    amount: BigNumber
+    onBehalf?: Address
+  },
   paramsMapping: [amount: number] = [0],
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
@@ -107,6 +112,7 @@ export function morphoBluePayback(
           lltv: args.morphoBlueMarket.lltv.toFixed(0),
         },
         amount: args.amount.toFixed(0),
+        onBehalf: args.onBehalf ?? ADDRESS_ZERO,
       },
       paramsMapping,
     ],

@@ -31,7 +31,7 @@ contract AaveV3Deposit is Executable, UseStore {
 
     uint256 mappedDepositAmount = store().readUint(
       bytes32(deposit.amount),
-      paramsMap[0],
+      paramsMap[1],
       address(this)
     );
 

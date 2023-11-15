@@ -31,7 +31,8 @@ contract MorphoBluePayback is Executable, UseStore {
 
     IMorpho morphoBlue = IMorpho(registry.getRegisteredService(MORPHO_BLUE));
 
-    morphoBlue.repay(paybackData.marketParams, paybackData.amount, 0, address(this), bytes(""));
+    address onBehalf = paybackData.onBehalf == address(0) ? address(this) : paybackData.onBehalf;
+    morphoBlue.repay(paybackData.marketParams, paybackData.amount, 0, onBehalf, bytes(""));
 
     store().write(bytes32(paybackData.amount));
   }
