@@ -1,0 +1,28 @@
+{
+  "markets": [
+    {
+      "label": "DAI-WBTC-80",
+      "loanToken": "DAI",
+      "collateralToken": "WBTC",
+      "lltv": "0.8"
+    },
+    {
+      "label": "USDC-USDT-80",
+      "loanToken": "USDC",
+      "collateralToken": "USDT",
+      "lltv": "0.8"
+    },
+    {
+      "label": "WSTETH-WETH-80",
+      "loanToken": "WSTETH",
+      "collateralToken": "WETH",
+      "lltv": "0.8"
+    },
+    {
+      "label": "DAI-USDC-80",
+      "loanToken": "DAI",
+      "collateralToken": "USDC",
+      "lltv": "0.8"
+    }
+  ]
+}

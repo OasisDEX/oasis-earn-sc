@@ -1,0 +1,16 @@
+{
+  "name": "@oasisdex/morphoblues",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf artifacts cache types",
+    "compile": "yarn clean; npx hardhat compile --config hardhat.config.base.ts",
+    "deploy": "npx hardhat run scripts/deploy.ts",
+    "fetch-morpho-values": "npx hardhat fetch-morpho-values"
+  },
+  "files": [
+    "tsconfig.json"
+  ],
+  "devDependencies": {}
+}

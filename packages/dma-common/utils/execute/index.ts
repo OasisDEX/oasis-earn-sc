@@ -1,5 +1,5 @@
 // TODO: CHECK IF I CAN REUSE ACTION CALL and rename things
-import { ContractReceipt, Signer } from 'ethers'
+import { Contract, ContractReceipt, Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 type Target = {
@@ -67,5 +67,16 @@ export async function executeThroughDPMProxy(
       }
     }
     return [false, result as ContractReceipt] // TODO:
+  }
+}
+
+export function getDPMParamsForOperationExecutor(
+  operationExecutor: Contract,
+  calls: any[],
+  operationName: string,
+) {
+  return {
+    address: operationExecutor.address,
+    calldata: operationExecutor.interface.encodeFunctionData('executeOp', [calls, operationName]),
   }
 }

@@ -9,6 +9,24 @@ import { PriceUtils } from "../libs/PriceUtils.sol";
 import { PercentageUtils } from "../libs/PercentageUtils.sol";
 import { IMockExchange } from "./IMockExchange.sol";
 
+interface IFlashLoanRecipient {
+  /**
+   * @dev When `flashLoan` is called on the Vault, it invokes the `receiveFlashLoan` hook on the recipient.
+   *
+   * At the time of the call, the Vault will have transferred `amounts` for `tokens` to the recipient. Before this
+   * call returns, the recipient must have transferred `amounts` plus `feeAmounts` for each token back to the
+   * Vault, or else the entire flash loan will revert.
+   *
+   * `userData` is the same value passed in the `IVault.flashLoan` call.
+   */
+  function receiveFlashLoan(
+    IERC20[] memory tokens,
+    uint256[] memory amounts,
+    uint256[] memory feeAmounts,
+    bytes memory userData
+  ) external;
+}
+
 contract MockExchange is IMockExchange, Context {
   using SafeERC20 for IERC20;
 
@@ -48,6 +66,54 @@ contract MockExchange is IMockExchange, Context {
     IERC20(assetTo).safeTransfer(_msgSender(), amountOut);
 
     emit AssetSwap(assetFrom, assetTo, amountIn, amountOut);
+  }
+
+  function flashLoan(
+    IFlashLoanRecipient recipient,
+    IERC20[] memory tokens,
+    uint256[] memory amounts,
+    bytes memory userData
+  ) external {
+    require(tokens.length == amounts.length, "Invalid input length");
+
+    uint256[] memory feeAmounts = new uint256[](tokens.length);
+    uint256[] memory preLoanBalances = new uint256[](tokens.length);
+
+    // Used to ensure `tokens` is sorted in ascending order, which ensures token uniqueness.
+    IERC20 previousToken = IERC20(address(0));
+
+    for (uint256 i = 0; i < tokens.length; ++i) {
+      IERC20 token = tokens[i];
+      uint256 amount = amounts[i];
+
+      require(
+        token > previousToken,
+        token == IERC20(address(0)) ? "Zero token" : "Unsorted tokens"
+      );
+      previousToken = token;
+
+      preLoanBalances[i] = token.balanceOf(address(this));
+      feeAmounts[i] = 0;
+
+      require(preLoanBalances[i] >= amount, "Insufficient flashloan balance");
+      token.safeTransfer(address(recipient), amount);
+    }
+
+    recipient.receiveFlashLoan(tokens, amounts, feeAmounts, userData);
+
+    for (uint256 i = 0; i < tokens.length; ++i) {
+      IERC20 token = tokens[i];
+      uint256 preLoanBalance = preLoanBalances[i];
+
+      // Checking for loan repayment first (without accounting for fees) makes for simpler debugging, and results
+      // in more accurate revert reasons if the flash loan protocol fee percentage is zero.
+      uint256 postLoanBalance = token.balanceOf(address(this));
+      require(postLoanBalance >= preLoanBalance, "Invalid post loan balance");
+
+      // No need for checked arithmetic since we know the loan was fully repaid.
+      uint256 receivedFeeAmount = postLoanBalance - preLoanBalance;
+      require(receivedFeeAmount >= feeAmounts[i], "Insufficient flash loan fee amount");
+    }
   }
 
   // VIEW FUNCTIONS

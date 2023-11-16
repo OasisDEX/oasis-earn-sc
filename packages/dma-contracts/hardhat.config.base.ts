@@ -73,6 +73,15 @@ const config = {
         },
       },
       {
+        version: '0.8.19',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 0,
+          },
+        },
+      },
+      {
         version: '0.8.15',
         settings: {
           optimizer: {
@@ -250,7 +259,18 @@ const config = {
       mainnet: process.env.ETHERSCAN_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISM_ETHERSCAN_API_KEY || '',
       arbitrumOne: process.env.ARBISCAN_API_KEY || '',
+      base: process.env.BASE_ETHERSCAN_API_KEY || '',
     },
+    customChains: [
+      {
+        network: 'base',
+        chainId: 8453,
+        urls: {
+          apiURL: 'https://api.basescan.org/api',
+          browserURL: 'https://basescan.org',
+        },
+      },
+    ],
   },
   typechain: {
     outDir: 'typechain',

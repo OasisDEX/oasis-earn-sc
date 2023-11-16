@@ -29,7 +29,9 @@
         "../deploy-configurations/operation-definitions/index.ts"
       ],
       "@domain/*": ["../domain/src/*"],
-      "@domain": ["../domain/src/index.ts"]
+      "@domain": ["../domain/src/index.ts"],
+      "@morpho-blue": ["../morpho-blue/scripts/"],
+      "@morpho-blue/typechain": ["../morpho-blue/typechain/index.ts"]
     },
     "typeRoots": ["../../node_modules/@types"]
   },
@@ -51,6 +53,9 @@
     },
     {
       "path": "../ajna-contracts"
+    },
+    {
+      "path": "../morpho-blue"
     }
   ],
   "include": [

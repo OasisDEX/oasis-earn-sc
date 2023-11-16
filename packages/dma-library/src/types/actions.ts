@@ -6,6 +6,8 @@ const aaveLike = {
   SetEMode: `tuple(uint8 categoryId)`,
 }
 
+const morphoBlueMarketParams = `tuple(address loanToken, address collateralToken, address oracle, address irm, uint256 lltv) marketParams`
+
 export const calldataTypes = {
   common: {
     Approval: 'tuple(address asset, address delegate, uint256 amount, bool sumAmounts)',
@@ -33,16 +35,22 @@ export const calldataTypes = {
     CdpAllow: `tuple(uint256 vaultId, address userAddress)`,
   },
   aave: {
-    Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
-    Withdraw: `tuple(address asset, uint256 amount, address to)`,
     Borrow: `tuple(address asset, uint256 amount, address to)`,
+    Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
     Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
+    Withdraw: `tuple(address asset, uint256 amount, address to)`,
   },
   aaveV3: {
     ...aaveLike,
   },
   spark: {
     ...aaveLike,
+  },
+  morphoblue: {
+    Deposit: `tuple(${morphoBlueMarketParams}, uint256 amount, bool sumAmounts)`,
+    Withdraw: `tuple(${morphoBlueMarketParams}, uint256 amount, address to)`,
+    Borrow: `tuple(${morphoBlueMarketParams}, uint256 amount)`,
+    Payback: `tuple(${morphoBlueMarketParams}, uint256 amount, address onBehalf)`,
   },
   ajna: {
     DepositBorrow: `tuple(address quoteToken, address collateralToken, uint256 depositAmount, uint256 borrowAmount, bool sumDepositAmounts, uint256 price)`,

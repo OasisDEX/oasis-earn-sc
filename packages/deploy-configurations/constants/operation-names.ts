@@ -56,6 +56,17 @@ export const OPERATION_NAMES = {
     CLOSE_POSITION_TO_QUOTE: 'AjnaCloseToQuotePosition',
     CLOSE_POSITION_TO_COLLATERAL: 'AjnaCloseToCollateralPosition',
   },
+  morphoblue: {
+    OPEN_POSITION: 'MorphoBlueOpenPosition',
+    CLOSE_POSITION: 'MorphoBlueClosePosition',
+    ADJUST_RISK_UP: 'MorphoBlueAdjustRiskUp',
+    ADJUST_RISK_DOWN: 'MorphoBlueAdjustRiskDown',
+    DEPOSIT_BORROW: 'MorphoBlueDepositBorrow',
+    OPEN_DEPOSIT_BORROW: 'MorphoBlueOpenDepositBorrow',
+    DEPOSIT: 'MorphoBlueDeposit',
+    BORROW: 'MorphoBlueBorrow',
+    PAYBACK_WITHDRAW: 'MorphoBluePaybackWithdraw',
+  },
   common: {
     CUSTOM_OPERATION: 'CustomOperation',
   },
@@ -67,6 +78,7 @@ type AaveV3OperationsNames = ValuesOf<(typeof OPERATION_NAMES)['aave']['v3']>
 type MakerOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['maker']>
 type AjnaOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['ajna']>
 type SparkOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['spark']>
+type MorphoBlueOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['morphoblue']>
 type CommonOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['common']>
 
 /**
@@ -87,4 +99,5 @@ export type OperationNames =
   | MakerOperationsNames
   | AjnaOperationsNames
   | SparkOperationsNames
+  | MorphoBlueOperationsNames
   | RefinanceOperationsNames

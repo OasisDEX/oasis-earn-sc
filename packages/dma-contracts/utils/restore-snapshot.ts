@@ -2,21 +2,34 @@ import { RuntimeConfig } from '@dma-common/types/common'
 import { resetNode } from '@dma-common/utils/init'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { deployTestSystem, TestDeploymentSystem } from './deploy-test-system'
+import {
+  DefaultPostDeploymentFunctions,
+  deployTestSystem,
+  PostDeploymentFunction,
+  TestDeploymentSystem,
+} from './deploy-test-system'
 
-export type Snapshot = { id: string; testSystem: TestDeploymentSystem; config: RuntimeConfig }
+export type Snapshot = {
+  id: string
+  testSystem: TestDeploymentSystem
+  config: RuntimeConfig
+}
 
 // Cached values
 const snapshotCache: Record<string, Snapshot | undefined> = {}
 const testBlockNumber = Number(process.env.TESTS_BLOCK_NUMBER)
 
-export async function restoreSnapshot(args: {
-  hre: HardhatRuntimeEnvironment
-  blockNumber: number
-  useFallbackSwap?: boolean
-  debug?: boolean
-}): Promise<{ snapshot: Snapshot }> {
-  const { hre, blockNumber, useFallbackSwap, debug } = args
+export async function restoreSnapshot(
+  args: {
+    hre: HardhatRuntimeEnvironment
+    blockNumber: number
+    useFallbackSwap?: boolean
+    debug?: boolean
+  },
+  extraDeploymentCallbacks: PostDeploymentFunction[] = [],
+): Promise<{ snapshot: Snapshot }> {
+  const { hre, blockNumber, useFallbackSwap } = args
+  const debug = args.debug || false
   const provider = hre.ethers.provider
 
   const _blockNumber = blockNumber || testBlockNumber
@@ -50,8 +63,8 @@ export async function restoreSnapshot(args: {
     }
     await resetNode(provider, _blockNumber, debug)
 
-    const system = await deployTestSystem(hre, debug, useFallbackSwap)
-    const snapshotId = await provider.send('evm_snapshot', [])
+    extraDeploymentCallbacks.push(...DefaultPostDeploymentFunctions)
+    const system = await deployTestSystem(hre, extraDeploymentCallbacks, debug, useFallbackSwap)
 
     const config: RuntimeConfig = {
       provider: provider,
@@ -59,12 +72,14 @@ export async function restoreSnapshot(args: {
       address: await provider.getSigner().getAddress(),
     }
 
-    const snapshot = {
-      id: snapshotId,
+    const snapshot: Snapshot = {
+      id: '',
       testSystem: system,
       config,
     }
 
+    const snapshotId = await provider.send('evm_snapshot', [])
+    snapshot.id = snapshotId
     snapshotCache[cacheKey] = snapshot
 
     return { snapshot }

@@ -260,6 +260,16 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
       )
     }
 
+    console.log('\n== MORPHO BLUE ==')
+    const morphoblueVerificationResult: ValidationResult = await validateDependencies(
+      config.morphoblue,
+    )
+    if (!morphoblueVerificationResult.success) {
+      console.log(
+        `\nSome MorphoBlue contracts failed the verification (${morphoblueVerificationResult.totalValidated}/${morphoblueVerificationResult.totalEntries})`,
+      )
+    }
+
     console.log('\n====== SUMMARY ======')
     console.log(`ServiceRegistry: ✅ Verified`)
     console.log(`Core: ${getValidationStatusString(coreVerificationResult)}`)
