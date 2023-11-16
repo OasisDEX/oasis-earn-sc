@@ -1114,4 +1114,11 @@ export const config: SystemConfig = {
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },
+  morphoblue: {
+    MorphoBlue: {
+      name: 'MorphoBlue',
+      address: '0x0000000000000000000000000000000000000000',
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+    },
+  },
 }

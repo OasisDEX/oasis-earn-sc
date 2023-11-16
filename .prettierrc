@@ -19,7 +19,10 @@
       }
     },
     {
-      "files": ["packages/dma-contracts/contracts/libs/DS/DSProxy.sol", "./contracts/libs/DS/DSProxyRegistry.sol"],
+      "files": [
+        "packages/dma-contracts/contracts/libs/DS/DSProxy.sol",
+        "./contracts/libs/DS/DSProxyRegistry.sol"
+      ],
       "options": {
         "printWidth": 100,
         "tabWidth": 2,
@@ -27,6 +30,12 @@
         "useTabs": false,
         "singleQuote": false,
         "bracketSpacing": true
+      }
+    },
+    {
+      "files": ["packages/dma-contracts/contracts/morphoblue/Morpho.sol"],
+      "options": {
+        "compiler": "0.8.19"
       }
     },
     {
@@ -42,7 +51,8 @@
       "excludeFiles": [
         "packages/dma-contracts/contracts/libs/DS/DSGuard.sol",
         "packages/dma-contracts/contracts/libs/DS/DSProxy.sol",
-        "packages/dma-contracts/contracts/libs/DS/DSProxyRegistry.sol"
+        "packages/dma-contracts/contracts/libs/DS/DSProxyRegistry.sol",
+        "packages/dma-contracts/contracts/morphoblue/Morpho.sol"
       ]
     }
   ]

@@ -2,12 +2,13 @@ import { ContractNames } from '@deploy-configurations/constants'
 import { Address } from '@deploy-configurations/types/address'
 
 import { AaveV2Protocol, AaveV3Protocol } from './aave-protocol'
-import { AaveV2Actions, Actions, SparkActions } from './actions'
+import { AaveV2Actions, Actions, MorphoBlueActions, SparkActions } from './actions'
 import { AjnaProtocol } from './ajna-protocol'
 import { Automation } from './automation'
 import { Common } from './common'
 import { Core, CoreMainnetOnly, USwapContract } from './core'
 import { MakerProtocol, MakerProtocolJoins, MakerProtocolPips } from './maker-protocol'
+import { MorphoBlueProtocol } from './morpho-blue'
 import { SparkProtocol } from './spark-protocol'
 import { TestContractNames } from './test'
 
@@ -21,6 +22,7 @@ export type ExternalContracts =
   | MakerProtocolPips
   | Automation
   | AjnaProtocol
+  | MorphoBlueProtocol
 
 export type SystemContracts =
   | Core
@@ -29,6 +31,7 @@ export type SystemContracts =
   | Actions
   | AaveV2Actions
   | SparkActions
+  | MorphoBlueActions
   | TestContractNames
 
 export type Contracts = SystemContracts | ExternalContracts

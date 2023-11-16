@@ -27,10 +27,17 @@ export type SparkActions =
   | `SparkPayback`
   | `SparkSetEMode`
 
+export type MorphoBlueActions =
+  | `MorphoBlueBorrow`
+  | `MorphoBlueDeposit`
+  | `MorphoBlueWithdraw`
+  | `MorphoBluePayback`
+
 export type Actions = CommonActions | AaveV3Actions | AjnaActions
 
 import { SystemConfigEntry } from './config-entries'
 
 export type OptionalSparkContracts = Partial<Record<SparkActions, SystemConfigEntry>>
 export type OptionalAaveV2Contracts = Partial<Record<AaveV2Actions, SystemConfigEntry>>
+export type OptionalMorphoBlueContracts = Partial<Record<MorphoBlueActions, SystemConfigEntry>>
 export type ActionContracts = Record<Actions, SystemConfigEntry>

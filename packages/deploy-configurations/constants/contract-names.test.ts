@@ -80,6 +80,13 @@ export const SERVICE_REGISTRY_NAMES = {
     ERC20_POOL_FACTORY: 'ERC20PoolFactory',
     AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfo',
   },
+  morphoblue: {
+    MORPHO_BLUE: 'MorphoBlue',
+    DEPOSIT: 'MorphoBlueDeposit',
+    WITHDRAW: 'MorphoBlueWithdraw',
+    BORROW: 'MorphoBlueBorrow',
+    PAYBACK: 'MorphoBluePayback',
+  },
   test: {
     DUMMY_ACTION: 'DummyAction',
     DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',

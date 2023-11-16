@@ -1,0 +1,5 @@
+export { getMorphoBlueBorrowOperationDefinition } from './borrow'
+export { getMorphoBlueDepositOperationDefinition } from './deposit'
+export { getMorphoBlueDepositBorrowOperationDefinition } from './deposit-borrow'
+export { getMorphoBlueOpenDepositBorrowOperationDefinition } from './open-deposit-borrow'
+export { getMorphoBluePaybackWithdrawOperationDefinition } from './payback-withdraw'

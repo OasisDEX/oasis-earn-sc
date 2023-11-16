@@ -16,9 +16,14 @@
     "format:check": "prettier --check contracts/**/*.sol tasks/**/*.ts test/**/*.ts scripts/**/*.ts",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
-    "test": "yarn test:unit && yarn test:e2e",
+    "test": "yarn test:unit && yarn test:integration:nocompile && yarn test:e2e:nocompile",
+    "test:nocompile": "yarn test:unit:nocompile && yarn test:integration:nocompile && yarn test:e2e:nocompile",
     "test:e2e": "yarn clean && yarn compile && npx hardhat test --grep E2E",
+    "test:e2e:nocompile": "npx hardhat test --grep E2E",
     "test:unit": "yarn clean && yarn compile && npx hardhat test --grep Unit",
+    "test:unit:nocompile": "npx hardhat test --grep Unit",
+    "test:integration": "yarn clean && yarn compile && npx hardhat test --grep '\\| Integration'",
+    "test:integration:nocompile": "npx hardhat test --grep '\\| Integration'",
     "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly",
     "deployment:verify": "npx hardhat verify-deployment",
     "operations:verify": "npx hardhat verify-operations",
@@ -50,6 +55,7 @@
     "@inquirer/prompts": "^3.2.0",
     "@tenderly/hardhat-tenderly": "^1.7.7",
     "console-log-colors": "^0.4.0",
-    "inquirer": "^8.0.0"
+    "inquirer": "^8.0.0",
+    "solc": "0.8.15"
   }
 }

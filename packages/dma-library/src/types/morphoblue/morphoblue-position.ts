@@ -37,7 +37,7 @@ export interface LendingPosition {
   payback(amount: BigNumber): LendingPosition
 }
 
-export class MorphoPosition implements LendingPosition {
+export class MorphoBluePosition implements LendingPosition {
   constructor(
     public owner: Address,
     public collateralAmount: BigNumber,
@@ -111,7 +111,7 @@ export class MorphoPosition implements LendingPosition {
 
   deposit(collateralAmount: BigNumber) {
     const newCollateralAmount = negativeToZero(this.collateralAmount.plus(collateralAmount))
-    return new MorphoPosition(
+    return new MorphoBluePosition(
       this.owner,
       newCollateralAmount,
       this.debtAmount,
@@ -123,7 +123,7 @@ export class MorphoPosition implements LendingPosition {
 
   withdraw(collateralAmount: BigNumber) {
     const newCollateralAmount = negativeToZero(this.collateralAmount.minus(collateralAmount))
-    return new MorphoPosition(
+    return new MorphoBluePosition(
       this.owner,
       newCollateralAmount,
       this.debtAmount,
@@ -133,9 +133,9 @@ export class MorphoPosition implements LendingPosition {
     )
   }
 
-  borrow(quoteAmount: BigNumber): MorphoPosition {
+  borrow(quoteAmount: BigNumber): MorphoBluePosition {
     const newDebt = negativeToZero(this.debtAmount.plus(quoteAmount))
-    return new MorphoPosition(
+    return new MorphoBluePosition(
       this.owner,
       this.collateralAmount,
       newDebt,
@@ -145,9 +145,9 @@ export class MorphoPosition implements LendingPosition {
     )
   }
 
-  payback(quoteAmount: BigNumber): MorphoPosition {
+  payback(quoteAmount: BigNumber): MorphoBluePosition {
     const newDebt = negativeToZero(this.debtAmount.minus(quoteAmount))
-    return new MorphoPosition(
+    return new MorphoBluePosition(
       this.owner,
       this.collateralAmount,
       newDebt,
@@ -157,8 +157,8 @@ export class MorphoPosition implements LendingPosition {
     )
   }
 
-  close(): MorphoPosition {
-    return new MorphoPosition(
+  close(): MorphoBluePosition {
+    return new MorphoBluePosition(
       this.owner,
       ZERO,
       ZERO,
