@@ -1,5 +1,8 @@
-import { OperationNames } from '@deploy-configurations/constants'
+import { loadContractNames, OperationNames } from '@deploy-configurations/constants'
+import { Network } from '@deploy-configurations/types/network'
 import { Protocol, ProtocolNames } from '@deploy-configurations/types/protocol'
+import { getActionHash } from '@deploy-configurations/utils/action-hash'
+import { getPropertyFromPath } from '@dma-common/utils/properties'
 import { IOperation } from '@dma-library/types'
 import {
   ActionPathDefinition,
@@ -8,12 +11,13 @@ import {
 
 import { refinanceSwap_calls, refinanceSwap_definition } from './common/refinance-swap.calls'
 import {
+  ExtendedActionDefinition,
+  ExtendedOperationDefinitionMaybe,
   RefinanceOperationArgs,
   RefinanceOperationsMap,
   RefinancePartialOperationGenerator,
   RefinancePartialOperationType,
 } from './types'
-
 /**
  * Refinance operations map
  *
@@ -113,11 +117,11 @@ export function getAvailableRefinanceOperationsNames(): OperationNames[] | undef
 }
 
 /**
- * Returns the operation definition for the given pair of protocols
+ * Returns the operation definition paths for the given pair of protocols
  *
- * @returns The operation definition or undefined if it is not defined
+ * @returns The operation definition paths or undefined if it is not defined
  */
-export function getRefinanceOperationDefinition(
+function _getRefinanceOperationPaths(
   protocolFrom: Protocol,
   protocolTo: Protocol,
 ): OperationPathsDefinition | undefined {
@@ -136,5 +140,57 @@ export function getRefinanceOperationDefinition(
       ...swapOperationsDefinition,
       ...protocolToOperationsDefinition,
     ],
+  }
+}
+
+/**
+ * Returns the refinance operation definition for the given network and pair of protocols
+ *
+ * @param network The network that the refinance operation is for
+ * @param protocolFrom The protocol that the refinance operation is closing
+ * @param protocolTo The protocol that the refinance operation is opening
+ * @returns The refinance operation definition or undefined if it is not defined
+ *
+ * @dev This function can be used to populate the operations registry
+ */
+export function getRefinanceOperationDefinition(
+  network: Network,
+  protocolFrom: Protocol,
+  protocolTo: Protocol,
+): ExtendedOperationDefinitionMaybe | undefined {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  const operationDefinition = _getRefinanceOperationPaths(protocolFrom, protocolTo)
+  if (!operationDefinition) {
+    return undefined
+  }
+
+  const actionsDefinition = operationDefinition.actions.map(actionDefinition => {
+    const actionName = getPropertyFromPath(
+      SERVICE_REGISTRY_NAMES,
+      actionDefinition.serviceNamePath,
+    ) as string
+
+    if (!actionName) {
+      return undefined
+    }
+
+    const actionHash = getActionHash(actionName)
+
+    return {
+      name: actionName,
+      serviceNamePath: actionDefinition.serviceNamePath,
+      hash: actionHash,
+      optional: actionDefinition.optional,
+    }
+  })
+
+  if (actionsDefinition.includes(undefined)) {
+    return undefined
+  }
+
+  return {
+    name: operationDefinition.name,
+    actions: actionsDefinition as ExtendedActionDefinition[],
   }
 }

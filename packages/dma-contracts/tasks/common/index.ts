@@ -1,4 +1,3 @@
-export { getPropertyFromPath } from './generic-utils'
 export {
   OperationDefinition,
   OperationDefinitionGetter,

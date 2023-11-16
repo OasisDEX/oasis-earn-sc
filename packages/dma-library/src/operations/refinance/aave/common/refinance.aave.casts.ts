@@ -1,11 +1,10 @@
 import { BorrowArgs } from '@dma-library/operations/aave-like'
 import { DepositArgs, DepositSwapArgs } from '@dma-library/operations/aave-like/deposit-args'
 import {
-  WithPositionProduct,
+  WithNewPosition,
+  WithPositionStatus,
   WithProxy,
   WithSwap,
-  WithUserCollateral,
-  WithUserDebt,
 } from '@dma-library/types/operations'
 
 // Swap
@@ -25,39 +24,35 @@ export const toSwapArgs: ToSwapArgsCast = args => {
 }
 
 // Deposit
-export type ToDepositArgsCastArgs = WithProxy &
-  WithPositionProduct &
-  WithUserCollateral &
-  WithUserDebt &
-  WithSwap
+export type ToDepositArgsCastArgs = WithProxy & WithPositionStatus & WithNewPosition & WithSwap
 
 export type ToDepositArgsCast = (args: ToDepositArgsCastArgs) => DepositArgs
 
 export const toDepositArgs: ToDepositArgsCast = args => {
-  const { proxy, position, user } = args
+  const { proxy, position, newPosition } = args
 
   return {
-    entryTokenAddress: user.collateral.address,
-    entryTokenIsEth: user.collateral.isEth,
-    amountInBaseUnit: user.collateral.amount,
+    entryTokenAddress: position.collateral.address,
+    entryTokenIsEth: position.collateral.isEth,
+    amountInBaseUnit: position.collateral.amount,
     depositToken: position.collateral.address,
     depositorAddress: proxy.owner,
-    isSwapNeeded: user.collateral.address !== position.collateral.address,
+    isSwapNeeded: position.collateral.address !== newPosition.collateral.address,
     swapArgs: toSwapArgs(args),
   }
 }
 
 // Borrow
-export type ToBorrowArgsCastArgs = WithProxy & WithPositionProduct & WithUserDebt
+export type ToBorrowArgsCastArgs = WithProxy & WithPositionStatus & WithNewPosition
 
 export type ToBorrowArgsCast = (args: ToBorrowArgsCastArgs) => BorrowArgs
 
 export const toBorrowArgs: ToBorrowArgsCast = args => {
-  const { proxy, position, user } = args
+  const { proxy, position, newPosition } = args
 
   return {
-    borrowToken: position.debt.address,
-    amount: user.amount,
+    borrowToken: newPosition.debt.address,
+    amount: position.collateral.amount,
     account: proxy.address,
     user: proxy.owner,
     isEthToken: position.debt.isEth,

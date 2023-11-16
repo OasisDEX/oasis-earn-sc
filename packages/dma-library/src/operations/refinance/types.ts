@@ -5,13 +5,10 @@ import {
   WithNetwork,
   WithNewPosition,
   WithPaybackAll,
-  WithPositionProduct,
   WithPositionStatus,
   WithProxy,
   WithStorageIndex,
   WithSwap,
-  WithUserCollateral,
-  WithUserDebt,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 
@@ -27,11 +24,8 @@ import { ActionPathDefinition } from '@dma-library/types/operations-definition'
  */
 export type RefinanceOperationArgs = WithStorageIndex &
   WithProxy &
-  WithPositionProduct &
   WithPositionStatus &
   WithNewPosition &
-  WithUserCollateral &
-  WithUserDebt &
   WithFlashloanProvider &
   WithSwap &
   WithPaybackAll &
@@ -90,3 +84,20 @@ export type RefinanceProtocolOperationsMap = Partial<
 >
 
 export type RefinanceOperationsMap = Partial<Record<Protocol, RefinanceProtocolOperationsMap>>
+
+/**
+ * Operation definition that can be used to populate the operations registry
+ */
+export type ExtendedActionDefinition = {
+  name: string
+  serviceNamePath: string
+  hash: string
+  optional: boolean
+}
+
+export type ExtendedOperationDefinition = {
+  name: string
+  actions: ExtendedActionDefinition[]
+}
+
+export type ExtendedOperationDefinitionMaybe = ExtendedOperationDefinition | undefined

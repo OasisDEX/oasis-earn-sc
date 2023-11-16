@@ -34,6 +34,7 @@ export async function fetchAssetPrice(
 ): Promise<PriceResult> {
   if (!tokenAddress) return undefined
   const amount: ethers.BigNumberish = await priceOracle.getAssetPrice(tokenAddress)
+  console.log('amount', amount.toString())
   return amountFromWei(new BigNumber(amount.toString()))
 }
 

@@ -201,5 +201,9 @@ export type WithStorageIndex = {
 }
 
 export type WithNewPosition = {
-  newPosition: WithPosition['position'] & WithDebt & WithCollateral
+  newPosition: WithPosition['position'] &
+    WithDebt &
+    WithBorrowedDebt &
+    WithCollateral &
+    WithLockedCollateral
 }

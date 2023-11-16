@@ -10,12 +10,11 @@ import {
 import {
   WithAaveLikeStrategyAddresses,
   WithNetwork,
-  WithPositionProduct,
+  WithNewPosition,
+  WithPositionStatus,
   WithProxy,
   WithStorageIndex,
   WithSwap,
-  WithUserCollateral,
-  WithUserDebt,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 
@@ -23,10 +22,9 @@ import { toBorrowArgs, toDepositArgs } from '../../common/refinance.aave.casts'
 
 // Arguments type
 type RefinanceAaveV3OpenDepositBorrowOperationArgs = WithStorageIndex &
-  WithPositionProduct &
+  WithPositionStatus &
+  WithNewPosition &
   WithProxy &
-  WithUserCollateral &
-  WithUserDebt &
   WithSwap &
   WithAaveLikeStrategyAddresses &
   WithNetwork
