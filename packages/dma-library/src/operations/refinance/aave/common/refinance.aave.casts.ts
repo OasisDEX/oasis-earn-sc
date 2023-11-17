@@ -52,7 +52,7 @@ export const toBorrowArgs: ToBorrowArgsCast = args => {
 
   return {
     borrowToken: newPosition.debt.address,
-    amount: position.collateral.amount,
+    amount: newPosition.debt.amount,
     account: proxy.address,
     user: proxy.owner,
     isEthToken: position.debt.isEth,

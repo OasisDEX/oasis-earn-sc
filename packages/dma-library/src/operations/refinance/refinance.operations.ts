@@ -9,7 +9,14 @@ import {
   OperationPathsDefinition,
 } from '@dma-library/types/operations-definition'
 
-import { refinanceSwap_calls, refinanceSwap_definition } from './common/refinance-swap.calls'
+import {
+  refinanceSwapAfterOpen_calls,
+  refinanceSwapAfterOpen_definition,
+} from './common/refinance-swap-after-open.calls'
+import {
+  refinanceSwapCloseToOpen_calls,
+  refinanceSwapCloseToOpen_definition,
+} from './common/refinance-swap-close-to-open.calls'
 import {
   ExtendedActionDefinition,
   ExtendedOperationDefinitionMaybe,
@@ -62,20 +69,38 @@ export async function getRefinanceOperation(
   protocolTo: Protocol,
   args: RefinanceOperationArgs,
 ): Promise<IOperation | undefined> {
-  const protocolFromCallsGetter = RefinanceOperations[protocolFrom]?.Close?.generator
-  const swapOperationsCallsGetter = refinanceSwap_calls
-  const protocolToOperationsCallsGetter = RefinanceOperations[protocolTo]?.Open?.generator
+  const protocolFromFlashloanCallsGetter = RefinanceOperations[protocolFrom]?.Flashloan?.generator
+  const protocolFromCloseCallsGetter = RefinanceOperations[protocolFrom]?.Close?.generator
+  const swapCloseToOpenCallsGetter = refinanceSwapCloseToOpen_calls
+  const protocolToOpenCallsGetter = RefinanceOperations[protocolTo]?.Open?.generator
+  const swapAfterOpenCallsGetter = refinanceSwapAfterOpen_calls
 
-  if (!protocolFromCallsGetter || !swapOperationsCallsGetter || !protocolToOperationsCallsGetter) {
+  if (
+    !protocolFromFlashloanCallsGetter ||
+    !protocolFromCloseCallsGetter ||
+    !swapCloseToOpenCallsGetter ||
+    !protocolToOpenCallsGetter ||
+    !swapAfterOpenCallsGetter
+  ) {
     return undefined
   }
 
-  const protocolFromCalls = (await protocolFromCallsGetter(args)).calls
-  const swapOperationsCalls = (await swapOperationsCallsGetter(args)).calls
-  const protocolToOperationsCalls = (await protocolToOperationsCallsGetter(args)).calls
+  const protocolFromCloseOp = await protocolFromCloseCallsGetter(args)
+  const swapCloseToOpenOp = await swapCloseToOpenCallsGetter(args)
+  const protocolToOpenOp = await protocolToOpenCallsGetter(args)
+  const swapAfterOpenOp = await swapAfterOpenCallsGetter(args)
+
+  args.calls = [
+    ...protocolFromCloseOp.calls,
+    ...swapCloseToOpenOp.calls,
+    ...protocolToOpenOp.calls,
+    ...swapAfterOpenOp.calls,
+  ]
+
+  const protocolFromFlashloanOp = await protocolFromFlashloanCallsGetter(args)
 
   return {
-    calls: [...protocolFromCalls, ...swapOperationsCalls, ...protocolToOperationsCalls],
+    calls: [...protocolFromFlashloanOp.calls],
     operationName: getRefinanceOperationName(protocolFrom, protocolTo),
   }
 }
@@ -106,6 +131,7 @@ export function getAvailableRefinanceOperationsNames(): OperationNames[] | undef
       if (
         RefinanceOperations[protocolFrom] &&
         RefinanceOperations[protocolTo] &&
+        RefinanceOperations[protocolFrom as string][RefinancePartialOperationType.Flashloan] &&
         RefinanceOperations[protocolFrom as string][RefinancePartialOperationType.Close] &&
         RefinanceOperations[protocolTo as string][RefinancePartialOperationType.Open]
       ) {
@@ -125,20 +151,30 @@ function _getRefinanceOperationPaths(
   protocolFrom: Protocol,
   protocolTo: Protocol,
 ): OperationPathsDefinition | undefined {
-  const protocolFromDefinition = RefinanceOperations[protocolFrom]?.Close?.definition
-  const swapOperationsDefinition = refinanceSwap_definition
-  const protocolToOperationsDefinition = RefinanceOperations[protocolTo]?.Open?.definition
+  const protocolFromFlashloanDefinition = RefinanceOperations[protocolFrom]?.Flashloan?.definition
+  const protocolFromCloseDefinition = RefinanceOperations[protocolFrom]?.Close?.definition
+  const swapCloseToOpenDefinition = refinanceSwapCloseToOpen_definition
+  const protocolToOpenDefinition = RefinanceOperations[protocolTo]?.Open?.definition
+  const swapAfterOpenDefinition = refinanceSwapAfterOpen_definition
 
-  if (!protocolFromDefinition || !swapOperationsDefinition || !protocolToOperationsDefinition) {
+  if (
+    !protocolFromFlashloanDefinition ||
+    !protocolFromCloseDefinition ||
+    !swapCloseToOpenDefinition ||
+    !protocolToOpenDefinition ||
+    !swapAfterOpenDefinition
+  ) {
     return undefined
   }
 
   return {
     name: getRefinanceOperationName(protocolFrom, protocolTo),
     actions: [
-      ...protocolFromDefinition,
-      ...swapOperationsDefinition,
-      ...protocolToOperationsDefinition,
+      ...protocolFromFlashloanDefinition,
+      ...protocolFromCloseDefinition,
+      ...swapCloseToOpenDefinition,
+      ...protocolToOpenDefinition,
+      ...swapAfterOpenDefinition,
     ],
   }
 }

@@ -1,17 +1,16 @@
 import { getNetwork } from '@deploy-configurations/utils/network'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import { Snapshot } from '@dma-contracts/utils'
-import { applyPercentage } from '@dma-contracts/utils/percentage.utils'
 import { BorrowArgs, DepositArgs } from '@dma-library/operations'
 import { aaveOperations } from '@dma-library/operations/aave'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import { getContract } from '@dma-library/protocols/aave-like/utils'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { ERC20, WETH } from '@typechain'
 import { BigNumber as BigNumberJS } from 'bignumber.js'
-import { assert } from 'chai'
 import { BigNumber, ethers } from 'ethers'
+
+import { getMaxDebtToBorrow } from './debt-calculation'
 
 export async function createETHPositionAAVEv3(
   snapshot: Snapshot,
@@ -26,13 +25,7 @@ export async function createETHPositionAAVEv3(
   const network = await getNetwork(config.provider)
   const helpers = snapshot.testSystem.helpers
   const operationExecutor = snapshot.testSystem.deployment.system.OperationExecutor.contract
-  const userProxy = snapshot.testSystem.helpers.userProxy
-  const oracle = await getContract(
-    snapshot.testSystem.deployment.config.aave.v3.Oracle.address,
-    'Oracle',
-    config.provider,
-    'AAVE_V3',
-  )
+  const userProxy = snapshot.testSystem.helpers.userDPMProxy
 
   if (!signer) {
     signer = await SignerWithAddress.create(
@@ -40,15 +33,13 @@ export async function createETHPositionAAVEv3(
     )
   }
 
-  const priceBase = BigNumber.from(10).pow(8)
-
-  const wethPrice = await oracle.getAssetPrice(WETH.address)
-  if (!wethPrice) {
-    assert.fail('WETH price not available')
-  }
-
-  const totalBorrowAmount = depositEthAmount.mul(wethPrice).div(priceBase)
-  const requestedBorrowAmount = applyPercentage(totalBorrowAmount, maxLTV)
+  const requestedBorrowAmount = await getMaxDebtToBorrow(
+    snapshot,
+    WETH,
+    debtToken,
+    depositEthAmount,
+    maxLTV,
+  )
 
   const depositArgs: DepositArgs = {
     entryTokenAddress: aaveLikeAddresses.tokens.ETH,
@@ -87,7 +78,7 @@ export async function createETHPositionAAVEv3(
   const daiBalanceBefore = await debtToken.balanceOf(signer.address)
 
   const [success, contractReceipt] = await executeThroughDPMProxy(
-    helpers.userProxy.address,
+    helpers.userDPMProxy.address,
     {
       address: operationExecutor.address,
       calldata: calldata,

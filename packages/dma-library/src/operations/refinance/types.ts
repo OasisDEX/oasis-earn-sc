@@ -4,11 +4,13 @@ import {
   WithFlashloanProvider,
   WithNetwork,
   WithNewPosition,
+  WithOptionalActionCalls,
   WithPaybackAll,
   WithPositionStatus,
   WithProxy,
   WithStorageIndex,
   WithSwap,
+  WithWithdrawAll,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 
@@ -29,8 +31,10 @@ export type RefinanceOperationArgs = WithStorageIndex &
   WithFlashloanProvider &
   WithSwap &
   WithPaybackAll &
+  WithWithdrawAll &
   WithAaveLikeStrategyAddresses &
-  WithNetwork
+  WithNetwork &
+  WithOptionalActionCalls
 
 /**
  * Refinance operation return type
@@ -63,6 +67,7 @@ export type RefinancePartialOperationGenerator = (
  *   - Open
  */
 export enum RefinancePartialOperationType {
+  Flashloan = 'Flashloan',
   Close = 'Close',
   Open = 'Open',
 }

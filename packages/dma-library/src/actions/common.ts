@@ -114,6 +114,7 @@ export function takeAFlashLoan(
     calls: ActionCall[]
   },
 ) {
+  console.log('Take a flashloan network', network)
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return createAction(

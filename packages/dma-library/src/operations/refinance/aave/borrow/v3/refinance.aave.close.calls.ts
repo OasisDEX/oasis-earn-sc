@@ -4,30 +4,33 @@ import {
   RefinancePartialOperationGenerator,
   RefinancePartialOperationType,
 } from '@dma-library/operations/refinance/types'
-import { WithProxy } from '@dma-library/types'
 import {
   WithAaveLikeStrategyAddresses,
-  WithFlashloanProvider,
   WithNetwork,
   WithPaybackAll,
   WithPositionStatus,
+  WithProxy,
   WithStorageIndex,
+  WithWithdrawAll,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
+import BigNumber from 'bignumber.js'
+
+import { MAX_UINT } from '../../../../../../../dma-common/constants/numbers'
 
 // Arguments type
 type RefinanceCloseV3OperationArgs = WithStorageIndex &
   WithProxy &
-  WithFlashloanProvider &
   WithPositionStatus &
   WithPaybackAll &
+  WithWithdrawAll &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
 // Calls generator
 const refinanceClose_calls: RefinancePartialOperationGenerator = async _args => {
   const args = _args as RefinanceCloseV3OperationArgs
-  const { network, addresses, flashloan, position, proxy, isPaybackAll } = args
+  const { network, addresses, proxy, position, isPaybackAll } = args
 
   let lastStorageIndex = args.lastStorageIndex
 
@@ -46,19 +49,14 @@ const refinanceClose_calls: RefinancePartialOperationGenerator = async _args => 
   })
   lastStorageIndex += 1
 
-  const flashloanCalls = [setApproval, paybackDebt]
-
-  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
-    isDPMProxy: proxy.isDPMProxy,
-    asset: position.debt.address,
-    flashloanAmount: position.debt.amount,
-    isProxyFlashloan: true,
-    provider: flashloan.provider,
-    calls: flashloanCalls,
+  const withdrawCollateral = actions.aave.v3.aaveV3Withdraw(args.network, {
+    asset: position.collateral.address,
+    amount: args.isWithdrawAll ? new BigNumber(MAX_UINT) : position.collateral.amount,
+    to: proxy.address,
   })
 
   return {
-    calls: [takeAFlashLoan],
+    calls: [setApproval, paybackDebt, withdrawCollateral],
     lastStorageIndex,
   }
 }
@@ -66,15 +64,15 @@ const refinanceClose_calls: RefinancePartialOperationGenerator = async _args => 
 // Operation definition
 const refinanceClose_definition: ActionPathDefinition[] = [
   {
-    serviceNamePath: 'common.TAKE_A_FLASHLOAN',
-    optional: false,
-  },
-  {
     serviceNamePath: 'common.SET_APPROVAL',
     optional: false,
   },
   {
     serviceNamePath: 'aave.v3.PAYBACK',
+    optional: false,
+  },
+  {
+    serviceNamePath: 'aave.v3.WITHDRAW',
     optional: false,
   },
 ]

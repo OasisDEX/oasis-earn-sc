@@ -171,6 +171,10 @@ export type WithPaybackAll = {
   isPaybackAll: boolean
 }
 
+export type WithWithdrawAll = {
+  isWithdrawAll: boolean
+}
+
 /**
  * Morpho Blue
  */
@@ -206,4 +210,8 @@ export type WithNewPosition = {
     WithBorrowedDebt &
     WithCollateral &
     WithLockedCollateral
+}
+
+export type WithOptionalActionCalls = {
+  calls?: ActionCall[]
 }

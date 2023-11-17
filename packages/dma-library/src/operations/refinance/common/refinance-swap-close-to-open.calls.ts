@@ -16,7 +16,7 @@ export type RefinanceSwapOperationArgs = WithStorageIndex &
   WithSwapParameters &
   WithNetwork
 
-export const refinanceSwap_calls: RefinancePartialOperationGenerator = async _args => {
+export const refinanceSwapCloseToOpen_calls: RefinancePartialOperationGenerator = async _args => {
   const args = _args as RefinanceSwapOperationArgs
   const { network, position, newPosition, swap } = args
 
@@ -43,7 +43,7 @@ export const refinanceSwap_calls: RefinancePartialOperationGenerator = async _ar
 }
 
 // Operation definition
-export const refinanceSwap_definition: ActionPathDefinition[] = [
+export const refinanceSwapCloseToOpen_definition: ActionPathDefinition[] = [
   {
     serviceNamePath: 'common.SWAP_ACTION',
     optional: true,

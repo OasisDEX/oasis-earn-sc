@@ -21,6 +21,7 @@ describe('AAVE | Open | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let signer: SignerWithAddress
+  let user: SignerWithAddress
   let WETH: WETH
   let DAI: ERC20
   let USDC: ERC20
@@ -47,6 +48,8 @@ describe('AAVE | Open | E2E', async () => {
     signer = await SignerWithAddress.create(
       snapshot.config.signer as ethers.providers.JsonRpcSigner,
     )
+    user = (await hre.ethers.getSigners())[1]
+
     system = snapshot.testSystem.deployment.system
     testSystem = snapshot.testSystem
     config = snapshot.config
@@ -89,6 +92,7 @@ describe('AAVE | Open | E2E', async () => {
         aaveLikeAddresses,
         depositEthAmount,
         maxLTV,
+        user,
       )
 
     expect(success).to.be.true
