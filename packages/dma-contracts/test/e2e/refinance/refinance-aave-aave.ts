@@ -235,8 +235,6 @@ describe('Refinance | AAVE->AAVE | E2E', async () => {
     )
     const usdcToSwap = usdcToBorrow //.sub(BigNumber.from(swapFeeInUSDC.toFixed(0)))
 
-    console.log('usdcToBorrow', usdcToBorrow.toString())
-
     const refinanceArgs: RefinanceOperationArgs = {
       lastStorageIndex: 0,
       proxy: {
@@ -306,7 +304,6 @@ describe('Refinance | AAVE->AAVE | E2E', async () => {
     if (!refinanceAAVE_AAVEOperation) {
       assert.fail('Refinance operation not defined')
     }
-    console.log('USDC address', USDC.address)
 
     const calldata = encodeOperation(refinanceAAVE_AAVEOperation, {
       operationExecutor: system.OperationExecutor.contract.address,

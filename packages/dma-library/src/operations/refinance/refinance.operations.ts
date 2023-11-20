@@ -10,6 +10,10 @@ import {
 } from '@dma-library/types/operations-definition'
 
 import {
+  refinanceReturnFunds_calls,
+  refinanceReturnFunds_definition,
+} from './common/refinance-return-funds.calls'
+import {
   refinanceSwapAfterOpen_calls,
   refinanceSwapAfterOpen_definition,
 } from './common/refinance-swap-after-open.calls'
@@ -74,13 +78,15 @@ export async function getRefinanceOperation(
   const swapCloseToOpenCallsGetter = refinanceSwapCloseToOpen_calls
   const protocolToOpenCallsGetter = RefinanceOperations[protocolTo]?.Open?.generator
   const swapAfterOpenCallsGetter = refinanceSwapAfterOpen_calls
+  const returnFundsCallsGetter = refinanceReturnFunds_calls
 
   if (
     !protocolFromFlashloanCallsGetter ||
     !protocolFromCloseCallsGetter ||
     !swapCloseToOpenCallsGetter ||
     !protocolToOpenCallsGetter ||
-    !swapAfterOpenCallsGetter
+    !swapAfterOpenCallsGetter ||
+    !returnFundsCallsGetter
   ) {
     return undefined
   }
@@ -97,11 +103,15 @@ export async function getRefinanceOperation(
   const swapAfterOpenOp = await swapAfterOpenCallsGetter(args)
   args.lastStorageIndex = swapAfterOpenOp.lastStorageIndex
 
+  const returnFundsOp = await returnFundsCallsGetter(args)
+  args.lastStorageIndex = returnFundsOp.lastStorageIndex
+
   args.calls = [
     ...protocolFromCloseOp.calls,
     ...swapCloseToOpenOp.calls,
     ...protocolToOpenOp.calls,
     ...swapAfterOpenOp.calls,
+    ...returnFundsOp.calls,
   ]
 
   const protocolFromFlashloanOp = await protocolFromFlashloanCallsGetter(args)
@@ -163,13 +173,15 @@ function _getRefinanceOperationPaths(
   const swapCloseToOpenDefinition = refinanceSwapCloseToOpen_definition
   const protocolToOpenDefinition = RefinanceOperations[protocolTo]?.Open?.definition
   const swapAfterOpenDefinition = refinanceSwapAfterOpen_definition
+  const returnFundsDefinition = refinanceReturnFunds_definition
 
   if (
     !protocolFromFlashloanDefinition ||
     !protocolFromCloseDefinition ||
     !swapCloseToOpenDefinition ||
     !protocolToOpenDefinition ||
-    !swapAfterOpenDefinition
+    !swapAfterOpenDefinition ||
+    !returnFundsDefinition
   ) {
     return undefined
   }
@@ -182,6 +194,7 @@ function _getRefinanceOperationPaths(
       ...swapCloseToOpenDefinition,
       ...protocolToOpenDefinition,
       ...swapAfterOpenDefinition,
+      ...returnFundsDefinition,
     ],
   }
 }

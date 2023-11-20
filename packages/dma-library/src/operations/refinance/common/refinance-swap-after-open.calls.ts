@@ -1,4 +1,6 @@
+import { FEE_BASE } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   WithAaveLikeStrategyAddresses,
   WithAfterOpenSwap,
@@ -8,9 +10,7 @@ import {
   WithStorageIndex,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
-import BigNumber from 'bignumber.js'
 
-import { MAX_UINT } from '../../../../../dma-common/constants/numbers'
 import { RefinancePartialOperationGenerator } from '../types'
 
 export type RefinanceSwapOperationArgs = WithStorageIndex &
@@ -44,7 +44,7 @@ export const refinanceSwapAfterOpen_calls: RefinancePartialOperationGenerator = 
     {
       asset: position.debt.address,
       to: addresses.operationExecutor,
-      amount: new BigNumber(MAX_UINT),
+      amount: position.debt.amount.plus(BALANCER_FEE.div(FEE_BASE).times(position.debt.amount)),
     },
     [0, 0, 0],
   )
