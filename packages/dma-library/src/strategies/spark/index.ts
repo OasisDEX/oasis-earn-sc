@@ -1,3 +1,5 @@
+import { MigrationFromEOAStrategy } from '@dma-library/strategies/aave-like'
+
 import { depositBorrow as sparkDepositBorrow, SparkDepositBorrow } from './borrow/deposit-borrow'
 import {
   openDepositBorrow as sparkOpenDepositBorrow,
@@ -23,7 +25,7 @@ export const spark: {
     close: SparkClose
     adjust: SparkAdjust
   }
-  migrateFromEOA: typeof migrateSparkFromEOA
+  migrateFromEOA: MigrationFromEOAStrategy
 } = {
   borrow: {
     depositBorrow: sparkDepositBorrow,

@@ -1,4 +1,5 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import { MigrationFromEOAStrategy } from '@dma-library/strategies/aave-like'
 import { AaveVersion } from '@dma-library/types/aave'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { views } from '@dma-library/views'
@@ -46,7 +47,7 @@ export const aave: {
       adjust: AaveV3Adjust
     }
   }
-  migrateFromEOA: typeof migrateAaveFromEOA
+  migrateFromEOA: MigrationFromEOAStrategy
 } = {
   borrow: {
     v2: {

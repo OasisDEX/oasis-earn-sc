@@ -1,3 +1,3 @@
-import { createMigrateFromEOA } from '@dma-library/strategies/aave-like/migrate/migrate-from-eoa'
+import { createMigrateFromEOA } from '@dma-library/strategies/aave-like/'
 
 export const migrateSparkFromEOA = createMigrateFromEOA('spark')

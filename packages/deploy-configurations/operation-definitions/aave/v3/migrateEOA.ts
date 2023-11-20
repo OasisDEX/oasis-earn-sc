@@ -7,7 +7,7 @@ export function getAaveMigrateEOAV3OperationDefinition(network: Network) {
 
   return {
     name: OPERATION_NAMES.aave.v3.MIGRATE_EOA,
-    actions: [    
+    actions: [
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN),
         optional: false,

@@ -1,41 +1,35 @@
 import { migrateEOA as aaveMigarateEOA } from '@dma-library/operations/aave/migrate/migrateEOA'
 import { migrateEOA as sparkMigrateEOA } from '@dma-library/operations/spark/migrate/migrateEOA'
-import { AaveLikePosition, FlashloanProvider, Strategy, WithPositionType } from '@dma-library/types'
-import {
-  WithAaveLikePosition,
-  WithAaveLikeStrategyAddresses,
-  WithAToken,
-  WithNetwork,
-  WithProxy,
-  WithVDToken,
-} from '@dma-library/types/operations'
+import { FlashloanProvider, Strategy } from '@dma-library/types'
+import { WithAToken, WithVDToken } from '@dma-library/types/operations'
+import { WithAaveLikeStrategyDependencies } from '@dma-library/types/strategy-params'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { ethers } from 'ethers'
+import { IPosition } from '@domain'
 
-type Args = WithPositionType &
-  WithAaveLikePosition &
-  WithNetwork &
-  WithAToken &
-  WithVDToken &
-  WithAaveLikeStrategyAddresses &
-  WithProxy
+export type MigrationFromEOAArgs = WithAToken & WithVDToken
 
-type Dependencies = {
-  provider: ethers.providers.Provider
-}
+export type MigrationFromEOAStrategy = (
+  args: MigrationFromEOAArgs,
+  dependencies: WithAaveLikeStrategyDependencies,
+) => Promise<Strategy<IPosition>>
 
-export const createMigrateFromEOA = (protocol: 'aave' | 'spark') => {
+export const createMigrateFromEOA: (protocol: 'aave' | 'spark') => MigrationFromEOAStrategy = (
+  protocol: 'aave' | 'spark',
+) => {
   const migrateEOA = protocol === 'aave' ? aaveMigarateEOA : sparkMigrateEOA
 
-  return async (args: Args, dependencies: Dependencies): Promise<Strategy<AaveLikePosition>> => {
+  return async (
+    args: MigrationFromEOAArgs,
+    dependencies: WithAaveLikeStrategyDependencies,
+  ): Promise<Strategy<IPosition>> => {
     const flashloan = {
       provider: FlashloanProvider.Balancer,
       token: {
-        address: args.position.debt.address,
-        amount: args.position.debt.amount,
+        address: dependencies.addresses.tokens[dependencies.currentPosition.debt.symbol],
+        amount: dependencies.currentPosition.debt.amount,
       },
       // amount is depricated
-      amount: args.position.debt.amount,
+      amount: dependencies.currentPosition.debt.amount,
     }
 
     const operation = await migrateEOA({
@@ -43,26 +37,30 @@ export const createMigrateFromEOA = (protocol: 'aave' | 'spark') => {
       vdToken: args.vdToken,
       flashloan,
       debt: {
-        address: args.position.debt.address,
+        address: dependencies.addresses.tokens[dependencies.currentPosition.debt.symbol],
         isEth: false,
       },
-      proxy: args.proxy,
-      addresses: args.addresses,
-      network: args.network,
-      positionType: args.positionType,
+      proxy: {
+        address: dependencies.proxy,
+        owner: dependencies.user,
+        isDPMProxy: true,
+      },
+      addresses: dependencies.addresses,
+      network: dependencies.network,
+      positionType: 'Borrow',
     })
 
     return {
       simulation: {
         swaps: [],
-        targetPosition: args.position,
-        position: args.position,
+        targetPosition: dependencies.currentPosition,
+        position: dependencies.currentPosition,
       },
       tx: {
-        to: args.proxy.address,
+        to: dependencies.proxy,
         data: encodeOperation(operation, {
           provider: dependencies.provider,
-          operationExecutor: args.addresses.operationExecutor,
+          operationExecutor: dependencies.addresses.operationExecutor,
         }),
         value: '0x0',
       },

@@ -1,4 +1,4 @@
-import { getAaveMigrateEOAV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getSparkMigrateEOAOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { actions } from '@dma-library/actions'
 import {
   IOperation,
@@ -148,6 +148,6 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: getAaveMigrateEOAV3OperationDefinition(network).name,
+    operationName: getSparkMigrateEOAOperationDefinition(network).name,
   }
 }
