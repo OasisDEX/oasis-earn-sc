@@ -1,11 +1,11 @@
 import { actions } from '@dma-library/actions'
 import {
   WithAaveLikeStrategyAddresses,
+  WithAfterOpenSwap,
   WithNetwork,
   WithNewPosition,
   WithPositionStatus,
   WithStorageIndex,
-  WithSwapParameters,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 import BigNumber from 'bignumber.js'
@@ -16,28 +16,28 @@ import { RefinancePartialOperationGenerator } from '../types'
 export type RefinanceSwapOperationArgs = WithStorageIndex &
   WithPositionStatus &
   WithNewPosition &
-  WithSwapParameters &
+  WithAfterOpenSwap &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
 export const refinanceSwapAfterOpen_calls: RefinancePartialOperationGenerator = async _args => {
   const args = _args as RefinanceSwapOperationArgs
-  const { network, position, addresses, newPosition, swap } = args
+  const { network, position, addresses, newPosition, swapAfterOpen } = args
 
   let { lastStorageIndex } = args
 
-  const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
+  const swapDebtToFlashloanToken = actions.common.swap(network, {
     fromAsset: newPosition.debt.address,
     toAsset: position.debt.address,
     amount: newPosition.debt.amount,
-    receiveAtLeast: swap.receiveAtLeast,
-    fee: swap.fee,
-    withData: swap.data,
-    collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    receiveAtLeast: swapAfterOpen.receiveAtLeast,
+    fee: swapAfterOpen.fee,
+    withData: swapAfterOpen.data,
+    collectFeeInFromToken: swapAfterOpen.collectFeeFrom === 'sourceToken',
   })
   lastStorageIndex += 1
 
-  swapDebtTokensForCollateralTokens.skipped = position.debt.address === newPosition.debt.address
+  swapDebtToFlashloanToken.skipped = position.debt.address === newPosition.debt.address
 
   const sendDebtToken = actions.common.sendToken(
     network,
@@ -50,7 +50,7 @@ export const refinanceSwapAfterOpen_calls: RefinancePartialOperationGenerator = 
   )
 
   return {
-    calls: [swapDebtTokensForCollateralTokens, sendDebtToken],
+    calls: [swapDebtToFlashloanToken, sendDebtToken],
     lastStorageIndex,
   }
 }
@@ -63,6 +63,6 @@ export const refinanceSwapAfterOpen_definition: ActionPathDefinition[] = [
   },
   {
     serviceNamePath: 'common.SEND_TOKEN',
-    optional: true,
+    optional: false,
   },
 ]

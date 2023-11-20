@@ -1,10 +1,10 @@
 import { actions } from '@dma-library/actions'
 import {
+  WithCloseToOpenSwap,
   WithNetwork,
   WithNewPosition,
   WithPositionStatus,
   WithStorageIndex,
-  WithSwapParameters,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 
@@ -13,12 +13,12 @@ import { RefinancePartialOperationGenerator } from '../types'
 export type RefinanceSwapOperationArgs = WithStorageIndex &
   WithPositionStatus &
   WithNewPosition &
-  WithSwapParameters &
+  WithCloseToOpenSwap &
   WithNetwork
 
 export const refinanceSwapCloseToOpen_calls: RefinancePartialOperationGenerator = async _args => {
   const args = _args as RefinanceSwapOperationArgs
-  const { network, position, newPosition, swap } = args
+  const { network, position, newPosition, swapCloseToOpen } = args
 
   let { lastStorageIndex } = args
 
@@ -26,10 +26,10 @@ export const refinanceSwapCloseToOpen_calls: RefinancePartialOperationGenerator 
     fromAsset: position.collateral.address,
     toAsset: newPosition.collateral.address,
     amount: position.collateral.amount,
-    receiveAtLeast: swap.receiveAtLeast,
-    fee: swap.fee,
-    withData: swap.data,
-    collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    receiveAtLeast: swapCloseToOpen.receiveAtLeast,
+    fee: swapCloseToOpen.fee,
+    withData: swapCloseToOpen.data,
+    collectFeeInFromToken: swapCloseToOpen.collectFeeFrom === 'sourceToken',
   })
   lastStorageIndex += 1
 

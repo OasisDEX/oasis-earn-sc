@@ -5,6 +5,9 @@ import { FakeRequestEnv, OneInchSwapRequest, OneInchSwapResponse } from '@dma-co
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
+import { Contract } from 'ethers'
+
+import { Address } from '../types'
 
 export const ONE_INCH_API_URL = 'https://api-oasis.1inch.io'
 
@@ -314,6 +317,20 @@ export const getOneInchCall =
     }
   }
 
+export function mockExchangeGetData(
+  mockExchange: Contract,
+  fromTokenAddress: Address,
+  toTokenAddress: Address,
+  amount: string,
+  feeOnTransfer: boolean,
+) {
+  return mockExchange.interface.encodeFunctionData('swap', [
+    fromTokenAddress,
+    toTokenAddress,
+    amount,
+    feeOnTransfer,
+  ])
+}
 export const optimismLiquidityProviders = [
   'OPTIMISM_UNISWAP_V3',
   'OPTIMISM_SYNTHETIX',

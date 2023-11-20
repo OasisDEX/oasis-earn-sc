@@ -215,3 +215,11 @@ export type WithNewPosition = {
 export type WithOptionalActionCalls = {
   calls?: ActionCall[]
 }
+
+export type WithCloseToOpenSwap = {
+  swapCloseToOpen: WithSwap['swap']
+}
+
+export type WithAfterOpenSwap = {
+  swapAfterOpen: WithSwap['swap']
+}

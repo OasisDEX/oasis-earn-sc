@@ -5,32 +5,28 @@ import {
   RefinancePartialOperationGenerator,
   RefinancePartialOperationType,
 } from '@dma-library/operations/refinance/types'
-import { ActionCall } from '@dma-library/types'
 import {
   WithAaveLikeStrategyAddresses,
   WithNetwork,
   WithNewPosition,
-  WithPositionStatus,
   WithProxy,
   WithStorageIndex,
-  WithSwap,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 
 // Arguments type
 type RefinanceAaveV3OpenDepositBorrowOperationArgs = WithStorageIndex &
-  WithPositionStatus &
   WithNewPosition &
   WithProxy &
-  WithSwap &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
-// Helper functions
-function _getRefinanceDepositCalls(
-  args: RefinanceAaveV3OpenDepositBorrowOperationArgs,
-): ActionCall[] {
-  const { newPosition, addresses, network } = args
+// Calls generator
+const refinanceOpenDepositBorrow_calls: RefinancePartialOperationGenerator = async _args => {
+  const args = _args as RefinanceAaveV3OpenDepositBorrowOperationArgs
+  const { newPosition, addresses, proxy, network } = args
+
+  let lastStorageIndex = args.lastStorageIndex
 
   const setApproval = actions.common.setApproval(
     network,
@@ -40,7 +36,7 @@ function _getRefinanceDepositCalls(
       amount: newPosition.collateral.amount,
       sumAmounts: false,
     },
-    [0, 0, 0, 0],
+    [0, 0, lastStorageIndex - 1, 0],
   )
 
   const deposit = actions.aave.v3.aaveV3Deposit(
@@ -51,18 +47,9 @@ function _getRefinanceDepositCalls(
       sumAmounts: false,
       setAsCollateral: true,
     },
-    [0, 0, 0, 0],
+    [0, lastStorageIndex - 1, 0, 0],
   )
-
-  return [setApproval, deposit]
-}
-
-// Calls generator
-const refinanceOpenDepositBorrow_calls: RefinancePartialOperationGenerator = async _args => {
-  const args = _args as RefinanceAaveV3OpenDepositBorrowOperationArgs
-  const { position, newPosition, proxy, network, lastStorageIndex } = args
-
-  const depositCalls = _getRefinanceDepositCalls(args)
+  lastStorageIndex += 1
 
   const borrow = actions.aave.v3.aaveV3Borrow(network, {
     amount: newPosition.debt.amount,
@@ -74,13 +61,13 @@ const refinanceOpenDepositBorrow_calls: RefinancePartialOperationGenerator = asy
 
   const positionCreatedEvent = actions.common.positionCreated(network, {
     protocol,
-    positionType: position.type,
-    collateralToken: position.collateral.address,
+    positionType: newPosition.type,
+    collateralToken: newPosition.collateral.address,
     debtToken: newPosition.debt.address,
   })
 
   return {
-    calls: [...depositCalls, borrow, positionCreatedEvent],
+    calls: [setApproval, deposit, borrow, positionCreatedEvent],
     lastStorageIndex,
   }
 }

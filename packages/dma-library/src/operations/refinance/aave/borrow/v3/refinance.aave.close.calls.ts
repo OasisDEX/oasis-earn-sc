@@ -54,6 +54,7 @@ const refinanceClose_calls: RefinancePartialOperationGenerator = async _args => 
     amount: args.isWithdrawAll ? new BigNumber(MAX_UINT) : position.collateral.amount,
     to: proxy.address,
   })
+  lastStorageIndex += 1
 
   return {
     calls: [setApproval, paybackDebt, withdrawCollateral],

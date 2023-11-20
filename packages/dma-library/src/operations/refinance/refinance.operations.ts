@@ -86,9 +86,16 @@ export async function getRefinanceOperation(
   }
 
   const protocolFromCloseOp = await protocolFromCloseCallsGetter(args)
+  args.lastStorageIndex = protocolFromCloseOp.lastStorageIndex
+
   const swapCloseToOpenOp = await swapCloseToOpenCallsGetter(args)
+  args.lastStorageIndex = swapCloseToOpenOp.lastStorageIndex
+
   const protocolToOpenOp = await protocolToOpenCallsGetter(args)
+  args.lastStorageIndex = protocolToOpenOp.lastStorageIndex
+
   const swapAfterOpenOp = await swapAfterOpenCallsGetter(args)
+  args.lastStorageIndex = swapAfterOpenOp.lastStorageIndex
 
   args.calls = [
     ...protocolFromCloseOp.calls,

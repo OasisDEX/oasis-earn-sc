@@ -1,6 +1,8 @@
 import { ActionCall, Protocol } from '@dma-library/types'
 import {
   WithAaveLikeStrategyAddresses,
+  WithAfterOpenSwap,
+  WithCloseToOpenSwap,
   WithFlashloanProvider,
   WithNetwork,
   WithNewPosition,
@@ -9,7 +11,6 @@ import {
   WithPositionStatus,
   WithProxy,
   WithStorageIndex,
-  WithSwap,
   WithWithdrawAll,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
@@ -29,7 +30,8 @@ export type RefinanceOperationArgs = WithStorageIndex &
   WithPositionStatus &
   WithNewPosition &
   WithFlashloanProvider &
-  WithSwap &
+  WithCloseToOpenSwap &
+  WithAfterOpenSwap &
   WithPaybackAll &
   WithWithdrawAll &
   WithAaveLikeStrategyAddresses &
