@@ -200,7 +200,7 @@ describe('Refinance | AAVE->AAVE | E2E', async () => {
     expect(registerdOptionals).to.be.deep.equal(optionals)
   })
 
-  it.only('should refinance AAVE->AAVE', async () => {
+  it('should refinance AAVE->AAVE', async () => {
     const depositEthAmount = ethers.utils.parseEther('1')
     const firstPositionLTV = toSolidityPercentage(30.0)
     const secondPositionLTV = toSolidityPercentage(60.0)
