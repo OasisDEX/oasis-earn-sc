@@ -12,7 +12,9 @@ export function loadContractNames(network: Network) {
   } else if (network === Network.BASE) {
     loadedConfig = require('./contract-names.base')
   } else if (network === Network.GOERLI) {
-    loadedConfig = require('./contract-names.arbitrum')
+    loadedConfig = require('./contract-names.mainnet')
+  } else if (network === Network.SEPOLIA) {
+    loadedConfig = require('./contract-names.mainnet')
   } else if (network === Network.LOCAL) {
     loadedConfig = require('./contract-names.local')
   } else if (network === Network.TEST) {

@@ -247,6 +247,7 @@ export const oneInchVersionMap: Record<
   [Network.ARBITRUM]: 'v5.0',
   [Network.BASE]: 'v5.0',
   [Network.TENDERLY]: 'v5.0',
+  [Network.SEPOLIA]: 'v5.0',
 }
 
 export const oneInchsupportedNetworks = Object.keys(oneInchVersionMap)
