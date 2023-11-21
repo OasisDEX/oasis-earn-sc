@@ -1,7 +1,16 @@
 name: Lint
 
-on: [ push ]
-
+on: 
+  push:
+      branches:
+        - dev
+    pull_request:
+    workflow_dispatch:
+      inputs:
+        force_lint_files:
+          description: 'Force lint files (true/false)'
+          required: false
+          default: 'false'
 jobs:
   files:
     runs-on: ubuntu-latest
