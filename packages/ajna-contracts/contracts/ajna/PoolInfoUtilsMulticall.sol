@@ -5,7 +5,6 @@ pragma solidity 0.8.18;
 import { PoolInfoUtils } from "./PoolInfoUtils.sol";
 
 contract PoolInfoUtilsMulticall {
-
     PoolInfoUtils public immutable poolInfoUtils;
 
     struct PoolPriceInfo {
@@ -54,10 +53,13 @@ contract PoolInfoUtilsMulticall {
      *  @return poolUtilizationInfo_ Pool utilization info struct
      *  @return bucketInfo_          Bucket info struct
      */
-    function poolDetailsAndBucketInfo(address ajnaPool_, uint256 bucketIndex_) 
+    function poolDetailsAndBucketInfo(
+        address ajnaPool_,
+        uint256 bucketIndex_
+    )
         external
         view
-        returns(
+        returns (
             PoolPriceInfo memory poolPriceInfo_,
             PoolReservesInfo memory poolReservesInfo_,
             PoolUtilizationInfo memory poolUtilizationInfo_,
@@ -87,7 +89,7 @@ contract PoolInfoUtilsMulticall {
             poolUtilizationInfo_.poolActualUtilization,
             poolUtilizationInfo_.poolTargetUtilization
         ) = poolInfoUtils.poolUtilizationInfo(ajnaPool_);
-        
+
         (
             bucketInfo_.price,
             bucketInfo_.quoteTokens,
@@ -105,19 +107,12 @@ contract PoolInfoUtilsMulticall {
      *  @return borrowFeeRate        Borrow fee rate calculated from the pool interest ra
      *  @return depositFeeRate       Deposit fee rate calculated from the pool interest rate
      */
-    function poolRatesAndFees(address ajnaPool_)
-        external
-        view
-        returns 
-        (
-            uint256 lenderInterestMargin,
-            uint256 borrowFeeRate,
-            uint256 depositFeeRate
-        ) 
-    {
+    function poolRatesAndFees(
+        address ajnaPool_
+    ) external view returns (uint256 lenderInterestMargin, uint256 borrowFeeRate, uint256 depositFeeRate) {
         lenderInterestMargin = poolInfoUtils.lenderInterestMargin(ajnaPool_);
-        borrowFeeRate        = poolInfoUtils.borrowFeeRate(ajnaPool_);
-        depositFeeRate       = poolInfoUtils.unutilizedDepositFeeRate(ajnaPool_);
+        borrowFeeRate = poolInfoUtils.borrowFeeRate(ajnaPool_);
+        depositFeeRate = poolInfoUtils.unutilizedDepositFeeRate(ajnaPool_);
     }
 
     /**
@@ -126,21 +121,24 @@ contract PoolInfoUtilsMulticall {
      *  @param  args_               Array of serialized function arguments of all read-only functions to called
      *  @return results_            Array of result of all read-only function calls in bytes
      */
-    function multicall(string[] calldata functionSignatures_, string[] calldata args_) external returns (bytes[] memory results_) {
+    function multicall(
+        string[] calldata functionSignatures_,
+        string[] calldata args_
+    ) external returns (bytes[] memory results_) {
         uint256 currentIndex = 0;
         results_ = new bytes[](functionSignatures_.length);
-        for(uint256 i = 0; i < functionSignatures_.length; i++) {
+        for (uint256 i = 0; i < functionSignatures_.length; i++) {
             string[] memory parameters = _parseFunctionSignature(functionSignatures_[i]);
             uint256 noOfParams = parameters.length;
             bytes memory callData;
             if (noOfParams == 1) {
                 if (keccak256(bytes(parameters[0])) == keccak256(bytes("uint256"))) {
                     uint256 arg = _stringToUint(args_[currentIndex]);
-                    callData    = abi.encodeWithSignature(functionSignatures_[i], arg);
+                    callData = abi.encodeWithSignature(functionSignatures_[i], arg);
                 }
                 if (keccak256(bytes(parameters[0])) == keccak256(bytes("address"))) {
                     address arg = _stringToAddress(args_[currentIndex]);
-                    callData    = abi.encodeWithSignature(functionSignatures_[i], arg);
+                    callData = abi.encodeWithSignature(functionSignatures_[i], arg);
                 }
             }
 
@@ -148,12 +146,12 @@ contract PoolInfoUtilsMulticall {
                 if (keccak256(bytes(parameters[1])) == keccak256(bytes("uint256"))) {
                     address arg1 = _stringToAddress(args_[currentIndex]);
                     uint256 arg2 = _stringToUint(args_[currentIndex + 1]);
-                    callData     = abi.encodeWithSignature(functionSignatures_[i], arg1, arg2);
+                    callData = abi.encodeWithSignature(functionSignatures_[i], arg1, arg2);
                 }
                 if (keccak256(bytes(parameters[1])) == keccak256(bytes("address"))) {
                     address arg1 = _stringToAddress(args_[currentIndex]);
                     address arg2 = _stringToAddress(args_[currentIndex + 1]);
-                    callData     = abi.encodeWithSignature(functionSignatures_[i], arg1, arg2);
+                    callData = abi.encodeWithSignature(functionSignatures_[i], arg1, arg2);
                 }
             }
 
@@ -161,7 +159,7 @@ contract PoolInfoUtilsMulticall {
                 address arg1 = _stringToAddress(args_[currentIndex]);
                 uint256 arg2 = _stringToUint(args_[currentIndex + 1]);
                 uint256 arg3 = _stringToUint(args_[currentIndex + 2]);
-                callData     = abi.encodeWithSignature(functionSignatures_[i], arg1, arg2, arg3);
+                callData = abi.encodeWithSignature(functionSignatures_[i], arg1, arg2, arg3);
             }
 
             currentIndex += noOfParams;
@@ -183,7 +181,11 @@ contract PoolInfoUtilsMulticall {
         trimmedSignature_ = _trimFunctionName(signature_);
 
         // Check if the string starts with '(' and ends with ')'
-        if (bytes(trimmedSignature_).length >= 2 && bytes(trimmedSignature_)[0] == bytes("(")[0] && bytes(trimmedSignature_)[bytes(trimmedSignature_).length - 1] == bytes(")")[0]) {
+        if (
+            bytes(trimmedSignature_).length >= 2 &&
+            bytes(trimmedSignature_)[0] == bytes("(")[0] &&
+            bytes(trimmedSignature_)[bytes(trimmedSignature_).length - 1] == bytes(")")[0]
+        ) {
             // Remove the first and last characters
             trimmedSignature_ = _substring(trimmedSignature_, 1, bytes(trimmedSignature_).length - 2);
         }
@@ -249,7 +251,11 @@ contract PoolInfoUtilsMulticall {
     }
 
     // Extracts a substring from a given string
-    function _substring(string memory str_, uint256 startIndex_, uint256 endIndex_) internal pure returns (string memory) {
+    function _substring(
+        string memory str_,
+        uint256 startIndex_,
+        uint256 endIndex_
+    ) internal pure returns (string memory) {
         require(startIndex_ <= endIndex_, "Invalid substring indices");
         bytes memory strBytes = bytes(str_);
         bytes memory result = new bytes(endIndex_ - startIndex_ + 1);
@@ -274,25 +280,27 @@ contract PoolInfoUtilsMulticall {
 
     // Converts a hexadecimal character to its decimal value
     function _hexCharToDecimal(uint8 character_) internal pure returns (uint8) {
-        if (bytes1(character_) >= bytes1('0') && bytes1(character_) <= bytes1('9')) {
-            return character_ - uint8(bytes1('0'));
+        if (bytes1(character_) >= bytes1("0") && bytes1(character_) <= bytes1("9")) {
+            return character_ - uint8(bytes1("0"));
         }
-        if (bytes1(character_) >= bytes1('a') && bytes1(character_) <= bytes1('f')) {
-            return 10 + character_ - uint8(bytes1('a'));
+        if (bytes1(character_) >= bytes1("a") && bytes1(character_) <= bytes1("f")) {
+            return 10 + character_ - uint8(bytes1("a"));
         }
-        if (bytes1(character_) >= bytes1('A') && bytes1(character_) <= bytes1('F')) {
-            return 10 + character_ - uint8(bytes1('A'));
+        if (bytes1(character_) >= bytes1("A") && bytes1(character_) <= bytes1("F")) {
+            return 10 + character_ - uint8(bytes1("A"));
         }
         return 0;
     }
-    
+
     // Converts a hexadecimal string to bytes
     function _hexStringToBytes(string memory str_) internal pure returns (bytes memory bytesString_) {
         bytes memory strBytes = bytes(str_);
         require(strBytes.length % 2 == 0); // length must be even
         bytesString_ = new bytes(strBytes.length / 2);
         for (uint i = 1; i < strBytes.length / 2; ++i) {
-            bytesString_[i] = bytes1(_hexCharToDecimal(uint8(strBytes[2 * i])) * 16 + _hexCharToDecimal(uint8(strBytes[2 * i + 1])));
+            bytesString_[i] = bytes1(
+                _hexCharToDecimal(uint8(strBytes[2 * i])) * 16 + _hexCharToDecimal(uint8(strBytes[2 * i + 1]))
+            );
         }
     }
 
