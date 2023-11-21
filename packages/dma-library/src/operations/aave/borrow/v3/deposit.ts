@@ -9,7 +9,6 @@ import {
   DepositSwapArgs,
 } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation } from '@dma-library/types'
-import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 import { isDefined } from '@dma-library/utils/is-defined'
 import BigNumber from 'bignumber.js'
 
@@ -144,27 +143,3 @@ export const deposit: AaveV3DepositOperation = async (
     operationName: getAaveDepositV3OperationDefinition(network).name,
   }
 }
-
-// Operation definition
-export const deposit_definition: ActionPathDefinition[] = [
-  {
-    serviceNamePath: 'common.WRAP_ETH',
-    optional: true,
-  },
-  {
-    serviceNamePath: 'common.PULL_TOKEN',
-    optional: true,
-  },
-  {
-    serviceNamePath: 'common.SWAP_ACTION',
-    optional: true,
-  },
-  {
-    serviceNamePath: 'common.SET_APPROVAL',
-    optional: false,
-  },
-  {
-    serviceNamePath: 'aave.v3.DEPOSIT',
-    optional: false,
-  },
-]

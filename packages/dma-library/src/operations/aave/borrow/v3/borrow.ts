@@ -3,7 +3,6 @@ import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
 import { AaveLikeStrategyAddresses, BorrowArgs } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation } from '@dma-library/types'
-import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 
 export type AaveV3BorrowOperation = (
   args: BorrowArgs,
@@ -38,19 +37,3 @@ export const borrow: AaveV3BorrowOperation = async (
     operationName: getAaveBorrowV3OperationDefinition(network).name,
   }
 }
-
-// Operation definition
-export const borrow_definition: ActionPathDefinition[] = [
-  {
-    serviceNamePath: 'aave.v3.BORROW',
-    optional: false,
-  },
-  {
-    serviceNamePath: 'common.UNWRAP_ETH',
-    optional: true,
-  },
-  {
-    serviceNamePath: 'common.RETURN_FUNDS',
-    optional: false,
-  },
-]

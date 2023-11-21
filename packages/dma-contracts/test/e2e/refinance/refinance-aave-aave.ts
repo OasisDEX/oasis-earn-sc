@@ -233,7 +233,7 @@ describe('Refinance | AAVE->AAVE | E2E', async () => {
       depositEthAmount,
       secondPositionLTV,
     )
-    const usdcToSwap = usdcToBorrow //.sub(BigNumber.from(swapFeeInUSDC.toFixed(0)))
+    const usdcToSwap = usdcToBorrow
 
     const refinanceArgs: RefinanceOperationArgs = {
       lastStorageIndex: 0,

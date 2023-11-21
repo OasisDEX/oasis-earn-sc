@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.3",
+    "bignumber.js": "9.0.1",
     "glob": "^10.1.0"
   },
   "files": [
