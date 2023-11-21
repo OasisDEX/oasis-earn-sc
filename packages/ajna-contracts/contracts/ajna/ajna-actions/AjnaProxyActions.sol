@@ -162,19 +162,12 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  newPrice      New price of the momorialized bucket
      *  @param  tokenId       Nft ID
      *  @param  pool           Pool address
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
      */
-    function _moveLiquidity(
-        uint256 oldPrice,
-        uint256 newPrice,
-        uint256 tokenId,
-        address pool,
-        bool revertIfBelowLup
-    ) internal {
+    function _moveLiquidity(uint256 oldPrice, uint256 newPrice, uint256 tokenId, address pool) internal {
         uint256 oldIndex = convertPriceToIndex(oldPrice);
         uint256 newIndex = convertPriceToIndex(newPrice);
 
-        self.positionManager().moveLiquidity(pool, tokenId, oldIndex, newIndex, block.timestamp + 1, revertIfBelowLup);
+        self.positionManager().moveLiquidity(pool, tokenId, oldIndex, newIndex, block.timestamp + 1);
         IERC721(address(self.positionManager())).approve(address(self.rewardsManager()), tokenId);
     }
 
@@ -183,16 +176,15 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  pool         Address of the Ajana Pool.
      *  @param  amount       The maximum amount of quote token to be moved by a lender.
      *  @param  price        The price the bucket to which the quote tokens will be added.
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
      *  @dev price of uint (10**decimals) collateral token in debt token (10**decimals) with 3 decimal points for instance
      *  @dev 1WBTC = 16,990.23 USDC   translates to: 16990230
      */
-    function _supplyQuote(IERC20Pool pool, uint256 amount, uint256 price, bool revertIfBelowLup) internal {
+    function _supplyQuote(IERC20Pool pool, uint256 amount, uint256 price) internal {
         address debtToken = pool.quoteTokenAddress();
         _pull(debtToken, amount);
         uint256 index = convertPriceToIndex(price);
         IERC20(debtToken).forceApprove(address(pool), amount);
-        pool.addQuoteToken(amount * pool.quoteTokenScale(), index, block.timestamp + 1, revertIfBelowLup);
+        pool.addQuoteToken(amount * pool.quoteTokenScale(), index, block.timestamp + 1);
     }
 
     /**
@@ -200,17 +192,10 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  pool         Address of the Ajana Pool.
      *  @param  oldPrice        The price of the bucket  from which the quote tokens will be removed.
      *  @param  newPrice     The price of the bucket to which the quote tokens will be added.
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
      */
-    function _moveQuote(IERC20Pool pool, uint256 oldPrice, uint256 newPrice, bool revertIfBelowLup) internal {
+    function _moveQuote(IERC20Pool pool, uint256 oldPrice, uint256 newPrice) internal {
         uint256 oldIndex = convertPriceToIndex(oldPrice);
-        pool.moveQuoteToken(
-            type(uint256).max,
-            oldIndex,
-            convertPriceToIndex(newPrice),
-            block.timestamp + 1,
-            revertIfBelowLup
-        );
+        pool.moveQuoteToken(type(uint256).max, oldIndex, convertPriceToIndex(newPrice), block.timestamp + 1);
     }
 
     /**
@@ -468,16 +453,10 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  pool           Pool address
      *  @param  depositAmount     Amount of debt to borrow
      *  @param  price          Price of the bucket
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
      */
-    function openEarnPosition(
-        IERC20Pool pool,
-        uint256 depositAmount,
-        uint256 price,
-        bool revertIfBelowLup
-    ) public payable {
+    function openEarnPosition(IERC20Pool pool, uint256 depositAmount, uint256 price) public payable {
         emit CreatePosition(address(this), ajnaVersion, "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
-        _supplyQuote(pool, depositAmount, price, revertIfBelowLup);
+        _supplyQuote(pool, depositAmount, price);
         emit ProxyActionsOperation("AjnaSupplyQuote");
     }
 
@@ -486,16 +465,10 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  pool           Pool address
      *  @param  depositAmount     Amount of debt to borrow
      *  @param  price          Price of the bucket
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
      */
-    function openEarnPositionNft(
-        IERC20Pool pool,
-        uint256 depositAmount,
-        uint256 price,
-        bool revertIfBelowLup
-    ) public payable {
+    function openEarnPositionNft(IERC20Pool pool, uint256 depositAmount, uint256 price) public payable {
         emit CreatePosition(address(this), ajnaVersion, "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
-        supplyQuoteMintNftAndStake(pool, depositAmount, price, revertIfBelowLup);
+        supplyQuoteMintNftAndStake(pool, depositAmount, price);
     }
 
     /**
@@ -503,12 +476,12 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  pool         Address of the Ajana Pool.
      *  @param  amount       The maximum amount of quote token to be moved by a lender.
      *  @param  price        The price the bucket to which the quote tokens will be added.
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
+
      *  @dev price of uint (10**decimals) collateral token in debt token (10**decimals) with 3 decimal points for instance
      *  @dev 1WBTC = 16,990.23 USDC   translates to: 16990230
      */
-    function supplyQuote(IERC20Pool pool, uint256 amount, uint256 price, bool revertIfBelowLup) public payable {
-        _supplyQuote(pool, amount, price, revertIfBelowLup);
+    function supplyQuote(IERC20Pool pool, uint256 amount, uint256 price) public payable {
+        _supplyQuote(pool, amount, price);
         emit ProxyActionsOperation("AjnaSupplyQuote");
     }
 
@@ -530,10 +503,10 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  pool         Address of the Ajana Pool.
      *  @param  oldPrice        The price of the bucket  from which the quote tokens will be removed.
      *  @param  newPrice     The price of the bucket to which the quote tokens will be added.
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
+
      */
-    function moveQuote(IERC20Pool pool, uint256 oldPrice, uint256 newPrice, bool revertIfBelowLup) public {
-        _moveQuote(pool, oldPrice, newPrice, revertIfBelowLup);
+    function moveQuote(IERC20Pool pool, uint256 oldPrice, uint256 newPrice) public {
+        _moveQuote(pool, oldPrice, newPrice);
         emit ProxyActionsOperation("AjnaMoveQuote");
     }
 
@@ -544,17 +517,16 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  amountToAdd     The maximum amount of quote token to be moved by a lender.
      *  @param  oldPrice        The price of the bucket  from which the quote tokens will be removed.
      *  @param  newPrice        The price of the bucket to which the quote tokens will be added.
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
+
      */
     function supplyAndMoveQuote(
         IERC20Pool pool,
         uint256 amountToAdd,
         uint256 oldPrice,
-        uint256 newPrice,
-        bool revertIfBelowLup
+        uint256 newPrice
     ) public payable {
-        _supplyQuote(pool, amountToAdd, newPrice, revertIfBelowLup);
-        _moveQuote(pool, oldPrice, newPrice, revertIfBelowLup);
+        _supplyQuote(pool, amountToAdd, newPrice);
+        _moveQuote(pool, oldPrice, newPrice);
         emit ProxyActionsOperation("AjnaSupplyAndMoveQuote");
     }
 
@@ -565,17 +537,16 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  amountToWithdraw     Amount of quote token to be withdrawn by a lender.
      *  @param  oldPrice        The price of the bucket  from which the quote tokens will be removed.
      *  @param  newPrice        The price of the bucket to which the quote tokens will be added.
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
+
      */
     function withdrawAndMoveQuote(
         IERC20Pool pool,
         uint256 amountToWithdraw,
         uint256 oldPrice,
-        uint256 newPrice,
-        bool revertIfBelowLup
+        uint256 newPrice
     ) public {
         _withdrawQuote(pool, amountToWithdraw, oldPrice);
-        _moveQuote(pool, oldPrice, newPrice, revertIfBelowLup);
+        _moveQuote(pool, oldPrice, newPrice);
         emit ProxyActionsOperation("AjnaWithdrawAndMoveQuote");
     }
 
@@ -621,16 +592,14 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  pool     Address of the Ajana Pool.
      *  @param  amount   The maximum amount of quote token to be deposited by a lender.
      *  @param  price    Price of the bucket to which the quote tokens will be added.
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
      *  @return tokenId  Id of the minted NFT
      */
     function supplyQuoteMintNftAndStake(
         IERC20Pool pool,
         uint256 amount,
-        uint256 price,
-        bool revertIfBelowLup
+        uint256 price
     ) public payable returns (uint256 tokenId) {
-        _supplyQuote(pool, amount, price, revertIfBelowLup);
+        _supplyQuote(pool, amount, price);
         tokenId = _mintAndStakeNft(pool, price);
         emit ProxyActionsOperation("AjnaSupplyQuoteMintNftAndStake");
     }
@@ -642,20 +611,18 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  oldPrice      Index of the bucket to move from.
      *  @param  newPrice      Index of the bucket to move to.
      *  @param  tokenId       ID of the NFT to modify
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
      */
     function supplyAndMoveQuoteNft(
         IERC20Pool pool,
         uint256 amountToAdd,
         uint256 oldPrice,
         uint256 newPrice,
-        uint256 tokenId,
-        bool revertIfBelowLup
+        uint256 tokenId
     ) public payable {
         self.rewardsManager().unstake(tokenId);
 
-        _moveLiquidity(oldPrice, newPrice, tokenId, address(pool), revertIfBelowLup);
-        _supplyQuote(pool, amountToAdd, newPrice, revertIfBelowLup);
+        _moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
+        _supplyQuote(pool, amountToAdd, newPrice);
         _memorializeLiquidity(newPrice, tokenId, pool);
 
         self.rewardsManager().stake(tokenId);
@@ -669,16 +636,10 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  price      Price of the bucket to move from.
      *  @param  tokenId       ID of the NFT to modify
      */
-    function supplyQuoteNft(
-        IERC20Pool pool,
-        uint256 amountToAdd,
-        uint256 price,
-        uint256 tokenId,
-        bool revertIfBelowLup
-    ) public payable {
+    function supplyQuoteNft(IERC20Pool pool, uint256 amountToAdd, uint256 price, uint256 tokenId) public payable {
         self.rewardsManager().unstake(tokenId);
 
-        _supplyQuote(pool, amountToAdd, price, revertIfBelowLup);
+        _supplyQuote(pool, amountToAdd, price);
         _memorializeLiquidity(price, tokenId, pool);
 
         self.rewardsManager().stake(tokenId);
@@ -692,19 +653,17 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  oldPrice      Index of the bucket to move from.
      *  @param  newPrice      Index of the bucket to move to.
      *  @param  tokenId       ID of the NFT to modify
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
      */
     function withdrawAndMoveQuoteNft(
         IERC20Pool pool,
         uint256 amountToWithdraw,
         uint256 oldPrice,
         uint256 newPrice,
-        uint256 tokenId,
-        bool revertIfBelowLup
+        uint256 tokenId
     ) public payable {
         self.rewardsManager().unstake(tokenId);
 
-        _moveLiquidity(oldPrice, newPrice, tokenId, address(pool), revertIfBelowLup);
+        _moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
         _redeemPosition(newPrice, tokenId, address(pool));
         _withdrawQuote(pool, amountToWithdraw, newPrice);
         _memorializeLiquidity(newPrice, tokenId, pool);
@@ -742,17 +701,11 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  oldPrice     Index of the bucket to move from.
      *  @param  newPrice     Index of the bucket to move to.
      *  @param  tokenId      ID of the NFT to modify
-     *  @param  revertIfBelowLup  Revert if the new price is below the LUP
+
      */
-    function moveQuoteNft(
-        IERC20Pool pool,
-        uint256 oldPrice,
-        uint256 newPrice,
-        uint256 tokenId,
-        bool revertIfBelowLup
-    ) public payable {
+    function moveQuoteNft(IERC20Pool pool, uint256 oldPrice, uint256 newPrice, uint256 tokenId) public payable {
         self.rewardsManager().unstake(tokenId);
-        _moveLiquidity(oldPrice, newPrice, tokenId, address(pool), revertIfBelowLup);
+        _moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
         self.rewardsManager().stake(tokenId);
         emit ProxyActionsOperation("AjnaMoveQuoteNft");
     }

@@ -20,7 +20,6 @@ export const withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy = async (args, dep
   const isWithdrawing = args.quoteAmount.gt(ZERO)
   const isAdjusting = !args.price.eq(args.position.price)
   const isWithdrawingAll = args.position.quoteTokenAmount.lte(args.quoteAmount)
-  const revertIfBelowLup = false // TODO revertIfBelowLup, hardcoded for now
 
   const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -51,7 +50,6 @@ export const withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy = async (args, dep
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
-      revertIfBelowLup,
     ])
     targetPosition = args.position.withdraw(args.quoteAmount).moveQuote(priceToIndex)
   }
@@ -62,7 +60,6 @@ export const withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy = async (args, dep
       args.poolAddress,
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
-      revertIfBelowLup,
     ])
     targetPosition = args.position.moveQuote(priceToIndex)
   }
