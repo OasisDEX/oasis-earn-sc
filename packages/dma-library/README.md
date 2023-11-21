@@ -24,7 +24,8 @@ The idea in new approach would be to come up with a framework for handling new p
 
 There are some ideas how such `sdk` could look like. 
 
-```
+
+```typescript
 const sdk = makeSdk(mainnet)
 
 sdk.getUserPositions("0xUser"): Promise<Maybe<Id[]>>
@@ -41,7 +42,7 @@ sdk.getPosition("0x00", sdk.protocol.ajna('0xPool')): Promise<Maybe<Position<Pro
 
 The idea is to have a Position interface that is generic and based on the protocol string literal we can narrow type to specific protocol data types. 
 
-```
+```typescript
 export function getLiqudationPenalty(
   position: LendingPosition<"MAKER">
 ): BigNumber {
@@ -63,7 +64,7 @@ export function getLtv(position: LendingPosition<Protocol>): BigNumber {
 
 or maybe we can construct protocols from some modular interfaces
 
-```
+```typescript
 interface BasePosition<P extends Protocol> {
   proxy: Address;
   protocol: P;
