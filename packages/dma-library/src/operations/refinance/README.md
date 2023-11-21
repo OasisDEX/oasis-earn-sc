@@ -3,39 +3,43 @@
 The refinance operations framework provides a way of adding new refinance operations easily for new
 protocols.
 
-The framework divides each operation in 3 steps:
+The framework divides each operation in 5 steps:
 
-- Closing of the previous position
+- Closing of the previous position (customisable)
 - Swapping of the collateral into the new collateral (if needed)
-- Opening of the new position
+- Opening of the new position (customisable)
+- Swapping of the new debt into the old debt (if needed, to repay the flashloan)
+- Returning of the funds to the user
 
 By doing this, the intention is to allow for composition of this operations among the different
 protocols. This way we can implement a refinance operation between AAVE and Ajna, for example as:
 
 - Close current position in AAVE for ETH/USDC
 - Swap the ETH collateral into DAI
-- Open a new position in Ajna for DAI/USDC
+- Open a new position in Ajna for DAI/rETH
+- Swap the rETH debt into ETH to repay the flashloan
+- Return the remaining ETH to the user
 
 # How to add a new protocol
 
-The framework allows to add new protocols by implementing the `RefinanceOperation` interface for the
-new Operation. This interface defines a function that receives the list of arguments needed for the
-refinance operation and returns a list of calls to be executed. It also returns the value of the
-last storage index that was used in that set of calls. This is used to keep track of the last
-Operation storage slot used by the system.
+The framework allows to add new protocols by implementing the `RefinancePartialOperationGenerator`
+interface for the new Operation. This interface defines a function that receives the list of
+arguments needed for the refinance operation and returns a list of calls to be executed. It also
+returns the value of the last storage index that was used in that set of calls. This is used to keep
+track of the last Operation storage slot used by the system.
 
-Each function implementing the `RefinanceOperation` interface must self register into the Refinance
-framework by means of the `registerRefinanceOperation` function. This function receives the name of
-the protocol, the type of operation to be registered and the callback of type `RefinanceOperation`
-that will generate the necessary calls.
+Each function implementing the `RefinancePartialOperationGenerator` interface must self register
+into the Refinance framework by means of the `registerRefinanceOperation` function. This function
+receives the name of the protocol, the type of operation to be registered and the callback of type
+`RefinancePartialOperationGenerator` that will generate the necessary calls.
 
-Each `RefinanceOperation` function receives the same exact arguments and it is up to each function
-to collate the arguments into the necessary subset of arguments. If a new protocol needs a new
-argument this must be added to the common list of arguments in the `types.ts` file, to the
-`RefinanceOperationArgs` type.
+Each `RefinancePartialOperationGenerator` function receives the same exact arguments and it is up to
+each function to collate the arguments into the necessary subset of arguments. If a new protocol
+needs a new argument this must be added to the common list of arguments in the `types.ts` file, to
+the `RefinanceOperationArgs` type.
 
-Once a new `RefinanceOperation` function is implemented and it has the call to self-register, it
-must be added to the `index.ts` file so that the self-registration is executed.
+Once a new `RefinancePartialOperationGenerator` function is implemented and it has the call to
+self-register, it must be added to the `index.ts` file so that the self-registration is executed.
 
 # How to retrieve the list of calls for a refinance operation
 
@@ -61,7 +65,7 @@ Three helper functions are also provided:
 
 This file contains the common types used by the refinance operations framework. In particular it
 contains the definitions of the `RefinanceOperationArgs` type that is used to pass the arguments to
-the `RefinanceOperation` functions.
+the `RefinancePartialOperationGenerator` functions.
 
 ## refinance.operations.ts
 
@@ -78,8 +82,16 @@ important as they trigger the self-registration code upon module loading.
 
 ## common
 
-This directory contains the common code for the refinance operations framework. In particular it has
-the Swap `RefinanceOperation` used across all of the protocols
+This directory contains the common code for the refinance operations framework. In particular it
+has:
+
+- Swap between close and open `RefinancePartialOperationGenerator` used across all of the protocols
+  for swapping the retrieved collateral from the initial position into the collateral needed for the
+  new position (skipped if the collateral is the same)
+- Swap after open used to swap the borrowed debt from the new position into the old position debt to
+  repay the flashloan (skipped if the debt is the same)
+- Return funds used to return the remaining funds to the user after the refinance operation is
+  completed
 
 ## aave
 
