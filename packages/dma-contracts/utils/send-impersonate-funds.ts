@@ -3,10 +3,6 @@ import { ERC20, ERC20__factory } from '@typechain'
 import { BigNumber } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-function isERC20(address: Address | ERC20): address is ERC20 {
-  return typeof address !== 'string'
-}
-
 function isAddress(address: Address | ERC20): address is Address {
   return typeof address === 'string'
 }
