@@ -1,4 +1,4 @@
-import { ONE, ZERO } from '@dma-common/constants'
+import { ZERO } from '@dma-common/constants'
 import { negativeToZero } from '@dma-common/utils/common'
 import { ajnaBuckets } from '@dma-library/strategies'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
@@ -466,26 +466,14 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
 
 // it's for simulation purposes only, for current value use t0Np from borrowerInfo
 export function getNeutralPrice(
-  pool: AjnaPool,
-  debtChange: BigNumber,
   positionDebt: BigNumber,
   positionCollateral: BigNumber,
+  interestRate: BigNumber,
 ) {
-  const { lowestUtilizedPrice } = simulatePool(pool, debtChange, positionDebt, positionCollateral)
+  const thresholdPrice =
+    positionCollateral.isZero() || positionDebt.isZero()
+      ? ZERO
+      : positionDebt.div(positionCollateral)
 
-  // calculate current pool debt
-  const poolDebt = new BigNumber(pool.t0debt).times(pool.pendingInflator).plus(debtChange)
-
-  const rate = pool.interestRate
-  const noOfLoans = pool.loansCount.plus(pool.totalAuctionsInPool)
-
-  // calculate the hypothetical MOMP and neutral price
-  const mompDebt = noOfLoans.isZero() ? ONE : poolDebt.div(noOfLoans)
-  // calculate new momp in this particular case
-  const [momp] = calculateNewLup(pool, poolDebt.minus(mompDebt).times(-1))
-
-  const thresholdPrice = positionCollateral.eq(ZERO) ? ZERO : positionDebt.div(positionCollateral)
-
-  // neutralPrice = (1 + rate) * momp * thresholdPrice/lup
-  return ONE.plus(rate).times(momp.times(thresholdPrice.div(lowestUtilizedPrice)))
+  return thresholdPrice.times(new BigNumber(1.04).plus(interestRate.sqrt().div(2)))
 }
