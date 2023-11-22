@@ -4,14 +4,14 @@ This is simple cli to automate common tasks on tenderly forks. To start you need
 
 ## Usage
 
-Before running make sure that typings in `/abis` are generated, if not go to the package and run `typechain`.
+Before running make sure that typings in `/abis` are generated, if not go to the package and run `yarn typechain`.
 
 To use cli run
 
 ```
 yarn cli <command-name> <command-arguments>
 e.g.
-$ yarn cli get-tokens token=eth amount=1
+$ yarn cli get-tokens token=weth amount=1
 ```
 
 To check avaiable commands run

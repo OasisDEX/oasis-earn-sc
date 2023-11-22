@@ -1,4 +1,4 @@
-import { getEnvitoment } from '../utils/get-enviroment';
+import { getEnvironment } from '../utils/get-enviroment';
 import { Command } from './command';
 import { getCommandsMap } from './get-commands-map';
 
@@ -44,7 +44,7 @@ export function makeCommandRunner(commands: Record<string, Command>) {
       const commandToRun = commandsMap[commandName];
       try {
         const parsedArgs = await commandToRun.args.validate(args);
-        const enviroment = await getEnvitoment();
+        const enviroment = await getEnvironment();
         try {
           await commandToRun.run(parsedArgs, enviroment);
           return {

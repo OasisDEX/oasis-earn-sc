@@ -1,6 +1,10 @@
+import { config } from 'dotenv';
+
 import { getCommandName, parseArguments } from './cli';
 import { makeCommandRunner } from './cli/command-runner';
 import * as commands from './commands';
+
+config({ path: '../../.env' });
 
 async function main(args: string[]) {
   const commandName = getCommandName(args);

@@ -1,6 +1,6 @@
 import AAVEPoolAbi from '@oasisdex/abis/external/protocols/aave/v3/pool.json';
 // eslint-disable-next-line import/no-unresolved
-import { Pool } from '@oasisdex/abis/types/ethers-contracts/protocols/aave/v3/pool';
+import { Pool } from '@oasisdex/abis/types/ethers-contracts/protocols/aave/v3/';
 import { Address, ADDRESSES } from '@oasisdex/addresses';
 import { Contract } from 'ethers';
 
