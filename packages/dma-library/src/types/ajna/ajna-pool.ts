@@ -27,8 +27,6 @@ export interface AjnaPool {
   highestPriceBucket: BigNumber
   highestPriceBucketIndex: BigNumber
 
-  mostOptimisticMatchingPrice: BigNumber
-
   poolMinDebtAmount: BigNumber
   poolCollateralization: BigNumber
   poolActualUtilization: BigNumber
