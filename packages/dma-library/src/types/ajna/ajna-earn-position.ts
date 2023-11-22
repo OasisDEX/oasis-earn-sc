@@ -66,11 +66,6 @@ export class AjnaEarnPosition implements SupplyPosition {
   get marketPrice() {
     return this.collateralPrice.div(this.quotePrice)
   }
-  get getFeeWhenBelowLup() {
-    return this.price.lt(this.pool.lowestUtilizedPrice) && this.apy.per1d
-      ? this.apy.per1d.times(this.quoteTokenAmount)
-      : ZERO
-  }
 
   get apy() {
     return {
@@ -108,11 +103,10 @@ export class AjnaEarnPosition implements SupplyPosition {
       : undefined
   }
 
-  getBreakEven(openPositionGasFee: BigNumber) {
+  getBreakEven(openPositionFees: BigNumber) {
     const apy1Day = this.isEarningFees
       ? this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 })
       : ZERO
-    const openPositionFees = this.getFeeWhenBelowLup.plus(openPositionGasFee)
 
     if (!apy1Day || apy1Day.isZero() || !this.quoteTokenAmount) return undefined
 

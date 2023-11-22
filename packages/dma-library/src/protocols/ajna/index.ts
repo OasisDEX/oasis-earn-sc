@@ -477,3 +477,24 @@ export function getNeutralPrice(
 
   return thresholdPrice.times(new BigNumber(1.04).plus(interestRate.sqrt().div(2)))
 }
+
+export function getAjnaEarnDepositFee({
+  interestRate,
+  positionPrice,
+  positionQuoteAmount,
+  simulationPrice,
+  simulationQuoteAmount,
+}: {
+  interestRate: BigNumber
+  positionPrice: BigNumber
+  positionQuoteAmount: BigNumber
+  simulationPrice?: BigNumber
+  simulationQuoteAmount: BigNumber
+}) {
+  // current annualized rate divided by 365 * 3 (8 hours of interest)
+  const depositFeeRate = interestRate.div(365 * 3)
+
+  return simulationPrice?.lt(positionPrice) || simulationQuoteAmount?.gt(positionQuoteAmount)
+    ? depositFeeRate.times(simulationQuoteAmount)
+    : ZERO
+}
