@@ -1,12 +1,12 @@
 {
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "typeRoots": [
-      "../../node_modules/@types"
-    ],
+    "outDir": "dist"
   },
   "include": [
     "./external/**/*.json",
-    "./system/**/*.json"
+    "./system/**/*.json",
+    "./src/**/*",
+    "./types/**/*"
   ]
 }

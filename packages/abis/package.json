@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
     "typechain": "typechain --target=ethers-v5 \"./external/**/**.json\"",
     "postinstall": "yarn typechain"
   },

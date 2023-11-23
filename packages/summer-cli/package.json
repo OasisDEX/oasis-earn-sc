@@ -2,9 +2,6 @@
   "name": "@oasisdex/cli",
   "version": "0.0.0",
   "description": "Minimalistic boilerplate to quick-start Node.js development in TypeScript.",
-  "engines": {
-    "node": ">= 16.20.2 <19"
-  },
   "devDependencies": {
     "@types/jest": "~29.5",
     "@types/node": "~18",
