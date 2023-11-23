@@ -25,13 +25,16 @@ contract SendToken is Executable, UseStore {
     SendTokenData memory send = parseInputs(data);
     send.amount = store().readUint(bytes32(send.amount), paramsMap[2], address(this));
 
-    if (msg.value > 0) {
-      payable(send.to).transfer(msg.value);
-    } else {
+    if (send.asset != ETH) {
       if (send.amount == type(uint256).max) {
         send.amount = IERC20(send.asset).balanceOf(address(this));
       }
       IERC20(send.asset).safeTransfer(send.to, send.amount);
+    } else {
+      if (send.amount == type(uint256).max) {
+        send.amount = address(this).balance;
+      }
+      payable(send.to).transfer(send.amount);
     }
   }
 
