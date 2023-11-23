@@ -2,22 +2,22 @@ import { Pool } from "./types";
 
 export const ADDRESSES = {
   goerli: {
-    AJNA_PROXY_ACTIONS: "0x1F15c0832bF01094C077A780ea85dC7Cfe6C209C",
-    ERC20_POOL_FACTORY: "0x01Da8a85A5B525D476cA2b51e44fe7087fFafaFF",
-    POOL_INFO_UTILS: "0xBB61407715cDf92b2784E9d2F1675c4B8505cBd8",
-    POSITION_MANAGER: "0x23E2EFF19bd50BfCF0364B7dCA01004D5cce41f9",
-    REWARD_MANAGER: "0x994dE190dd763Af3126FcC8EdC139275937d800b",
+    AJNA_PROXY_ACTIONS: "0x0000000000000000000000000000000000000000",
+    ERC20_POOL_FACTORY: "0x378c45f3f9FAc53261A675cC5CF971563634174d",
+    POOL_INFO_UTILS: "0xAA3C8bebFf9a9da25F2eBBb800398D594207393f",
+    POSITION_MANAGER: "0xa2f247C6BAB7d8A749339361978FcF5e1e99dC02",
+    REWARD_MANAGER: "0x0000000000000000000000000000000000000000",
     GUARD: "0x9319710C25cdaDDD1766F0bDE40F1A4034C17c7e",
     SERVICE_REGISTRY: "0x5A5277B8c8a42e6d8Ab517483D7D59b4ca03dB7F",
   },
   mainnet: {
-    AJNA_PROXY_ACTIONS: "0xFBcB0bf3A7BcD1a368e8e8Ad2Ab601160088b39C",
-    ERC20_POOL_FACTORY: "0xe6F4d9711121e5304b30aC2Aae57E3b085ad3c4d",
-    POOL_INFO_UTILS: "0x154FFf344f426F99E328bacf70f4Eb632210ecdc",
+    AJNA_PROXY_ACTIONS: "0x0000000000000000000000000000000000000000",
+    ERC20_POOL_FACTORY: "0x0000000000000000000000000000000000000000",
+    POOL_INFO_UTILS: "0x0000000000000000000000000000000000000000",
     POSITION_MANAGER: "0x0000000000000000000000000000000000000000",
     REWARD_MANAGER: "0x0000000000000000000000000000000000000000",
-    GUARD: "0xCe91349d2A4577BBd0fC91Fe6019600e047f2847",
-    SERVICE_REGISTRY: "0x5e81a7515f956ab642eb698821a449fe8fe7498e",
+    GUARD: "0x0000000000000000000000000000000000000000",
+    SERVICE_REGISTRY: "0x0000000000000000000000000000000000000000",
   },
   base: {
     AJNA_PROXY_ACTIONS: "0x0000000000000000000000000000000000000000",
@@ -67,25 +67,25 @@ export const TOKENS = {
 };
 
 export const POOLS: Pool[] = [
-  { pair: "WBTC-USDC", amount: 5000, price: 20000, deposit: false },
-  { pair: "WBTC-DAI", amount: 5000, price: 20000, deposit: false },
-  { pair: "USDC-WBTC", amount: 1, price: 0.000030769, deposit: false },
-  { pair: "WETH-USDC", amount: 5000, price: 1500, deposit: false },
-  { pair: "WETH-DAI", amount: 5000, price: 1500, deposit: false },
-  { pair: "USDC-WETH", amount: 1, price: 0.0005, deposit: false },
-  { pair: "RETH-DAI", amount: 5000, price: 1500, deposit: false },
-  { pair: "RETH-USDC", amount: 5000, price: 1500, deposit: false },
-  { pair: "RETH-WETH", amount: 1, price: 1.07, deposit: false },
-  { pair: "WSTETH-DAI", amount: 5000, price: 1500, deposit: false },
-  { pair: "WSTETH-USDC", amount: 5000, price: 1500, deposit: false },
-  { pair: "WSTETH-WETH", amount: 1, price: 1.09, deposit: false },
+  { pair: "WBTC-USDC", amount: 5000, price: 20000, deposit: true },
+  { pair: "WBTC-DAI", amount: 5000, price: 20000, deposit: true },
+  { pair: "USDC-WBTC", amount: 1, price: 0.000030769, deposit: true },
+  { pair: "WETH-USDC", amount: 5000, price: 1500, deposit: true },
+  { pair: "WETH-DAI", amount: 5000, price: 1500, deposit: true },
+  { pair: "USDC-WETH", amount: 1, price: 0.0005, deposit: true },
+  { pair: "RETH-DAI", amount: 5000, price: 1500, deposit: true },
+  { pair: "RETH-USDC", amount: 5000, price: 1500, deposit: true },
+  { pair: "RETH-WETH", amount: 1, price: 1.07, deposit: true },
+  { pair: "WSTETH-DAI", amount: 5000, price: 1500, deposit: true },
+  { pair: "WSTETH-USDC", amount: 5000, price: 1500, deposit: true },
+  { pair: "WSTETH-WETH", amount: 1, price: 1.09, deposit: true },
   { pair: "CBETH-WETH", amount: 1, price: 1.09, deposit: false },
-  { pair: "TBTC-WBTC", amount: 1, price: 1.01, deposit: false },
+  { pair: "TBTC-WBTC", amount: 1, price: 1.01, deposit: true },
 ];
 
 export const CONFIG = {
   initializeStakingRewards: false,
-  deployPools: false,
+  deployPools: true,
   deployer: "0x8E78CC7089509B568a401f593F64B3074693d25E",
   logGasUsage: false,
 };

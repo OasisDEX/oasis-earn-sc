@@ -125,7 +125,7 @@ async function depositQuoteToken(
   }
   if (amountInDecimals.lte(balance)) {
     console.info(chalk.blue(`Adding ${pool.amount} of ${quote} to pool ${pool.pair} at index ${index}`));
-    await deployedPool.connect(signer).addQuoteToken(amount, index, 999999999999999, false);
+    await deployedPool.connect(signer).addQuoteToken(amount, index, 999999999999999);
   } else {
     console.info(chalk.red(`Not enough ${quote} to add to pool ${pool.pair}`));
   }
