@@ -7,7 +7,7 @@ export { operations } from './operations'
 export { OPERATION_NAMES } from '@deploy-configurations/constants'
 
 // PROTOCOLS
-export { calculateAjnaApyPerDays, calculateAjnaMaxLiquidityWithdraw, protocols } from './protocols'
+export { protocols } from './protocols'
 
 // STRATEGIES
 export { strategies } from './strategies'
