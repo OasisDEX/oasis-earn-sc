@@ -88,7 +88,14 @@ type AjnaWarningWithdrawCloseToMaxLtv = {
   }
 }
 
-export type AjnaWarning = AjnaWarningGenerateCloseToMaxLtv | AjnaWarningWithdrawCloseToMaxLtv
+type AjnaWarningLiquidationPriceCloseToMarketPrice = {
+  name: 'liquidation-price-close-to-market-price'
+}
+
+export type AjnaWarning =
+  | AjnaWarningGenerateCloseToMaxLtv
+  | AjnaWarningWithdrawCloseToMaxLtv
+  | AjnaWarningLiquidationPriceCloseToMarketPrice
 
 export type AjnaNoticePriceBelowHtp = {
   name: 'price-below-htp'
