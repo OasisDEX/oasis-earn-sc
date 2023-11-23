@@ -28,7 +28,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
     address public immutable WETH;
     address public immutable GUARD;
     address public immutable deployer;
-    string public constant ajnaVersion = "Ajna_v2";
+    string public constant ajnaVersion = "Ajna_rc9";
     IAjnaProxyActions public immutable self;
     IPositionManager public positionManager;
     IRewardsManager public rewardsManager;
