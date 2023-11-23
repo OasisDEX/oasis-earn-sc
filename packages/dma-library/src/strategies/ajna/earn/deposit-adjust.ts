@@ -21,7 +21,6 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
     args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
   const isDepositing = args.quoteAmount.gt(ZERO)
   const isAdjusting = !args.price.eq(args.position.price) && args.position.price.gt(ZERO)
-  const revertIfBelowLup = false // TODO revertIfBelowLup, hardcoded for now
 
   const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -54,7 +53,6 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
-      revertIfBelowLup,
     ])
     targetPosition = args.position.moveQuote(priceToIndex).deposit(args.quoteAmount)
   }
@@ -65,7 +63,6 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       args.poolAddress,
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
-      revertIfBelowLup,
     ])
     targetPosition = args.position.moveQuote(priceToIndex)
   }
@@ -76,7 +73,6 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       args.price.shiftedBy(18).toString(),
-      revertIfBelowLup,
     ])
     targetPosition = args.position.deposit(args.quoteAmount)
   }
