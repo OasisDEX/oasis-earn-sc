@@ -40,11 +40,11 @@ contract TakeFlashloan is Executable, ProxyPermission {
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     FlashloanData memory flData = parseInputs(data);
+
     address operationExecutorAddress = registry.getRegisteredService(OPERATION_EXECUTOR);
 
-    if (flData.isProxyFlashloan) {
-      givePermission(flData.isDPMProxy, operationExecutorAddress);
-    }
+    givePermission(flData.isDPMProxy, operationExecutorAddress);
+
 
     if (flData.provider == FlashloanProvider.DssFlash) {
       ChainLogView chainlogView = ChainLogView(registry.getRegisteredService(CHAINLOG_VIEWER));
@@ -72,9 +72,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
       );
     }
 
-    if (flData.isProxyFlashloan) {
-      removePermission(flData.isDPMProxy, operationExecutorAddress);
-    }
+    removePermission(flData.isDPMProxy, operationExecutorAddress);
   }
 
   function parseInputs(bytes memory _callData) public pure returns (FlashloanData memory params) {

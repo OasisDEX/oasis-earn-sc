@@ -2,8 +2,8 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../../common/Executable.sol";
-import { Write, UseStore } from "../../common/UseStore.sol";
-import { OperationStorage } from "../../../core/OperationStorage.sol";
+import { UseStorageSlot, StorageSlot, Write } from "../../../libs/UseStorageSlot.sol";
+import { ServiceRegistry } from "../../../core/ServiceRegistry.sol";
 import { IVariableDebtToken } from "../../../interfaces/aave/IVariableDebtToken.sol";
 import { IWETHGateway } from "../../../interfaces/aave/IWETHGateway.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
@@ -15,10 +15,14 @@ import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
  * @title SetEMode | AAVE V3 Action contract
  * @notice Sets the user's eMode on AAVE's lending pool
  */
-contract AaveV3SetEMode is Executable, UseStore {
-  using Write for OperationStorage;
+contract AaveV3SetEMode is Executable, UseStorageSlot {
+  using Write for StorageSlot.TransactionStorage;
 
-  constructor(address _registry) UseStore(_registry) {}
+  ServiceRegistry internal immutable registry;
+
+  constructor(address _registry) {
+    registry = ServiceRegistry(_registry);
+  }
 
   /**
    * @param data Encoded calldata that conforms to the SetEModeData struct

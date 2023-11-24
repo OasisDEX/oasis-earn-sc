@@ -2,8 +2,9 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../../common/Executable.sol";
-import { Write, UseStore } from "../../common/UseStore.sol";
-import { OperationStorage } from "../../../core/OperationStorage.sol";
+import { UseStorageSlot, StorageSlot, Write, Read } from "../../../libs/UseStorageSlot.sol";
+import { UseStore } from "../../common/UseStore.sol";
+import { ServiceRegistry } from "../../../core/ServiceRegistry.sol";
 import { IVariableDebtToken } from "../../../interfaces/aave/IVariableDebtToken.sol";
 import { IWETHGateway } from "../../../interfaces/aave/IWETHGateway.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
@@ -15,11 +16,15 @@ import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
  * @title Borrow | AAVE V3 Action contract
  * @notice Borrows token from AAVE's lending pool
  */
-contract AaveV3Borrow is Executable, UseStore {
-  using Write for OperationStorage;
+contract AaveV3Borrow is Executable, UseStorageSlot {
+  using Write for StorageSlot.TransactionStorage;
 
-  constructor(address _registry) UseStore(_registry) {}
+  ServiceRegistry internal immutable registry;
 
+  constructor(address _registry) {
+    registry = ServiceRegistry(_registry);
+  }
+  
   /**
    * @param data Encoded calldata that conforms to the BorrowData struct
    */

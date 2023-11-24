@@ -2,23 +2,26 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
-import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { UnwrapEthData } from "../../core/types/Common.sol";
-import { UseStore, Read } from "../../actions/common/UseStore.sol";
 import { WETH } from "../../core/constants/Common.sol";
-import { OperationStorage } from "../../core/OperationStorage.sol";
+import { UseStorageSlot, StorageSlot, Write, Read } from "../../libs/UseStorageSlot.sol";
+import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 
 /**
  * @title Unwrap ETH Action contract
  * @notice Unwraps WETH balances to ETH
  */
-contract UnwrapEth is Executable, UseStore {
+contract UnwrapEth is Executable, UseStorageSlot {
   using SafeERC20 for IERC20;
-  using Read for OperationStorage;
+  using Read for StorageSlot.TransactionStorage;
 
-  constructor(address _registry) UseStore(_registry) {}
+  ServiceRegistry internal immutable registry;
+
+  constructor(address _registry) {
+    registry = ServiceRegistry(_registry);
+  }
 
   /**
    * @dev look at UseStore.sol to get additional info on paramsMapping
@@ -30,7 +33,7 @@ contract UnwrapEth is Executable, UseStore {
 
     UnwrapEthData memory unwrapData = parseInputs(data);
 
-    unwrapData.amount = store().readUint(bytes32(unwrapData.amount), paramsMap[0], address(this));
+    unwrapData.amount = store().readUint(bytes32(unwrapData.amount), paramsMap[0]);
 
     if (unwrapData.amount == type(uint256).max) {
       unwrapData.amount = weth.balanceOf(address(this));

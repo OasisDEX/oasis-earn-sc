@@ -6,20 +6,24 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { SwapData } from "../../core/types/Common.sol";
-import { UseStore, Write } from "../../actions/common/UseStore.sol";
 import { Swap } from "../../swap/Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
-import { OperationStorage } from "../../core/OperationStorage.sol";
+import { UseStorageSlot, StorageSlot, Write, Read } from "../../libs/UseStorageSlot.sol";
+import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 
 /**
  * @title SwapAction Action contract
  * @notice Call the deployed Swap contract which handles swap execution
  */
-contract SwapAction is Executable, UseStore {
+contract SwapAction is Executable, UseStorageSlot {
   using SafeERC20 for IERC20;
-  using Write for OperationStorage;
+  using Write for StorageSlot.TransactionStorage;
 
-  constructor(address _registry) UseStore(_registry) {}
+  ServiceRegistry internal immutable registry;
+
+  constructor(address _registry) {
+    registry = ServiceRegistry(_registry);
+  }
 
   /**
    * @dev The swap contract is pre-configured to use a specific exchange (EG 1inch)

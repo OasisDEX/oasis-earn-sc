@@ -2,8 +2,8 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../../common/Executable.sol";
-import { UseStore, Write, Read } from "../../common/UseStore.sol";
-import { OperationStorage } from "../../../core/OperationStorage.sol";
+import { UseStorageSlot, StorageSlot, Write, Read } from "../../../libs/UseStorageSlot.sol";
+import { ServiceRegistry } from "../../../core/ServiceRegistry.sol";
 import { IVariableDebtToken } from "../../../interfaces/aave/IVariableDebtToken.sol";
 import { IWETHGateway } from "../../../interfaces/aave/IWETHGateway.sol";
 import { PaybackData } from "../../../core/types/Aave.sol";
@@ -16,11 +16,15 @@ import { AAVE_POOL } from "../../../core/constants/Aave.sol";
  * @title Payback | AAVE V3 Action contract
  * @notice Pays back a specified amount to AAVE's lending pool
  */
-contract AaveV3Payback is Executable, UseStore {
-  using Write for OperationStorage;
-  using Read for OperationStorage;
+contract AaveV3Payback is Executable, UseStorageSlot {
+  using Write for StorageSlot.TransactionStorage;
+  using Read for StorageSlot.TransactionStorage;
 
-  constructor(address _registry) UseStore(_registry) {}
+  ServiceRegistry internal immutable registry;
+
+  constructor(address _registry) {
+    registry = ServiceRegistry(_registry);
+  }
 
   /**
    * @dev Look at UseStore.sol to get additional info on paramsMapping.
@@ -31,7 +35,7 @@ contract AaveV3Payback is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     PaybackData memory payback = parseInputs(data);
 
-    payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
+    payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1]);
 
     IPoolV3(registry.getRegisteredService(AAVE_POOL)).repay(
       payback.asset,
