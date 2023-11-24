@@ -20,10 +20,22 @@ export function getFlashloanToken({
   debt,
 }: FlashloanDependencies): WithFlashLoanArgs {
   if (protocol === 'Spark') {
-    return {
-      flashloan: {
-        token: debt,
-      },
+    if (debt.symbol !== 'DAI') {
+      return {
+        flashloan: {
+          token: debt,
+        },
+      }
+    } else {
+      return {
+        flashloan: {
+          token: {
+            symbol: 'WETH' as const,
+            address: addresses.tokens.WETH,
+            precision: 18,
+          },
+        },
+      }
     }
   }
 

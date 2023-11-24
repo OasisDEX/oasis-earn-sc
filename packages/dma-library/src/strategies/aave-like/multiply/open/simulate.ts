@@ -49,6 +49,7 @@ export async function simulate(
    * Left in a position that make it difficult to re-open it
    */
   const currentPosition = await resolveCurrentPositionForProtocol(args, dependencies)
+
   const protocolData = await resolveProtocolData(
     {
       collateralTokenAddress,
