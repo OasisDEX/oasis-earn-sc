@@ -14,9 +14,11 @@ import {
   AaveLikeOpenArgs,
   AaveLikeOpenDependencies,
 } from '@dma-library/strategies/aave-like/multiply/open/types'
-import { SwapData } from '@dma-library/types'
+import { FlashloanProvider, SwapData } from '@dma-library/types'
 import { WithFee } from '@dma-library/types/aave/fee'
+import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import * as SwapUtils from '@dma-library/utils/swap'
+import { IBaseSimulatedTransition } from '@domain'
 import BigNumber from 'bignumber.js'
 
 export async function simulate(
@@ -130,9 +132,37 @@ export async function simulate(
     },
   )
 
+  simulation.flashloan.amount = overrideFlashloanAmountForBalancerOnSpark(dependencies, simulation)
+
   return {
     simulatedPositionTransition: simulation,
     reserveEModeCategory,
     flashloanTokenAddress: flashloan.token.address,
   }
+}
+
+/**
+ * Original flashloan calculations assume that the flashloan is not equivalent to the amount borrowed
+ * EG FMM Dai to collateralise the operation during execution
+ *
+ * Whereas now we use optimised flashloans that flashloan the exact amount of collateral needed to cover borrowing
+ * This optimised flashloan is equivalent to the amount of debt to be borrowed
+ *
+ * Therefore, the most figure for the flashloan amount is the fromTokenAmount in the swap
+ */
+
+function overrideFlashloanAmountForBalancerOnSpark(
+  dependencies: AaveLikeOpenDependencies,
+  simulation: IBaseSimulatedTransition,
+) {
+  const flashloanProvider = resolveFlashloanProvider(
+    dependencies.network,
+    dependencies.protocolType,
+  )
+
+  if (dependencies.protocolType === 'Spark' && flashloanProvider === FlashloanProvider.Balancer) {
+    simulation.flashloan.amount = simulation.swap.fromTokenAmount
+  }
+
+  return simulation.flashloan.amount
 }
