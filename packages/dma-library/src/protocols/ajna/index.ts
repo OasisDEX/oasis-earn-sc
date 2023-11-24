@@ -489,12 +489,12 @@ export function getAjnaEarnDepositFee({
   positionPrice: BigNumber
   positionQuoteAmount: BigNumber
   simulationPrice?: BigNumber
-  simulationQuoteAmount: BigNumber
+  simulationQuoteAmount?: BigNumber
 }) {
   // current annualized rate divided by 365 * 3 (8 hours of interest)
   const depositFeeRate = interestRate.div(365 * 3)
 
   return simulationPrice?.lt(positionPrice) || simulationQuoteAmount?.gt(positionQuoteAmount)
-    ? depositFeeRate.times(simulationQuoteAmount)
-    : ZERO
+    ? simulationQuoteAmount?.times(depositFeeRate)
+    : undefined
 }

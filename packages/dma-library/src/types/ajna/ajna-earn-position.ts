@@ -1,7 +1,7 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { normalizeValue } from '@dma-common/utils/common'
-import { calculateAjnaApyPerDays } from '@dma-library/protocols/ajna'
+import { protocols } from '@dma-library/protocols'
 import bucketPrices from '@dma-library/strategies/ajna/earn/buckets.json'
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
@@ -99,7 +99,11 @@ export class AjnaEarnPosition implements SupplyPosition {
 
   getApyPerDays({ amount, days }: { amount?: BigNumber; days: number }) {
     return amount?.gt(0) && this.pool.dailyPercentageRate30dAverage.gt(0)
-      ? calculateAjnaApyPerDays(amount, this.pool.dailyPercentageRate30dAverage, days)
+      ? protocols.ajna.calculateAjnaApyPerDays(
+          amount,
+          this.pool.dailyPercentageRate30dAverage,
+          days,
+        )
       : undefined
   }
 
