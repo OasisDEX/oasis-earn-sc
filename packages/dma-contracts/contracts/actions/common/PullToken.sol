@@ -20,7 +20,12 @@ contract PullToken is Executable {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     PullTokenData memory pull = parseInputs(data);
 
-    IERC20(pull.asset).safeTransferFrom(pull.from, address(this), pull.amount);
+    IERC20 token = IERC20(pull.asset);
+
+    if (pull.amount == type(uint256).max) {
+      pull.amount = token.balanceOf(pull.from);
+    }
+    token.transferFrom(pull.from, address(this), pull.amount);
   }
 
   function parseInputs(bytes memory _callData) public pure returns (PullTokenData memory params) {
