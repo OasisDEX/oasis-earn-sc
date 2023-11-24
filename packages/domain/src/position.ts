@@ -311,7 +311,7 @@ export class Position implements IPosition {
           simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
           mappedParams.flashloan.token.precision,
           this.debt.precision,
-          mappedParams.flashloan.maxLoanToValueFL,
+          mappedParams.flashloan.maxLoanToValueFL || ONE,
         )
       : ZERO
 
