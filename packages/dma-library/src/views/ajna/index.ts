@@ -68,7 +68,14 @@ export async function getPosition(
   const [
     pool,
     borrowerInfo,
-    { borrowCumulativeFeesUSD, borrowCumulativeDepositUSD, borrowCumulativeWithdrawUSD },
+    {
+      borrowCumulativeFeesUSD,
+      borrowCumulativeDepositUSD,
+      borrowCumulativeWithdrawUSD,
+      earnCumulativeFeesInQuoteToken,
+      earnCumulativeQuoteTokenDeposit,
+      earnCumulativeQuoteTokenWithdraw,
+    },
   ] = await Promise.all([
     getPoolData(poolAddress),
     poolInfo.borrowerInfo(poolAddress, proxyAddress),
@@ -90,6 +97,14 @@ export async function getPosition(
       .plus(netValue)
       .minus(borrowCumulativeDepositUSD)
       .div(borrowCumulativeDepositUSD),
+    cumulatives: {
+      borrowCumulativeDepositUSD,
+      borrowCumulativeFeesUSD,
+      borrowCumulativeWithdrawUSD,
+      earnCumulativeFeesInQuoteToken,
+      earnCumulativeQuoteTokenDeposit,
+      earnCumulativeQuoteTokenWithdraw,
+    },
   }
 
   return new AjnaPosition(

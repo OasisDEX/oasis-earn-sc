@@ -8,6 +8,7 @@ import {
   simulatePool,
 } from '@dma-library/protocols/ajna'
 import { AjnaWarning } from '@dma-library/types/ajna'
+import { AjnaCumulativesData } from '@dma-library/views/ajna'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
@@ -60,6 +61,7 @@ export class AjnaPosition implements LendingPosition {
     public pnl: {
       withFees: BigNumber
       withoutFees: BigNumber
+      cumulatives: AjnaCumulativesData
     },
   ) {}
 
