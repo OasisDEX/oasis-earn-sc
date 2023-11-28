@@ -37,13 +37,36 @@ export interface LendingPosition {
   payback(amount: BigNumber): LendingPosition
 }
 
+interface MarketParams {
+  id: string
+  loanToken: Address
+  collateralToken: Address
+  oracle: Address
+  irm: Address
+  lltv: BigNumber
+}
+
+interface Market {
+  totalSupplyAssets: BigNumber
+  totalSupplyShares: BigNumber
+  totalBorrowAssets: BigNumber
+  totalBorrowShares: BigNumber
+  lastUpdate: BigNumber
+  fee: BigNumber
+}
+
 export class MorphoBluePosition implements LendingPosition {
   constructor(
     public owner: Address,
     public collateralAmount: BigNumber,
     public debtAmount: BigNumber,
     public collateralPrice: BigNumber,
-    public quotePrice: BigNumber,
+    public debtPrice: BigNumber,
+    public marketPatams: MarketParams,
+    public market: Market,
+    // collateral / debt
+    public price: BigNumber,
+    public rate: BigNumber,
     public pnl: {
       withFees: BigNumber
       withoutFees: BigNumber
@@ -51,44 +74,43 @@ export class MorphoBluePosition implements LendingPosition {
   ) {}
 
   get liquidationPrice() {
-    return new BigNumber(1234)
+    return this.price.times(this.marketPatams.lltv)
   }
 
   get marketPrice() {
-    return this.collateralPrice.div(this.quotePrice)
+    return this.price
   }
 
   get liquidationToMarketPrice() {
-    return this.liquidationPrice.div(this.marketPrice)
+    return this.marketPatams.lltv
   }
 
+  // How much collateral can we withdraw to not get liqidated, (to get to the verge of liquidation)
   get collateralAvailable() {
-    const collateralAvailable = ZERO
+    const collateralAvailable = this.collateralAmount.minus(this.debtAmount.div(this.liquidationPrice))
 
     return negativeToZero(normalizeValue(collateralAvailable))
   }
 
   get riskRatio() {
     const loanToValue = this.debtAmount
-      .times(this.quotePrice)
-      .div(this.collateralAmount.times(this.collateralPrice))
+      .div(this.collateralAmount.times(this.price))
 
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
   }
 
   get maxRiskRatio() {
-    const loanToValue = new BigNumber(0.85)
-    return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
+    return new RiskRatio(normalizeValue(this.marketPatams.lltv), RiskRatio.TYPE.LTV)
   }
 
   get borrowRate(): BigNumber {
-    return ZERO
+    return this.rate
   }
 
   get netValue(): BigNumber {
     return this.collateralAmount
       .times(this.collateralPrice)
-      .minus(this.debtAmount.times(this.quotePrice))
+      .minus(this.debtAmount.times(this.debtPrice))
   }
 
   get minRiskRatio() {
@@ -101,12 +123,16 @@ export class MorphoBluePosition implements LendingPosition {
     return this.collateralAmount
       .times(this.collateralPrice)
       .times(this.maxRiskRatio.loanToValue)
-      .minus(this.debtAmount.times(this.quotePrice))
+      .minus(this.debtAmount.times(this.debtPrice))
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  debtAvailable(collateralAmount?: BigNumber) {
-    return ZERO
+  debtAvailable(collateralAmount: BigNumber = ZERO) {
+
+    // (debt + addDebt) / ((col + addedColl) * price) = lltv
+    // lltv*price*(col + addedColl) - debt = addDebt
+
+    return negativeToZero(normalizeValue(this.maxRiskRatio.loanToValue.times(this.price).times(this.collateralAmount.plus(collateralAmount)).minus(this.debtAmount)))
   }
 
   deposit(collateralAmount: BigNumber) {
@@ -116,7 +142,11 @@ export class MorphoBluePosition implements LendingPosition {
       newCollateralAmount,
       this.debtAmount,
       this.collateralPrice,
-      this.quotePrice,
+      this.debtPrice,
+      this.marketPatams,
+      this.market,
+      this.price,
+      this.rate,
       this.pnl,
     )
   }
@@ -128,7 +158,11 @@ export class MorphoBluePosition implements LendingPosition {
       newCollateralAmount,
       this.debtAmount,
       this.collateralPrice,
-      this.quotePrice,
+      this.debtPrice,
+      this.marketPatams,
+      this.market,
+      this.price,
+      this.rate,
       this.pnl,
     )
   }
@@ -140,7 +174,11 @@ export class MorphoBluePosition implements LendingPosition {
       this.collateralAmount,
       newDebt,
       this.collateralPrice,
-      this.quotePrice,
+      this.debtPrice,
+      this.marketPatams,
+      this.market,
+      this.price,
+      this.rate,
       this.pnl,
     )
   }
@@ -152,7 +190,11 @@ export class MorphoBluePosition implements LendingPosition {
       this.collateralAmount,
       newDebt,
       this.collateralPrice,
-      this.quotePrice,
+      this.debtPrice,
+      this.marketPatams,
+      this.market,
+      this.price,
+      this.rate,
       this.pnl,
     )
   }
@@ -163,7 +205,11 @@ export class MorphoBluePosition implements LendingPosition {
       ZERO,
       ZERO,
       this.collateralPrice,
-      this.quotePrice,
+      this.debtPrice,
+      this.marketPatams,
+      this.market,
+      this.price,
+      this.rate,
       this.pnl,
     )
   }

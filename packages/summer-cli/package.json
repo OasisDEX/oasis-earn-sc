@@ -32,6 +32,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@oasisdex/addresses": "*",
+    "@oasisdex/dma-library": "^0.5.18",
     "dotenv": "^16.3.1",
     "ethers": "5.7.2",
     "ts-node": "^10.9.1",
