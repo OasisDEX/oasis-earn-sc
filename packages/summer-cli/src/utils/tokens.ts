@@ -12,6 +12,7 @@ export const tokens = [
   'WSTETH',
   'CBETH',
   'USDBC',
+  'SDAI',
 ] as const;
 
 export type SupportedTokens = (typeof tokens)[number];
@@ -25,6 +26,7 @@ export const tokenPrecision: Record<SupportedTokens, number> = {
   WSTETH: 18,
   CBETH: 18,
   USDBC: 6,
+  SDAI: 18,
 };
 
 export function isSupportedToken(token: string): token is SupportedTokens {
