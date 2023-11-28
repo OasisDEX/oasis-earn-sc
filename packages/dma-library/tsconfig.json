@@ -9,6 +9,7 @@
     "paths": {
       "@abis/external/*": ["../abis/external/*"],
       "@abis/system/*": ["../abis/system/*"],
+      "@abis/types/*": ["../abis/types/ethers-contracts/*"],
       "@typechain/*": ["../dma-contracts/typechain/*"],
       "@dma-library/strategies": ["./src/strategies/index.ts"],
       "@dma-library/types": ["./src/types/index.ts"],
@@ -47,6 +48,7 @@
   "include": [
     "./src",
     "./src/strategies/ajna/earn/buckets.json",
-    "test"
+    "test",
+    "../abis/types"
   ]
 }

@@ -3543,6 +3543,11 @@
   dependencies:
     nx "15.9.2"
 
+"@oasisdex/abis@file:packages/abis":
+  version "1.0.0"
+  dependencies:
+    ethers "5.7.2"
+
 "@oasisdex/oasis-actions@^0.2.16":
   version "0.2.16"
   resolved "https://registry.npmjs.org/@oasisdex/oasis-actions/-/oasis-actions-0.2.16.tgz"
