@@ -155,6 +155,7 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
      *  @dev    External calls to `Pool` contract:
      *  @dev    - `lenderInfo()`: get lender position in bucket
      *  @dev    - `transferLP()`: transfer `LP` ownership to `PositionManager` contract
+     *  @dev    - `lpAllowance()`: get owner LP allowance for lp transfer
      *  @dev    === Write state ===
      *  @dev    `TokenInfo.positionIndexes`: add bucket index
      *  @dev    `TokenInfo.positions`: update `tokenId => bucket id` position
@@ -263,6 +264,7 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
      *  @dev    External calls to `Pool` contract:
      *  @dev    `bucketInfo()`: get from bucket info
      *  @dev    `moveQuoteToken()`: move liquidity between buckets
+     *  @dev    `updateInterest()`: accrue pool interest
      *  @dev    === Write state ===
      *  @dev    `TokenInfo.positionIndexes`: remove from bucket index
      *  @dev    `TokenInfo.positionIndexes`: add to bucket index
@@ -284,8 +286,7 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
         uint256 tokenId_,
         uint256 fromIndex_,
         uint256 toIndex_,
-        uint256 expiry_,
-        bool revertIfBelowLup_
+        uint256 expiry_
     ) external override nonReentrant mayInteract(pool_, tokenId_) {
         TokenInfo storage tokenInfo = positionTokens[tokenId_];
         Position storage fromPosition = tokenInfo.positions[fromIndex_];
@@ -314,7 +315,6 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
             vars.bucketCollateral,
             vars.bucketDeposit,
             vars.fromLP,
-            vars.bucketDeposit,
             _priceAt(fromIndex_)
         );
 
@@ -323,8 +323,7 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
             vars.maxQuote,
             fromIndex_,
             toIndex_,
-            expiry_,
-            revertIfBelowLup_
+            expiry_
         );
 
         EnumerableSet.UintSet storage positionIndexes = tokenInfo.positionIndexes;

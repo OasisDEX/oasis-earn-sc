@@ -1,6 +1,8 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { ajnaBuckets } from '@dma-library/strategies'
+import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/ajna/validation/borrowish/closeToMaxLtv'
+import { validateLiquidationPriceCloseToMarketPrice } from '@dma-library/strategies/ajna/validation/borrowish/liquidationPriceCloseToMarket'
 import { AjnaCommonDependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
 import { AjnaOpenBorrowPayload } from '@dma-library/types/ajna/ajna-dependencies'
 import { views } from '@dma-library/views'
@@ -67,6 +69,11 @@ export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
     ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 
+  const warnings = [
+    ...validateGenerateCloseToMaxLtv(targetPosition, position),
+    ...validateLiquidationPriceCloseToMarketPrice(targetPosition),
+  ]
+
   return prepareAjnaPayload({
     dependencies,
     targetPosition,
@@ -74,7 +81,7 @@ export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
     errors,
     notices: [],
     successes: [],
-    warnings: [],
+    warnings,
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })
 }

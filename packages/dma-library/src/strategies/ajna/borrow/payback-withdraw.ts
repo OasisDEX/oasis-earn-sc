@@ -1,5 +1,6 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { validateLiquidationPriceCloseToMarketPrice } from '@dma-library/strategies/ajna/validation/borrowish/liquidationPriceCloseToMarket'
 import {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
@@ -47,7 +48,10 @@ export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, depende
     ...validateOverWithdraw(targetPosition, args.position, args.collateralAmount),
   ]
 
-  const warnings = [...validateWithdrawCloseToMaxLtv(targetPosition, args.position)]
+  const warnings = [
+    ...validateWithdrawCloseToMaxLtv(targetPosition, args.position),
+    ...validateLiquidationPriceCloseToMarketPrice(targetPosition),
+  ]
 
   return prepareAjnaPayload({
     dependencies,
