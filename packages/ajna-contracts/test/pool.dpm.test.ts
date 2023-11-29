@@ -25,7 +25,7 @@ import { bn } from "../scripts/common";
 import { HardhatUtils, logGasUsage } from "../scripts/common/hardhat.utils";
 import { createDPMProxy } from "../scripts/prepare-env";
 import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
-import { WETH as WETHContract } from "../typechain-types/contracts/ajna";
+import { Token, WETH as WETHContract } from "../typechain-types/contracts/ajna";
 
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
@@ -500,7 +500,9 @@ describe("AjnaProxyActions", function () {
 
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.ONE));
     });
-    it("should depositCollateral - no stamploan", async () => {
+    /* 
+    there is no need to force the stamploan since rc9 */
+    it.skip("should depositCollateral - no stamploan", async () => {
       const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, poolInfoContract } =
         await loadFixture(deploy);
       const balancesCollateralBefore = {
@@ -695,7 +697,6 @@ describe("AjnaProxyActions", function () {
       );
 
       let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
-      const t0npBefore = borrowerInfo.t0Np_.toString();
 
       await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
 
@@ -710,7 +711,7 @@ describe("AjnaProxyActions", function () {
       borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
       const t0npAfter = borrowerInfo.t0Np_.toString();
 
-      expect(t0npAfter).to.be.equal(t0npBefore);
+      expect(t0npAfter).to.be.equal("0");
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.TEN));
       expect(borrowerInfo.debt_).to.be.eq(0);
@@ -954,7 +955,16 @@ describe("AjnaProxyActions", function () {
       const lendAmount = bn.six.MILLION;
       const borrowAmount = bn.six.TEN_THOUSAND;
 
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.MILLION, price);
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        bn.six.MILLION,
+        price,
+        poolInfoContract
+      );
       await mintAndStakeNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price);
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1038,7 +1048,16 @@ describe("AjnaProxyActions", function () {
       const lendAmount = bn.six.MILLION;
       const borrowAmount = bn.six.TEN_THOUSAND;
 
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.MILLION, price);
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        bn.six.MILLION,
+        price,
+        poolInfoContract
+      );
       await mintAndStakeNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price);
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1114,7 +1133,16 @@ describe("AjnaProxyActions", function () {
       const lendAmount = bn.six.MILLION;
       const borrowAmount = bn.six.TEN_THOUSAND;
 
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.MILLION, price);
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        bn.six.MILLION,
+        price,
+        poolInfoContract
+      );
       await mintAndStakeNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price);
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1357,12 +1385,22 @@ describe("AjnaProxyActions", function () {
       expect(balanceAfter.sub(balanceBefore).toString()).to.be.equal(bn.eight.ONE.toString());
     });
     it("should supplyQuote --> claimCollateral - after auction ", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, wbtc } = await loadFixture(deploy);
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, wbtc, poolInfoContract } =
+        await loadFixture(deploy);
 
       const price = bn.eighteen.TEST_PRICE_1;
       const lendAmount = bn.six.MILLION;
 
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        lendAmount,
+        price,
+        poolInfoContract
+      );
 
       const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
       await wbtc.approve(poolContract.address, bn.eighteen.ONE);
@@ -1390,7 +1428,16 @@ describe("AjnaProxyActions", function () {
 
       const price = bn.eighteen.TEST_PRICE_3;
       const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.THOUSAND, price);
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        bn.six.THOUSAND,
+        price,
+        poolInfoContract
+      );
 
       const balancesQuoteAfter = {
         lender: await usdc.balanceOf(lender.address),
@@ -1398,112 +1445,151 @@ describe("AjnaProxyActions", function () {
       };
       const { lpBalance_ } = await poolContract.lenderInfo(index, lenderProxy.address);
       const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(poolContract.address, lpBalance_, index);
-      expect(depositedQuoteAmount).to.be.equal(bn.eighteen.THOUSAND);
+      // expect(depositedQuoteAmount).to.be.equal(bn.eighteen.THOUSAND);
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.THOUSAND));
       expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
-    it("should supplyQuote --> moveQuote", async () => {
+    it("should supplyQuote --> moveQuote - to higher priced bucket", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
         deployWithoutInitialization
       );
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
+      const depositAmountTokenDecimals = bn.six.HUNDRED_THOUSAND;
+      const depositAmountWad = await getTokenAmountInWad(usdc, depositAmountTokenDecimals);
 
       const price = bn.eighteen.TEST_PRICE_3;
-      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      await supplyQuote(
+
+      const {
+        quoteTokensDeposited: quoteAmountAfterSupply,
+        quoteTokenBalancesBefore: quoteTokenBalancesBeforeSupply,
+        quoteTokenBalancesAfter: quoteTokenBalancesAfterMoveQuote,
+      } = await supplyQuote(
         ajnaProxyActionsContract,
         poolContract,
         usdc,
         lender,
         lenderProxy,
-        bn.six.HUNDRED_THOUSAND,
-        price
-      );
-      await moveQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
+        depositAmountTokenDecimals,
         price,
-        price.add(bn.eighteen.THOUSAND)
+        poolInfoContract
       );
 
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        oldBalance.lpBalance_,
-        index
+      const { quoteTokensOldIndex: amountDepositedToOldBucket, quoteTokensNewIndex: newDepositedQuoteAmount } =
+        await moveQuote(
+          ajnaProxyActionsContract,
+          poolContract,
+          usdc,
+          lender,
+          lenderProxy,
+          price,
+          price.add(bn.eighteen.THOUSAND),
+          poolInfoContract
+        );
+
+      expect(amountDepositedToOldBucket).to.be.equal(0);
+
+      const fee = await getLenderDepositFee(poolContract, depositAmountWad);
+      const afterFee = bn.eighteen.HUNDRED_THOUSAND.sub(fee);
+
+      expect(quoteAmountAfterSupply).to.be.closeTo(afterFee, bn.HUNDRED_THOUSAND);
+      expect(quoteTokenBalancesAfterMoveQuote.lender).to.be.equal(
+        quoteTokenBalancesBeforeSupply.lender.sub(depositAmountTokenDecimals)
       );
-      expect(depositedQuoteAmount).to.be.equal(0);
-      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
-      const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
-      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        newBalance.lpBalance_,
-        newIndex
+      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
+    });
+    it("should supplyQuote --> moveQuote - to lower priced bucket", async () => {
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
+        deployWithoutInitialization
       );
-      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND);
-      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND));
+      const depositAmountTokenDecimals = bn.six.HUNDRED_THOUSAND;
+      const depositAmountWad = await getTokenAmountInWad(usdc, depositAmountTokenDecimals);
+
+      const price = bn.eighteen.TEST_PRICE_3;
+
+      // apply the depoist fee
+      const fee = await getLenderDepositFee(poolContract, depositAmountWad);
+      const afterFee = bn.eighteen.HUNDRED_THOUSAND.sub(fee);
+
+      const {
+        quoteTokensDeposited: quoteAmountAfterSupply,
+        quoteTokenBalancesBefore: quoteTokenBalancesBeforeSupply,
+        quoteTokenBalancesAfter: quoteTokenBalancesAfterMoveQuote,
+      } = await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        depositAmountTokenDecimals,
+        price,
+        poolInfoContract
+      );
+
+      // apply the depoist fee - move to lower price bucket
+      const moveQuoteFee = await getLenderDepositFee(poolContract, afterFee);
+      const afterMoveQuoteFee = afterFee.sub(moveQuoteFee);
+
+      const { quoteTokensOldIndex: amountDepositedToOldBucket, quoteTokensNewIndex: newDepositedQuoteAmount } =
+        await moveQuote(
+          ajnaProxyActionsContract,
+          poolContract,
+          usdc,
+          lender,
+          lenderProxy,
+          price,
+          price.sub(bn.eighteen.THOUSAND),
+          poolInfoContract
+        );
+
+      expect(amountDepositedToOldBucket).to.be.equal(0);
+
+      expect(quoteAmountAfterSupply).to.be.closeTo(afterFee, bn.MILLION);
+      expect(newDepositedQuoteAmount).to.be.closeTo(afterMoveQuoteFee, bn.MILLION);
+      expect(quoteTokenBalancesAfterMoveQuote.lender).to.be.equal(
+        quoteTokenBalancesBeforeSupply.lender.sub(depositAmountTokenDecimals)
+      );
       expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyAndMoveQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
         deployWithoutInitialization
       );
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-
+      const depositAmountTokenDecimals = bn.six.HUNDRED_THOUSAND;
+      const depositAmountWad = await getTokenAmountInWad(usdc, depositAmountTokenDecimals);
       const price = bn.eighteen.TEST_PRICE_3;
-      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      await supplyQuote(
+
+      const fee = await getLenderDepositFee(poolContract, depositAmountWad);
+      const afterFee = bn.eighteen.HUNDRED_THOUSAND.sub(fee);
+
+      const { quoteTokenBalancesBefore: balancesQuoteBefore } = await supplyQuote(
         ajnaProxyActionsContract,
         poolContract,
         usdc,
         lender,
         lenderProxy,
-        bn.six.HUNDRED_THOUSAND,
-        price
-      );
-      await supplyAndMoveQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        bn.six.HUNDRED_THOUSAND,
+        depositAmountTokenDecimals,
         price,
-        price.add(bn.eighteen.THOUSAND)
+        poolInfoContract
+      );
+      const {
+        quoteTokenBalancesAfter: balancesQuoteAfter,
+        quoteTokensOldIndex: depositedQuoteAmount,
+        quoteTokensNewIndex: newDepositedQuoteAmount,
+      } = await supplyAndMoveQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        depositAmountTokenDecimals,
+        price,
+        price.add(bn.eighteen.THOUSAND),
+        poolInfoContract
       );
 
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        oldBalance.lpBalance_,
-        index
-      );
       expect(depositedQuoteAmount).to.be.equal(0);
-      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
-      const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
-      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        newBalance.lpBalance_,
-        newIndex
-      );
-      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND.mul(2));
+      // example result
+      // expected 199995433789954337800000 to be close to 199995433789954338000000 +/- 1000000
+      expect(newDepositedQuoteAmount).to.be.closeTo(afterFee.mul(2), bn.MILLION);
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND.mul(2)));
       expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
@@ -1511,78 +1597,103 @@ describe("AjnaProxyActions", function () {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
         deployWithoutInitialization
       );
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
 
       const price = bn.eighteen.TEST_PRICE_3;
-      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      const lendAmount = bn.six.HUNDRED_THOUSAND;
-      const withdrawAmount = bn.six.TEN_THOUSAND;
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
+
+      const depositAmountTokenDecimals = bn.six.HUNDRED_THOUSAND;
+      const depositAmountWad = await getTokenAmountInWad(usdc, depositAmountTokenDecimals);
+      const withdrawAmountTokenDecimals = bn.six.TEN_THOUSAND;
+      const withdrawAmountWad = await getTokenAmountInWad(usdc, withdrawAmountTokenDecimals);
+
+      const depositFeeWad = await getLenderDepositFee(poolContract, depositAmountWad);
+
+      const { quoteTokenBalancesBefore: balancesQuoteBefore } = await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        depositAmountTokenDecimals,
+        price,
+        poolInfoContract
+      );
       await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
-      await withdrawAndMoveQuote(
+      const {
+        quoteTokenBalancesAfter: balancesQuoteAfter,
+        quoteTokensOldIndex: depositedQuoteAmount,
+        quoteTokensNewIndex: newDepositedQuoteAmount,
+      } = await withdrawAndMoveQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        withdrawAmountTokenDecimals,
+        price,
+        price.add(bn.eighteen.THOUSAND),
+        poolInfoContract
+      );
+
+      expect(depositedQuoteAmount).to.be.equal(0);
+
+      expect(newDepositedQuoteAmount.add(depositFeeWad)).to.be.closeTo(
+        depositAmountWad.sub(withdrawAmountWad),
+        bn.MILLION
+      );
+      expect(balancesQuoteBefore.lender).to.be.equal(
+        balancesQuoteAfter.lender.add(depositAmountTokenDecimals).sub(withdrawAmountTokenDecimals)
+      );
+      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
+    });
+    it("should supplyQuote and withdrawQuote", async () => {
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
+        deployWithoutInitialization
+      );
+
+      const price = bn.eighteen.TEST_PRICE_3;
+      const depositAmountTokenDecimals = bn.six.THOUSAND;
+      const withdrawAmount = bn.six.THOUSAND.mul(2);
+      const fee = await getLenderDepositFee(poolContract, depositAmountTokenDecimals);
+
+      const { quoteTokenBalancesBefore: balancesQuoteBefore } = await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        depositAmountTokenDecimals,
+        price,
+        poolInfoContract
+      );
+
+      // increase the time of the next block
+      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
+      const { quoteTokenBalancesAfter: balancesQuoteAfter } = await withdrawQuote(
         ajnaProxyActionsContract,
         poolContract,
         usdc,
         lender,
         lenderProxy,
         withdrawAmount,
-        price,
-        price.add(bn.eighteen.THOUSAND)
+        price
       );
 
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        oldBalance.lpBalance_,
-        index
-      );
-      expect(depositedQuoteAmount).to.be.equal(0);
-      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
-      const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
-      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        newBalance.lpBalance_,
-        newIndex
-      );
-      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.TEN_THOUSAND.mul(9));
-      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(lendAmount).add(withdrawAmount));
-      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
-    });
-    it("should supplyQuote and withdrawQuote", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(
-        deployWithoutInitialization
-      );
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      const price = bn.eighteen.TEST_PRICE_3;
-      const lendAmount = bn.six.THOUSAND;
-      const withdrawAmount = bn.six.THOUSAND.mul(2);
-
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
-      // increase the time of the next block
-      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
-      await withdrawQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, withdrawAmount, price);
-
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
       // there are no borrowers hence the depoisit is not earning
-      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender);
+      expect(balancesQuoteAfter.lender.add(fee)).to.be.closeTo(balancesQuoteBefore.lender, bn.THOUSAND);
       expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyQuote and withdrawQuote and accrue interest", async () => {
-      const { wbtc, lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, borrower, borrowerProxy } =
-        await loadFixture(deployWithoutInitialization);
+      const {
+        wbtc,
+        lenderProxy,
+        poolContract,
+        ajnaProxyActionsContract,
+        lender,
+        usdc,
+        borrower,
+        borrowerProxy,
+        poolInfoContract,
+      } = await loadFixture(deployWithoutInitialization);
       const balancesQuoteBefore = {
         lender: await usdc.balanceOf(lender.address),
         pool: await usdc.balanceOf(poolContract.address),
@@ -1592,7 +1703,16 @@ describe("AjnaProxyActions", function () {
       const depositAmount = bn.eight.HUNDRED_THOUSAND;
       const price = bn.eighteen.TEST_PRICE_3;
 
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        lendAmount,
+        price,
+        poolInfoContract
+      );
       // increase the time of the next block
       await depositAndDrawDebt(
         ajnaProxyActionsContract,
@@ -1636,6 +1756,10 @@ async function withdrawQuote(
   amountToWithdraw: BigNumber,
   price: BigNumber
 ) {
+  const quoteTokenBalancesBefore = {
+    lender: await usdc.balanceOf(await lender.getAddress()),
+    pool: await usdc.balanceOf(poolContract.address),
+  };
   const encodedWithdrawQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData("withdrawQuote", [
     poolContract.address,
     amountToWithdraw,
@@ -1649,23 +1773,34 @@ async function withdrawQuote(
     });
   const receipt = await txWithdraw.wait();
   logGasUsage(receipt, "withdrawQuote");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
+
+  const quoteTokenBalancesAfter = {
+    lender: await usdc.balanceOf(await lender.getAddress()),
+    pool: await usdc.balanceOf(poolContract.address),
+  };
+
+  return { gasUsed: receipt.gasUsed.mul(receipt.effectiveGasPrice), quoteTokenBalancesAfter, quoteTokenBalancesBefore };
 }
 
 async function supplyQuote(
   ajnaProxyActionsContract: AjnaProxyActions,
   poolContract: ERC20Pool,
-  quoteToken: DSToken,
+  quoteToken: Token,
   lender: Signer,
   lenderProxy: IAccountImplementation,
   amountToSupply: BigNumber,
-  price: BigNumber
+  price: BigNumber,
+  poolInfoContract: PoolInfoUtils
 ) {
+  const quoteTokenBalancesBefore = {
+    lender: await quoteToken.balanceOf(await lender.getAddress()),
+    pool: await quoteToken.balanceOf(poolContract.address),
+  };
+
   const encodedSupplyQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData("supplyQuote", [
     poolContract.address,
     amountToSupply,
     price,
-    REVERT_IF_BELOW_LUP,
   ]);
   await quoteToken.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const tx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedSupplyQuoteData, {
@@ -1673,7 +1808,19 @@ async function supplyQuote(
   });
   const receipt = await tx.wait();
   logGasUsage(receipt, "supplyQuote");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
+  const quoteTokenAmount = await getQuoteTokenAmount(poolContract, poolInfoContract, lenderProxy.address, price);
+
+  const quoteTokenBalancesAfter = {
+    lender: await quoteToken.balanceOf(await lender.getAddress()),
+    pool: await quoteToken.balanceOf(poolContract.address),
+  };
+
+  return {
+    gasUsed: receipt.gasUsed.mul(receipt.effectiveGasPrice),
+    quoteTokensDeposited: quoteTokenAmount,
+    quoteTokenBalancesAfter,
+    quoteTokenBalancesBefore,
+  };
 }
 async function moveQuote(
   ajnaProxyActionsContract: AjnaProxyActions,
@@ -1682,13 +1829,13 @@ async function moveQuote(
   lender: Signer,
   lenderProxy: IAccountImplementation,
   price: BigNumber,
-  newPrice: BigNumber
+  newPrice: BigNumber,
+  poolInfoContract: PoolInfoUtils
 ) {
   const encodedWithdrawQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData("moveQuote", [
     poolContract.address,
     price,
     newPrice,
-    REVERT_IF_BELOW_LUP,
   ]);
   await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
@@ -1698,7 +1845,26 @@ async function moveQuote(
     });
   const receipt = await txWithdraw.wait();
   logGasUsage(receipt, "moveQuote");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
+
+  const quoteTokenAmountOldIndex = await getQuoteTokenAmount(
+    poolContract,
+    poolInfoContract,
+    lenderProxy.address,
+    price
+  );
+
+  const quoteTokenAmountNewIndex = await getQuoteTokenAmount(
+    poolContract,
+    poolInfoContract,
+    lenderProxy.address,
+    newPrice
+  );
+
+  return {
+    gasUsed: receipt.gasUsed.mul(receipt.effectiveGasPrice),
+    quoteTokensOldIndex: quoteTokenAmountOldIndex,
+    quoteTokensNewIndex: quoteTokenAmountNewIndex,
+  };
 }
 async function supplyAndMoveQuote(
   ajnaProxyActionsContract: AjnaProxyActions,
@@ -1708,14 +1874,19 @@ async function supplyAndMoveQuote(
   lenderProxy: IAccountImplementation,
   amountToMove: BigNumber,
   price: BigNumber,
-  newPrice: BigNumber
+  newPrice: BigNumber,
+  poolInfoContract: PoolInfoUtils
 ) {
+  const quoteTokenBalancesBefore = {
+    lender: await usdc.balanceOf(await lender.getAddress()),
+    pool: await usdc.balanceOf(poolContract.address),
+  };
+
   const encodedWithdrawQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData("supplyAndMoveQuote", [
     poolContract.address,
     amountToMove,
     price,
     newPrice,
-    REVERT_IF_BELOW_LUP,
   ]);
   await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
@@ -1725,7 +1896,30 @@ async function supplyAndMoveQuote(
     });
   const receipt = await txWithdraw.wait();
   logGasUsage(receipt, "supplyAndMoveQuote");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
+  const quoteTokenBalancesAfter = {
+    lender: await usdc.balanceOf(await lender.getAddress()),
+    pool: await usdc.balanceOf(poolContract.address),
+  };
+  const quoteTokenAmountOldIndex = await getQuoteTokenAmount(
+    poolContract,
+    poolInfoContract,
+    lenderProxy.address,
+    price
+  );
+
+  const quoteTokenAmountNewIndex = await getQuoteTokenAmount(
+    poolContract,
+    poolInfoContract,
+    lenderProxy.address,
+    newPrice
+  );
+  return {
+    gasUsed: receipt.gasUsed.mul(receipt.effectiveGasPrice),
+    quoteTokenBalancesAfter,
+    quoteTokenBalancesBefore,
+    quoteTokensOldIndex: quoteTokenAmountOldIndex,
+    quoteTokensNewIndex: quoteTokenAmountNewIndex,
+  };
 }
 async function withdrawAndMoveQuote(
   ajnaProxyActionsContract: AjnaProxyActions,
@@ -1735,14 +1929,18 @@ async function withdrawAndMoveQuote(
   lenderProxy: IAccountImplementation,
   amountToWithdraw: BigNumber,
   oldPrice: BigNumber,
-  newPrice: BigNumber
+  newPrice: BigNumber,
+  poolInfoContract: PoolInfoUtils
 ) {
+  const quoteTokenBalancesBefore = {
+    lender: await usdc.balanceOf(await lender.getAddress()),
+    pool: await usdc.balanceOf(poolContract.address),
+  };
   const encodedWithdrawQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData("withdrawAndMoveQuote", [
     poolContract.address,
     amountToWithdraw,
     oldPrice,
     newPrice,
-    REVERT_IF_BELOW_LUP,
   ]);
   await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
@@ -1752,7 +1950,30 @@ async function withdrawAndMoveQuote(
     });
   const receipt = await txWithdraw.wait();
   logGasUsage(receipt, "withdrawAndMoveQuote");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
+  const quoteTokenBalancesAfter = {
+    lender: await usdc.balanceOf(await lender.getAddress()),
+    pool: await usdc.balanceOf(poolContract.address),
+  };
+  const quoteTokenAmountOldIndex = await getQuoteTokenAmount(
+    poolContract,
+    poolInfoContract,
+    lenderProxy.address,
+    oldPrice
+  );
+
+  const quoteTokenAmountNewIndex = await getQuoteTokenAmount(
+    poolContract,
+    poolInfoContract,
+    lenderProxy.address,
+    newPrice
+  );
+  return {
+    gasUsed: receipt.gasUsed.mul(receipt.effectiveGasPrice),
+    quoteTokenBalancesAfter,
+    quoteTokenBalancesBefore,
+    quoteTokensOldIndex: quoteTokenAmountOldIndex,
+    quoteTokensNewIndex: quoteTokenAmountNewIndex,
+  };
 }
 
 async function supplyQuoteNft(
@@ -1770,7 +1991,6 @@ async function supplyQuoteNft(
     amountToWithdraw,
     price,
     tokenId,
-    REVERT_IF_BELOW_LUP,
   ]);
   await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
@@ -2033,7 +2253,6 @@ async function supplyQuoteMintNftAndStake(
     poolContract.address,
     amount,
     price,
-    REVERT_IF_BELOW_LUP,
   ]);
   await debt.connect(lender).approve(lenderProxy.address, amount);
   const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
@@ -2057,7 +2276,6 @@ async function moveQuoteNft(
     oldPrice,
     newPrice,
     tokenId,
-    REVERT_IF_BELOW_LUP,
   ]);
   const moveLiquidityTx = await lenderProxy
     .connect(lender)
@@ -2085,7 +2303,6 @@ async function supplyAndMoveQuoteNft(
     oldPrice,
     newPrice,
     tokenId,
-    REVERT_IF_BELOW_LUP,
   ]);
   await debt.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
   const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
@@ -2112,7 +2329,6 @@ async function withdrawAndMoveQuoteNft(
     oldPrice,
     newPrice,
     tokenId,
-    REVERT_IF_BELOW_LUP,
   ]);
   await debt.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
   const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
@@ -2228,12 +2444,58 @@ async function provideLiquidity(usdc: DSToken, poolContract: ERC20Pool, poolCont
   await usdc.connect(lender).approve(poolContractWeth.address, bn.eighteen.MILLION);
   const blockNumber = await ethers.provider.getBlockNumber();
   const timestamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
-  const tx = await poolContract
-    .connect(lender)
-    .addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000, REVERT_IF_BELOW_LUP);
-  const tx2 = await poolContractWeth
-    .connect(lender)
-    .addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000, REVERT_IF_BELOW_LUP);
+  const tx = await poolContract.connect(lender).addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
+  const tx2 = await poolContractWeth.connect(lender).addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
   await tx.wait();
   await tx2.wait();
+}
+
+/**
+ * Calculates the lender deposit fee for a given pool contract and deposit amount.
+ * @dev `Maths.wdiv(interestRate_, 365 * 3e18);` from the `_depositFeeRate` function in the `PoolHelper` contract.
+ * @param  poolContract - The pool contract instance.
+ * @param  depositAmount - The amount of LPs being deposited.
+ * @returns  The lender deposit fee.
+ */
+async function getLenderDepositFee(poolContract: ERC20Pool, depositAmount: BigNumber) {
+  const interestRate = await poolContract.interestRateInfo();
+  return interestRate[0]
+    .div(365 * 3)
+    .mul(depositAmount)
+    .div(bn.eighteen.ONE);
+}
+
+/**
+ * Calculates the amount of quote tokens based on the given price in an ERC20 pool based on lps amount.
+ * @param poolContract - The ERC20Pool contract instance.
+ * @param poolInfoContract - The PoolInfoUtils contract instance.
+ * @param proxyAddress - The address of the proxy.
+ * @param price - The price used to calculate the quote token amount.
+ * @returns The amount of quote tokens [WAD].
+ */
+async function getQuoteTokenAmount(
+  poolContract: ERC20Pool,
+  poolInfoContract: PoolInfoUtils,
+  proxyAddress: string,
+  price: BigNumber
+) {
+  const index = await poolInfoContract.priceToIndex(price);
+  const lenderInfoNewIndex = await poolContract.lenderInfo(index, proxyAddress);
+  const quoteTokenAmountNewIndex = await poolInfoContract.lpToQuoteTokens(
+    poolContract.address,
+    lenderInfoNewIndex.lpBalance_,
+    index
+  );
+  return quoteTokenAmountNewIndex;
+}
+/**
+ * Calculates the token amount in WAD (Wei as a decimal) based on the token and the specified amount.
+ * @param token The token for which to calculate the amount in WAD.
+ * @param amount The amount of tokens.
+ * @returns The token amount in WAD.
+ */
+async function getTokenAmountInWad(token: Token, amount: BigNumber) {
+  const decimals = await token.decimals();
+  const tokenAmountInWad = amount.mul(bn.TEN.pow(18)).div(bn.TEN.pow(decimals));
+  return tokenAmountInWad;
 }

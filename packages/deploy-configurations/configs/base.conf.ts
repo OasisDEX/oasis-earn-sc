@@ -33,7 +33,7 @@ export const config: SystemConfig = {
       OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: false,
-        address: '0x1F15c0832bF01094C077A780ea85dC7Cfe6C209C',
+        address: '0xCf90A985b9648bbe1ECcd87D9B0d73d7f3254f19',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
         history: [],
         constructorArgs: [],

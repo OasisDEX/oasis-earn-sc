@@ -5,6 +5,11 @@ export const WEEK = DAY * 7;
 export const YEAR = DAY * 365;
 
 export const bn = {
+  ONE: ethers.BigNumber.from("1"),
+  TEN: ethers.BigNumber.from("10"),
+  THOUSAND: ethers.BigNumber.from("1000"),
+  HUNDRED_THOUSAND: ethers.BigNumber.from("100000"),
+  MILLION: ethers.BigNumber.from("1000000"),
   six: {
     ONE: ethers.utils.parseUnits("1", 6),
     HUNDRED: ethers.utils.parseUnits("100", 6),
