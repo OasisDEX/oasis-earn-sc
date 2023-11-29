@@ -10,16 +10,13 @@ import { Call } from "../core/types/Common.sol";
 import { Address } from "../libs/Address.sol";
 import { IManager } from "../interfaces/maker/IManager.sol";
 import { MCD_MANAGER } from "../core/constants/Maker.sol";
+import { UseRegistry } from "../libs/UseRegistry.sol";
 
-contract DummyCommand {
+contract DummyCommand is UseRegistry {
   using SafeMath for uint256;
   using Address for address;
 
-  ServiceRegistry internal immutable registry;
-
-  constructor(ServiceRegistry _registry) {
-    registry = _registry;
-  }
+  constructor(ServiceRegistry _registry) UseRegistry(ServiceRegistry(_registry)) {}
 
   function execute(bytes calldata executionData, address opExecutorAddress) public {
     opExecutorAddress.functionDelegateCall(

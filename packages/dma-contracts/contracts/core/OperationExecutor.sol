@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { OperationsRegistry } from "./OperationsRegistry.sol";
@@ -42,6 +42,9 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   address immutable BALANCER_VAULT;
   address immutable OPERATION_EXECUTOR;
   uint8 private isFlashloanInProgress = 1;
+
+  bytes32 public constant ERC3156_FLASHLOAN_MSG = keccak256("ERC3156FlashBorrower.onFlashLoan");
+
   /**
    * @dev Emitted once an Operation has completed execution
    * @param name Name of the operation based on the hashed value of all action hashes
@@ -53,12 +56,12 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
     ServiceRegistry _registry,
     OperationsRegistry _operationsRegistry,
     ChainLogView _chainLogView,
-    address _balanacerVault
+    address _balancerVault
   ) {
     REGISTRY = _registry;
     OPERATIONS_REGISTRY = _operationsRegistry;
     CHAINLOG_VIEWER = _chainLogView;
-    BALANCER_VAULT = _balanacerVault;
+    BALANCER_VAULT = _balancerVault;
     OPERATION_EXECUTOR = address(this);
   }
 
@@ -81,12 +84,16 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
    * @param calls List of action calls to be executed.
    */
   function executeOp(Call[] memory calls) public payable {
+    
     StorageSlot.TransactionStorage storage txStorage = StorageSlot.getTransactionStorage();
+    
     delete txStorage.actions;
     delete txStorage.returnedValues;
 
     aggregate(calls);
-    bytes32 operationName = this.getOperation(keccak256(abi.encodePacked(txStorage.actions)));
+
+    bytes32 operationName = getOperation(keccak256(abi.encodePacked(txStorage.actions)));
+    
     emit Operation(operationName, calls);
 
     delete txStorage.actions;
@@ -145,9 +152,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
     checkIfLenderIsTrusted(mcdFlash);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
     checkIfFlashloanedAmountIsTheRequiredOne(asset, flData.amount);
-
     processFlashloan(flData, initiator);
-
     uint256 paybackAmount = amount + fee;
     uint256 funds = IERC20(asset).balanceOf(address(this));
     if (funds < paybackAmount) {
@@ -156,7 +161,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     IERC20(asset).safeApprove(mcdFlash, paybackAmount);
 
-    return keccak256("ERC3156FlashBorrower.onFlashLoan");
+    return ERC3156_FLASHLOAN_MSG;
   }
 
   /**

@@ -46,6 +46,8 @@ contract OperationsRegistry {
    * @param operationHash A hash of all action hashes ( concatenated )
    */
   function addOperation(string memory name, bytes32 operationHash) external onlyOwner {
+    require(operations[operationHash] == bytes32(""), "op-registry/operation-exists");
+  
     operations[operationHash] = bytes32(bytes(name));
     // By packing the string into bytes32 which means the max char length is capped at 64
     emit OperationAdded(name, operationHash);
@@ -67,7 +69,7 @@ contract OperationsRegistry {
    * @notice Changes the owner of the contract
    * @param newOwner The address of the new owner of the Operations Registry
    */
-  function transferOwnership(address newOwner) public onlyOwner {
+  function transferOwnership(address newOwner) external onlyOwner {
     owner = newOwner;
   }
 }

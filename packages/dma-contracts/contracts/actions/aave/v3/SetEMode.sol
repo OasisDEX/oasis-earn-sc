@@ -10,19 +10,18 @@ import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { SetEModeData } from "../../../core/types/Aave.sol";
 import { AAVE_POOL } from "../../../core/constants/Aave.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
+import { UseRegistry } from "../../../libs/UseRegistry.sol";
+
 
 /**
  * @title SetEMode | AAVE V3 Action contract
  * @notice Sets the user's eMode on AAVE's lending pool
  */
-contract AaveV3SetEMode is Executable, UseStorageSlot {
+contract AaveV3SetEMode is Executable, UseStorageSlot, UseRegistry {
   using Write for StorageSlot.TransactionStorage;
 
-  ServiceRegistry internal immutable registry;
 
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
-  }
+  constructor(address _registry) UseRegistry(ServiceRegistry(_registry)) {}
 
   /**
    * @param data Encoded calldata that conforms to the SetEModeData struct
@@ -30,7 +29,7 @@ contract AaveV3SetEMode is Executable, UseStorageSlot {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     SetEModeData memory emode = parseInputs(data);
 
-    IPoolV3(registry.getRegisteredService(AAVE_POOL)).setUserEMode(emode.categoryId);
+    IPoolV3(getRegisteredService(AAVE_POOL)).setUserEMode(emode.categoryId);
 
     store().write(bytes32(uint256(emode.categoryId)));
   }

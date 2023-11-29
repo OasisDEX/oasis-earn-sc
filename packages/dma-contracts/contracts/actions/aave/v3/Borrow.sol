@@ -10,20 +10,17 @@ import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { BorrowData } from "../../../core/types/Aave.sol";
 import { AAVE_POOL } from "../../../core/constants/Aave.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
+import { UseRegistry } from "../../../libs/UseRegistry.sol";
 
 /**
  * @title Borrow | AAVE V3 Action contract
  * @notice Borrows token from AAVE's lending pool
  */
-contract AaveV3Borrow is Executable, UseStorageSlot {
+contract AaveV3Borrow is Executable, UseStorageSlot, UseRegistry {
   using Read for StorageSlot.TransactionStorage;
   using Write for StorageSlot.TransactionStorage;
 
-  ServiceRegistry internal immutable registry;
-
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
-  }
+  constructor(address _registry) UseRegistry(ServiceRegistry(_registry)) {}
   
   /**
    * @param data Encoded calldata that conforms to the BorrowData struct
@@ -36,7 +33,7 @@ contract AaveV3Borrow is Executable, UseStorageSlot {
       paramsMap[1]
     );
 
-    IPoolV3(registry.getRegisteredService(AAVE_POOL)).borrow(
+    IPoolV3(getRegisteredService(AAVE_POOL)).borrow(
       borrow.asset,
       mappedBorrowAmount,
       2,

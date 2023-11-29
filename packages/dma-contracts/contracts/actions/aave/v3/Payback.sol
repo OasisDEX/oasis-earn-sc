@@ -9,22 +9,20 @@ import { IWETHGateway } from "../../../interfaces/aave/IWETHGateway.sol";
 import { PaybackData } from "../../../core/types/Aave.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
-
 import { AAVE_POOL } from "../../../core/constants/Aave.sol";
+import { UseRegistry } from "../../../libs/UseRegistry.sol";
+
 
 /**
  * @title Payback | AAVE V3 Action contract
  * @notice Pays back a specified amount to AAVE's lending pool
  */
-contract AaveV3Payback is Executable, UseStorageSlot {
+contract AaveV3Payback is Executable, UseStorageSlot, UseRegistry {
   using Write for StorageSlot.TransactionStorage;
   using Read for StorageSlot.TransactionStorage;
 
-  ServiceRegistry internal immutable registry;
 
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
-  }
+  constructor(address _registry) UseRegistry(ServiceRegistry(_registry)) {}
 
   /**
    * @dev Look at UseStore.sol to get additional info on paramsMapping.
@@ -41,7 +39,7 @@ contract AaveV3Payback is Executable, UseStorageSlot {
       payback.onBehalf = address(this);
     }
 
-    IPoolV3(registry.getRegisteredService(AAVE_POOL)).repay(
+    IPoolV3(getRegisteredService(AAVE_POOL)).repay(
       payback.asset,
       payback.paybackAll ? type(uint256).max : payback.amount,
       2,

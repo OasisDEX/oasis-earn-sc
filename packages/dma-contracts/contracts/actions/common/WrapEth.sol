@@ -9,19 +9,18 @@ import { WrapEthData } from "../../core/types/Common.sol";
 import { WETH } from "../../core/constants/Common.sol";
 import { UseStorageSlot, StorageSlot, Write, Read } from "../../libs/UseStorageSlot.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
+import { UseRegistry } from "../../libs/UseRegistry.sol";
+
 /**
  * @title Wraps ETH Action contract
  * @notice Wraps ETH balances to Wrapped ETH
  */
-contract WrapEth is Executable, UseStorageSlot {
+contract WrapEth is Executable, UseStorageSlot, UseRegistry {
   using SafeERC20 for IERC20;
   using Read for StorageSlot.TransactionStorage;
 
-  ServiceRegistry internal immutable registry;
+  constructor(address _registry) UseRegistry(ServiceRegistry(_registry)) {}
 
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
-  }
   /**
    * @dev look at UseStore.sol to get additional info on paramsMapping
    * @param data Encoded calldata that conforms to the WrapEthData struct
@@ -35,7 +34,7 @@ contract WrapEth is Executable, UseStorageSlot {
       wrapData.amount = address(this).balance;
     }
 
-    IWETH(registry.getRegisteredService(WETH)).deposit{ value: wrapData.amount }();
+    IWETH(getRegisteredService(WETH)).deposit{ value: wrapData.amount }();
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WrapEthData memory params) {

@@ -6,19 +6,16 @@ import { IERC20 } from "../../libs/SafeERC20.sol";
 import { TokenBalanceData } from "../../core/types/Common.sol";
 import { UseStorageSlot, StorageSlot, Write, Read } from "../../libs/UseStorageSlot.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
+import { UseRegistry } from "../../libs/UseRegistry.sol";
 
 /**
  * @title TokenBalance Action contract
  * @notice Reads balance of a token for a given address
  */
-contract TokenBalance is Executable, UseStorageSlot {
+contract TokenBalance is Executable, UseStorageSlot, UseRegistry {
   using Write for StorageSlot.TransactionStorage;
 
-  ServiceRegistry internal immutable registry;
-
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
-  }
+  constructor(address _registry) UseRegistry(ServiceRegistry(_registry)) {}
 
   /**
    * @dev Is intended to read token balance for a given address

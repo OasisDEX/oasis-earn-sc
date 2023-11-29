@@ -7,20 +7,18 @@ import { SendTokenData } from "../../core/types/Common.sol";
 import { UseStorageSlot, StorageSlot, Write, Read } from "../../libs/UseStorageSlot.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { ETH } from "../../core/constants/Common.sol";
+import { UseRegistry } from "../../libs/UseRegistry.sol";
 
 /**
  * @title SendToken Action contract
  * @notice Transfer token from the calling contract to the destination address
  */
-contract SendToken is Executable, UseStorageSlot {
+contract SendToken is Executable, UseStorageSlot, UseRegistry {
   using SafeERC20 for IERC20;
   using Read for StorageSlot.TransactionStorage;
 
-  ServiceRegistry internal immutable registry;
-
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
-  }
+  constructor(address _registry) UseRegistry(ServiceRegistry(_registry)) {}
+  
   /**
    * @param data Encoded calldata that conforms to the SendTokenData struct
    */

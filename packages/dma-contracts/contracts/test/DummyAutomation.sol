@@ -11,16 +11,13 @@ import { Address } from "../libs/Address.sol";
 import { IManager } from "../interfaces/maker/IManager.sol";
 import { MCD_MANAGER } from "../core/constants/Maker.sol";
 import { DummyCommand } from "./DummyCommand.sol";
+import { UseRegistry } from "../libs/UseRegistry.sol";
 
-contract DummyAutomation {
+contract DummyAutomation is UseRegistry {
   using SafeMath for uint256;
   using Address for address;
 
-  ServiceRegistry internal immutable registry;
-
-  constructor(ServiceRegistry _registry) {
-    registry = _registry;
-  }
+  constructor(ServiceRegistry _registry) UseRegistry(ServiceRegistry(_registry)) {}
 
   function doAutomationStuffDelegateCall(
     bytes calldata executionData,
@@ -28,7 +25,7 @@ contract DummyAutomation {
     uint256 vaultId,
     address commandAddress
   ) public {
-    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    IManager manager = IManager(getRegisteredService(MCD_MANAGER));
     manager.cdpAllow(vaultId, commandAddress, 1);
     DummyCommand(commandAddress).execute(executionData, opExecutorAddress);
     manager.cdpAllow(vaultId, commandAddress, 0);

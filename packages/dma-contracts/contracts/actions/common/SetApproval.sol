@@ -7,21 +7,18 @@ import { SetApprovalData } from "../../core/types/Common.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { UseStorageSlot, StorageSlot, Write, Read } from "../../libs/UseStorageSlot.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
+import { UseRegistry } from "../../libs/UseRegistry.sol";
 
 /**
  * @title SetApproval Action contract
  * @notice Transfer token from the calling contract to the destination address
  */
-contract SetApproval is Executable, UseStorageSlot {
+contract SetApproval is Executable, UseStorageSlot, UseRegistry {
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
   using Read for StorageSlot.TransactionStorage;
 
-  ServiceRegistry internal immutable registry;
-
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
-  }
+  constructor(address _registry) UseRegistry(ServiceRegistry(_registry)) {}
 
   /**
    * @dev Look at UseStore.sol to get additional info on paramsMapping

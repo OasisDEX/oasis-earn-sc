@@ -8,20 +8,17 @@ import { UnwrapEthData } from "../../core/types/Common.sol";
 import { WETH } from "../../core/constants/Common.sol";
 import { UseStorageSlot, StorageSlot, Write, Read } from "../../libs/UseStorageSlot.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
+import { UseRegistry } from "../../libs/UseRegistry.sol";
 
 /**
  * @title Unwrap ETH Action contract
  * @notice Unwraps WETH balances to ETH
  */
-contract UnwrapEth is Executable, UseStorageSlot {
+contract UnwrapEth is Executable, UseStorageSlot, UseRegistry {
   using SafeERC20 for IERC20;
   using Read for StorageSlot.TransactionStorage;
 
-  ServiceRegistry internal immutable registry;
-
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
-  }
+  constructor(address _registry) UseRegistry(ServiceRegistry(_registry)) {}
 
   /**
    * @dev look at UseStore.sol to get additional info on paramsMapping
@@ -29,7 +26,7 @@ contract UnwrapEth is Executable, UseStorageSlot {
    * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
    */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    IWETH weth = IWETH(registry.getRegisteredService(WETH));
+    IWETH weth = IWETH(getRegisteredService(WETH));
 
     UnwrapEthData memory unwrapData = parseInputs(data);
 

@@ -25,7 +25,7 @@ contract PullToken is Executable {
     if (pull.amount == type(uint256).max) {
       pull.amount = token.balanceOf(pull.from);
     }
-    token.transferFrom(pull.from, address(this), pull.amount);
+    token.safeTransferFrom(pull.from, address(this), pull.amount);
   }
 
   function parseInputs(bytes memory _callData) public pure returns (PullTokenData memory params) {

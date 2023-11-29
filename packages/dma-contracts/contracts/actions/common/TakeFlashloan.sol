@@ -13,22 +13,22 @@ import { MCD_FLASH } from "../../core/constants/Maker.sol";
 import { BALANCER_VAULT } from "../../core/constants/Balancer.sol";
 import { ChainLogView } from "../../core/views/ChainLogView.sol";
 import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
+import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
 import { IERC20 } from "../../libs/SafeERC20.sol";
+import { UseRegistry } from "../../libs/UseRegistry.sol";
 
 /**
  * @title TakeFlashloan Action contract
  * @notice Executes a sequence of Actions after flashloaning funds
  */
-contract TakeFlashloan is Executable, ProxyPermission {
+contract TakeFlashloan is Executable, ProxyPermission, UseRegistry {
   address internal immutable dai;
-  ServiceRegistry private immutable registry;
 
   constructor(
-    ServiceRegistry _registry,
+    address _registry,
     address _dai,
     address _dsGuardFactory
-  ) ProxyPermission(_dsGuardFactory) {
-    registry = _registry;
+  ) ProxyPermission(_dsGuardFactory) UseRegistry(ServiceRegistry(_registry))  {
     dai = _dai;
   }
 
@@ -41,13 +41,13 @@ contract TakeFlashloan is Executable, ProxyPermission {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     FlashloanData memory flData = parseInputs(data);
 
-    address operationExecutorAddress = registry.getRegisteredService(OPERATION_EXECUTOR);
+    address operationExecutorAddress = getRegisteredService(OPERATION_EXECUTOR);
 
     givePermission(flData.isDPMProxy, operationExecutorAddress);
 
 
     if (flData.provider == FlashloanProvider.DssFlash) {
-      ChainLogView chainlogView = ChainLogView(registry.getRegisteredService(CHAINLOG_VIEWER));
+      ChainLogView chainlogView = ChainLogView(getRegisteredService(CHAINLOG_VIEWER));
 
       IERC3156FlashLender(chainlogView.getServiceAddress(MCD_FLASH)).flashLoan(
         IERC3156FlashBorrower(operationExecutorAddress),
@@ -64,7 +64,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
       tokens[0] = IERC20(flData.asset);
       amounts[0] = flData.amount;
 
-      IVault(registry.getRegisteredService(BALANCER_VAULT)).flashLoan(
+      IVault(getRegisteredService(BALANCER_VAULT)).flashLoan(
         IFlashLoanRecipient(operationExecutorAddress),
         tokens,
         amounts,
