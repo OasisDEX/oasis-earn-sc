@@ -19,6 +19,8 @@ export function loadContractNames(network: Network) {
     loadedConfig = require('./contract-names.local')
   } else if (network === Network.TEST) {
     loadedConfig = require('./contract-names.test')
+  } else if (network === Network.HARDHAT) {
+    loadedConfig = require('./contract-names.test')
   } else {
     throw new Error(`Invalid network: ${network}`)
   }

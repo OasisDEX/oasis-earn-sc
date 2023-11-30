@@ -16,7 +16,7 @@ import { expect } from 'chai'
 import { Signer } from 'ethers'
 import hre from 'hardhat'
 
-import { deployMorphoBlueSystem } from './utils'
+import { deployTestMorphoBlueSystem } from './utils'
 import {
   borrowMaxLoanToken,
   expectMarketStatus,
@@ -56,7 +56,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
         hre,
         blockNumber: testBlockNumber,
       },
-      [deployMorphoBlueSystem],
+      [deployTestMorphoBlueSystem],
     )
 
     if (!snapshot.testSystem.extraDeployment) {

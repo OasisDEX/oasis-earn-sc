@@ -99,22 +99,6 @@ const config = {
     },
   },
   networks: {
-    tenderly: {
-      url: 'https://rpc.tenderly.co/fork/6629361a-f4a9-48c9-9bf4-0a83da275a7c',
-      accounts: [
-        '0xe4966abd3595e37f1d9313616d9a833fdbde301f70b61eb17cb7e919ca0addd8',
-        '0x8a78506679446be6dc846c7dddbbee4b5f0ae725caa50126739e0851d66a29c8',
-        '0x284e6f4bc08734aacbd59772662216e288d01a689610c105a5ed8e8defc4425d',
-        '0xd7af053f5710feb0718095bd5f403b4e6db3625bf572bb1fcae19a84f0faa71a',
-        '0xa15ee68c2bd73743cd1a54ac95215bc79cfaa164460fcb907759459ef15d0a99',
-        '0xd90167141d1bef8a39da4a62673cc18e0a9dd31e25ab47695564fe79d6555cac',
-        '0x3386f570f1af049a61a551efd5cbe9d0070d7eb79ec70c5436e89cdc0ec8548d',
-        '0xc14983f5efd216aa3d0ded41f6469774942aa5c2d89f4c9da83229cd45834189',
-        '0x467d25134b5539cf5788eab218fbed1dba640bcd5c8562a94f191cc5992de20b',
-        '0x8fc5a92c787ae1a4183f1cc5ace40c459d07457c932fc368bdc4b215ad31832a',
-        '0x573950c5ca81624e315ad243c6af1b9eb6e32f4f2f45f6f26669ed0b209b6746',
-      ],
-    },
     local: {
       url: 'http://127.0.0.1:8545',
       timeout: 1000000,
@@ -237,6 +221,10 @@ const config = {
         }
       : {}),
     devnet: {
+      url: process.env.TENDERLY_FORK_URL ?? '',
+      chainId: Number(process.env.TENDERLY_FORK_CHAIN_ID ?? 1),
+    },
+    tenderly: {
       url: process.env.TENDERLY_FORK_URL ?? '',
       chainId: Number(process.env.TENDERLY_FORK_CHAIN_ID ?? 1),
     },

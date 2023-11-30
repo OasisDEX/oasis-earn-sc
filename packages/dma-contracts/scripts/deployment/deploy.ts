@@ -362,11 +362,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     let configString = inspect(this.config, { depth: null })
     configString = this.replaceServiceRegistryName(configString, this.findStringPath)
 
+    const networkEnumString =
+      this.network !== Network.TENDERLY
+        ? this.getNetworkEnumString(this.network)
+        : this.getNetworkEnumString(Network.MAINNET)
+
     writeFile(
       `./../deploy-configurations/configs/${this.network}.conf.ts`,
-      `import { loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${this.getNetworkEnumString(
-        this.network,
-      )})\n\nexport const config: SystemConfig = ${configString}`,
+      `import { loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${networkEnumString})\n\nexport const config: SystemConfig = ${configString}`,
       (error: any) => {
         if (error) {
           console.log('ERROR: ', error)

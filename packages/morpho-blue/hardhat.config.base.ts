@@ -9,7 +9,10 @@ import 'solidity-docgen'
 import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
 
+import * as tdly from '@tenderly/hardhat-tenderly'
 import { HardhatUserConfig } from 'hardhat/config'
+
+tdly.setup()
 
 const config: HardhatUserConfig = {
   networks: {
@@ -23,6 +26,10 @@ const config: HardhatUserConfig = {
     },
     goerli: {
       url: process.env.GOERLI_URL || '',
+    },
+    tenderly: {
+      url: process.env.TENDERLY_FORK_URL ?? '',
+      chainId: Number(process.env.TENDERLY_FORK_CHAIN_ID ?? 1),
     },
   },
   solidity: {
@@ -38,6 +45,11 @@ const config: HardhatUserConfig = {
   typechain: {
     outDir: 'typechain/',
     externalArtifacts: ['deps/**/*.json'],
+  },
+  tenderly: {
+    username: 'oazoapps', // tenderly username (or organization name)
+    project: process.env.TENDERLY_PROJECT ?? '', // project name
+    privateVerification: false, // if true, contracts will be verified privately, if false, contracts will be verified publicly
   },
 }
 

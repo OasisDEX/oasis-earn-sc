@@ -1,5 +1,6 @@
+import { Network } from '@deploy-configurations/types/network'
 import { IrmMock, Morpho } from '@typechain'
-import { MarketParamsStruct } from '@typechain/contracts/Morpho'
+import { MarketParamsStruct } from '@typechain/contracts/morphoblue/Morpho'
 import type {
   MarketSupplyConfig,
   MorphoMarket,
@@ -11,7 +12,7 @@ import type {
   TokensConfig,
   TokensDeployment,
 } from '@types'
-import { BigNumber, Contract, Signer } from 'ethers'
+import { Contract, ethers as ethersjs, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
 import { MorphoLLTVPrecision, MorphoPricePrecision } from '../config'
@@ -73,11 +74,11 @@ export async function deployTokens(
       signer,
     )
 
-    const decimals = (await contract.decimals()) as BigNumber
+    const decimals = await contract.decimals()
 
     tokensDeployment[tokenName] = {
-      contract,
-      decimals: decimals.toNumber(),
+      contract: contract,
+      decimals: decimals,
     }
   }
 
@@ -233,10 +234,12 @@ export async function deployMorphoBlue(
  * @notice Adds markets liquidity
  */
 export async function setupMarkets(
+  network: Network,
   morphoSystem: MorphoSystem,
   supplyConfig: MarketSupplyConfig,
   signer: Signer,
   signerAddress: string,
+  provider: ethersjs.providers.JsonRpcProvider,
 ) {
   console.log('\n==================== MARKET SETUP =====================')
   for (const market of morphoSystem.marketsInfo) {
@@ -254,11 +257,20 @@ export async function setupMarkets(
 
     console.log(`Supplying ${supplyAmount.toString()} ${market.loanToken} to ${market.label}...`)
 
+    if (network !== Network.TENDERLY) {
+      await morphoSystem.tokensDeployment[market.loanToken].contract
+        ?.connect(signer)
+        .mint(signerAddress, supplyAmount)
+    } else {
+      await provider.send('tenderly_setErc20Balance', [
+        morphoSystem.tokensDeployment[market.loanToken].contract.address,
+        signerAddress,
+        supplyAmount.toHexString(),
+      ])
+    }
+
     await morphoSystem.tokensDeployment[market.loanToken].contract
-      .connect(signer)
-      .mint(signerAddress, supplyAmount)
-    await morphoSystem.tokensDeployment[market.loanToken].contract
-      .connect(signer)
+      ?.connect(signer)
       .approve(morphoSystem.morpho.address, supplyAmount)
 
     await morphoSystem.morpho

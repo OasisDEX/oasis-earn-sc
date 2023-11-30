@@ -5,11 +5,16 @@
       "@typechain": ["./typechain/index.ts"],
       "@typechain/*": ["./typechain/*"],
       "@types": ["./scripts/types.ts"],
-      "@config": ["./scripts/config/index.ts"]
+      "@config": ["./scripts/config/index.ts"],
+      "@deploy-configurations/*": ["../deploy-configurations/*"]
     },
     "typeRoots": ["../../node_modules/@types"]
   },
-  "references": [],
+  "references": [
+    {
+      "path": "../deploy-configurations"
+    }
+  ],
   "include": [
     "./typechain/**/*.ts",
     "./tasks",
