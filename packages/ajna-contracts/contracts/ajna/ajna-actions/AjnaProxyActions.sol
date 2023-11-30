@@ -430,7 +430,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         address debtToken = pool.quoteTokenAddress();
 
         (uint256 debt, uint256 collateral, ) = poolInfoUtils.borrowerInfo(address(pool), address(this));
-        uint256 debtPlusBuffer = ((debt / pool.quoteTokenScale()) + 1) * pool.quoteTokenScale();
+        uint256 debtPlusBuffer = _roundUpToScale(debt, pool.quoteTokenScale());
         uint256 amountDebt = debtPlusBuffer / pool.quoteTokenScale();
         _pull(debtToken, amountDebt);
 
@@ -822,7 +822,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  tokenScale_   Scale of the token, presented as a power of `10`.
      *  @return scaledAmount_ Rounded value.
      */
-    function _roundToScale(uint256 amount_, uint256 tokenScale_) public pure returns (uint256 scaledAmount_) {
+    function _roundToScale(uint256 amount_, uint256 tokenScale_) internal pure returns (uint256 scaledAmount_) {
         scaledAmount_ = (amount_ / tokenScale_) * tokenScale_;
     }
 
@@ -832,7 +832,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  tokenScale_   Scale of the token, presented as a power of `10`.
      *  @return scaledAmount_ Rounded value.
      */
-    function _roundUpToScale(uint256 amount_, uint256 tokenScale_) public pure returns (uint256 scaledAmount_) {
+    function _roundUpToScale(uint256 amount_, uint256 tokenScale_) internal pure returns (uint256 scaledAmount_) {
         if (amount_ % tokenScale_ == 0) scaledAmount_ = amount_;
         else scaledAmount_ = _roundToScale(amount_, tokenScale_) + tokenScale_;
     }
