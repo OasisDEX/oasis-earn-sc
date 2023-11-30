@@ -1,3 +1,4 @@
+import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import {
   WithAaveLikeStrategyAddresses,
@@ -6,10 +7,9 @@ import {
   WithStorageIndex,
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
+import BigNumber from 'bignumber.js'
 
 import { RefinancePartialOperationGenerator } from '../types'
-import BigNumber from 'bignumber.js'
-import { MAX_UINT } from '@dma-common/constants'
 
 export type RefinanceReturnFundsOperationArgs = WithStorageIndex &
   WithPositionStatus &
