@@ -13,6 +13,7 @@ import { IRewardsManager } from "../interfaces/rewards/IRewardsManager.sol";
 import { IAccountGuard } from "../../interfaces/dpm/IAccountGuard.sol";
 
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
+import { console } from "hardhat/console.sol";
 
 interface IAjnaProxyActions {
     function positionManager() external view returns (IPositionManager);
@@ -28,7 +29,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
     address public immutable WETH;
     address public immutable GUARD;
     address public immutable deployer;
-    string public constant ajnaVersion = "Ajna_rc9";
+    string public constant ajnaVersion = "Ajna_rc10";
     IAjnaProxyActions public immutable self;
     IPositionManager public positionManager;
     IRewardsManager public rewardsManager;
@@ -179,12 +180,16 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @dev price of uint (10**decimals) collateral token in debt token (10**decimals) with 3 decimal points for instance
      *  @dev 1WBTC = 16,990.23 USDC   translates to: 16990230
      */
-    function _supplyQuote(IERC20Pool pool, uint256 amount, uint256 price) internal {
+    function _supplyQuote(
+        IERC20Pool pool,
+        uint256 amount,
+        uint256 price
+    ) internal returns (uint256 bucketLP, uint256 addedAmount) {
         address debtToken = pool.quoteTokenAddress();
         _pull(debtToken, amount);
         uint256 index = convertPriceToIndex(price);
         IERC20(debtToken).forceApprove(address(pool), amount);
-        pool.addQuoteToken(amount * pool.quoteTokenScale(), index, block.timestamp + 1);
+        (bucketLP, addedAmount) = pool.addQuoteToken(amount * pool.quoteTokenScale(), index, block.timestamp + 1);
     }
 
     /**
@@ -209,13 +214,13 @@ contract AjnaProxyActions is IAjnaProxyActions {
     function _withdrawQuote(IERC20Pool pool, uint256 amount, uint256 price) internal {
         address debtToken = pool.quoteTokenAddress();
         uint256 index = convertPriceToIndex(price);
-        uint256 balanceBefore = IERC20(debtToken).balanceOf(address(this));
+        uint256 withdrawnBalanceWAD;
         if (amount == type(uint256).max) {
-            pool.removeQuoteToken(type(uint256).max, index);
+            (withdrawnBalanceWAD, ) = pool.removeQuoteToken(type(uint256).max, index);
         } else {
-            pool.removeQuoteToken((amount * pool.quoteTokenScale()), index);
+            (withdrawnBalanceWAD, ) = pool.removeQuoteToken((amount * pool.quoteTokenScale()), index);
         }
-        uint256 withdrawnBalance = IERC20(debtToken).balanceOf(address(this)) - balanceBefore;
+        uint256 withdrawnBalance = _roundToScale(withdrawnBalanceWAD, pool.quoteTokenScale()) / pool.quoteTokenScale();
         _send(debtToken, withdrawnBalance);
     }
 
@@ -224,12 +229,11 @@ contract AjnaProxyActions is IAjnaProxyActions {
      * @param  pool         Address of the Ajana Pool.
      * @param  price        Price of the bucket to redeem.
      */
-    function _removeCollateral(IERC20Pool pool, uint256 price) internal {
+    function _removeCollateral(IERC20Pool pool, uint256 price) internal returns (uint256 withdrawnBalance) {
         address collateralToken = pool.collateralAddress();
         uint256 index = convertPriceToIndex(price);
-        uint256 balanceBefore = IERC20(collateralToken).balanceOf(address(this));
-        pool.removeCollateral(type(uint256).max, index);
-        uint256 withdrawnBalance = IERC20(collateralToken).balanceOf(address(this)) - balanceBefore;
+        (uint256 withdrawnBalanceWAD, ) = pool.removeCollateral(type(uint256).max, index);
+        withdrawnBalance = _roundToScale(withdrawnBalanceWAD, pool.collateralScale()) / pool.collateralScale();
         _send(collateralToken, withdrawnBalance);
     }
 
@@ -336,10 +340,15 @@ contract AjnaProxyActions is IAjnaProxyActions {
         _pull(debtToken, amount);
         IERC20(debtToken).forceApprove(address(pool), amount);
         (, , , , , uint256 lupIndex_) = poolInfoUtils.poolPricesInfo(address(pool));
-        uint256 balanceBefore = IERC20(debtToken).balanceOf(address(this));
-        pool.repayDebt(address(this), amount * pool.quoteTokenScale(), 0, address(this), lupIndex_);
+        uint256 repaidAmountWAD = pool.repayDebt(
+            address(this),
+            amount * pool.quoteTokenScale(),
+            0,
+            address(this),
+            lupIndex_
+        );
         _stampLoan(pool, stamploanEnabled);
-        uint256 repaidAmount = balanceBefore - IERC20(debtToken).balanceOf(address(this));
+        uint256 repaidAmount = _roundUpToScale(repaidAmountWAD, pool.quoteTokenScale()) / pool.quoteTokenScale();
         uint256 leftoverBalance = amount - repaidAmount;
         if (leftoverBalance > 0) {
             _send(debtToken, leftoverBalance);
@@ -373,8 +382,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         _pull(debtToken, debtAmount);
         IERC20(debtToken).forceApprove(address(pool), debtAmount);
         (, , , , , uint256 lupIndex_) = poolInfoUtils.poolPricesInfo(address(pool));
-        uint256 quoteBalanceBefore = IERC20(debtToken).balanceOf(address(this));
-        pool.repayDebt(
+        uint256 repaidAmountWAD = pool.repayDebt(
             address(this),
             debtAmount * pool.quoteTokenScale(),
             collateralAmount * pool.collateralScale(),
@@ -382,7 +390,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
             lupIndex_
         );
         _send(collateralToken, collateralAmount);
-        uint256 repaidAmount = quoteBalanceBefore - IERC20(debtToken).balanceOf(address(this));
+        uint256 repaidAmount = _roundUpToScale(repaidAmountWAD, pool.quoteTokenScale()) / pool.quoteTokenScale();
         uint256 quoteLeftoverBalance = debtAmount - repaidAmount;
         if (quoteLeftoverBalance > 0) {
             _send(debtToken, quoteLeftoverBalance);
@@ -806,5 +814,26 @@ contract AjnaProxyActions is IAjnaProxyActions {
 
         (uint256 lpCount, ) = pool.lenderInfo(index, address(this));
         quoteAmount = poolInfoUtils.lpToQuoteTokens(address(pool), lpCount, index);
+    }
+
+    /**
+     *  @notice Rounds a token amount down to the minimum amount permissible by the token scale.
+     *  @param  amount_       Value to be rounded.
+     *  @param  tokenScale_   Scale of the token, presented as a power of `10`.
+     *  @return scaledAmount_ Rounded value.
+     */
+    function _roundToScale(uint256 amount_, uint256 tokenScale_) public pure returns (uint256 scaledAmount_) {
+        scaledAmount_ = (amount_ / tokenScale_) * tokenScale_;
+    }
+
+    /**
+     *  @notice Rounds a token amount up to the next amount permissible by the token scale.
+     *  @param  amount_       Value to be rounded.
+     *  @param  tokenScale_   Scale of the token, presented as a power of `10`.
+     *  @return scaledAmount_ Rounded value.
+     */
+    function _roundUpToScale(uint256 amount_, uint256 tokenScale_) public pure returns (uint256 scaledAmount_) {
+        if (amount_ % tokenScale_ == 0) scaledAmount_ = amount_;
+        else scaledAmount_ = _roundToScale(amount_, tokenScale_) + tokenScale_;
     }
 }
