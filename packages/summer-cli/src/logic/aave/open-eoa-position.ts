@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses';
+import { ADDRESSES } from '@oasisdex/deploy-configurations';
 
 import { SupportedTokens } from '../../utils/tokens';
 import { throwOnRevertedTx } from '../../utils/tx';

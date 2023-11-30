@@ -108,7 +108,7 @@ async function enableZeroFee(
   })
 }
 
-describe('Refinance | AAVE->AAVE | E2E', async () => {
+describe('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let signer: SignerWithAddress
@@ -200,7 +200,7 @@ describe('Refinance | AAVE->AAVE | E2E', async () => {
     expect(registerdOptionals).to.be.deep.equal(optionals)
   })
 
-  it('should refinance AAVE->AAVE', async () => {
+  it('should refinance AAVE V3 (WETH/DAI) -> AAVE V3 (WETH/USDC)', async () => {
     const depositEthAmount = ethers.utils.parseEther('1')
     const firstPositionLTV = toSolidityPercentage(30.0)
     const secondPositionLTV = toSolidityPercentage(60.0)

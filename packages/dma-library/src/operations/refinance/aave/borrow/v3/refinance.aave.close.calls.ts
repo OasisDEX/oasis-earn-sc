@@ -1,3 +1,4 @@
+import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { registerRefinanceOperation } from '@dma-library/operations/refinance/refinance.operations'
 import {
@@ -15,8 +16,6 @@ import {
 } from '@dma-library/types/operations'
 import { ActionPathDefinition } from '@dma-library/types/operations-definition'
 import BigNumber from 'bignumber.js'
-
-import { MAX_UINT } from '../../../../../../../dma-common/constants/numbers'
 
 // Arguments type
 type RefinanceCloseV3OperationArgs = WithStorageIndex &
