@@ -1,14 +1,14 @@
 import { Address } from '@deploy-configurations/types/address'
 import BigNumber from 'bignumber.js'
 
-export interface DepositSwapArgs {
+export type DepositSwapArgs = {
   fee: number
   receiveAtLeast: BigNumber
   calldata: string
   collectFeeInFromToken: boolean
 }
 
-export interface DepositArgs {
+export type DepositArgs = {
   // - either for a swap where the `entryToken` will be exchanged for the `depositToken`
   // - or it will be directly deposited in the protocol
   entryTokenAddress: Address
@@ -22,3 +22,5 @@ export interface DepositArgs {
   isSwapNeeded: boolean
   swapArgs?: DepositSwapArgs
 }
+
+export type WithDepositArgs = DepositArgs

@@ -1,7 +1,7 @@
 import { Address } from '@deploy-configurations/types/address'
 import BigNumber from 'bignumber.js'
 
-export interface BorrowArgs {
+export type BorrowArgs = {
   borrowToken: Address
   /**
    * The maximum precision (wei equivalent) form for the token
@@ -11,3 +11,5 @@ export interface BorrowArgs {
   user: string
   isEthToken: boolean
 }
+
+export type WithBorrowArgs = BorrowArgs

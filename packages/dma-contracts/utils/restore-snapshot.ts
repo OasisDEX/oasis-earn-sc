@@ -63,8 +63,9 @@ export async function restoreSnapshot(
     }
     await resetNode(provider, _blockNumber, debug)
 
-    extraDeploymentCallbacks.push(...DefaultPostDeploymentFunctions)
-    const system = await deployTestSystem(hre, extraDeploymentCallbacks, debug, useFallbackSwap)
+    const deploymentCallbacks = [...DefaultPostDeploymentFunctions]
+    deploymentCallbacks.push(...extraDeploymentCallbacks)
+    const system = await deployTestSystem(hre, deploymentCallbacks, debug, useFallbackSwap)
 
     const config: RuntimeConfig = {
       provider: provider,
