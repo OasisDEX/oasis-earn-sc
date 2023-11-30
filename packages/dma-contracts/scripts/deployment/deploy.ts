@@ -26,15 +26,6 @@ import {
   getAjnaCloseToCollateralOperationDefinition,
   getAjnaCloseToQuoteOperationDefinition,
   getAjnaOpenOperationDefinition,
-  getMorphoBlueAdjustDownOperationDefinition,
-  getMorphoBlueAdjustUpOperationDefinition,
-  getMorphoBlueBorrowOperationDefinition,
-  getMorphoBlueCloseOperationDefinition,
-  getMorphoBlueDepositBorrowOperationDefinition,
-  getMorphoBlueDepositOperationDefinition,
-  getMorphoBlueOpenDepositBorrowOperationDefinition,
-  getMorphoBlueOpenOperationDefinition,
-  getMorphoBluePaybackWithdrawOperationDefinition,
   getSparkAdjustDownOperationDefinition,
   getSparkAdjustUpOperationDefinition,
   getSparkBorrowOperationDefinition,
@@ -1001,72 +992,72 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     this.logOp(sparkAdjustDownOperationDefinition)
 
     // MorphoBlue
-    const morphoblueBorrowOperationDefinition = getMorphoBlueBorrowOperationDefinition(network)
-    await operationsRegistry.addOp(
-      morphoblueBorrowOperationDefinition.name,
-      morphoblueBorrowOperationDefinition.actions,
-    )
-    this.logOp(morphoblueBorrowOperationDefinition)
+    // const morphoblueBorrowOperationDefinition = getMorphoBlueBorrowOperationDefinition(network)
+    // await operationsRegistry.addOp(
+    //   morphoblueBorrowOperationDefinition.name,
+    //   morphoblueBorrowOperationDefinition.actions,
+    // )
+    // this.logOp(morphoblueBorrowOperationDefinition)
 
-    const morphoblueDepositOperationDefinition = getMorphoBlueDepositOperationDefinition(network)
-    await operationsRegistry.addOp(
-      morphoblueDepositOperationDefinition.name,
-      morphoblueDepositOperationDefinition.actions,
-    )
-    this.logOp(morphoblueDepositOperationDefinition)
+    // const morphoblueDepositOperationDefinition = getMorphoBlueDepositOperationDefinition(network)
+    // await operationsRegistry.addOp(
+    //   morphoblueDepositOperationDefinition.name,
+    //   morphoblueDepositOperationDefinition.actions,
+    // )
+    // this.logOp(morphoblueDepositOperationDefinition)
 
-    const morphoblueDepositBorrowOperationDefinition =
-      getMorphoBlueDepositBorrowOperationDefinition(network)
-    await operationsRegistry.addOp(
-      morphoblueDepositBorrowOperationDefinition.name,
-      morphoblueDepositBorrowOperationDefinition.actions,
-    )
-    this.logOp(morphoblueDepositBorrowOperationDefinition)
+    // const morphoblueDepositBorrowOperationDefinition =
+    //   getMorphoBlueDepositBorrowOperationDefinition(network)
+    // await operationsRegistry.addOp(
+    //   morphoblueDepositBorrowOperationDefinition.name,
+    //   morphoblueDepositBorrowOperationDefinition.actions,
+    // )
+    // this.logOp(morphoblueDepositBorrowOperationDefinition)
 
-    const morphoblueOpenDepositBorrowOperationDefinition =
-      getMorphoBlueOpenDepositBorrowOperationDefinition(network)
-    await operationsRegistry.addOp(
-      morphoblueOpenDepositBorrowOperationDefinition.name,
-      morphoblueOpenDepositBorrowOperationDefinition.actions,
-    )
-    this.logOp(morphoblueOpenDepositBorrowOperationDefinition)
+    // const morphoblueOpenDepositBorrowOperationDefinition =
+    //   getMorphoBlueOpenDepositBorrowOperationDefinition(network)
+    // await operationsRegistry.addOp(
+    //   morphoblueOpenDepositBorrowOperationDefinition.name,
+    //   morphoblueOpenDepositBorrowOperationDefinition.actions,
+    // )
+    // this.logOp(morphoblueOpenDepositBorrowOperationDefinition)
 
-    const morphobluePaybackWithdrawOperationDefinition =
-      getMorphoBluePaybackWithdrawOperationDefinition(network)
-    await operationsRegistry.addOp(
-      morphobluePaybackWithdrawOperationDefinition.name,
-      morphobluePaybackWithdrawOperationDefinition.actions,
-    )
-    this.logOp(morphobluePaybackWithdrawOperationDefinition)
+    // const morphobluePaybackWithdrawOperationDefinition =
+    //   getMorphoBluePaybackWithdrawOperationDefinition(network)
+    // await operationsRegistry.addOp(
+    //   morphobluePaybackWithdrawOperationDefinition.name,
+    //   morphobluePaybackWithdrawOperationDefinition.actions,
+    // )
+    // this.logOp(morphobluePaybackWithdrawOperationDefinition)
 
-    const morphoblueOpenOperationDefinition = getMorphoBlueOpenOperationDefinition(network)
-    await operationsRegistry.addOp(
-      morphoblueOpenOperationDefinition.name,
-      morphoblueOpenOperationDefinition.actions,
-    )
-    this.logOp(morphoblueOpenOperationDefinition)
+    // const morphoblueOpenOperationDefinition = getMorphoBlueOpenOperationDefinition(network)
+    // await operationsRegistry.addOp(
+    //   morphoblueOpenOperationDefinition.name,
+    //   morphoblueOpenOperationDefinition.actions,
+    // )
+    // this.logOp(morphoblueOpenOperationDefinition)
 
-    const morphoblueCloseOperationDefinition = getMorphoBlueCloseOperationDefinition(network)
-    await operationsRegistry.addOp(
-      morphoblueCloseOperationDefinition.name,
-      morphoblueCloseOperationDefinition.actions,
-    )
-    this.logOp(morphoblueCloseOperationDefinition)
+    // const morphoblueCloseOperationDefinition = getMorphoBlueCloseOperationDefinition(network)
+    // await operationsRegistry.addOp(
+    //   morphoblueCloseOperationDefinition.name,
+    //   morphoblueCloseOperationDefinition.actions,
+    // )
+    // this.logOp(morphoblueCloseOperationDefinition)
 
-    const morphoblueAdjustUpOperationDefinition = getMorphoBlueAdjustUpOperationDefinition(network)
-    await operationsRegistry.addOp(
-      morphoblueAdjustUpOperationDefinition.name,
-      morphoblueAdjustUpOperationDefinition.actions,
-    )
-    this.logOp(morphoblueAdjustUpOperationDefinition)
+    // const morphoblueAdjustUpOperationDefinition = getMorphoBlueAdjustUpOperationDefinition(network)
+    // await operationsRegistry.addOp(
+    //   morphoblueAdjustUpOperationDefinition.name,
+    //   morphoblueAdjustUpOperationDefinition.actions,
+    // )
+    // this.logOp(morphoblueAdjustUpOperationDefinition)
 
-    const morphoblueAdjustDownOperationDefinition =
-      getMorphoBlueAdjustDownOperationDefinition(network)
-    await operationsRegistry.addOp(
-      morphoblueAdjustDownOperationDefinition.name,
-      morphoblueAdjustDownOperationDefinition.actions,
-    )
-    this.logOp(morphoblueAdjustDownOperationDefinition)
+    // const morphoblueAdjustDownOperationDefinition =
+    //   getMorphoBlueAdjustDownOperationDefinition(network)
+    // await operationsRegistry.addOp(
+    //   morphoblueAdjustDownOperationDefinition.name,
+    //   morphoblueAdjustDownOperationDefinition.actions,
+    // )
+    // this.logOp(morphoblueAdjustDownOperationDefinition)
   }
 
   async addAllEntries() {

@@ -39,7 +39,13 @@ describe('AAVE | PaybackV3 Action | Unit', () => {
     const delay = 0
     const [, serviceRegistryAddress] = await deploy('ServiceRegistry', [delay])
     const registry = new ServiceRegistry(serviceRegistryAddress, signer)
-    const [, operationExecutorAddress] = await deploy('OperationExecutor', [serviceRegistryAddress])
+    const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [])
+    const [, operationExecutorAddress] = await deploy('OperationExecutor', [
+      serviceRegistryAddress,
+      operationsRegistryAddress,
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
+    ])
     const [, operationStorageAddress] = await deploy('OperationStorage', [
       serviceRegistryAddress,
       operationExecutorAddress,
@@ -65,8 +71,11 @@ describe('AAVE | PaybackV3 Action | Unit', () => {
     snapshotId = await provider.send('evm_snapshot', [])
 
     await paybackV3Action.execute(
-      utils.defaultAbiCoder.encode([calldataTypes.aaveV3.Payback], [expectedValues]),
-      [0, 0],
+      utils.defaultAbiCoder.encode(
+        [calldataTypes.aaveV3.Payback],
+        [{ ...expectedValues, onBehalf: ethers.constants.AddressZero }],
+      ),
+      [0, 0, 0],
     )
   })
 
@@ -86,9 +95,9 @@ describe('AAVE | PaybackV3 Action | Unit', () => {
     await paybackV3Action.execute(
       utils.defaultAbiCoder.encode(
         [calldataTypes.aaveV3.Payback],
-        [{ ...expectedValues, paybackAll: true }],
+        [{ ...expectedValues, paybackAll: true, onBehalf: ethers.constants.AddressZero }],
       ),
-      [0, 0],
+      [0, 0, 0],
     )
 
     expect(fakePool.repay).to.be.calledWith(

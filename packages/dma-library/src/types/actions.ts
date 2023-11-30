@@ -1,7 +1,7 @@
 const aaveLike = {
   Borrow: `tuple(address asset, uint256 amount, address to)`,
   Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
-  Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
+  Payback: `tuple(address asset, uint256 amount, bool paybackAll, address onBehalf)`,
   Withdraw: `tuple(address asset, uint256 amount, address to)`,
   SetEMode: `tuple(uint8 categoryId)`,
 }

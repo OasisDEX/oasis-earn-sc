@@ -136,7 +136,7 @@ export async function deployTestSystem(
 
   let extraDeployment: any = {}
 
-  postDeploymentFunctions.forEach(async postDeploymentFunction => {
+  await postDeploymentFunctions.forEach(async postDeploymentFunction => {
     extraDeployment = await postDeploymentFunction(hre, ds, helpers, extraDeployment)
   })
 
@@ -226,9 +226,9 @@ async function postDeploymentTestOperations(
   const Action3Hash = utils.keccak256(utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION))
 
   await operationsRegistry.addOp('TEST_OPERATION_1', [
-    { hash: Action1Hash, optional: false },
-    { hash: Action2Hash, optional: true },
-    { hash: Action3Hash, optional: false },
+    { hash: Action1Hash },
+    { hash: Action2Hash },
+    { hash: Action3Hash },
   ])
 
   await operationsRegistry.addOp('ALL_OPTIONAL_OPERATION', [
