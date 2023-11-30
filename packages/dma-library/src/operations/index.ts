@@ -18,3 +18,10 @@ export const operations: {
   ajna,
   spark,
 }
+
+export {
+  getAvailableRefinanceOperationsNames,
+  getRefinanceOperation,
+  getRefinanceOperationDefinition,
+  getRefinanceOperationName,
+} from './refinance'

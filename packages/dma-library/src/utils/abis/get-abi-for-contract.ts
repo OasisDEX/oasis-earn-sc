@@ -17,8 +17,8 @@ import sparkPoolDataProviderABI from '@abis/external/protocols/spark/poolDataPro
 // Other imports
 import { AaveLikeProtocol } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
+import { Protocol } from '@deploy-configurations/types/protocol'
 import { getForkedNetwork as coalesceNetwork } from '@deploy-configurations/utils/network/index'
-import { Protocol } from '@dma-library/types'
 import { ContractInterface } from '@ethersproject/contracts'
 import { providers } from 'ethers'
 

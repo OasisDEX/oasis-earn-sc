@@ -1,3 +1,5 @@
+import { isProtocol, Protocol, ProtocolNames } from '@deploy-configurations/types/protocol'
+
 import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
 import type { AjnaError, AjnaStrategy } from './ajna'
@@ -36,7 +38,6 @@ import type {
   WithWithdrawal,
 } from './operations'
 import type { PositionType } from './position-type'
-import type { Protocol } from './protocol'
 import type { IMultiplyStrategy, IStrategy, Swap } from './strategies'
 import type {
   IViewPositionParams,
@@ -97,6 +98,7 @@ export type {
 
 export type { PositionType }
 export type { Protocol }
+export { isProtocol, ProtocolNames }
 export type {
   IViewPositionParams,
   WithBorrowDebt,

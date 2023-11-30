@@ -26,6 +26,14 @@ export { negativeToZero } from '@dma-common/utils/common'
 export type { IRiskRatio } from '@domain'
 export { RiskRatio } from '@domain'
 
+// REFINANCE
+export {
+  getAvailableRefinanceOperationsNames,
+  getRefinanceOperation,
+  getRefinanceOperationDefinition,
+  getRefinanceOperationName,
+} from './operations'
+
 // TYPES
 export type { IAdjustStrategy } from './strategies/aave-like'
 export type { IMultiplyStrategy, IStrategy } from './types'

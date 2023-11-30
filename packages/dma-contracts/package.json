@@ -38,7 +38,9 @@
     "service:help": "npx hardhat service-registry --help",
     "system:checkowners": "npx hardhat ownership-tool",
     "system:changeowners": "npx hardhat ownership-tool --changeowners",
-    "multisig:validatetx": "npx hardhat validate-multisig-tx"
+    "multisig:validatetx": "npx hardhat validate-multisig-tx",
+    "refinance:list": "npx hardhat refinance-list",
+    "refinance:getdefinition": "npx hardhat refinance-get-definition"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.3",
@@ -48,11 +50,8 @@
     "tsconfig.json"
   ],
   "devDependencies": {
-    "@safe-global/api-kit": "^1.3.1",
-    "@safe-global/protocol-kit": "^1.3.0",
-    "@safe-global/safe-core-sdk-types": "^2.3.0",
-    "@prb/math": "2.5.0",
     "@inquirer/prompts": "^3.2.0",
+    "@prb/math": "2.5.0",
     "@tenderly/hardhat-tenderly": "^1.7.7",
     "console-log-colors": "^0.4.0",
     "inquirer": "^8.0.0",
