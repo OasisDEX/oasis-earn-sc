@@ -30,7 +30,7 @@ export class OperationsRegistry {
     if (existingOperation !== '') {
       await registry.addOperation(label, operationHash)
     } else {
-      console.log('Adding an existing operation failed: ' + label );
+      console.log('Adding an existing operation failed: ' + label)
     }
 
     if (debug) {
