@@ -279,15 +279,13 @@ export function calculateMaxGenerate(
     return negativeToZero(poolLiquidityWithFee)
   }
 
-  const collateralizationFactorDifference = collateralAmount
-    .times(lup)
-    .minus(positionDebt.plus(maxDebtWithFee).times(ajnaCollateralizationFactor))
-
-  if (collateralizationFactorDifference.isNegative()) {
-    return negativeToZero(maxDebtWithFee.plus(collateralizationFactorDifference))
-  }
-
-  return negativeToZero(maxDebtWithFee)
+  return negativeToZero(
+    collateralAmount
+      .times(lup)
+      .div(ajnaCollateralizationFactor)
+      .minus(originationFee)
+      .minus(positionDebt),
+  )
 }
 
 export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumber, BigNumber] {
