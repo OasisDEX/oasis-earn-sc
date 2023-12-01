@@ -145,8 +145,6 @@ export async function deployTestSystem(
     }
   }
 
-  console.log('EXTRA DEPLOYMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', extraDeployment)
-
   await ds.addAllEntries()
 
   showConsoleLogs(true)
