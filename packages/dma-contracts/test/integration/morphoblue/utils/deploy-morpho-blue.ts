@@ -3,12 +3,14 @@ import { Network } from '@deploy-configurations/types/network'
 import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import { TestHelpers } from '@dma-contracts/utils'
 import {
+  deployMockOracles,
   deployMorphoBlue,
-  deployOracles,
   getMorphoDefaultMarketsConfig,
-  getMorphoDefaultOraclesConfig,
+  getMorphoDefaultMockOraclesConfig,
   MarketSupplyConfig,
+  MorphoMarketsConfig,
   MorphoTestDeployment,
+  OraclesDeployment,
   setupMarkets,
   TokensDeployment,
 } from '@morpho-blue'
@@ -53,13 +55,28 @@ export async function deployTestMorphoBlueSystem(
     },
   }
 
-  return deployMorphoBlueSystem(hre, ds, network, tokensDeployment, extraDeployment)
+  const marketsConfig = getMorphoDefaultMarketsConfig()
+  const oraclesConfig = getMorphoDefaultMockOraclesConfig()
+
+  const oraclesDeployment = await deployMockOracles(oraclesConfig, marketsConfig, signer)
+
+  return deployMorphoBlueSystem(
+    hre,
+    ds,
+    network,
+    marketsConfig,
+    oraclesDeployment,
+    tokensDeployment,
+    extraDeployment,
+  )
 }
 
 export async function deployMorphoBlueSystem(
   hre: HardhatRuntimeEnvironment,
   ds: DeploymentSystem,
   configNetwork: Network,
+  marketsConfig: MorphoMarketsConfig,
+  oraclesDeployment: OraclesDeployment,
   tokensDeployment: TokensDeployment,
   extraDeployment: any = {}, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<MorphoTestDeployment> {
@@ -67,11 +84,6 @@ export async function deployMorphoBlueSystem(
   const provider = hre.ethers.provider
   const signer = provider.getSigner()
   const signerAddress = await signer.getAddress()
-
-  const marketsConfig = getMorphoDefaultMarketsConfig()
-  const oraclesConfig = getMorphoDefaultOraclesConfig()
-
-  const oraclesDeployment = await deployOracles(oraclesConfig, marketsConfig, signer)
 
   const morphoBlueSystem = await deployMorphoBlue(
     marketsConfig,

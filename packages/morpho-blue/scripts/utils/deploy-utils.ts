@@ -3,14 +3,15 @@ import { IrmMock, Morpho } from '@typechain'
 import { MarketParamsStruct } from '@typechain/contracts/morphoblue/Morpho'
 import type {
   MarketSupplyConfig,
+  MockOraclesConfig,
   MorphoMarket,
   MorphoMarketInfo,
   MorphoMarketsConfig,
   MorphoSystem,
-  OraclesConfig,
   OraclesDeployment,
   TokensConfig,
   TokensDeployment,
+  WrapperOraclesConfig,
 } from '@types'
 import { Contract, ethers as ethersjs, Signer } from 'ethers'
 import { ethers } from 'hardhat'
@@ -85,8 +86,8 @@ export async function deployTokens(
   return tokensDeployment
 }
 
-export async function deployOracles(
-  oraclesConfig: OraclesConfig,
+export async function deployMockOracles(
+  oraclesConfig: MockOraclesConfig,
   marketsConfig: MorphoMarketsConfig,
   signer: Signer,
 ): Promise<OraclesDeployment> {
@@ -117,6 +118,47 @@ export async function deployOracles(
         oracleInfo.initialPrice,
         MorphoPricePrecision,
       )}`,
+    )
+
+    if (!oraclesDeployment[marketInfo.loanToken]) {
+      oraclesDeployment[marketInfo.loanToken] = {}
+    }
+
+    oraclesDeployment[marketInfo.loanToken][marketInfo.collateralToken] = {
+      contract: oracle,
+    }
+  }
+
+  return oraclesDeployment
+}
+
+export async function deployWrapperOracles(
+  oraclesConfig: WrapperOraclesConfig,
+  marketsConfig: MorphoMarketsConfig,
+  signer: Signer,
+): Promise<OraclesDeployment> {
+  const oraclesDeployment: OraclesDeployment = {}
+
+  for (const market of Object.keys(marketsConfig.markets)) {
+    const marketInfo = marketsConfig.markets[market]
+    const oracleInfo = oraclesConfig[marketInfo.loanToken][marketInfo.collateralToken]
+
+    if (!oracleInfo) {
+      throw new Error(`Oracle for market ${market} not found`)
+    }
+
+    console.log(
+      `Deploying Oracle for pair ${marketInfo.loanToken}/${marketInfo.collateralToken}...`,
+    )
+
+    const oracle = await deployContract<ReturnType<typeof oracleInfo.factory.getContract>>(
+      oracleInfo.contractName,
+      [oracleInfo.loanTokenAggregator, oracleInfo.collateralTokenAggregator],
+      signer,
+    )
+
+    console.log(
+      `   Wrapper oracle deployed to ${oracle.address} with Chainlink loan token aggregator ${oracleInfo.loanTokenAggregator} and Chainlink collateral token aggregator ${oracleInfo.collateralTokenAggregator}`,
     )
 
     if (!oraclesDeployment[marketInfo.loanToken]) {

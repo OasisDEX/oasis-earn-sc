@@ -26,7 +26,7 @@ export const config: SystemConfig = {
       name: 'MockExchange',
       deploy: true,
       address: '',
-      serviceRegistryName: null,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.test.DUMMY_EXCHANGE,
       history: [],
       constructorArgs: ['0x95222290DD7278Aa3Ddd389Cc1E1d165CC4BAfe5'],
     },

@@ -1,7 +1,9 @@
 import { Network } from '@deploy-configurations/types/network'
+import { WrapperOraclesConfig } from '@dma-contracts/../morpho-blue/scripts/types'
+import { deployWrapperOracles } from '@dma-contracts/../morpho-blue/scripts/utils/deploy-utils'
 import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import { deployMorphoBlueSystem } from '@dma-contracts/test/integration/morphoblue/utils'
-import { MorphoTestDeployment, TokensDeployment } from '@morpho-blue'
+import { getMorphoDefaultMarketsConfig, MorphoTestDeployment, TokensDeployment } from '@morpho-blue'
 import { ERC20__factory } from '@typechain'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -13,6 +15,47 @@ export async function deployMorphoBlue(
 ): Promise<MorphoTestDeployment> {
   const provider = hre.ethers.provider
   const signer = provider.getSigner()
+
+  const oraclesDeploymentConfig: WrapperOraclesConfig = {
+    DAI: {
+      WBTC: {
+        factory: ERC20__factory,
+        contractName: 'ERC20',
+        loanTokenAggregator: '0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9',
+        collateralTokenAggregator: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
+      },
+      USDC: {
+        factory: ERC20__factory,
+        contractName: 'ERC20',
+        loanTokenAggregator: '0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9',
+        collateralTokenAggregator: '0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6',
+      },
+    },
+    USDC: {
+      USDT: {
+        factory: ERC20__factory,
+        contractName: 'ERC20',
+        loanTokenAggregator: '0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6',
+        collateralTokenAggregator: '0x3E7d1eAB13ad0104d2750B8863b489D65364e32D',
+      },
+    },
+    WSTETH: {
+      WETH: {
+        factory: ERC20__factory,
+        contractName: 'ERC20',
+        loanTokenAggregator: '0xCfE54B5cD566aB89272946F602D76Ea879CAb4a8',
+        collateralTokenAggregator: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+      },
+    },
+  }
+
+  const marketsConfig = getMorphoDefaultMarketsConfig()
+
+  const oraclesDeployment = await deployWrapperOracles(
+    oraclesDeploymentConfig,
+    marketsConfig,
+    signer,
+  )
 
   const tokensDeployment: TokensDeployment = {
     DAI: {
@@ -41,7 +84,14 @@ export async function deployMorphoBlue(
     },
   }
 
-  return deployMorphoBlueSystem(hre, ds, network, tokensDeployment)
+  return deployMorphoBlueSystem(
+    hre,
+    ds,
+    network,
+    marketsConfig,
+    oraclesDeployment,
+    tokensDeployment,
+  )
 }
 
 async function main() {
@@ -64,7 +114,8 @@ async function main() {
 
   await deployMorphoBlue(hre, ds, Network.TEST)
 
-  await ds.addOperationEntries()
+  console.log('\n=========== Adding all entries to system ===========\n')
+  await ds.addAllEntries()
 }
 
 // We recommend this pattern to be able to use async/await everywhere

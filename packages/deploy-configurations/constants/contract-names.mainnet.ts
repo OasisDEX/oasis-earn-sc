@@ -91,7 +91,7 @@ export const SERVICE_REGISTRY_NAMES = {
     DUMMY_ACTION: 'DummyAction',
     DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',
     DUMMY_SWAP: 'DummySwap',
-    DUMMY_EXCHANGE: 'DummyExchange',
+    DUMMY_EXCHANGE: 'MockExchange',
     SWAP: 'uSwap',
   },
 } as const

@@ -1,7 +1,7 @@
 export { getMorphoDefaultMarketsConfig, MorphoLLTVPrecision } from './markets.config'
 export {
   DefaultOracleMock,
-  getMorphoDefaultOraclesConfig,
+  getMorphoDefaultMockOraclesConfig,
   MorphoOraclesConfig,
   MorphoPricePrecision,
 } from './oracles.config'
