@@ -10,11 +10,10 @@ import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
 
 import * as tdly from '@tenderly/hardhat-tenderly'
-import { HardhatUserConfig } from 'hardhat/config'
 
-tdly.setup()
+tdly.setup({ automaticVerifications: true })
 
-const config: HardhatUserConfig = {
+const config = {
   networks: {
     hardhat: {
       mining: {
@@ -43,13 +42,14 @@ const config: HardhatUserConfig = {
     },
   },
   typechain: {
-    outDir: 'typechain/',
+    outDir: 'typechain',
     externalArtifacts: ['deps/**/*.json'],
   },
   tenderly: {
     username: 'oazoapps', // tenderly username (or organization name)
     project: process.env.TENDERLY_PROJECT ?? '', // project name
-    privateVerification: false, // if true, contracts will be verified privately, if false, contracts will be verified publicly
+    privateVerification: true, // if true, contracts will be verified privately, if false, contracts will be verified publicly
+    deploymentsDir: 'artifacts',
   },
 }
 

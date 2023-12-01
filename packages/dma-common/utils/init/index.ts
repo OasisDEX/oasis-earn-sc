@@ -1,3 +1,4 @@
+import { Network } from '@deploy-configurations/types/network'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -28,10 +29,15 @@ export default async function index(
 }
 
 export async function resetNode(
+  network: Network,
   provider: providers.JsonRpcProvider,
   blockNumber: number,
   showLogs = false,
 ) {
+  if (network !== Network.HARDHAT) {
+    return
+  }
+
   showLogs && console.log(`    \x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
   await provider.send('hardhat_reset', [
     {
@@ -43,7 +49,13 @@ export async function resetNode(
   ])
 }
 
-export async function resetNodeToLatestBlock(provider: providers.JsonRpcProvider) {
+export async function resetNodeToLatestBlock(
+  network: Network,
+  provider: providers.JsonRpcProvider,
+) {
+  if (network !== Network.HARDHAT) {
+    return
+  }
   await provider.send('hardhat_reset', [
     {
       forking: {

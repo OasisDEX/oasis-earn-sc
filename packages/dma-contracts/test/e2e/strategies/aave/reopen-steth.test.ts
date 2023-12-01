@@ -20,6 +20,7 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
+import hre from 'hardhat'
 
 const networkFork = process.env.NETWORK_FORK as Network
 
@@ -31,6 +32,7 @@ describe.skip(`Strategy | AAVE | Reopen Position | E2E`, async () => {
   const collateralToken = { symbol: 'STETH' as const, precision: 18 }
 
   let provider: JsonRpcProvider
+  let network: Network
   let config: RuntimeConfig
   let signer: Signer
 
@@ -46,6 +48,7 @@ describe.skip(`Strategy | AAVE | Reopen Position | E2E`, async () => {
 
   before(async () => {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
+    network = hre.network.name as Network
   })
 
   /* TODO: Fix close and reopen currently failing */
@@ -264,7 +267,7 @@ describe.skip(`Strategy | AAVE | Reopen Position | E2E`, async () => {
     const slippage = new BigNumber(0.1)
 
     before(async function () {
-      await resetNodeToLatestBlock(provider)
+      await resetNodeToLatestBlock(network, provider)
       const { system } = await deploySystem(config, false, false)
 
       addresses = {

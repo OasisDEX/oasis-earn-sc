@@ -1,3 +1,4 @@
+import { Network } from '@deploy-configurations/types/network'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { resetNode } from '@dma-common/utils/init'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -31,6 +32,7 @@ export async function restoreSnapshot(
   const { hre, blockNumber, useFallbackSwap } = args
   const debug = args.debug || false
   const provider = hre.ethers.provider
+  const network = hre.network.name as Network
 
   const _blockNumber = blockNumber || testBlockNumber
 
@@ -61,7 +63,7 @@ export async function restoreSnapshot(
       console.log('resetting node to:', _blockNumber)
       console.log('deploying system again')
     }
-    await resetNode(provider, _blockNumber, debug)
+    await resetNode(network, provider, _blockNumber, debug)
 
     extraDeploymentCallbacks.push(...DefaultPostDeploymentFunctions)
     const system = await deployTestSystem(hre, extraDeploymentCallbacks, debug, useFallbackSwap)

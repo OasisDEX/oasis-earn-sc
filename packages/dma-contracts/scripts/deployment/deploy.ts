@@ -1083,6 +1083,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
+    if (this.network !== Network.HARDHAT) {
+      console.log('Not resetting node, not on hardhat network')
+      return
+    }
     if (!this.provider) throw new Error('No provider set')
     this.log(`\x1b[90mResetting fork to block number: ${blockNumber} using ${this.rpcUrl} \x1b[0m`)
     await this.provider.send('hardhat_reset', [
@@ -1096,6 +1100,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async resetNodeToLatestBlock() {
+    if (this.network !== Network.HARDHAT) {
+      console.log('Not resetting node, not on hardhat network')
+      return
+    }
     if (!this.provider) throw new Error('No provider set')
     await this.provider.send('hardhat_reset', [
       {

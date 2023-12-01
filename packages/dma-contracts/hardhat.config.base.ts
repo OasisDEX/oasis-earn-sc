@@ -20,7 +20,7 @@ import { filterConsole, getForkedNetworkConfig } from './utils'
 // removed, but it seems that our Hardhat version is still using Ethers.js 5.
 filterConsole(['duplicate definition -'], { methods: ['log'] })
 
-tdly.setup()
+tdly.setup({ automaticVerifications: process.env.TENDERLY_AUTOMATIC_VERIFICATION === 'true' })
 
 const forkConfig = getForkedNetworkConfig()
 
@@ -227,6 +227,12 @@ const config = {
     tenderly: {
       url: process.env.TENDERLY_FORK_URL ?? '',
       chainId: Number(process.env.TENDERLY_FORK_CHAIN_ID ?? 1),
+      accounts: [
+        process.env.PRIV_KEY_TENDERLY || '',
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+        '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+        '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a',
+      ],
     },
   },
   gasReporter: {
@@ -289,6 +295,7 @@ const config = {
     username: 'oazoapps', // tenderly username (or organization name)
     project: process.env.TENDERLY_PROJECT ?? '', // project name
     privateVerification: true, // if true, contracts will be verified privately, if false, contracts will be verified publicly
+    deploymentsDir: 'artifacts',
   },
 }
 

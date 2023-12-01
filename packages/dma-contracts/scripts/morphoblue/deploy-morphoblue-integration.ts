@@ -45,24 +45,12 @@ export async function deployMorphoBlue(
 }
 
 async function main() {
-  const provider = hre.ethers.provider
   const signer = hre.ethers.provider.getSigner(0)
   const network = hre.network.name as Network
 
   if (network !== Network.TENDERLY) {
     throw new Error('This script should only be run on Tenderly')
   }
-
-  const supplyAmount = hre.ethers.utils.parseUnits('1000000000', 6)
-  console.log('supplyAmount', supplyAmount.toHexString())
-  const args = [
-    '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    await signer.getAddress(),
-    `0x${supplyAmount.toHexString().slice(2).padStart(64, '0')}`,
-  ]
-
-  console.log('args', args)
-  await provider.send('tenderly_setErc20Balance', args)
 
   console.log(`Deployer address: ${await signer.getAddress()}`)
   console.log(`Network: ${network}`)

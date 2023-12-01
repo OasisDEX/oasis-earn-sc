@@ -273,8 +273,6 @@ export async function setupMarkets(
       ?.connect(signer)
       .approve(morphoSystem.morpho.address, supplyAmount)
 
-    await morphoSystem.morpho
-      .connect(signer)
-      .supply(marketParams, supplyAmount, 0, signerAddress, [])
+    await morphoSystem.morpho.supply(marketParams, supplyAmount, 0, signerAddress, [])
   }
 }
