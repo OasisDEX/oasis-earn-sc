@@ -45,6 +45,7 @@ export type PostDeploymentFunction = (
   ds: DeploymentSystem,
   helpers: TestHelpers,
   extraDeployment: any,
+  useFallbackSwap: boolean,
 ) => Promise<any>
 
 export const DefaultPostDeploymentFunctions = [
@@ -137,7 +138,13 @@ export async function deployTestSystem(
   let extraDeployment: any = {}
 
   for (const postDeploymentFunction of postDeploymentFunctions) {
-    const postDeploymentResult = await postDeploymentFunction(hre, ds, helpers, extraDeployment)
+    const postDeploymentResult = await postDeploymentFunction(
+      hre,
+      ds,
+      helpers,
+      extraDeployment,
+      useFallbackSwap,
+    )
 
     extraDeployment = {
       ...extraDeployment,
@@ -212,6 +219,7 @@ async function postDeploymentTestOperations(
   ds: DeploymentSystem,
   helpers: TestHelpers, // eslint-disable-line @typescript-eslint/no-unused-vars
   extraDeployment: any, // eslint-disable-line @typescript-eslint/no-unused-vars
+  useFallbackSwap: boolean, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<any> {
   const testDeploymentSystem = ds.getSystem()
   const signer = hre.ethers.provider.getSigner()
@@ -248,6 +256,7 @@ async function postDeploymentMockExchange(
   ds: DeploymentSystem,
   helpers: TestHelpers,
   extraDeployment: any, // eslint-disable-line @typescript-eslint/no-unused-vars
+  useFallbackSwap: boolean, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<any> {
   const testDeploymentSystem = ds.getSystem()
 
@@ -275,18 +284,21 @@ async function postDeploymentSystemOverrides(
   ds: DeploymentSystem,
   helpers: TestHelpers, // eslint-disable-line @typescript-eslint/no-unused-vars
   extraDeployment: any, // eslint-disable-line @typescript-eslint/no-unused-vars
+  useFallbackSwap: boolean,
 ): Promise<any> {
   const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TEST)
 
   // Override OneInchAggregator with the MockExchange
-  const mockExchangeAddress = ds.getSystem().system.MockExchange.contract.address
-  ds.addConfigOverrides({
-    common: {
-      OneInchAggregator: {
-        name: 'OneInchAggregator',
-        address: mockExchangeAddress,
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
+  if (useFallbackSwap) {
+    const mockExchangeAddress = ds.getSystem().system.MockExchange.contract.address
+    ds.addConfigOverrides({
+      common: {
+        OneInchAggregator: {
+          name: 'OneInchAggregator',
+          address: mockExchangeAddress,
+          serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
+        },
       },
-    },
-  })
+    })
+  }
 }

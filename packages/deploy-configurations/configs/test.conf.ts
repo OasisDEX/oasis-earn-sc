@@ -340,7 +340,7 @@ export const config: SystemConfig = {
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
-      address: '0x5b2a0d171ef02f081f863a97cdcbe296847f2a57',
+      address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     AuthorizedCaller: {
