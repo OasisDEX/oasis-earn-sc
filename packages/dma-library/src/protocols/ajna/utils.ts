@@ -289,6 +289,10 @@ export function calculateMaxGenerate(
 }
 
 export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumber, BigNumber] {
+  if (pool.buckets.length === 0) {
+    return [pool.lowestUtilizedPrice, pool.lowestUtilizedPriceIndex]
+  }
+
   const sortedBuckets = [...pool.buckets].sort((a, b) => a.index.minus(b.index).toNumber())
   const totalPoolLiquidity = getTotalPoolLiquidity(pool.buckets)
 
