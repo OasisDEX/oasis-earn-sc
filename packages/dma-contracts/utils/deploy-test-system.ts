@@ -136,12 +136,14 @@ export async function deployTestSystem(
 
   let extraDeployment: any = {}
 
-  postDeploymentFunctions.forEach(async postDeploymentFunction => {
+  for (const postDeploymentFunction of postDeploymentFunctions) {
+    const postDeploymentResult = await postDeploymentFunction(hre, ds, helpers, extraDeployment)
+
     extraDeployment = {
       ...extraDeployment,
-      ...(await postDeploymentFunction(hre, ds, helpers, extraDeployment)),
+      ...postDeploymentResult,
     }
-  })
+  }
 
   console.log('EXTRA DEPLOYMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', extraDeployment)
 
