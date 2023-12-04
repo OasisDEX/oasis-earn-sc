@@ -99,7 +99,7 @@ export const deposit: MorphoBlueDepositOperation = async (
       from: depositorAddress,
     }),
   ]
-  const isAssetEth = userFundsTokenAddress === addresses.tokens.ETH
+  const isAssetEth = userFundsTokenAddress.toLowerCase() === addresses.tokens.ETH.toLowerCase()
   if (isAssetEth) {
     //Asset IS eth
     tokenTransferCalls[1].skipped = true

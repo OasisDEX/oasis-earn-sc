@@ -11,7 +11,7 @@ const argsSchema = yup.object().shape({
 });
 
 export const getTokensCommand: Command<typeof argsSchema> = {
-  name: 'get-tokens' as const,
+  name: 'get-token' as const,
   description: `Get tokens to provided wallet, avaiable tokens: ${tokens.join(
     ', ',
   )} `,

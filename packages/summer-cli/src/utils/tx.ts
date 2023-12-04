@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 
 export async function sendTxFromAddress(
@@ -7,6 +8,7 @@ export async function sendTxFromAddress(
 ): Promise<ethers.providers.TransactionReceipt> {
   const txToSend = {
     ...tx,
+    value: `0x${new BigNumber(tx.value.toString()).toString(16)}`,
     from,
   };
 

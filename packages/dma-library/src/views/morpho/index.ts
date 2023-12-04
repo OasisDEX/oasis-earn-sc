@@ -19,14 +19,18 @@ interface Args {
   marketId: string
 }
 
-interface Dependencies {
-  provider: ethers.providers.Provider
-  morphoAddress: string
-  getCumulatives: () => {
+export interface GetMorphoCumulativesData {
+  (): Promise<{
     borrowCumulativeDepositUSD: BigNumber
     borrowCumulativeFeesUSD: BigNumber
     borrowCumulativeWithdrawUSD: BigNumber
-  }
+  }>
+}
+
+interface Dependencies {
+  provider: ethers.providers.Provider
+  morphoAddress: string
+  getCumulatives: GetMorphoCumulativesData
 }
 
 export async function getMorphoPosition(
@@ -46,11 +50,11 @@ export async function getMorphoPosition(
   const price = await oracle.price()
   const rate = await irm.borrowRateView(marketParams, market)
 
-  const collateralAmount = new BigNumber(positionParams.collateral.toString())
-  const debtAmount = new BigNumber(positionParams.borrowShares.toString())
+  const collateralAmount = new BigNumber(positionParams.collateral.toString()).div(TEN.pow(collateralPrecision))
+  const debtAmount = new BigNumber(positionParams.borrowShares.toString()).div(TEN.pow(quotePrecision))
 
   const { borrowCumulativeWithdrawUSD, borrowCumulativeFeesUSD, borrowCumulativeDepositUSD } =
-    getCumulatives()
+    await getCumulatives()
 
   const netValue = collateralAmount.times(collateralPriceUSD).minus(debtAmount.times(quotePriceUSD))
 
