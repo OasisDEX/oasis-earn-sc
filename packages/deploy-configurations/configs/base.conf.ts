@@ -1082,7 +1082,7 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0xA3A1e968Bd6C578205E11256c8e6929f21742aAF',
       serviceRegistryName: undefined,
     },
     AjnaProxyActions: {
@@ -1095,7 +1095,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x36764fD9B336Da7352768753Bf07A32743ab9871',
     },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
@@ -1140,7 +1140,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x19fF5F97c8b6C51488A8A0A9Cd294d482Ae4fa2E',
     },
     AjnaPoolPairs_TBTCWBTC: {
       name: 'AjnaPoolPairs_TBTCWBTC',
