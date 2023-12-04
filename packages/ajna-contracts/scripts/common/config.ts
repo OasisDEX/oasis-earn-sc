@@ -11,7 +11,7 @@ export const ADDRESSES = {
     SERVICE_REGISTRY: "0x5A5277B8c8a42e6d8Ab517483D7D59b4ca03dB7F",
   },
   mainnet: {
-    AJNA_PROXY_ACTIONS: "0x0000000000000000000000000000000000000000",
+    AJNA_PROXY_ACTIONS: "0x53B1f1B3f34b5B3C7dA8BD60a7E8ee2eFd175603",
     ERC20_POOL_FACTORY: "0x03907900D4120956BA3E253e7580B29e618091a4",
     POOL_INFO_UTILS: "0xF086B79D71d55806493fD8CA4DB39a81C82e28d4",
     POSITION_MANAGER: "0x64D67777cA15d445cD29fE8c25B6eB31cbe853A4",
@@ -69,7 +69,7 @@ export const TOKENS = {
 export const POOLS: Pool[] = [
   { pair: "WBTC-USDC", amount: 5000, price: 20000, deposit: false, deploy: false, rate: "50000000000000000" },
   { pair: "WBTC-DAI", amount: 5000, price: 20000, deposit: false, deploy: false, rate: "50000000000000000" },
-  { pair: "USDC-WBTC", amount: 1, price: 0.000030769, deposit: false, deploy: false, rate: "40000000000000000" },
+  { pair: "USDC-WBTC", amount: 1, price: 0.000030769, deposit: false, deploy: true, rate: "40000000000000000" },
   { pair: "WETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: true, rate: "50000000000000000" },
   { pair: "WETH-DAI", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
   { pair: "USDC-WETH", amount: 1, price: 0.0005, deposit: false, deploy: false, rate: "40000000000000000" },
@@ -79,7 +79,7 @@ export const POOLS: Pool[] = [
   { pair: "WSTETH-DAI", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
   { pair: "WSTETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
   { pair: "WSTETH-WETH", amount: 1, price: 1.09, deposit: false, deploy: false, rate: "40000000000000000" },
-  { pair: "CBETH-WETH", amount: 1, price: 1.09, deposit: false, deploy: true, rate: "40000000000000000" },
+  { pair: "CBETH-WETH", amount: 1, price: 1.09, deposit: false, deploy: false, rate: "40000000000000000" },
   { pair: "TBTC-WBTC", amount: 1, price: 1.01, deposit: false, deploy: false, rate: "40000000000000000" },
 ];
 
