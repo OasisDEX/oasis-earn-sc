@@ -2,6 +2,7 @@ import { getConfigByNetwork } from '@deploy-configurations/configs'
 import { OPERATION_NAMES } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
+import { getPropertyFromPath } from '@dma-common/utils/properties'
 import { OperationsRegistry } from '@typechain/index'
 import { task } from 'hardhat/config'
 
@@ -9,7 +10,6 @@ import {
   ActionDefinition,
   ActionsDatabase,
   getOperationRegistry,
-  getPropertyFromPath,
   OperationDefinition,
   OperationRegistryMaybe,
   OperationsDatabase,

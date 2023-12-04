@@ -1,4 +1,5 @@
 import { getAaveOpenV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { Protocol } from '@deploy-configurations/types/protocol'
 import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { FlashloanProvider } from '@dma-library/types/common'
@@ -14,7 +15,6 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types/operations'
-import { Protocol } from '@dma-library/types/protocol'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 

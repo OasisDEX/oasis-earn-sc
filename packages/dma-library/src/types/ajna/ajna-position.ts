@@ -2,6 +2,7 @@ import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import {
+  ajnaCollateralizationFactor,
   calculateMaxGenerate,
   getAjnaBorrowOriginationFee,
   getNeutralPrice,
@@ -85,7 +86,7 @@ export class AjnaPosition implements LendingPosition {
 
   get collateralAvailable() {
     const collateralAvailable = this.collateralAmount.minus(
-      this.debtAmount.div(this.pool.lowestUtilizedPrice),
+      this.debtAmount.times(ajnaCollateralizationFactor).div(this.pool.lowestUtilizedPrice),
     )
 
     return negativeToZero(normalizeValue(collateralAvailable))

@@ -1,15 +1,11 @@
 import { getConfigByNetwork } from '@deploy-configurations/configs'
 import { ConfigEntry, SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
+import { getPropertyFromPath } from '@dma-common/utils/properties'
 import { ServiceRegistry } from '@typechain/index'
 import { task } from 'hardhat/config'
 
-import {
-  getPropertyFromPath,
-  getServiceRegistry,
-  isInvalidAddress,
-  ServiceRegistryMaybe,
-} from '../common'
+import { getServiceRegistry, isInvalidAddress, ServiceRegistryMaybe } from '../common'
 
 function showLocalConfig(configPath: string, network: string) {
   const config: SystemConfig = getConfigByNetwork(network as Network) as SystemConfig
