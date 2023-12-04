@@ -9,28 +9,26 @@ import {
   Market,
   Authorization,
   Signature
-} from './interfaces/IMorpho.sol';
+} from "./interfaces/IMorpho.sol";
 import {
   IMorphoLiquidateCallback,
   IMorphoRepayCallback,
   IMorphoSupplyCallback,
   IMorphoSupplyCollateralCallback,
   IMorphoFlashLoanCallback
-} from './interfaces/IMorphoCallbacks.sol';
-import {IIrm} from './interfaces/IIrm.sol';
-import {IERC20} from './interfaces/IERC20.sol';
-import {IOracle} from './interfaces/IOracle.sol';
+} from "./interfaces/IMorphoCallbacks.sol";
+import { IIrm } from "./interfaces/IIrm.sol";
+import { IERC20 } from "./interfaces/IERC20.sol";
+import { IOracle } from "./interfaces/IOracle.sol";
 
-import './libraries/ConstantsLib.sol';
-import {UtilsLib} from './libraries/UtilsLib.sol';
-import {EventsLib} from './libraries/EventsLib.sol';
-import {ErrorsLib} from './libraries/ErrorsLib.sol';
-import {MathLib, WAD} from './libraries/MathLib.sol';
-import {SharesMathLib} from './libraries/SharesMathLib.sol';
-import {MarketParamsLib} from './libraries/MarketParamsLib.sol';
-import {SafeTransferLib} from './libraries/SafeTransferLib.sol';
-
-import 'hardhat/console.sol';
+import "./libraries/ConstantsLib.sol";
+import { UtilsLib } from "./libraries/UtilsLib.sol";
+import { EventsLib } from "./libraries/EventsLib.sol";
+import { ErrorsLib } from "./libraries/ErrorsLib.sol";
+import { MathLib, WAD } from "./libraries/MathLib.sol";
+import { SharesMathLib } from "./libraries/SharesMathLib.sol";
+import { MarketParamsLib } from "./libraries/MarketParamsLib.sol";
+import { SafeTransferLib } from "./libraries/SafeTransferLib.sol";
 
 /// @title Morpho
 /// @author Morpho Labs
@@ -203,11 +201,6 @@ contract Morpho is IMorpho {
     address onBehalf,
     address receiver
   ) external returns (uint256, uint256) {
-    console.log('withdraw assets: %s', assets);
-    console.log('withdraw shares: %s', shares);
-    console.log('withdraw onBehalf: %s', onBehalf);
-    console.log('withdraw receiver: %s', receiver);
-
     Id id = marketParams.id();
     require(market[id].lastUpdate != 0, ErrorsLib.MARKET_NOT_CREATED);
     require(UtilsLib.exactlyOneZero(assets, shares), ErrorsLib.INCONSISTENT_INPUT);
@@ -296,9 +289,6 @@ contract Morpho is IMorpho {
       shares = assets.toSharesDown(market[id].totalBorrowAssets, market[id].totalBorrowShares);
     else assets = shares.toAssetsUp(market[id].totalBorrowAssets, market[id].totalBorrowShares);
 
-    // console.log("repay assets: %s", assets);
-    // console.log("repay shares: %s", shares);
-
     position[id][onBehalf].borrowShares -= shares.toUint128();
     market[id].totalBorrowShares -= shares.toUint128();
     market[id].totalBorrowAssets = UtilsLib
@@ -311,9 +301,6 @@ contract Morpho is IMorpho {
     if (data.length > 0) IMorphoRepayCallback(msg.sender).onMorphoRepay(assets, data);
 
     IERC20(marketParams.loanToken).safeTransferFrom(msg.sender, address(this), assets);
-
-    // console.log("repay assets: %s", assets);
-    // console.log("repay shares: %s", shares);
 
     return (assets, shares);
   }
@@ -490,7 +477,7 @@ contract Morpho is IMorpho {
     require(authorization.nonce == nonce[authorization.authorizer]++, ErrorsLib.INVALID_NONCE);
 
     bytes32 hashStruct = keccak256(abi.encode(AUTHORIZATION_TYPEHASH, authorization));
-    bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR, hashStruct));
+    bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hashStruct));
     address signatory = ecrecover(digest, signature.v, signature.r, signature.s);
 
     require(
@@ -561,11 +548,9 @@ contract Morpho is IMorpho {
     Id id,
     address borrower
   ) internal view returns (bool) {
-    // console.log("isHealthy borrowShares: %s", position[id][borrower].borrowShares);
     if (position[id][borrower].borrowShares == 0) return true;
 
     uint256 collateralPrice = IOracle(marketParams.oracle).price();
-    // console.log("isHealthy collateralPrice: %s", collateralPrice);
     return _isHealthy(marketParams, id, borrower, collateralPrice);
   }
 
@@ -587,11 +572,6 @@ contract Morpho is IMorpho {
       .mulDivDown(collateralPrice, ORACLE_PRICE_SCALE)
       .wMulDown(marketParams.lltv);
 
-    // console.log("isHealthy collateral: %s", position[id][borrower].collateral);
-    // console.log("isHealthy collateralPrice: %s", collateralPrice);
-    // console.log("isHealthy borrowed: %s", borrowed);
-    // console.log("isHealthy maxBorrow: %s", maxBorrow);
-    // console.log("isHealthy LLTV: %s", marketParams.lltv);
     return maxBorrow >= borrowed;
   }
 
@@ -606,7 +586,7 @@ contract Morpho is IMorpho {
     for (uint256 i; i < nSlots; ) {
       bytes32 slot = slots[i++];
 
-      assembly ('memory-safe') {
+      assembly ("memory-safe") {
         mstore(add(res, mul(i, 32)), sload(slot))
       }
     }
