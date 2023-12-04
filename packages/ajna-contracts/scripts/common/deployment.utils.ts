@@ -184,16 +184,19 @@ export async function deployPoolFactory(
 
   return { erc20PoolFactory, erc721PoolFactory };
 }
+
+// default rate = 4%
 export async function deployPool(
   erc20PoolFactory: ERC20PoolFactory,
   collateral: string,
   quote: string,
-  deployPools = true
+  deployPools = true,
+  rate = "40000000000000000"
 ): Promise<ERC20Pool> {
   const hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
   let poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
   if (poolAddress === hre.ethers.constants.AddressZero && deployPools) {
-    const tx = await erc20PoolFactory.deployPool(collateral, quote, "25000000000000000");
+    const tx = await erc20PoolFactory.deployPool(collateral, quote, rate);
     await tx.wait();
     poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
   }

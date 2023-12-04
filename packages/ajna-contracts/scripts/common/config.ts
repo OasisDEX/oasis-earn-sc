@@ -58,7 +58,7 @@ export const TOKENS = {
     RETH: "0x0000000000000000000000000000000000000000",
     WSTETH: "0x0000000000000000000000000000000000000000",
     WBTC: "0x0000000000000000000000000000000000000000",
-    USDC: "0x6e4c6e76b3C1D834c0e3c4c2bAec8d58B8421A99",
+    USDC: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     DAI: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
     CBETH: "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
     AJNA: "0x0000000000000000000000000000000000000000",
@@ -67,20 +67,20 @@ export const TOKENS = {
 };
 
 export const POOLS: Pool[] = [
-  { pair: "WBTC-USDC", amount: 5000, price: 20000, deposit: true },
-  { pair: "WBTC-DAI", amount: 5000, price: 20000, deposit: true },
-  { pair: "USDC-WBTC", amount: 1, price: 0.000030769, deposit: true },
-  { pair: "WETH-USDC", amount: 5000, price: 1500, deposit: true },
-  { pair: "WETH-DAI", amount: 5000, price: 1500, deposit: true },
-  { pair: "USDC-WETH", amount: 1, price: 0.0005, deposit: true },
-  { pair: "RETH-DAI", amount: 5000, price: 1500, deposit: true },
-  { pair: "RETH-USDC", amount: 5000, price: 1500, deposit: true },
-  { pair: "RETH-WETH", amount: 1, price: 1.07, deposit: true },
-  { pair: "WSTETH-DAI", amount: 5000, price: 1500, deposit: true },
-  { pair: "WSTETH-USDC", amount: 5000, price: 1500, deposit: true },
-  { pair: "WSTETH-WETH", amount: 1, price: 1.09, deposit: true },
-  { pair: "CBETH-WETH", amount: 1, price: 1.09, deposit: false },
-  { pair: "TBTC-WBTC", amount: 1, price: 1.01, deposit: true },
+  { pair: "WBTC-USDC", amount: 5000, price: 20000, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "WBTC-DAI", amount: 5000, price: 20000, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "USDC-WBTC", amount: 1, price: 0.000030769, deposit: false, deploy: true, rate: "40000000000000000" },
+  { pair: "WETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: true, rate: "50000000000000000" },
+  { pair: "WETH-DAI", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "USDC-WETH", amount: 1, price: 0.0005, deposit: false, deploy: false, rate: "40000000000000000" },
+  { pair: "RETH-DAI", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "RETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "RETH-WETH", amount: 1, price: 1.07, deposit: false, deploy: false, rate: "40000000000000000" },
+  { pair: "WSTETH-DAI", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "WSTETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "WSTETH-WETH", amount: 1, price: 1.09, deposit: false, deploy: false, rate: "40000000000000000" },
+  { pair: "CBETH-WETH", amount: 1, price: 1.09, deposit: false, deploy: false, rate: "40000000000000000" },
+  { pair: "TBTC-WBTC", amount: 1, price: 1.01, deposit: false, deploy: false, rate: "40000000000000000" },
 ];
 
 export const CONFIG = {

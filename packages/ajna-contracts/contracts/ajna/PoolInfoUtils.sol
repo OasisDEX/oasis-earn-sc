@@ -19,7 +19,8 @@ import {
     _priceAt,
     _reserveAuctionPrice,
     MAX_FENWICK_INDEX,
-    MIN_PRICE
+    MIN_PRICE,
+    COLLATERALIZATION_FACTOR
 } from "./libraries/helpers/PoolHelper.sol";
 
 import { Buckets } from "./libraries/internal/Buckets.sol";
@@ -441,7 +442,7 @@ contract PoolInfoUtils {
  *  @return encumberance_ Encumberance value.
  */
 function _encumberance(uint256 debt_, uint256 price_) pure returns (uint256 encumberance_) {
-    return price_ != 0 ? Maths.wdiv(Maths.wmul(1.04 * 1e18, debt_), price_) : 0;
+    return price_ != 0 ? Maths.wdiv(Maths.wmul(COLLATERALIZATION_FACTOR, debt_), price_) : 0;
 }
 
 /**
@@ -457,7 +458,7 @@ function _collateralization(uint256 debt_, uint256 collateral_, uint256 price_) 
 
     // borrower is undercollateralized when lup at MIN_PRICE
     if (price_ == MIN_PRICE) return 0;
-    return Maths.wdiv(Maths.wmul(collateral_, price_), Maths.wmul(1.04 * 1e18, debt_));
+    return Maths.wdiv(Maths.wmul(collateral_, price_), Maths.wmul(COLLATERALIZATION_FACTOR, debt_));
 }
 
 /**
