@@ -82,7 +82,7 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
     )
 
 
-  const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
+  const targetPosition = position.payback(args.quoteAmount).withdraw(args.collateralAmount)
 
   const errors = [
     // ...validateDustLimit(targetPosition),

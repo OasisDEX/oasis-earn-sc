@@ -26,8 +26,8 @@ export const paybackWithdraw: MorphoBluePaybackWithdrawOperation = async (
   addresses,
   network,
 ) => {
-  const debtTokenIsEth = args.morphoBlueMarket.loanToken === addresses.tokens.ETH
-  const collateralTokenIsEth = args.morphoBlueMarket.collateralToken === addresses.tokens.ETH
+  const debtTokenIsEth = args.morphoBlueMarket.loanToken === addresses.tokens.WETH
+  const collateralTokenIsEth = args.morphoBlueMarket.collateralToken === addresses.tokens.WETH
 
   const pullDebtTokensToProxy = actions.common.pullToken(network, {
     asset: args.morphoBlueMarket.loanToken,
