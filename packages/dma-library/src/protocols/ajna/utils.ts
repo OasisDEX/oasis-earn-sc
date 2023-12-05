@@ -491,6 +491,9 @@ export function getNeutralPrice(
   positionCollateral: BigNumber,
   interestRate: BigNumber,
 ) {
+  if (positionCollateral.isZero()) {
+    return ZERO
+  }
   const npToTpRatio = ONE.plus(interestRate.sqrt().div(2))
 
   return positionDebt.times(npToTpRatio).div(positionCollateral)
