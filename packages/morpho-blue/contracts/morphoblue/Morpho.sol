@@ -9,26 +9,26 @@ import {
   Market,
   Authorization,
   Signature
-} from "./interfaces/IMorpho.sol";
+} from './interfaces/IMorpho.sol';
 import {
   IMorphoLiquidateCallback,
   IMorphoRepayCallback,
   IMorphoSupplyCallback,
   IMorphoSupplyCollateralCallback,
   IMorphoFlashLoanCallback
-} from "./interfaces/IMorphoCallbacks.sol";
-import { IIrm } from "./interfaces/IIrm.sol";
-import { IERC20 } from "./interfaces/IERC20.sol";
-import { IOracle } from "./interfaces/IOracle.sol";
+} from './interfaces/IMorphoCallbacks.sol';
+import {IIrm} from './interfaces/IIrm.sol';
+import {IERC20} from './interfaces/IERC20.sol';
+import {IOracle} from './interfaces/IOracle.sol';
 
-import "./libraries/ConstantsLib.sol";
-import { UtilsLib } from "./libraries/UtilsLib.sol";
-import { EventsLib } from "./libraries/EventsLib.sol";
-import { ErrorsLib } from "./libraries/ErrorsLib.sol";
-import { MathLib, WAD } from "./libraries/MathLib.sol";
-import { SharesMathLib } from "./libraries/SharesMathLib.sol";
-import { MarketParamsLib } from "./libraries/MarketParamsLib.sol";
-import { SafeTransferLib } from "./libraries/SafeTransferLib.sol";
+import './libraries/ConstantsLib.sol';
+import {UtilsLib} from './libraries/UtilsLib.sol';
+import {EventsLib} from './libraries/EventsLib.sol';
+import {ErrorsLib} from './libraries/ErrorsLib.sol';
+import {MathLib, WAD} from './libraries/MathLib.sol';
+import {SharesMathLib} from './libraries/SharesMathLib.sol';
+import {MarketParamsLib} from './libraries/MarketParamsLib.sol';
+import {SafeTransferLib} from './libraries/SafeTransferLib.sol';
 
 /// @title Morpho
 /// @author Morpho Labs
@@ -477,7 +477,7 @@ contract Morpho is IMorpho {
     require(authorization.nonce == nonce[authorization.authorizer]++, ErrorsLib.INVALID_NONCE);
 
     bytes32 hashStruct = keccak256(abi.encode(AUTHORIZATION_TYPEHASH, authorization));
-    bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hashStruct));
+    bytes32 digest = keccak256(abi.encodePacked('\x19\x01', DOMAIN_SEPARATOR, hashStruct));
     address signatory = ecrecover(digest, signature.v, signature.r, signature.s);
 
     require(
@@ -586,7 +586,7 @@ contract Morpho is IMorpho {
     for (uint256 i; i < nSlots; ) {
       bytes32 slot = slots[i++];
 
-      assembly ("memory-safe") {
+      assembly ('memory-safe') {
         mstore(add(res, mul(i, 32)), sload(slot))
       }
     }
