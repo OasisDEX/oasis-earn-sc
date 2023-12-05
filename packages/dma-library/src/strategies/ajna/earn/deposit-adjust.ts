@@ -21,6 +21,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
     args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
   const isDepositing = args.quoteAmount.gt(ZERO)
   const isAdjusting = !args.price.eq(args.position.price) && args.position.price.gt(ZERO)
+  const isPositionEmpty = args.position.quoteTokenAmount.isZero()
 
   const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -74,7 +75,10 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       args.price.shiftedBy(18).toString(),
     ])
-    targetPosition = args.position.deposit(args.quoteAmount)
+
+    targetPosition = isPositionEmpty
+      ? args.position.moveQuote(priceToIndex).deposit(args.quoteAmount)
+      : args.position.deposit(args.quoteAmount)
   }
 
   if (!data || !targetPosition) throw new Error('Invalid depositAndAdjust params')
