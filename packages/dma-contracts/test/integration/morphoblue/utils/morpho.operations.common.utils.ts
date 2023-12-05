@@ -43,7 +43,6 @@ export async function executeOperation(
   user: SignerWithAddress,
   userDPMProxy: AccountImplementation,
   calls: any[],
-  operationName: string,
 ): Promise<{
   success: boolean
   receipt: ContractReceipt
@@ -51,7 +50,6 @@ export async function executeOperation(
   const opExecutorParams = getDPMParamsForOperationExecutor(
     system.OperationExecutor.contract,
     calls,
-    operationName,
   )
 
   const [success, receipt] = await executeThroughDPMProxy(

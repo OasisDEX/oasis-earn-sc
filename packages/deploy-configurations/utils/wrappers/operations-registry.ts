@@ -27,7 +27,7 @@ export class OperationsRegistry {
     const operationHash = this.calculateActionsHash(actions)
     const existingOperation = await this.getOpName(operationHash)
 
-    if (existingOperation !== '') {
+    if (existingOperation === '') {
       await registry.addOperation(label, operationHash)
     } else {
       console.log('Adding an existing operation failed: ' + label)
@@ -54,7 +54,7 @@ export class OperationsRegistry {
     try {
       operationName = await registry.getOperationName(operationHash)
     } catch (error) {
-      console.log(error)
+      // console.log(error)
     }
 
     return operationName

@@ -49,7 +49,7 @@ export const open: MorphoBlueOpenOperation = async ({
   collateral,
   debt,
   deposit,
-  swap,
+  // swap,
   flashloan,
   proxy,
   position,
@@ -85,15 +85,15 @@ export const open: MorphoBlueOpenOperation = async ({
 
   // No previous actions store values with OpStorage
   const swapActionStorageIndex = 1
-  const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
-    fromAsset: debt.address,
-    toAsset: collateral.address,
-    amount: swap.amount,
-    receiveAtLeast: swap.receiveAtLeast,
-    fee: swap.fee,
-    withData: swap.data,
-    collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
-  })
+  // const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
+  //   fromAsset: debt.address,
+  //   toAsset: collateral.address,
+  //   amount: swap.amount,
+  //   receiveAtLeast: swap.receiveAtLeast,
+  //   fee: swap.fee,
+  //   withData: swap.data,
+  //   collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+  // })
 
   const setCollateralApproval = actions.common.setApproval(
     network,
@@ -138,8 +138,8 @@ export const open: MorphoBlueOpenOperation = async ({
 
   const flashloanCalls = [
     pullCollateralTokensToProxy,
-    wrapEth,
-    swapDebtTokensForCollateralTokens,
+    // wrapEth,
+    // swapDebtTokensForCollateralTokens,
     setCollateralApproval,
     depositCollateral,
     borrowDebtTokens,

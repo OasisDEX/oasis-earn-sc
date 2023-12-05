@@ -71,13 +71,9 @@ export async function executeThroughDPMProxy(
   }
 }
 
-export function getDPMParamsForOperationExecutor(
-  operationExecutor: Contract,
-  calls: any[],
-  operationName: string,
-) {
+export function getDPMParamsForOperationExecutor(operationExecutor: Contract, calls: any[]) {
   return {
     address: operationExecutor.address,
-    calldata: operationExecutor.interface.encodeFunctionData('executeOp', [calls, operationName]),
+    calldata: operationExecutor.interface.encodeFunctionData('executeOp', [calls]),
   }
 }

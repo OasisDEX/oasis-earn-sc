@@ -137,7 +137,7 @@ export async function deployTestSystem(
 
   let extraDeployment: any = {}
 
-  await postDeploymentFunctions.forEach(async postDeploymentFunction => {
+  for (const postDeploymentFunction of postDeploymentFunctions) {
     extraDeployment = await postDeploymentFunction(
       hre,
       ds,
@@ -145,7 +145,7 @@ export async function deployTestSystem(
       extraDeployment,
       useFallbackSwap,
     )
-  })
+  }
 
   await ds.addAllEntries()
 

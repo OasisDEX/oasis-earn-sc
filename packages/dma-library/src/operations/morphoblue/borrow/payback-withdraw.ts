@@ -83,12 +83,12 @@ export const paybackWithdraw: MorphoBluePaybackWithdrawOperation = async (
   const calls = [
     pullDebtTokensToProxy,
     setDebtApprovalOnLendingPool,
-    wrapEth,
+    // wrapEth,
     paybackDebt,
-    unwrapEthDebt,
+    // unwrapEthDebt,
     returnLeftFundFromPayback,
     withdrawCollateral,
-    unwrapEth,
+    // unwrapEth,
     returnFunds,
   ]
 
