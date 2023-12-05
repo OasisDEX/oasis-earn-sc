@@ -1,5 +1,5 @@
 import { IrmMock, Morpho } from '@typechain'
-import { MarketParamsStruct } from '@typechain/contracts/Morpho'
+import { MarketParamsStruct } from '@typechain/contracts/morphoblue/Morpho'
 import type {
   MarketSupplyConfig,
   MorphoMarket,
