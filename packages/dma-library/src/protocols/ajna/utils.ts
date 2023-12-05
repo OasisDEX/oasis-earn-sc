@@ -1,4 +1,4 @@
-import { ZERO } from '@dma-common/constants'
+import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero } from '@dma-common/utils/common'
 import { ajnaCollateralizationFactor } from '@dma-library/protocols/ajna/consts'
 import { ajnaBuckets } from '@dma-library/strategies'
@@ -491,14 +491,12 @@ export function getNeutralPrice(
   positionCollateral: BigNumber,
   interestRate: BigNumber,
 ) {
-  const thresholdPrice =
-    positionCollateral.isZero() || positionDebt.isZero()
-      ? ZERO
-      : positionDebt.div(positionCollateral)
+  if (positionCollateral.isZero()) {
+    return ZERO
+  }
+  const npToTpRatio = ONE.plus(interestRate.sqrt().div(2))
 
-  return thresholdPrice.times(
-    new BigNumber(ajnaCollateralizationFactor).plus(interestRate.sqrt().div(2)),
-  )
+  return positionDebt.times(npToTpRatio).div(positionCollateral)
 }
 
 export function getAjnaEarnDepositFee({
