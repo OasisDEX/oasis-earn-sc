@@ -8,7 +8,7 @@ const argsSchema = yup.object().shape({});
 
 const morphoBlueMarket = "0xc20ac032046932de07497da27f9c2a3bd8ecaf3fdcab6b4f70b7088ac0404dc9"
 const morphoAddress = '0x3ecc1901aa1e6ba58a9c2209b0a6d6ac3f88a6c9'
-const proxyAddress = '0xd9b303d013e76ca732a1293eaf276cdb37b437af'
+const proxyAddress = '0xc160a4d20f9e1f66b916cc1df1ee818e95f30890'
 
 export const morphoViewCommand: Command<typeof argsSchema> = {
   name: 'morpho-view' as const,
@@ -43,6 +43,12 @@ export const morphoViewCommand: Command<typeof argsSchema> = {
         debtToken ${position.marketPatams.loanToken}
         debt ${position.debtAmount.toString()}
         liquidationPrice ${position.liquidationPrice.toString()}
+
+      Market:
+        totalSupplyAssets ${position.market.totalSupplyAssets.toString()}
+        totalSupplyShares ${position.market.totalSupplyShares.toString()}
+        totalBorrowAssets ${position.market.totalBorrowAssets.toString()}
+        totalBorrowShares ${position.market.totalBorrowShares.toString()}
       `)
   },
 };

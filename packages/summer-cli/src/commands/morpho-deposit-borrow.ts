@@ -23,10 +23,10 @@ export const morphoDepositBorrowCommand: Command<typeof argsSchema> = {
   async run(_args, enviroment) {
     const strategy = await strategies.morphoblue.borrow.depositBorrow(
       {
-        quoteAmount: new BigNumber(321),
+        quoteAmount: new BigNumber(300),
         collateralAmount: new BigNumber(0),
         collateralPrice: new BigNumber(2100),
-        quotePrice: new BigNumber(200),
+        quotePrice: new BigNumber(50),
         morphoBlueMarket: morphoBlueMarket,
         proxyAddress: proxyAddress,
         collateralPrecision: 18,
@@ -58,6 +58,10 @@ export const morphoDepositBorrowCommand: Command<typeof argsSchema> = {
         }
       }
     )
+
+    if (strategy.simulation.errors.length > 0) {
+      throw new Error(JSON.stringify(strategy.simulation.errors))
+    }
 
     const reciept = await sendTxThroughProxy(
       {...strategy.tx, value: ethers.BigNumber.from(strategy.tx.value)}, 

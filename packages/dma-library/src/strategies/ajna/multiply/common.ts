@@ -9,7 +9,7 @@ import {
   validateBorrowUndercollateralized,
   validateLiquidity,
 } from '@dma-library/strategies/ajna/validation'
-import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/ajna/validation/borrowish/closeToMaxLtv'
+import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 import { validateDustLimitMultiply } from '@dma-library/strategies/ajna/validation/multiply/dustLimit'
 import {
   AjnaMultiplyPayload,

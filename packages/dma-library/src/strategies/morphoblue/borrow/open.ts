@@ -16,6 +16,9 @@ import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { amountToWei } from '@dma-common/utils/common'
 import { TEN } from '../../../../../dma-common/constants/numbers'
+import { validateLiquidity } from '../validation/validateLiquidity'
+import { validateBorrowUndercollateralized } from '../validation/validateBorrowUndercollateralized'
+import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 
 export interface MorphoblueOpenBorrowPayload {
   quoteAmount: BigNumber
@@ -100,22 +103,22 @@ export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
     dependencies.network
     )
 
-
-
-
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
 
+  const warnings = [
+    ...validateGenerateCloseToMaxLtv(targetPosition, position),
+  ]
+
   const errors = [
-    // ...validateDustLimit(targetPosition),
-    // ...validateLiquidity(targetPosition, position, args.quoteAmount),
-    // ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
+    ...validateLiquidity(position, args.quoteAmount),
+    ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 
   return {
     simulation: {
       swaps: [],
       errors,
-      warnings: [],
+      warnings,
       notices: [],
       successes: [],
       targetPosition,

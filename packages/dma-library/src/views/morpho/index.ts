@@ -36,11 +36,11 @@ interface Dependencies {
 const VIRTUAL_SHARES = TEN.pow(6)
 const VIRTUAL_ASSETS = ONE
 
-export function mulDivDown(x: BigNumber, y: BigNumber, d: BigNumber): BigNumber {
+function mulDivDown(x: BigNumber, y: BigNumber, d: BigNumber): BigNumber {
   return x.times(y).div(d)
 }
 
-export function toAssetsDown(
+function toAssetsDown(
   shares: BigNumber,
   totalAssets: BigNumber,
   totalShares: BigNumber,

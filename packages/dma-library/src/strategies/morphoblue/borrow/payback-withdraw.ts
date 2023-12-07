@@ -15,7 +15,10 @@ import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/
 import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { amountToWei } from '@dma-common/utils/common'
-import { TEN } from '../../../../../dma-common/constants/numbers'
+import { TEN, ZERO } from '../../../../../dma-common/constants/numbers'
+import { validateBorrowUndercollateralized } from '../validation/validateBorrowUndercollateralized'
+import { validateOverRepay } from '@dma-library/strategies/validation/overRepay'
+import { validateGenerateCloseToMaxLtv, validateWithdrawCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 
 export interface MorphobluePaybackWithdrawPayload {
   quoteAmount: BigNumber
@@ -84,17 +87,20 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
 
   const targetPosition = position.payback(args.quoteAmount).withdraw(args.collateralAmount)
 
+  const warnings = [
+    ...validateWithdrawCloseToMaxLtv(targetPosition, position),
+  ]
+
   const errors = [
-    // ...validateDustLimit(targetPosition),
-    // ...validateLiquidity(targetPosition, position, args.quoteAmount),
-    // ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
+    ...validateBorrowUndercollateralized(targetPosition, position, ZERO),
+    ...validateOverRepay(position, args.quoteAmount)
   ]
 
   return {
     simulation: {
       swaps: [],
       errors,
-      warnings: [],
+      warnings,
       notices: [],
       successes: [],
       targetPosition,

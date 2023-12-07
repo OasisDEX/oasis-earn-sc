@@ -15,7 +15,7 @@ import {
   validateDustLimit,
   validateLiquidity,
 } from '../validation'
-import { validateGenerateCloseToMaxLtv } from '../validation/borrowish/closeToMaxLtv'
+import { validateGenerateCloseToMaxLtv } from '../../validation/closeToMaxLtv'
 
 export type AjnaDepositBorrowStrategy = (
   args: AjnaBorrowPayload,

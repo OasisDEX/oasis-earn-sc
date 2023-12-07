@@ -1,9 +1,10 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
-import { AjnaError, AjnaPosition } from '@dma-library/types/ajna'
+import { AjnaError } from '@dma-library/types/ajna'
+import { LendingPosition } from '@dma-library/types/morphoblue/morphoblue-position'
 import BigNumber from 'bignumber.js'
 
 export function validateOverRepay(
-  positionBefore: AjnaPosition,
+  positionBefore: LendingPosition,
   repayAmount: BigNumber,
 ): AjnaError[] {
   if (repayAmount.gt(positionBefore.debtAmount)) {

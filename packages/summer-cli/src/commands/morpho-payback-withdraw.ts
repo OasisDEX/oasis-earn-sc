@@ -23,8 +23,8 @@ export const morphoPaybackWithdrawCommand: Command<typeof argsSchema> = {
   async run(_args, enviroment) {
     const strategy = await strategies.morphoblue.borrow.paybackWithdraw(
       {
-        quoteAmount: new BigNumber(10),
-        collateralAmount: new BigNumber(0),
+        quoteAmount: new BigNumber(0),
+        collateralAmount: new BigNumber(1000),
         collateralPrice: new BigNumber(2100),
         quotePrice: new BigNumber(200),
         morphoBlueMarket: morphoBlueMarket,
@@ -58,6 +58,10 @@ export const morphoPaybackWithdrawCommand: Command<typeof argsSchema> = {
         }
       }
     )
+
+    if (strategy.simulation.errors.length > 0) {
+      throw new Error(JSON.stringify(strategy.simulation.errors))
+    }
 
     const reciept = await sendTxThroughProxy(
       {...strategy.tx, value: ethers.BigNumber.from(strategy.tx.value)}, 

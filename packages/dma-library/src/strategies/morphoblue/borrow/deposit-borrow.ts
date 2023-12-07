@@ -3,11 +3,7 @@ import { views } from '@dma-library/views'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-// import {
-//   validateBorrowUndercollateralized,
-//   validateDustLimit,
-//   validateLiquidity,
-// } from '../../validation'
+import { validateLiquidity } from "../validation/validateLiquidity"
 import { AjnaStrategy, MorphoBluePosition } from '@dma-library/types'
 import { Address } from '@dma-common/types'
 import { Network } from '@deploy-configurations/types/network'
@@ -16,6 +12,8 @@ import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { amountToWei } from '@dma-common/utils/common'
 import { TEN } from '../../../../../dma-common/constants/numbers'
+import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
+import { validateBorrowUndercollateralized } from '../validation/validateBorrowUndercollateralized'
 
 export interface MorphoblueDepositBorrowPayload {
   quoteAmount: BigNumber
@@ -65,7 +63,7 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
   const isBorrowingEth = position.marketPatams.loanToken.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
 
   const operation = await operations.morphoblue.borrow.depositBorrow(
-    {
+    args.collateralAmount.gt(0) ?{
       userFundsTokenAddress: isDepositingEth ? dependencies.addresses.tokens.ETH : position.marketPatams.collateralToken,
       userFundsTokenAmount: amountToWei(args.collateralAmount, args.collateralPrecision),
       depositorAddress: args.user,
@@ -76,8 +74,8 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
         irm: position.marketPatams.irm,
         lltv: position.marketPatams.lltv.times(TEN.pow(18)),
       }
-    },
-    {
+    } : undefined,
+    args.quoteAmount.gt(0) ? {
       morphoBlueMarket: {
         loanToken: position.marketPatams.loanToken,
         collateralToken: position.marketPatams.collateralToken,
@@ -87,7 +85,7 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
       },
       amountToBorrow: amountToWei(args.quoteAmount, args.quotePrecision),
       isEthToken: isBorrowingEth,
-    },
+    } : undefined,
     dependencies.addresses, 
     dependencies.network
     )
@@ -95,17 +93,20 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
 
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
 
+  const warnings = [
+    ...validateGenerateCloseToMaxLtv(targetPosition, position),
+  ]
+
   const errors = [
-    // ...validateDustLimit(targetPosition),
-    // ...validateLiquidity(targetPosition, position, args.quoteAmount),
-    // ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
+    ...validateLiquidity(position, args.quoteAmount),
+    ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 
   return {
     simulation: {
       swaps: [],
       errors,
-      warnings: [],
+      warnings,
       notices: [],
       successes: [],
       targetPosition,
