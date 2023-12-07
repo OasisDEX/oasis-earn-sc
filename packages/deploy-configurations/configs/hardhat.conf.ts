@@ -1,4 +1,4 @@
-import { loadContractNames } from '@deploy-configurations/constants'
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
@@ -1288,6 +1288,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_YIELDBTCWBTC: {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
       address: '0x67a64e974bfeaded23cf479e27654d8face82126',
+    },
+    AjnaPoolPairs_TBTCGHO: {
+      name: 'AjnaPoolPairs_TBTCGHO',
+      address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',

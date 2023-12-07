@@ -1083,6 +1083,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
       address: ADDRESS_ZERO,
     },
+    AjnaPoolPairs_TBTCGHO: {
+      name: 'AjnaPoolPairs_TBTCGHO',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0x994dE190dd763Af3126FcC8EdC139275937d800b',
