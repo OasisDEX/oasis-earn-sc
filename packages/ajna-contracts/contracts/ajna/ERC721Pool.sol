@@ -150,7 +150,6 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
 
         DrawDebtResult memory result = BorrowerActions.drawDebt(
             auctions,
-            buckets,
             deposits,
             loans,
             poolState,
@@ -168,21 +167,13 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         poolState.t0Debt = result.t0PoolDebt;
         poolState.collateral = result.poolCollateral;
 
-        // update t0 debt in auction in memory pool state struct and pool balances state
-        if (result.t0DebtInAuctionChange != 0) {
-            poolState.t0DebtInAuction -= result.t0DebtInAuctionChange;
-            poolBalances.t0DebtInAuction = poolState.t0DebtInAuction;
-        }
-
-        // adjust t0Debt2ToCollateral ratio if loan not in auction
-        if (!result.inAuction) {
-            _updateT0Debt2ToCollateral(
-                result.settledAuction ? 0 : result.debtPreAction, // debt pre settle (for loan in auction) not taken into account
-                result.debtPostAction,
-                result.settledAuction ? 0 : result.collateralPreAction, // collateral pre settle (for loan in auction) not taken into account
-                result.collateralPostAction
-            );
-        }
+        // adjust t0Debt2ToCollateral ratio
+        _updateT0Debt2ToCollateral(
+            result.debtPreAction,
+            result.debtPostAction,
+            result.collateralPreAction,
+            result.collateralPostAction
+        );
 
         // update pool interest rate state
         _updateInterestState(poolState, result.newLup);
@@ -194,8 +185,6 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
             // move collateral from sender to pool
             _transferFromSenderToPool(borrowerTokenIds[borrowerAddress_], tokenIdsToPledge_);
         }
-
-        if (result.settledAuction) _rebalanceTokens(borrowerAddress_, result.remainingCollateral);
 
         // move borrowed amount from pool to sender
         if (amountToBorrow_ != 0) {
@@ -224,7 +213,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         uint256 noOfNFTsToPull_,
         address collateralReceiver_,
         uint256 limitIndex_
-    ) external nonReentrant {
+    ) external nonReentrant returns (uint256 amountRepaid_) {
         PoolState memory poolState = _accruePoolInterest();
 
         // ensure accounting is performed using the appropriate token scale
@@ -233,7 +222,6 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
 
         RepayDebtResult memory result = BorrowerActions.repayDebt(
             auctions,
-            buckets,
             deposits,
             loans,
             poolState,
@@ -243,30 +231,21 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
             limitIndex_
         );
 
-        emit RepayDebt(borrowerAddress_, result.quoteTokenToRepay, noOfNFTsToPull_, result.newLup);
-
+        amountRepaid_ = result.quoteTokenToRepay;
         // update in memory pool state struct
         poolState.debt = result.poolDebt;
         poolState.t0Debt = result.t0PoolDebt;
         poolState.collateral = result.poolCollateral;
 
-        // update t0 debt in auction in memory pool state struct and pool balances state
-        if (result.t0DebtInAuctionChange != 0) {
-            poolState.t0DebtInAuction -= result.t0DebtInAuctionChange;
-            poolBalances.t0DebtInAuction = poolState.t0DebtInAuction;
-        }
+        emit RepayDebt(borrowerAddress_, amountRepaid_, noOfNFTsToPull_, result.newLup);
 
-        if (result.settledAuction) _rebalanceTokens(borrowerAddress_, result.remainingCollateral);
-
-        // adjust t0Debt2ToCollateral ratio if loan not in auction
-        if (!result.inAuction) {
-            _updateT0Debt2ToCollateral(
-                result.settledAuction ? 0 : result.debtPreAction, // debt pre settle (for loan in auction) not taken into account
-                result.debtPostAction,
-                result.settledAuction ? 0 : result.collateralPreAction, // collateral pre settle (for loan in auction) not taken into account
-                result.collateralPostAction
-            );
-        }
+        // adjust t0Debt2ToCollateral ratio
+        _updateT0Debt2ToCollateral(
+            result.debtPreAction,
+            result.debtPostAction,
+            result.collateralPreAction,
+            result.collateralPostAction
+        );
 
         // update pool interest rate state
         _updateInterestState(poolState, result.newLup);
@@ -274,12 +253,12 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         // update pool balances pledged collateral state
         poolBalances.pledgedCollateral = poolState.collateral;
 
-        if (result.quoteTokenToRepay != 0) {
+        if (amountRepaid_ != 0) {
             // update pool balances t0 debt state
             poolBalances.t0Debt = poolState.t0Debt;
 
             // move amount to repay from sender to pool
-            _transferQuoteTokenFrom(msg.sender, result.quoteTokenToRepay);
+            _transferQuoteTokenFrom(msg.sender, amountRepaid_);
         }
         if (noOfNFTsToPull_ != 0) {
             // move collateral from pool to address specified as collateral receiver
@@ -392,7 +371,10 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
      *  @dev    - decrement `poolBalances.pledgedCollateral` accumulator
      *  @dev    - no update of `t0Debt2ToCollateral` ratio as debt and collateral pre settle are not taken into account (pre debt and pre collateral = 0)
      */
-    function settle(address borrowerAddress_, uint256 maxDepth_) external override nonReentrant {
+    function settle(
+        address borrowerAddress_,
+        uint256 maxDepth_
+    ) external override nonReentrant returns (uint256 collateralSettled_, bool isBorrowerSettled_) {
         PoolState memory poolState = _accruePoolInterest();
 
         SettleParams memory params = SettleParams({
@@ -415,6 +397,9 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
 
         // move token ids from borrower array to pool claimable array if any collateral used to settle bad debt
         _rebalanceTokens(params.borrower, result.collateralRemaining);
+
+        collateralSettled_ = result.collateralSettled;
+        isBorrowerSettled_ = (result.debtPostAction == 0);
     }
 
     /**
@@ -430,7 +415,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         uint256 collateral_,
         address callee_,
         bytes calldata data_
-    ) external override nonReentrant {
+    ) external override nonReentrant returns (uint256 collateralTaken_) {
         PoolState memory poolState = _accruePoolInterest();
 
         TakeResult memory result = TakerActions.take(
@@ -447,10 +432,11 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         _updatePostTakeState(result, poolState);
 
         // transfer rounded collateral from pool to taker
+        collateralTaken_ = result.collateralAmount / 1e18;
         uint256[] memory tokensTaken = _transferFromPoolToAddress(
             callee_,
             borrowerTokenIds[borrowerAddress_],
-            result.collateralAmount / 1e18
+            collateralTaken_
         );
 
         uint256 totalQuoteTokenAmount = result.quoteTokenAmount + result.excessQuoteToken;

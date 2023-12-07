@@ -10,6 +10,7 @@ import {
   validateLiquidity,
 } from '@dma-library/strategies/ajna/validation'
 import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
+import { validateLiquidationPriceCloseToMarketPrice } from '@dma-library/strategies/ajna/validation/borrowish/liquidationPriceCloseToMarket'
 import { validateDustLimitMultiply } from '@dma-library/strategies/ajna/validation/multiply/dustLimit'
 import {
   AjnaMultiplyPayload,
@@ -220,15 +221,18 @@ export function prepareAjnaMultiplyDMAPayload(
     ...validateBorrowUndercollateralized(targetPosition, args.position, borrowAmount),
   ]
 
-  const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, args.position)]
+  const warnings = [
+    ...validateGenerateCloseToMaxLtv(targetPosition, args.position),
+    ...validateLiquidationPriceCloseToMarketPrice(targetPosition),
+  ]
 
   return prepareAjnaDMAPayload({
     swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
-    errors: errors,
-    warnings: warnings,
+    errors,
+    warnings,
     successes: [],
     notices: [],
     txValue: resolveAjnaEthAction(isDepositingEth, txAmount),

@@ -7,7 +7,7 @@ export { operations } from './operations'
 export { OPERATION_NAMES } from '@deploy-configurations/constants'
 
 // PROTOCOLS
-export { calculateAjnaApyPerDays, calculateAjnaMaxLiquidityWithdraw, protocols } from './protocols'
+export { protocols } from './protocols'
 
 // STRATEGIES
 export { strategies } from './strategies'
@@ -25,6 +25,14 @@ export { negativeToZero } from '@dma-common/utils/common'
 // DOMAIN
 export type { IRiskRatio } from '@domain'
 export { RiskRatio } from '@domain'
+
+// REFINANCE
+export {
+  getAvailableRefinanceOperationsNames,
+  getRefinanceOperation,
+  getRefinanceOperationDefinition,
+  getRefinanceOperationName,
+} from './operations'
 
 // TYPES
 export type { IAdjustStrategy } from './strategies/aave-like'

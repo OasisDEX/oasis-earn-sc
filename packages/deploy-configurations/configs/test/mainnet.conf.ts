@@ -984,12 +984,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0x154FFf344f426F99E328bacf70f4Eb632210ecdc',
+      address: '0xd51789b0B9b6be8A89778e3C93cC365511bf382c',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0xFBcB0bf3A7BcD1a368e8e8Ad2Ab601160088b39C',
+      address: '0x601a8F7EA34168D912fB3C214a377CB544F18c0d',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1100,6 +1100,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
       address: '0x67a64e974bfeaded23cf479e27654d8face82126',
     },
+    AjnaPoolPairs_TBTCGHO: {
+      name: 'AjnaPoolPairs_TBTCGHO',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: ADDRESS_ZERO,
@@ -1110,7 +1114,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0xe6f4d9711121e5304b30ac2aae57e3b085ad3c4d',
+      address: '0x33960C912b67Fe1Abf4738e2b754d299d99cF2F1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },

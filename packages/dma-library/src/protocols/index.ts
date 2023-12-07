@@ -5,7 +5,12 @@ import {
 import { AaveVersion } from '@dma-library/types/aave'
 
 import { AaveProtocol, AaveProtocolData, AaveProtocolDataArgs } from './aave'
-import { calculateAjnaApyPerDays } from './ajna'
+import {
+  ajnaCollateralizationFactor,
+  calculateAjnaApyPerDays,
+  calculateAjnaMaxLiquidityWithdraw,
+  getAjnaEarnDepositFee,
+} from './ajna'
 import { getSparkProtocolData, SparkProtocol, SparkProtocolData } from './spark'
 
 const aave: AaveProtocol = {
@@ -23,13 +28,18 @@ const aave: AaveProtocol = {
 
 const spark: SparkProtocol = getSparkProtocolData
 
+const ajna = {
+  calculateAjnaApyPerDays,
+  getAjnaEarnDepositFee,
+  calculateAjnaMaxLiquidityWithdraw,
+  ajnaCollateralizationFactor,
+}
+
 export const protocols = {
   aave,
   spark,
+  ajna,
 }
 
 export { AaveProtocolData, AaveProtocolDataArgs }
 export { SparkProtocolData }
-
-export { calculateAjnaApyPerDays }
-export { calculateAjnaMaxLiquidityWithdraw } from './ajna/index'

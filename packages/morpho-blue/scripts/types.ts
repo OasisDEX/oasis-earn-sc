@@ -1,5 +1,5 @@
 import { IrmMock, Morpho } from '@typechain'
-import { MarketParamsStruct } from '@typechain/contracts/Morpho'
+import { MarketParamsStruct } from '@typechain/contracts/morphoblue/Morpho'
 import { BigNumber, Contract, ContractFactory } from 'ethers'
 
 export type Address = string

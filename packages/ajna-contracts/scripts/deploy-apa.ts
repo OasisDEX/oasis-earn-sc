@@ -20,8 +20,6 @@ async function main() {
   const network = hre.network.name === "hardhat" || hre.network.name === "local" ? "mainnet" : hre.network.name;
 
   const initializeStakingRewards = CONFIG.initializeStakingRewards || false;
-  const deployPools = CONFIG.deployPools || false;
-
   const erc20PoolFactory = await utils.getContract<ERC20PoolFactory>(
     "ERC20PoolFactory",
     ADDRESSES[network].ERC20_POOL_FACTORY
@@ -61,11 +59,10 @@ async function main() {
       console.log(`AjnaRewardsClaimer Deployed: ${arc.address}`);
     }
   }
-  await deployAjnaPools(deployPools, network, erc20PoolFactory, apa, signer);
+  await deployAjnaPools(network, erc20PoolFactory, apa, signer);
 }
 
 async function deployAjnaPools(
-  deployPools: boolean,
   network: string,
   erc20PoolFactory: ERC20PoolFactory,
   apa: AjnaProxyActions,
@@ -82,7 +79,7 @@ async function deployAjnaPools(
       continue;
     }
     try {
-      const deployedPool = await deployPool(erc20PoolFactory, collateralToken, quoteToken, deployPools);
+      const deployedPool = await deployPool(erc20PoolFactory, collateralToken, quoteToken, pool.deploy, pool.rate);
       deployedPool.address === hre.ethers.constants.AddressZero
         ? console.info(chalk.red(`Pool ${pool.pair} not yet deployed`))
         : console.info(chalk.green(`Pool ${pool.pair} deployed at ${deployedPool.address}`));
@@ -125,7 +122,7 @@ async function depositQuoteToken(
   }
   if (amountInDecimals.lte(balance)) {
     console.info(chalk.blue(`Adding ${pool.amount} of ${quote} to pool ${pool.pair} at index ${index}`));
-    await deployedPool.connect(signer).addQuoteToken(amount, index, 999999999999999, false);
+    await deployedPool.connect(signer).addQuoteToken(amount, index, 999999999999999);
   } else {
     console.info(chalk.red(`Not enough ${quote} to add to pool ${pool.pair}`));
   }

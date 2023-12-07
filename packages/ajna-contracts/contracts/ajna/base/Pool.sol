@@ -50,13 +50,17 @@ import {
 }                                   from '../interfaces/pool/commons/IPoolInternals.sol';
 
 import {
+    COLLATERALIZATION_FACTOR,
+    _determineInflatorState,
+    _htp,
     _priceAt,
     _roundToScale
 }                               from '../libraries/helpers/PoolHelper.sol';
 import {
     _revertIfAuctionDebtLocked,
     _revertIfAuctionClearable,
-    _revertAfterExpiry
+    _revertAfterExpiry,
+    _revertIfAuctionPriceBelow
 }                               from '../libraries/helpers/RevertsHelper.sol';
 
 import { Buckets }  from '../libraries/internal/Buckets.sol';
@@ -150,12 +154,13 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
     function addQuoteToken(
         uint256 amount_,
         uint256 index_,
-        uint256 expiry_,
-        bool    revertIfBelowLup_
-    ) external override nonReentrant returns (uint256 bucketLP_) {
+        uint256 expiry_
+    ) external override nonReentrant returns (uint256 bucketLP_, uint256 addedAmount_) {
         _revertAfterExpiry(expiry_);
 
         _revertIfAuctionClearable(auctions, loans);
+
+        _revertIfAuctionPriceBelow(index_, auctions);
 
         PoolState memory poolState = _accruePoolInterest();
 
@@ -163,14 +168,13 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         amount_ = _roundToScale(amount_, poolState.quoteTokenScale);
 
         uint256 newLup;
-        (bucketLP_, newLup) = LenderActions.addQuoteToken(
+        (bucketLP_, addedAmount_, newLup) = LenderActions.addQuoteToken(
             buckets,
             deposits,
             poolState,
             AddQuoteParams({
                 amount:           amount_,
-                index:            index_,
-                revertIfBelowLup: revertIfBelowLup_
+                index:            index_
             })
         );
 
@@ -186,12 +190,13 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         uint256 maxAmount_,
         uint256 fromIndex_,
         uint256 toIndex_,
-        uint256 expiry_,
-        bool    revertIfBelowLup_
+        uint256 expiry_
     ) external override nonReentrant returns (uint256 fromBucketLP_, uint256 toBucketLP_, uint256 movedAmount_) {
         _revertAfterExpiry(expiry_);
 
         _revertIfAuctionClearable(auctions, loans);
+
+        _revertIfAuctionPriceBelow(toIndex_, auctions);
 
         PoolState memory poolState = _accruePoolInterest();
 
@@ -202,7 +207,6 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         moveParams.fromIndex        = fromIndex_;
         moveParams.toIndex          = toIndex_;
         moveParams.thresholdPrice   = Loans.getMax(loans).thresholdPrice;
-        moveParams.revertIfBelowLup = revertIfBelowLup_;
 
         uint256 newLup;
         (
@@ -306,20 +310,17 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         );
 
         // update in memory pool state struct
-        poolState.debt            =  result.poolDebt;
-        poolState.t0Debt          =  result.t0PoolDebt;
         poolState.t0DebtInAuction += result.t0KickedDebt;
 
         // adjust t0Debt2ToCollateral ratio
         _updateT0Debt2ToCollateral(
-            result.debtPreAction,
+            result.t0KickedDebt,
             0, // debt post kick (for loan in auction) not taken into account
             result.collateralPreAction,
             0  // collateral post kick (for loan in auction) not taken into account
         );
 
         // update pool balances state
-        poolBalances.t0Debt          = poolState.t0Debt;
         poolBalances.t0DebtInAuction = poolState.t0DebtInAuction;
         // update pool interest rate state
         _updateInterestState(poolState, result.lup);
@@ -330,8 +331,6 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
     /**
      *  @inheritdoc IPoolKickerActions
      *  @dev    === Write state ===
-     *  @dev    increment `poolBalances.t0DebtInAuction` and `poolBalances.t0Debt` accumulators
-     *  @dev    update `t0Debt2ToCollateral` ratio, debt and collateral post action are considered 0
      */
     function lenderKick(
         uint256 index_,
@@ -351,20 +350,17 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         );
 
         // update in memory pool state struct
-        poolState.debt            =  result.poolDebt;
-        poolState.t0Debt          =  result.t0PoolDebt;
         poolState.t0DebtInAuction += result.t0KickedDebt;
 
         // adjust t0Debt2ToCollateral ratio
         _updateT0Debt2ToCollateral(
-            result.debtPreAction,
+            result.t0KickedDebt,
             0, // debt post kick (for loan in auction) not taken into account
             result.collateralPreAction,
             0 // collateral post kick (for loan in auction) not taken into account
         );
 
         // update pool balances state
-        poolBalances.t0Debt          = poolState.t0Debt;
         poolBalances.t0DebtInAuction = poolState.t0DebtInAuction;
 
         // update pool interest rate state
@@ -383,23 +379,9 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
     function withdrawBonds(
         address recipient_,
         uint256 maxAmount_
-    ) external override nonReentrant {
-        uint256 claimable = auctions.kickers[msg.sender].claimable;
-
-        // the amount to claim is constrained by the claimable balance of sender
-        // claiming escrowed bonds is not constraiend by the pool balance
-        maxAmount_ = Maths.min(maxAmount_, claimable);
-
-        // revert if no amount to claim
-        if (maxAmount_ == 0) revert InsufficientLiquidity();
-
-        // decrement total bond escrowed
-        auctions.totalBondEscrowed             -= maxAmount_;
-        auctions.kickers[msg.sender].claimable -= maxAmount_;
-
-        emit BondWithdrawn(msg.sender, recipient_, maxAmount_);
-
-        _transferQuoteToken(recipient_, maxAmount_);
+    ) external override nonReentrant returns (uint256 withdrawnAmount_) {
+        withdrawnAmount_ = KickerActions.withdrawBonds(auctions, recipient_, maxAmount_);
+        _transferQuoteToken(recipient_, withdrawnAmount_);
     }
 
     /*********************************/
@@ -413,12 +395,15 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
      *  @dev    update `reserveAuction.latestBurnEventEpoch` and burn event `timestamp` state
      *  @dev    === Reverts on ===
      *  @dev    2 weeks not passed `ReserveAuctionTooSoon()`
+     *  @dev    unsettled liquidation `AuctionNotCleared()`
      *  @dev    === Emit events ===
      *  @dev    - `KickReserveAuction`
      */
     function kickReserveAuction() external override nonReentrant {
+        _revertIfAuctionClearable(auctions, loans);
+
         // start a new claimable reserve auction, passing in relevant parameters such as the current pool size, debt, balance, and inflator value
-        uint256 kickerAward = KickerActions.kickReserveAuction(
+        KickerActions.kickReserveAuction(
             auctions,
             reserveAuction,
             KickReserveAuctionParams({
@@ -428,9 +413,6 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
                 inflator:    inflatorState.inflator
             })
         );
-
-        // transfer kicker award to msg.sender
-        _transferQuoteToken(msg.sender, kickerAward);
     }
 
     /**
@@ -564,27 +546,31 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
             // Calculate prior pool debt
             poolState_.debt = Maths.wmul(poolState_.t0Debt, poolState_.inflator);
 
-	        // calculate elapsed time since inflator was last updated
+            // calculate elapsed time since inflator was last updated
             uint256 elapsed = block.timestamp - inflatorState.inflatorUpdate;
 
-	        // set isNewInterestAccrued field to true if elapsed time is not 0, indicating that new interest may have accrued
+            // set isNewInterestAccrued field to true if elapsed time is not 0, indicating that new interest may have accrued
             poolState_.isNewInterestAccrued = elapsed != 0;
 
             // if new interest may have accrued, call accrueInterest function and update inflator and debt fields of poolState_ struct
             if (poolState_.isNewInterestAccrued) {
-                (uint256 newInflator, uint256 newInterest) = PoolCommons.accrueInterest(
+                try PoolCommons.accrueInterest(
                     emaState,
                     deposits,
                     poolState_,
                     Loans.getMax(loans).thresholdPrice,
                     elapsed
-                );
-                poolState_.inflator = newInflator;
-                // After debt owed to lenders has accrued, calculate current debt owed by borrowers
-                poolState_.debt = Maths.wmul(poolState_.t0Debt, poolState_.inflator);
+                ) returns (uint256 newInflator, uint256 newInterest) {
+                    poolState_.inflator = newInflator;
+                    // After debt owed to lenders has accrued, calculate current debt owed by borrowers
+                    poolState_.debt = Maths.wmul(poolState_.t0Debt, poolState_.inflator);
 
-                // update total interest earned accumulator with the newly accrued interest
-                reserveAuction.totalInterestEarned += newInterest;
+                    // update total interest earned accumulator with the newly accrued interest
+                    reserveAuction.totalInterestEarned += newInterest;
+                } catch {
+                    poolState_.isNewInterestAccrued = false;
+                    emit InterestUpdateFailure();
+                }
             }
         }
     }
@@ -601,7 +587,6 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         // update in memory pool state struct
         poolState_.debt            =  result_.poolDebt;
         poolState_.t0Debt          =  result_.t0PoolDebt;
-        poolState_.t0DebtInAuction += result_.t0DebtPenalty;
         poolState_.t0DebtInAuction -= result_.t0DebtInAuctionChange;
         poolState_.collateral      -= (result_.collateralAmount + result_.compensatedCollateral); // deduct collateral taken plus collateral compensated if NFT auction settled
 
@@ -633,7 +618,7 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         PoolState memory poolState_
     ) internal {
         // update in memory pool state struct
-        poolState_.debt            -= Maths.wmul(result_.t0DebtSettled, poolState_.inflator);
+        poolState_.debt            -= result_.debtSettled;
         poolState_.t0Debt          -= result_.t0DebtSettled;
         poolState_.t0DebtInAuction -= result_.t0DebtSettled;
         poolState_.collateral      -= result_.collateralSettled;
@@ -691,19 +676,13 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         PoolState memory poolState_,
         uint256 lup_
     ) internal {
-
-        PoolCommons.updateInterestState(interestState, emaState, deposits, poolState_, lup_);
-
-        // update pool inflator
-        if (poolState_.isNewInterestAccrued) {
-            inflatorState.inflator       = uint208(poolState_.inflator);
-            inflatorState.inflatorUpdate = uint48(block.timestamp);
-        // if the debt in the current pool state is 0, also update the inflator and inflatorUpdate fields in inflatorState
-        // slither-disable-next-line incorrect-equality
-        } else if (poolState_.debt == 0) {
-            inflatorState.inflator       = uint208(Maths.WAD);
-            inflatorState.inflatorUpdate = uint48(block.timestamp);
+        try PoolCommons.updateInterestState(interestState, emaState, deposits, poolState_, lup_) {} catch {
+            emit InterestUpdateFailure();
         }
+
+        (uint208 newInflator, bool updateTimestamp) = _determineInflatorState(poolState_, inflatorState);
+        inflatorState.inflator = newInflator;
+        if (updateTimestamp) inflatorState.inflatorUpdate = uint48(block.timestamp);
     }
 
     /**
@@ -757,12 +736,12 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         uint256 bondFactor_,
         uint256 bondSize_,
         uint256 kickTime_,
-        uint256 kickMomp_,
+        uint256 referencePrice_,
         uint256 neutralPrice_,
+        uint256 thresholdPrice_,
         address head_,
         address next_,
-        address prev_,
-        bool alreadyTaken_
+        address prev_
     ) {
         Liquidation storage liquidation = auctions.liquidations[borrower_];
         return (
@@ -770,12 +749,12 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
             liquidation.bondFactor,
             liquidation.bondSize,
             liquidation.kickTime,
-            liquidation.kickMomp,
+            liquidation.referencePrice,
             liquidation.neutralPrice,
+            liquidation.thresholdPrice,
             auctions.head,
             liquidation.next,
-            liquidation.prev,
-            liquidation.alreadyTaken
+            liquidation.prev
         );
     }
 
@@ -787,7 +766,7 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         return (
             borrower.t0Debt,
             borrower.collateral,
-            borrower.t0Np
+            borrower.npTpRatio
         );
     }
 
@@ -838,24 +817,8 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
 
     /// @inheritdoc IPoolState
     function debtInfo() external view returns (uint256, uint256, uint256, uint256) {
-        uint256 t0Debt   = poolBalances.t0Debt;
-        uint256 inflator = inflatorState.inflator;
-
-        return (
-            Maths.ceilWmul(
-                t0Debt,
-                PoolCommons.pendingInflator(
-                    inflator,
-                    inflatorState.inflatorUpdate,
-                    interestState.interestRate
-                )
-            ),
-            Maths.ceilWmul(t0Debt, inflator),
-            Maths.ceilWmul(poolBalances.t0DebtInAuction, inflator),
-            interestState.t0Debt2ToCollateral
-        );
+        return PoolCommons.debtInfo(poolBalances, inflatorState, interestState);
     }
-
 
     /// @inheritdoc IPoolDerivedState
     function depositUpToIndex(uint256 index_) external view override returns (uint256) {
@@ -956,7 +919,7 @@ abstract contract Pool is Clone, ReentrancyGuard, Multicall, IPool {
         Loan memory maxLoan = Loans.getMax(loans);
         return (
             maxLoan.borrower,
-            Maths.wmul(maxLoan.thresholdPrice, inflatorState.inflator),
+            _htp(maxLoan.thresholdPrice, inflatorState.inflator),
             Loans.noOfLoans(loans)
         );
     }

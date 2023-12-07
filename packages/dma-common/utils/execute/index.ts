@@ -44,6 +44,7 @@ export async function executeThroughDPMProxy(
   { address, calldata }: Target,
   signer: Signer,
   value = '0',
+  gasLimit = 5000000,
   hre?: HardhatRuntimeEnvironment,
 ): Promise<[boolean, ContractReceipt]> {
   try {
@@ -51,7 +52,7 @@ export async function executeThroughDPMProxy(
     const dpmProxy = await ethers.getContractAt('AccountImplementation', dpmProxyAddress, signer)
 
     const tx = await (dpmProxy as any)['execute(address,bytes)'](address, calldata, {
-      gasLimit: 5000000,
+      gasLimit,
       value,
     })
 

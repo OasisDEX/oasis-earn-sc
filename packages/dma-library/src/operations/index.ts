@@ -23,3 +23,10 @@ export const operations: {
   spark,
   morphoblue,
 }
+
+export {
+  getAvailableRefinanceOperationsNames,
+  getRefinanceOperation,
+  getRefinanceOperationDefinition,
+  getRefinanceOperationName,
+} from './refinance'

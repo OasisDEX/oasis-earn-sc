@@ -2,12 +2,14 @@ import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import {
+  ajnaCollateralizationFactor,
   calculateMaxGenerate,
   getAjnaBorrowOriginationFee,
   getNeutralPrice,
   simulatePool,
 } from '@dma-library/protocols/ajna'
 import { AjnaWarning } from '@dma-library/types/ajna'
+import { AjnaCumulativesData } from '@dma-library/views/ajna'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
@@ -60,6 +62,7 @@ export class AjnaPosition implements LendingPosition {
     public pnl: {
       withFees: BigNumber
       withoutFees: BigNumber
+      cumulatives: AjnaCumulativesData
     },
   ) {}
 
@@ -83,7 +86,7 @@ export class AjnaPosition implements LendingPosition {
 
   get collateralAvailable() {
     const collateralAvailable = this.collateralAmount.minus(
-      this.debtAmount.div(this.pool.lowestUtilizedPrice),
+      this.debtAmount.times(ajnaCollateralizationFactor).div(this.pool.lowestUtilizedPrice),
     )
 
     return negativeToZero(normalizeValue(collateralAvailable))
@@ -149,7 +152,7 @@ export class AjnaPosition implements LendingPosition {
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, ZERO, this.debtAmount, newCollateralAmount),
+      getNeutralPrice(this.debtAmount, newCollateralAmount, this.pool.interestRate),
       this.pnl,
     )
   }
@@ -163,7 +166,7 @@ export class AjnaPosition implements LendingPosition {
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, ZERO, this.debtAmount, newCollateralAmount),
+      getNeutralPrice(this.debtAmount, newCollateralAmount, this.pool.interestRate),
       this.pnl,
     )
   }
@@ -177,7 +180,7 @@ export class AjnaPosition implements LendingPosition {
       newDebt,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, quoteAmount, newDebt, this.collateralAmount),
+      getNeutralPrice(newDebt, this.collateralAmount, this.pool.interestRate),
       this.pnl,
     )
   }
@@ -191,7 +194,7 @@ export class AjnaPosition implements LendingPosition {
       newDebt,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, quoteAmount.negated(), newDebt, this.collateralAmount),
+      getNeutralPrice(newDebt, this.collateralAmount, this.pool.interestRate),
       this.pnl,
     )
   }
@@ -204,7 +207,7 @@ export class AjnaPosition implements LendingPosition {
       ZERO,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, this.debtAmount.negated(), ZERO, ZERO),
+      getNeutralPrice(ZERO, ZERO, this.pool.interestRate),
       this.pnl,
     )
   }

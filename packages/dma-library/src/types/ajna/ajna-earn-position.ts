@@ -1,7 +1,7 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { normalizeValue } from '@dma-common/utils/common'
-import { calculateAjnaApyPerDays } from '@dma-library/protocols/ajna'
+import { protocols } from '@dma-library/protocols'
 import bucketPrices from '@dma-library/strategies/ajna/earn/buckets.json'
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
@@ -66,11 +66,6 @@ export class AjnaEarnPosition implements SupplyPosition {
   get marketPrice() {
     return this.collateralPrice.div(this.quotePrice)
   }
-  get getFeeWhenBelowLup() {
-    return this.price.lt(this.pool.lowestUtilizedPrice) && this.apy.per1d
-      ? this.apy.per1d.times(this.quoteTokenAmount)
-      : ZERO
-  }
 
   get apy() {
     return {
@@ -104,15 +99,18 @@ export class AjnaEarnPosition implements SupplyPosition {
 
   getApyPerDays({ amount, days }: { amount?: BigNumber; days: number }) {
     return amount?.gt(0) && this.pool.dailyPercentageRate30dAverage.gt(0)
-      ? calculateAjnaApyPerDays(amount, this.pool.dailyPercentageRate30dAverage, days)
+      ? protocols.ajna.calculateAjnaApyPerDays(
+          amount,
+          this.pool.dailyPercentageRate30dAverage,
+          days,
+        )
       : undefined
   }
 
-  getBreakEven(openPositionGasFee: BigNumber) {
+  getBreakEven(openPositionFees: BigNumber) {
     const apy1Day = this.isEarningFees
       ? this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 })
       : ZERO
-    const openPositionFees = this.getFeeWhenBelowLup.plus(openPositionGasFee)
 
     if (!apy1Day || apy1Day.isZero() || !this.quoteTokenAmount) return undefined
 

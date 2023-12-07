@@ -11,6 +11,11 @@ interface IPoolErrors {
     /**************************/
 
     /**
+     *  @notice Adding liquidity above current auction price.
+     */
+    error AddAboveAuctionPrice();
+
+    /**
      *  @notice `LP` allowance is already set by the owner.
      */
     error AllowanceAlreadySet();
@@ -24,6 +29,11 @@ interface IPoolErrors {
      *  @notice Attempted auction to clear doesn't meet conditions.
      */
     error AuctionNotClearable();
+
+    /**
+     *  @notice Auction does not meet requirements to take liquidity.
+     */
+    error AuctionNotTakeable();
 
     /**
      *  @notice Head auction should be cleared prior of executing this action.
@@ -180,7 +190,6 @@ interface IPoolErrors {
     error PoolUnderCollateralized();
 
     /**
-     *  @notice Actor is attempting to add or move quote tokens at a price below the `LUP`.
      *  @notice Actor is attempting to kick with bucket price below the `LUP`.
      */
     error PriceBelowLUP();
@@ -194,11 +203,6 @@ interface IPoolErrors {
      * @notice User attempted to kick off a new auction less than `2` weeks since the last auction completed.
      */
     error ReserveAuctionTooSoon();
-
-    /**
-     *  @notice Take was called before `1` hour had passed from kick time.
-     */
-    error TakeNotPastCooldown();
 
     /**
      *  @notice Current block timestamp has reached or exceeded a user-provided expiration.

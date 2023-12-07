@@ -132,17 +132,33 @@ library SettlerActions {
 
         if (borrower.t0Debt != 0 && borrower.collateral == 0) {
             // 2. settle debt with pool reserves
-            uint256 assets = Maths.floorWmul(poolState_.t0Debt - result_.t0DebtSettled + borrower.t0Debt, poolState_.inflator) + params_.poolBalance;
+            uint256 assets   = Maths.floorWmul(poolState_.t0Debt - result_.t0DebtSettled + borrower.t0Debt, poolState_.inflator) + params_.poolBalance;
+            uint256 deposits = Deposits.treeSum(deposits_);
 
             uint256 liabilities =
                 // require 1.0 + 1e-9 deposit buffer (extra margin) for deposits
-                Maths.wmul(DEPOSIT_BUFFER, Deposits.treeSum(deposits_)) +
+                Maths.wmul(DEPOSIT_BUFFER, deposits) +
                 auctions_.totalBondEscrowed +
                 reserveAuction_.unclaimed;
 
             // settle debt from reserves (assets - liabilities) if reserves positive, round reserves down however
+            // capped at half of the origination fee rate, based on current book fees
             if (assets > liabilities) {
-                borrower.t0Debt -= Maths.min(borrower.t0Debt, Maths.floorWdiv(assets - liabilities, poolState_.inflator));
+                uint256 t0ReserveSettleAmount = Maths.min(Maths.floorWdiv(assets - liabilities, poolState_.inflator), borrower.t0Debt);
+
+                // if the settlement phase of 144 hours has not ended, settle up to the borrower reserve limit
+                if (deposits > 0 && block.timestamp - kickTime < 144 hours) {
+                    // retrieve amount of debt that can be settled with reserves
+                    uint256 reserveSettleLimit = auctions_.liquidations[params_.borrower].t0ReserveSettleAmount;
+
+                    // calculate reserve amount to be used when settling the auction
+                    t0ReserveSettleAmount = Maths.min(t0ReserveSettleAmount, reserveSettleLimit);
+                    reserveSettleLimit -= t0ReserveSettleAmount;
+
+                    // store remaining amount limit to settle
+                    auctions_.liquidations[params_.borrower].t0ReserveSettleAmount = reserveSettleLimit;
+                }
+                borrower.t0Debt -= t0ReserveSettleAmount;
             }
 
             // 3. forgive bad debt from next HPB
@@ -159,11 +175,9 @@ library SettlerActions {
 
         // complete result struct with debt settled
         result_.t0DebtSettled -= borrower.t0Debt;
+        result_.debtSettled   = Maths.wmul(result_.t0DebtSettled, poolState_.inflator);
 
-        emit Settle(
-            params_.borrower,
-            result_.t0DebtSettled
-        );
+        emit Settle(params_.borrower, result_.debtSettled);
 
         // if entire debt was settled then settle auction
         if (borrower.t0Debt == 0) {
@@ -226,8 +240,7 @@ library SettlerActions {
                 compensatedCollateral_ = borrowerCollateral_ - remainingCollateral_;
 
                 uint256 auctionPrice = _auctionPrice(
-                    auctions_.liquidations[borrowerAddress_].kickMomp,
-                    auctions_.liquidations[borrowerAddress_].neutralPrice,
+                    auctions_.liquidations[borrowerAddress_].referencePrice,
                     auctions_.liquidations[borrowerAddress_].kickTime
                 );
 
@@ -293,12 +306,12 @@ library SettlerActions {
             auctions_.head = address(0);
             auctions_.tail = address(0);
         }
-        else if(auctions_.head == borrower_) {
+        else if (auctions_.head == borrower_) {
             // liquidation is the head
             auctions_.liquidations[liquidation.next].prev = address(0);
             auctions_.head = liquidation.next;
         }
-        else if(auctions_.tail == borrower_) {
+        else if (auctions_.tail == borrower_) {
             // liquidation is the tail
             auctions_.liquidations[liquidation.prev].next = address(0);
             auctions_.tail = liquidation.prev;
@@ -480,10 +493,11 @@ library SettlerActions {
 
             Bucket storage hpbBucket = buckets_[index];
             uint256 bucketLP = hpbBucket.lps;
+
             // If the remaining deposit and resulting bucket collateral is so small that the exchange rate
             // rounds to 0, then bankrupt the bucket.  Note that lhs are WADs, so the
             // quantity is naturally 1e18 times larger than the actual product
-            if (depositRemaining * Maths.WAD + hpbBucket.collateral * _priceAt(index) <= bucketLP) {
+            if (depositRemaining * scale + hpbBucket.collateral * _priceAt(index) <= bucketLP) {
                 // existing LP for the bucket shall become unclaimable
                 hpbBucket.lps            = 0;
                 hpbBucket.bankruptcyTime = block.timestamp;

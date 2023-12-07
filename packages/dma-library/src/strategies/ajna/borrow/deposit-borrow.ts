@@ -1,6 +1,7 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { ajnaBuckets } from '@dma-library/strategies'
+import { validateLiquidationPriceCloseToMarketPrice } from '@dma-library/strategies/ajna/validation/borrowish/liquidationPriceCloseToMarket'
 import {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
@@ -52,7 +53,10 @@ export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencie
     ...validateLiquidity(targetPosition, args.position, args.quoteAmount),
   ]
 
-  const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, args.position)]
+  const warnings = [
+    ...validateGenerateCloseToMaxLtv(targetPosition, args.position),
+    ...validateLiquidationPriceCloseToMarketPrice(targetPosition),
+  ]
 
   return prepareAjnaPayload({
     dependencies,

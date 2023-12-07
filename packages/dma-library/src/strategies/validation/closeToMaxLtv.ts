@@ -28,7 +28,10 @@ export function validateWithdrawCloseToMaxLtv(
   position: LendingPosition,
   positionBefore: LendingPosition,
 ): AjnaWarning[] {
-  if (position.maxRiskRatio.loanToValue.minus(MAX_LTV_OFFSET).lte(position.riskRatio.loanToValue)) {
+  if (
+    position.maxRiskRatio.loanToValue.minus(MAX_LTV_OFFSET).lte(position.riskRatio.loanToValue) &&
+    !positionBefore.collateralAmount.eq(position.collateralAmount)
+  ) {
     return [
       {
         name: 'withdraw-close-to-max-ltv',

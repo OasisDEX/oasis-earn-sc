@@ -151,7 +151,7 @@ export const ADDRESSES: Addresses = {
   [Network.OPTIMISM]: createAddressesStructure(optimismConfig),
   [Network.GOERLI]: createAddressesStructure(goerliConfig, goerliConfig),
   [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig, mainnetConfig),
-  [Network.BASE]: createAddressesStructure(baseConfig, mainnetConfig),
+  [Network.BASE]: createAddressesStructure(baseConfig),
   [Network.TEST]: createAddressesStructure(testConfig),
   [Network.SEPOLIA]: createAddressesStructure(sepoliaConfig),
 }

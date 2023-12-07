@@ -2,6 +2,8 @@
 
 pragma solidity 0.8.18;
 
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
+
 import { IPool, IERC20Token } from "./interfaces/pool/IPool.sol";
 
 import {
@@ -17,7 +19,8 @@ import {
     _priceAt,
     _reserveAuctionPrice,
     MAX_FENWICK_INDEX,
-    MIN_PRICE
+    MIN_PRICE,
+    COLLATERALIZATION_FACTOR
 } from "./libraries/helpers/PoolHelper.sol";
 
 import { Buckets } from "./libraries/internal/Buckets.sol";
@@ -32,6 +35,16 @@ import { PoolCommons } from "./libraries/external/PoolCommons.sol";
  */
 contract PoolInfoUtils {
     /**
+     * @notice Struct contianing local variables used in `auctionStatus` to get around stack size limitations.
+     * @param lup        The price value of the current `Lowest Utilized Price` (`LUP`) bucket, in `WAD` units.
+     * @param poolDebt   Current amount of debt owed by borrowers in pool. (`WAD`).
+     */
+    struct AuctionStatusLocalVars {
+        uint256 lup;
+        uint256 poolDebt;
+    }
+
+    /**
      *  @notice Exposes status of a liquidation auction.
      *  @param  ajnaPool_         Address of `Ajna` pool.
      *  @param  borrower_         Identifies the loan being liquidated.
@@ -41,6 +54,9 @@ contract PoolInfoUtils {
      *  @return isCollateralized_ `True` if loan is collateralized.
      *  @return price_            Current price of the auction.                                 (`WAD`)
      *  @return neutralPrice_     Price at which bond holder is neither rewarded nor penalized. (`WAD`)
+     *  @return referencePrice_   Price used to determine auction start price.                  (`WAD`)
+     *  @return thresholdPrice_   Threshold Price when liquidation was started.                 (`WAD`)
+     *  @return bondFactor_       The factor used for calculating bond size.                    (`WAD`)
      */
     function auctionStatus(
         address ajnaPool_,
@@ -54,21 +70,63 @@ contract PoolInfoUtils {
             uint256 debtToCover_,
             bool isCollateralized_,
             uint256 price_,
-            uint256 neutralPrice_
+            uint256 neutralPrice_,
+            uint256 referencePrice_,
+            uint256 thresholdPrice_,
+            uint256 bondFactor_
         )
     {
-        IPool pool = IPool(ajnaPool_);
-        uint256 kickMomp;
-        (, , , kickTime_, kickMomp, neutralPrice_, , , , ) = pool.auctionInfo(borrower_);
+        AuctionStatusLocalVars memory vars;
+        (, bondFactor_, , kickTime_, referencePrice_, neutralPrice_, thresholdPrice_, , , ) = IPool(ajnaPool_)
+            .auctionInfo(borrower_);
+
         if (kickTime_ != 0) {
             (debtToCover_, collateral_, ) = this.borrowerInfo(ajnaPool_, borrower_);
 
-            (uint256 poolDebt, , , ) = pool.debtInfo();
-            uint256 lup_ = _priceAt(pool.depositIndex(poolDebt));
-            isCollateralized_ = _isCollateralized(debtToCover_, collateral_, lup_, pool.poolType());
+            (vars.poolDebt, , , ) = IPool(ajnaPool_).debtInfo();
+            vars.lup = _priceAt(IPool(ajnaPool_).depositIndex(vars.poolDebt));
+            isCollateralized_ = _isCollateralized(debtToCover_, collateral_, vars.lup, IPool(ajnaPool_).poolType());
 
-            price_ = _auctionPrice(kickMomp, neutralPrice_, kickTime_);
+            price_ = _auctionPrice(referencePrice_, kickTime_);
         }
+    }
+
+    /**
+     *  @notice Returns details of an auction for a given borrower address.
+     *  @dev    Calls and returns all values from pool.auctionInfo().
+     *  @param  ajnaPool_       Address of `Ajna` pool.
+     *  @param  borrower_       Address of the borrower that is liquidated.
+     *  @return kicker_         Address of the kicker that is kicking the auction.
+     *  @return bondFactor_     The factor used for calculating bond size.
+     *  @return bondSize_       The bond amount in quote token terms.
+     *  @return kickTime_       Time the liquidation was initiated.
+     *  @return referencePrice_ Price used to determine auction start price.
+     *  @return neutralPrice_   `Neutral Price` of auction.
+     *  @return thresholdPrice_ Threshold Price when liquidation was started.
+     *  @return head_           Address of the head auction.
+     *  @return next_           Address of the next auction in queue.
+     *  @return prev_           Address of the prev auction in queue.
+     */
+    function auctionInfo(
+        address ajnaPool_,
+        address borrower_
+    )
+        external
+        view
+        returns (
+            address kicker_,
+            uint256 bondFactor_,
+            uint256 bondSize_,
+            uint256 kickTime_,
+            uint256 referencePrice_,
+            uint256 neutralPrice_,
+            uint256 thresholdPrice_,
+            address head_,
+            address next_,
+            address prev_
+        )
+    {
+        return IPool(ajnaPool_).auctionInfo(borrower_);
     }
 
     /**
@@ -92,7 +150,10 @@ contract PoolInfoUtils {
         uint256 pendingInflator = PoolCommons.pendingInflator(inflator, lastInflatorUpdate, interestRate);
 
         uint256 t0Debt;
-        (t0Debt, collateral_, t0Np_) = pool.borrowerInfo(borrower_);
+        uint256 npTpRatio;
+        (t0Debt, collateral_, npTpRatio) = pool.borrowerInfo(borrower_);
+
+        t0Np_ = collateral_ == 0 ? 0 : Math.mulDiv(t0Debt, npTpRatio, collateral_);
 
         debt_ = Maths.ceilWmul(t0Debt, pendingInflator);
     }
@@ -373,24 +434,6 @@ contract PoolInfoUtils {
     }
 
     /**
-     *  @notice Returns current `MOMP` for a given pool.
-     */
-    function momp(address ajnaPool_) external view returns (uint256) {
-        IPool pool = IPool(ajnaPool_);
-
-        (, , uint256 noOfLoans) = pool.loansInfo();
-        noOfLoans += pool.totalAuctionsInPool();
-        if (noOfLoans == 0) {
-            // if there are no borrowers, return the HPB
-            return _priceAt(pool.depositIndex(1));
-        } else {
-            // otherwise, calculate the MOMP
-            (uint256 debt, , , ) = pool.debtInfo();
-            return _priceAt(pool.depositIndex(Maths.wdiv(debt, noOfLoans * 1e18)));
-        }
-    }
-
-    /**
      *  @notice Calculates origination fee rate for a pool.
      *  @notice Calculated as greater of the current annualized interest rate divided by `52` (one week of interest) or `5` bps.
      *  @return Fee rate calculated from the pool interest rate.
@@ -423,14 +466,7 @@ contract PoolInfoUtils {
     ) external view returns (uint256 quoteAmount_) {
         IPool pool = IPool(ajnaPool_);
         (uint256 bucketLP_, uint256 bucketCollateral, , uint256 bucketDeposit, ) = pool.bucketInfo(index_);
-        quoteAmount_ = _lpToQuoteToken(
-            bucketLP_,
-            bucketCollateral,
-            bucketDeposit,
-            lp_,
-            bucketDeposit,
-            _priceAt(index_)
-        );
+        quoteAmount_ = _lpToQuoteToken(bucketLP_, bucketCollateral, bucketDeposit, lp_, _priceAt(index_));
     }
 
     /**
@@ -461,7 +497,7 @@ contract PoolInfoUtils {
  *  @return encumberance_ Encumberance value.
  */
 function _encumberance(uint256 debt_, uint256 price_) pure returns (uint256 encumberance_) {
-    return price_ != 0 && debt_ != 0 ? Maths.wdiv(debt_, price_) : 0;
+    return price_ != 0 ? Maths.wdiv(Maths.wmul(COLLATERALIZATION_FACTOR, debt_), price_) : 0;
 }
 
 /**
@@ -472,8 +508,12 @@ function _encumberance(uint256 debt_, uint256 price_) pure returns (uint256 encu
  *  @return Collateralization value. `1 WAD` if debt amount is `0`.
  */
 function _collateralization(uint256 debt_, uint256 collateral_, uint256 price_) pure returns (uint256) {
-    uint256 encumbered = _encumberance(debt_, price_);
-    return encumbered != 0 ? Maths.wdiv(collateral_, encumbered) : Maths.WAD;
+    // cannot be undercollateralized if there is no debt
+    if (debt_ == 0) return 1e18;
+
+    // borrower is undercollateralized when lup at MIN_PRICE
+    if (price_ == MIN_PRICE) return 0;
+    return Maths.wdiv(Maths.wmul(collateral_, price_), Maths.wmul(COLLATERALIZATION_FACTOR, debt_));
 }
 
 /**
