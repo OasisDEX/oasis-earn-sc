@@ -98,6 +98,7 @@ export const open: AjnaOpenOperation = async ({
   )
 
   const depositBorrow = actions.ajna.ajnaDepositBorrow(
+    network,
     {
       quoteToken: debt.address,
       collateralToken: collateral.address,

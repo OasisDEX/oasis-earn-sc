@@ -10,6 +10,7 @@ import {
   WithCollateral,
   WithDebt,
   WithFlashloan,
+  WithNetwork,
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
@@ -22,7 +23,8 @@ type AjnaCloseArgs = WithCollateral &
   WithFlashloan &
   WithProxy &
   WithAjnaStrategyAddresses &
-  WithAjnaBucketPrice
+  WithAjnaBucketPrice &
+  WithNetwork
 
 export type AjnaCloseToCollateralOperation = ({
   collateral,
@@ -32,6 +34,7 @@ export type AjnaCloseToCollateralOperation = ({
   proxy,
   addresses,
   price,
+  network,
 }: AjnaCloseArgs) => Promise<IOperation>
 
 export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
@@ -42,6 +45,7 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
   proxy,
   addresses,
   price,
+  network,
 }) => {
   const setDebtTokenApprovalOnPool = actions.common.setApproval(Network.MAINNET, {
     asset: debt.address,
@@ -50,7 +54,7 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
     sumAmounts: false,
   })
 
-  const paybackWithdraw = actions.ajna.ajnaPaybackWithdraw({
+  const paybackWithdraw = actions.ajna.ajnaPaybackWithdraw(network, {
     quoteToken: debt.address,
     collateralToken: collateral.address,
     withdrawAmount: ZERO,
