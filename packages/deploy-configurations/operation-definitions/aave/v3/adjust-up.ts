@@ -12,10 +12,10 @@ export function getAaveAdjustUpV3OperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN),
         optional: false,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SET_APPROVAL),
         optional: false,
@@ -28,10 +28,10 @@ export function getAaveAdjustUpV3OperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.BORROW),
         optional: false,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SWAP_ACTION),
         optional: false,

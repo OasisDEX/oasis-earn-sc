@@ -12,14 +12,14 @@ export function getAaveBorrowV3OperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.BORROW),
         optional: false,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
-        optional: true,
-      },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
-        optional: false,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
+      //   optional: true,
+      // },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
+      //   optional: false,
+      // },
     ],
   }
 }

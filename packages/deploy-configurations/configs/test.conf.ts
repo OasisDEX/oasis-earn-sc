@@ -40,13 +40,26 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [0],
       },
+      OperationsRegistry: {
+        name: 'OperationsRegistry',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
+        history: [],
+        constructorArgs: [],
+      },
       OperationExecutor: {
         name: 'OperationExecutor',
         deploy: true,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        constructorArgs: [
+          'address:ServiceRegistry',
+          'address:OperationsRegistry',
+          '0x4B323Eb2ece7fc1D81F1819c26A7cBD29975f75f',
+          '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+        ],
       },
       OperationStorage: {
         name: 'OperationStorage',
@@ -55,14 +68,6 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
-      },
-      OperationsRegistry: {
-        name: 'OperationsRegistry',
-        deploy: true,
-        address: '',
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
-        history: [],
-        constructorArgs: [],
       },
       DSProxyFactory: {
         name: 'DSProxyFactory',
@@ -117,7 +122,7 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
         history: [],
         constructorArgs: [
-          '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
+          '0xcD9C63CFEE8ad52e6ff0B7F6Cb8726933D0FFaa2',
           '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
           20,
           'address:ServiceRegistry',

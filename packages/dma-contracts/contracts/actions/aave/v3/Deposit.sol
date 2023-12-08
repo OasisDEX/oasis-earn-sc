@@ -2,24 +2,25 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../../common/Executable.sol";
-import { UseStore, Write, Read } from "../../common/UseStore.sol";
-import { OperationStorage } from "../../../core/OperationStorage.sol";
+import { UseStorageSlot, StorageSlot, Write, Read } from "../../../libs/UseStorageSlot.sol";
+import { ServiceRegistry } from "../../../core/ServiceRegistry.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 import { DepositData } from "../../../core/types/Aave.sol";
 import { SafeMath } from "../../../libs/SafeMath.sol";
-
 import { AAVE_POOL } from "../../../core/constants/Aave.sol";
+import { UseRegistry } from "../../../libs/UseRegistry.sol";
 
 /**
  * @title Deposit | AAVE V3 Action contract
  * @notice Deposits the specified asset as collateral on AAVE's lending pool
  */
-contract AaveV3Deposit is Executable, UseStore {
-  using Write for OperationStorage;
-  using Read for OperationStorage;
+contract AaveV3Deposit is Executable, UseStorageSlot, UseRegistry {
+  using Write for StorageSlot.TransactionStorage;
+  using Read for StorageSlot.TransactionStorage;
   using SafeMath for uint256;
 
-  constructor(address _registry) UseStore(_registry) {}
+  constructor(address _registry) UseRegistry(ServiceRegistry(_registry)) {}
+  
 
   /**
    * @dev Look at UseStore.sol to get additional info on paramsMapping
@@ -29,17 +30,13 @@ contract AaveV3Deposit is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory deposit = parseInputs(data);
 
-    uint256 mappedDepositAmount = store().readUint(
-      bytes32(deposit.amount),
-      paramsMap[1],
-      address(this)
-    );
+    uint256 mappedDepositAmount = store().readUint(bytes32(deposit.amount), paramsMap[1]);
 
     uint256 actualDepositAmount = deposit.sumAmounts
       ? mappedDepositAmount.add(deposit.amount)
       : mappedDepositAmount;
 
-    IPoolV3(registry.getRegisteredService(AAVE_POOL)).supply(
+    IPoolV3(getRegisteredService(AAVE_POOL)).supply(
       deposit.asset,
       actualDepositAmount,
       address(this),
@@ -47,7 +44,7 @@ contract AaveV3Deposit is Executable, UseStore {
     );
 
     if (deposit.setAsCollateral) {
-      IPoolV3(registry.getRegisteredService(AAVE_POOL)).setUserUseReserveAsCollateral(
+      IPoolV3(getRegisteredService(AAVE_POOL)).setUserUseReserveAsCollateral(
         deposit.asset,
         true
       );

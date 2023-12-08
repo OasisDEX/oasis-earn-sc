@@ -81,20 +81,12 @@ export const deposit: AaveV3DepositOperation = async (
     actions.common.wrapEth(network, {
       amount: amountInBaseUnit,
     }),
-    actions.common.pullToken(network, {
-      amount: amountInBaseUnit,
-      asset: entryTokenAddress,
-      from: depositorAddress,
-    }),
+    // actions.common.pullToken(network, {
+    //   amount: amountInBaseUnit,
+    //   asset: entryTokenAddress,
+    //   from: depositorAddress,
+    // }),
   ]
-
-  if (isAssetEth) {
-    //Asset IS eth
-    tokenTransferCalls[1].skipped = true
-  } else {
-    //Asset is NOT eth
-    tokenTransferCalls[0].skipped = true
-  }
 
   const swapCalls = getSwapCalls(
     depositToken,
@@ -106,11 +98,11 @@ export const deposit: AaveV3DepositOperation = async (
     isSwapNeeded,
     network,
   )
-
+  
   return {
     calls: [
       ...tokenTransferCalls,
-      ...swapCalls,
+      // ...swapCalls,
       actions.common.setApproval(
         network,
         {

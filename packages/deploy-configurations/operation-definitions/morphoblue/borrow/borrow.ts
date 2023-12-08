@@ -12,10 +12,10 @@ export function getMorphoBlueBorrowOperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.BORROW),
         optional: false,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
         optional: false,

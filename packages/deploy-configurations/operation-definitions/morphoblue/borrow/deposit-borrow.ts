@@ -8,18 +8,18 @@ export function getMorphoBlueDepositBorrowOperationDefinition(network: Network) 
   return {
     name: OPERATION_NAMES.morphoblue.DEPOSIT_BORROW,
     actions: [
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN),
         optional: true,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SWAP_ACTION),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SWAP_ACTION),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SET_APPROVAL),
         optional: false,
@@ -32,10 +32,10 @@ export function getMorphoBlueDepositBorrowOperationDefinition(network: Network) 
         hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.BORROW),
         optional: false,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
         optional: false,

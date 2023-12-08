@@ -9,7 +9,6 @@ enum FlashloanProvider {
 struct FlashloanData {
   uint256 amount;
   address asset;
-  bool isProxyFlashloan;
   bool isDPMProxy;
   FlashloanProvider provider;
   Call[] calls;
@@ -47,7 +46,6 @@ struct SwapData {
 struct Call {
   bytes32 targetHash;
   bytes callData;
-  bool skipped;
 }
 
 struct Operation {
@@ -72,4 +70,9 @@ struct PositionCreatedData {
   string positionType;
   address collateralToken;
   address debtToken;
+}
+
+struct TokenBalanceData {
+  address asset;
+  address owner;
 }

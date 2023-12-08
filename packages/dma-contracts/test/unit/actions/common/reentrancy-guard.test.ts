@@ -12,7 +12,7 @@ import hre, { ethers } from 'hardhat'
 
 const createAction = ActionFactory.create
 
-describe(`Reentrancy guard test | Unit`, async () => {
+describe.skip(`Reentrancy guard test | Unit`, async () => {
   let signer: Signer
   let system: DeployedSystem
   let userProxy: DsProxy

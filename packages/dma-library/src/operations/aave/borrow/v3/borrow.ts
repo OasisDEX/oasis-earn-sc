@@ -15,6 +15,7 @@ export const borrow: AaveV3BorrowOperation = async (
   addresses,
   network,
 ) => {
+
   // Import ActionCall as it assists type generation
   const calls: ActionCall[] = [
     actions.aave.v3.aaveV3Borrow(network, {
@@ -22,15 +23,15 @@ export const borrow: AaveV3BorrowOperation = async (
       asset: borrowToken,
       to: account,
     }),
-    actions.common.unwrapEth(network, {
-      amount,
-    }),
+    // actions.common.unwrapEth(network, {
+    //   amount,
+    // }),
     actions.common.returnFunds(network, {
       asset: isEthToken ? addresses.tokens.ETH : borrowToken,
     }),
   ]
 
-  calls[1].skipped = !isEthToken
+  // calls[1].skipped = !isEthToken
 
   return {
     calls,

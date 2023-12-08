@@ -16,18 +16,18 @@ export function getMorphoBluePaybackWithdrawOperationDefinition(network: Network
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SET_APPROVAL),
         optional: true,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.PAYBACK),
         optional: true,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
         optional: true,
@@ -36,10 +36,10 @@ export function getMorphoBluePaybackWithdrawOperationDefinition(network: Network
         hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.WITHDRAW),
         optional: true,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
         optional: true,

@@ -1,7 +1,6 @@
 import { getMorphoBlueDepositOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
-import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { DepositSwapArgs } from '@dma-library/operations/aave-like'
 import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
@@ -68,18 +67,7 @@ function getSwapCalls(
       isSwapNeeded,
     ]
   } else {
-    const skippedCall = actions.common.swap(network, {
-      fromAsset: NULL_ADDRESS,
-      toAsset: NULL_ADDRESS,
-      amount: ZERO,
-      receiveAtLeast: ZERO,
-      fee: 0,
-      withData: 0,
-      collectFeeInFromToken: false,
-    })
-    skippedCall.skipped = true
-
-    return [[skippedCall], isSwapNeeded]
+    return [[], isSwapNeeded]
   }
 }
 
@@ -89,24 +77,27 @@ export const deposit: MorphoBlueDepositOperation = async (
   network,
 ) => {
   // Import ActionCall as it assists type generation
-  const tokenTransferCalls: ActionCall[] = [
-    actions.common.wrapEth(network, {
-      amount: userFundsTokenAmount,
-    }),
+  const tokenTransferCalls: ActionCall[] = []
+  const isAssetEth = userFundsTokenAddress === addresses.tokens.ETH
+
+  if (isAssetEth) {
+    //Asset IS eth
+    tokenTransferCalls.push(
+      actions.common.wrapEth(network, {
+        amount: userFundsTokenAmount,
+      }),
+    )
+  } else {
+    //Asset is NOT eth
+  }
+
+  tokenTransferCalls.push(
     actions.common.pullToken(network, {
       amount: userFundsTokenAmount,
       asset: userFundsTokenAddress,
       from: depositorAddress,
     }),
-  ]
-  const isAssetEth = userFundsTokenAddress === addresses.tokens.ETH
-  if (isAssetEth) {
-    //Asset IS eth
-    tokenTransferCalls[1].skipped = true
-  } else {
-    //Asset is NOT eth
-    tokenTransferCalls[0].skipped = true
-  }
+  )
 
   const [swapCalls, isSwapNeeded] = getSwapCalls(
     userFundsTokenAddress,

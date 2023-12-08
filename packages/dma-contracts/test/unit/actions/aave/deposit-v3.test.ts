@@ -40,7 +40,13 @@ describe('AAVE | DepositV3 Action | Unit', () => {
     const delay = 0
     const [, serviceRegistryAddress] = await deploy('ServiceRegistry', [delay])
     const registry = new ServiceRegistry(serviceRegistryAddress, signer)
-    const [, operationExecutorAddress] = await deploy('OperationExecutor', [serviceRegistryAddress])
+    const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [])
+    const [, operationExecutorAddress] = await deploy('OperationExecutor', [
+      serviceRegistryAddress,
+      operationsRegistryAddress,
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
+    ])
     const [, operationStorageAddress] = await deploy('OperationStorage', [
       serviceRegistryAddress,
       operationExecutorAddress,

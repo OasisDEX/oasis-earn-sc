@@ -29,15 +29,15 @@ export const borrow: MorphoBlueBorrowOperation = async (
       morphoBlueMarket: morphoBlueMarket,
       amount: amountToBorrow,
     }),
-    actions.common.unwrapEth(network, {
-      amount: amountToBorrow,
-    }),
+    // actions.common.unwrapEth(network, {
+    //   amount: amountToBorrow,
+    // }),
     actions.common.returnFunds(network, {
       asset: isEthToken ? addresses.tokens.ETH : morphoBlueMarket.loanToken,
     }),
   ]
 
-  calls[1].skipped = !isEthToken
+  // calls[1].skipped = !isEthToken
 
   return {
     calls,
