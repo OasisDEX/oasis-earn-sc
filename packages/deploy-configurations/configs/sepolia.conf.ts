@@ -367,6 +367,10 @@ export const config: SystemConfig = {
     AAVE: { name: 'AAVE', address: '0x251661BB7C6869165eF35810E5e1D25Ed57be2Fe' },
     BAL: { name: 'BAL', address: '0x8c6e73CA229AB3933426aDb5cc829c1E4928551d' },
     BAT: { name: 'BAT', address: '0x75645f86e90a1169e697707C813419977ea26779' },
+    BWAJNA: {
+      name: 'BWAJNA',
+      address: ADDRESS_ZERO,
+    },
     CBETH: { name: 'CBETH', address: ADDRESS_ZERO },
     COMP: { name: 'COMP', address: '0x8032dce0b793C21B8F7B648C01224c3b557271ED' },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },

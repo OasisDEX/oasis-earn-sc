@@ -148,7 +148,7 @@ export const config: SystemConfig = {
       WrapEth: {
         name: 'WrapEth',
         deploy: false,
-        address: '0xF0ab770321D5D132433ed95D6564fCc3d60AaD9E',
+        address: '0x499afBC7aE808e51e48A29FD30e80DfC5B1F2e56',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WRAP_ETH,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -359,6 +359,10 @@ export const config: SystemConfig = {
       name: 'BAT',
       address: '0x0000000000000000000000000000000000000000',
     },
+    BWAJNA: {
+      name: 'BWAJNA',
+      address: '0xf0f326af3b1Ed943ab95C29470730CC8Cf66ae47',
+    },
     COMP: {
       name: 'COMP',
       address: '0x0000000000000000000000000000000000000000',
@@ -446,7 +450,7 @@ export const config: SystemConfig = {
     },
     RETH: {
       name: 'RETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c',
     },
     RWA001: {
       name: 'RWA001',
@@ -561,7 +565,7 @@ export const config: SystemConfig = {
     },
     WSTETH: {
       name: 'WSTETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
     },
     YIELDBTC: {
@@ -574,7 +578,7 @@ export const config: SystemConfig = {
     },
     YFI: {
       name: 'YFI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x9EaF8C1E34F05a589EDa6BAfdF391Cf6Ad3CB239',
     },
     ZRX: {
       name: 'ZRX',
