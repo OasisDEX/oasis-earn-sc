@@ -2,7 +2,7 @@
 import { Network } from '@deploy-configurations/types/network'
 
 export const testBlockNumber = 15695000
-export const testBlockNumberForAaveV3 = 16597880
+export const testBlockNumberForAaveV3 = 18734000
 export const testBlockNumberForAaveOptimismV3 = 79811107
 
 // AJNA

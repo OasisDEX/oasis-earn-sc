@@ -48,11 +48,11 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
 
-  const pullDepositTokensToProxy = actions.common.pullToken(network, {
-    asset: depositAddress,
-    amount: depositAmount,
-    from: proxy.owner,
-  })
+  // const pullDepositTokensToProxy = actions.common.pullToken(network, {
+  //   asset: depositAddress,
+  //   amount: depositAmount,
+  //   from: proxy.owner,
+  // })
 
   const setFlashLoanApproval = actions.common.setApproval(network, {
     amount: flashloan.token.amount,
@@ -116,21 +116,21 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
     to: addresses.operationExecutor,
   })
 
-  pullDepositTokensToProxy.skipped = depositAmount.eq(ZERO) || debt.isEth
-  wrapEth.skipped = !debt.isEth && !collateral.isEth
+  // pullDepositTokensToProxy.skipped = depositAmount.eq(ZERO) || debt.isEth
+  // wrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const flashloanCalls = [
-    pullDepositTokensToProxy,
+    // pullDepositTokensToProxy,
     setFlashLoanApproval,
     depositFlashloan,
     borrowDebtTokensFromAAVE,
-    wrapEth,
+    // wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,
     depositCollateral,
     withdrawFlashloan,
   ]
-
+  
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: flashloan.token.address,

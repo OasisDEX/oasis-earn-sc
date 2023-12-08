@@ -122,7 +122,7 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
         history: [],
         constructorArgs: [
-          '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
+          '0xcD9C63CFEE8ad52e6ff0B7F6Cb8726933D0FFaa2',
           '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
           20,
           'address:ServiceRegistry',
