@@ -6,11 +6,10 @@ import { ActionFactory } from '@dma-library/actions/action-factory'
 import { ActionCall, calldataTypes } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
-const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
-
 const createAction = ActionFactory.create
 
 export type AjnaDepositBorrowAction = (
+  network: Network,
   args: {
     quoteToken: string
     collateralToken: string
@@ -30,9 +29,11 @@ export type AjnaDepositBorrowAction = (
 ) => ActionCall
 
 export const ajnaDepositBorrow: AjnaDepositBorrowAction = (
+  network: Network,
   args,
   paramsMapping = [0, 0, 0, 0, 0, 0],
 ) => {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
   return createAction(
     getActionHash(SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW),
     [calldataTypes.ajna.DepositBorrow],
@@ -51,6 +52,7 @@ export const ajnaDepositBorrow: AjnaDepositBorrowAction = (
 }
 
 export type AjnaPaybackWithdrawAction = (
+  network: Network,
   args: {
     quoteToken: string
     collateralToken: string
@@ -72,9 +74,11 @@ export type AjnaPaybackWithdrawAction = (
 ) => ActionCall
 
 export const ajnaPaybackWithdraw: AjnaPaybackWithdrawAction = (
+  network: Network,
   args,
   paramsMapping = [0, 0, 0, 0, 0, 0, 0],
 ) => {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
   const withdrawAmount = args.withdrawAmount?.toFixed(0) || ZERO.toFixed(0)
   const paybackAmount = args.paybackAmount?.toFixed(0) || ZERO.toFixed(0)
   return createAction(

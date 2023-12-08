@@ -61,6 +61,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   })
 
   const paybackWithdraw = actions.ajna.ajnaPaybackWithdraw(
+    network,
     {
       quoteToken: debt.address,
       collateralToken: collateral.address,

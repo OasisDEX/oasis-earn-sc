@@ -75,8 +75,8 @@ export const SERVICE_REGISTRY_NAMES = {
     CHAINLOG_VIEW: 'ChainLogView',
   },
   ajna: {
-    DEPOSIT_BORROW: 'AjnaDepositBorrow',
-    REPAY_WITHDRAW: 'AjnaRepayWithdraw',
+    DEPOSIT_BORROW: 'AjnaDepositBorrow_2',
+    REPAY_WITHDRAW: 'AjnaRepayWithdraw_2',
   },
   morphoblue: {
     MORPHO_BLUE: 'MorphoBlue',
