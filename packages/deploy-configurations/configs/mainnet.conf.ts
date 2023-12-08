@@ -458,6 +458,10 @@ export const config: SystemConfig = {
       name: 'BAT',
       address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF',
     },
+    BWAJNA: {
+      name: 'BWAJNA',
+      address: ADDRESS_ZERO,
+    },
     CBETH: {
       name: 'CBETH',
       address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704',
