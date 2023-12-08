@@ -249,6 +249,7 @@ async function buildOperation(
       pool: args.poolAddress,
     },
     price: new BigNumber(ajnaBuckets[ajnaBuckets.length - 1]),
+    network: dependencies.network,
   }
 
   if (args.shouldCloseToCollateral) {
