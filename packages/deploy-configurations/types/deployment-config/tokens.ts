@@ -3,6 +3,7 @@ export type Tokens =
   | 'ADAI'
   | 'BAL'
   | 'BAT'
+  | 'BWAJNA'
   | 'CBETH'
   | 'COMP'
   | 'CRVV1ETHSTETH'
