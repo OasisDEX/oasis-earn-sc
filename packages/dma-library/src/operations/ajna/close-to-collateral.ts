@@ -1,5 +1,4 @@
 import { getAjnaCloseToCollateralOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Network } from '@deploy-configurations/types/network'
 import { FEE_BASE, MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
@@ -47,7 +46,7 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
   price,
   network,
 }) => {
-  const setDebtTokenApprovalOnPool = actions.common.setApproval(Network.MAINNET, {
+  const setDebtTokenApprovalOnPool = actions.common.setApproval(network, {
     asset: debt.address,
     delegate: addresses.pool,
     amount: flashloan.token.amount,
@@ -64,7 +63,7 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
     price,
   })
 
-  const swapCollateralTokensForDebtTokens = actions.common.swap(Network.MAINNET, {
+  const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: collateral.address,
     toAsset: debt.address,
     amount: swap.amount,
@@ -74,23 +73,23 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const sendQuoteTokenToOpExecutor = actions.common.sendToken(Network.MAINNET, {
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
     asset: debt.address,
     to: addresses.operationExecutor,
     amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
   })
 
-  const unwrapEth = actions.common.unwrapEth(Network.MAINNET, {
+  const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
-  const returnDebtFunds = actions.common.returnFunds(Network.MAINNET, {
+  const returnDebtFunds = actions.common.returnFunds(network, {
     asset: debt.isEth ? addresses.ETH : debt.address,
   })
 
-  const returnCollateralFunds = actions.common.returnFunds(Network.MAINNET, {
+  const returnCollateralFunds = actions.common.returnFunds(network, {
     asset: collateral.isEth ? addresses.ETH : collateral.address,
   })
 
@@ -102,7 +101,7 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
     unwrapEth,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan(Network.MAINNET, {
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: flashloan.token.address,
     flashloanAmount: flashloan.token.amount,
@@ -113,6 +112,6 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
 
   return {
     calls: [takeAFlashLoan, returnDebtFunds, returnCollateralFunds],
-    operationName: getAjnaCloseToCollateralOperationDefinition(Network.MAINNET).name,
+    operationName: getAjnaCloseToCollateralOperationDefinition(network).name,
   }
 }

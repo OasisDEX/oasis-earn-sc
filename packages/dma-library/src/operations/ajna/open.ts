@@ -146,6 +146,6 @@ export const open: AjnaOpenOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: getAjnaOpenOperationDefinition(Network.MAINNET).name,
+    operationName: getAjnaOpenOperationDefinition(network).name,
   }
 }
