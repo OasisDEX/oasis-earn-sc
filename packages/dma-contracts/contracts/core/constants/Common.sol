@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
-string constant OPERATION_STORAGE = "OperationStorage_2";
-string constant OPERATION_EXECUTOR = "OperationExecutor_2";
-string constant OPERATIONS_REGISTRY = "OperationsRegistry_2";
+string constant OPERATION_STORAGE = "OperationStorage_3";
+string constant OPERATION_EXECUTOR = "OperationExecutor_3";
+string constant OPERATIONS_REGISTRY = "OperationsRegistry_3";
 string constant CHAINLOG_VIEWER = "ChainLogView";
 string constant ONE_INCH_AGGREGATOR = "OneInchAggregator";
 string constant DS_GUARD_FACTORY = "DSGuardFactory";
