@@ -211,7 +211,7 @@ export const config: SystemConfig = {
       },
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
-        deploy: true,
+        deploy: false,
         address: '0xb2e2a088d9705cd412CE6BF94e765743Ec26b1e4',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
@@ -219,7 +219,7 @@ export const config: SystemConfig = {
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
-        deploy: true,
+        deploy: false,
         address: '0x1631FAF05bfFA2200698d71893667C9De1E221fc',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
