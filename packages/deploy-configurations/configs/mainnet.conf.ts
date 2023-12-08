@@ -460,7 +460,7 @@ export const config: SystemConfig = {
     },
     BWAJNA: {
       name: 'BWAJNA',
-      address: ADDRESS_ZERO,
+      address: '0x936Ab482d6bd111910a42849D3A51Ff80BB0A711',
     },
     CBETH: {
       name: 'CBETH',
