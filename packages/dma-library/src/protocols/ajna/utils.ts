@@ -203,19 +203,18 @@ function getSimulationPoolOutput(
   }
 }
 
-function getMaxGenerate(
+function getMaxGenerateLup(
   pool: AjnaPool,
   positionDebt: BigNumber,
   positionCollateral: BigNumber,
   maxDebt: BigNumber = ZERO,
-): { maxGenerate: BigNumber; lup: BigNumber } {
+): { lup: BigNumber } {
   const initialMaxDebt = positionCollateral.times(pool.lowestUtilizedPrice).minus(positionDebt)
 
   const liquidityAvailableInLupBucket = getLiquidityInLupBucket(pool)
 
   if (initialMaxDebt.lte(liquidityAvailableInLupBucket)) {
     return {
-      maxGenerate: initialMaxDebt.isNegative() ? maxDebt : initialMaxDebt.plus(maxDebt),
       lup: pool.lowestUtilizedPrice,
     }
   }
@@ -230,7 +229,6 @@ function getMaxGenerate(
 
   if (!bucketBelowLup) {
     return {
-      maxGenerate: maxDebt.plus(liquidityAvailableInLupBucket),
       lup: pool.lowestUtilizedPrice,
     }
   }
@@ -244,7 +242,7 @@ function getMaxGenerate(
     bucketBelowLup.index,
   )
 
-  return getMaxGenerate(
+  return getMaxGenerateLup(
     newPool,
     positionDebt.plus(liquidityAvailableInLupBucket),
     positionCollateral,
@@ -257,35 +255,29 @@ export function calculateMaxGenerate(
   positionDebt: BigNumber,
   collateralAmount: BigNumber,
 ) {
-  const { maxGenerate: maxDebtWithoutFee, lup } = getMaxGenerate(
-    pool,
-    positionDebt,
-    collateralAmount,
-  )
+  const { lup } = getMaxGenerateLup(pool, positionDebt, collateralAmount)
 
+  const maxDebt = collateralAmount.times(lup).div(ajnaCollateralizationFactor).minus(positionDebt)
+
+  // This fee calculated here acts like an offset from calculated maxDebt value, which is needed due to
+  // constantly growing debt
   const originationFee = getAjnaBorrowOriginationFee({
     interestRate: pool.interestRate,
-    quoteAmount: maxDebtWithoutFee,
+    quoteAmount: maxDebt,
   })
 
   const poolLiquidity = getPoolLiquidity({
     buckets: pool.buckets,
     debt: pool.debt,
   })
-  const poolLiquidityWithFee = poolLiquidity.minus(originationFee)
-  const maxDebtWithFee = maxDebtWithoutFee.minus(originationFee)
+  const poolLiquidityWithFee = negativeToZero(poolLiquidity.minus(originationFee))
+  const maxDebtWithFee = negativeToZero(maxDebt.minus(originationFee))
 
   if (poolLiquidityWithFee.lt(maxDebtWithFee)) {
-    return negativeToZero(poolLiquidityWithFee)
+    return poolLiquidityWithFee
   }
 
-  return negativeToZero(
-    collateralAmount
-      .times(lup)
-      .div(ajnaCollateralizationFactor)
-      .minus(originationFee)
-      .minus(positionDebt),
-  )
+  return maxDebtWithFee
 }
 
 export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumber, BigNumber] {
