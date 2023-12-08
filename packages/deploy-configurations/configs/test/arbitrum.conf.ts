@@ -289,6 +289,7 @@ export const config: SystemConfig = {
       name: 'BAT',
       address: ADDRESS_ZERO,
     },
+    BWAJNA: { name: 'BAT', address: ADDRESS_ZERO },
     CBETH: {
       name: 'CBETH',
       address: ADDRESS_ZERO,
