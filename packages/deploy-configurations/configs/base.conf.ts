@@ -148,7 +148,7 @@ export const config: SystemConfig = {
       WrapEth: {
         name: 'WrapEth',
         deploy: false,
-        address: '0xF0ab770321D5D132433ed95D6564fCc3d60AaD9E',
+        address: '0x499afBC7aE808e51e48A29FD30e80DfC5B1F2e56',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WRAP_ETH,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
