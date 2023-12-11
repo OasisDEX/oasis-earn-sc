@@ -32,6 +32,7 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_YIELDETHETH'
   | 'AjnaPoolPairs_YIELDBTCWBTC'
   | 'AjnaPoolPairs_TBTCGHO'
+  | 'AjnaPoolPairs_CBETHUSDBC'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
   | 'ERC20PoolFactory'
