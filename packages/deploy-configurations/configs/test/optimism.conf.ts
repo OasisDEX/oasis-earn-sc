@@ -1059,6 +1059,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_TBTCGHO',
       address: ADDRESS_ZERO,
     },
+    AjnaPoolPairs_CBETHUSDBC: {
+      name: 'AjnaPoolPairs_CBETHUSDBC',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: ADDRESS_ZERO,
