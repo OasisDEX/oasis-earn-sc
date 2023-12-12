@@ -46,7 +46,6 @@ export async function adjustRiskUpAAVEv3(
 
   const { DAI } = aaveLikeAddresses.tokens
   const flashloanAmount = new BigNumberJS(1000).times(10 ** 18)
-
   const adjustUpArgs: AdjustRiskUpArgs = {
     collateral: {
       address: WETH.address,

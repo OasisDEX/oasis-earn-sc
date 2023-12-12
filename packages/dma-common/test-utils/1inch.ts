@@ -77,6 +77,36 @@ export const oneInchCallMock =
     }
   }
 
+export const mockOneInchCallWithMockData = mockedExchangeData => {
+  return (marketPrice, precision, debug = false) => {
+    const originalOneInchCallMock = oneInchCallMock(marketPrice, precision, debug)
+
+    return async (
+      from: string,
+      to: string,
+      amount: BigNumber,
+      slippage: BigNumber,
+      protocols?: string[],
+      __invertSwapDirection?: boolean,
+    ) => {
+      // Call the original mock function
+      const mockedSwapData = await originalOneInchCallMock(
+        from,
+        to,
+        amount,
+        slippage,
+        protocols,
+        __invertSwapDirection,
+      )
+
+      return {
+        ...mockedSwapData,
+        exchangeCalldata: mockedExchangeData,
+      }
+    }
+  }
+}
+
 const defaultExchangeProtocols = [
   'UNISWAP_V3',
   'PMM1',
@@ -332,6 +362,7 @@ export function mockExchangeGetData(
     feeOnTransfer,
   ])
 }
+
 export const optimismLiquidityProviders = [
   'OPTIMISM_UNISWAP_V3',
   'OPTIMISM_SYNTHETIX',

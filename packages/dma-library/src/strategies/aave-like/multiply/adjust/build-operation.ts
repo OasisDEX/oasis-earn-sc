@@ -97,7 +97,6 @@ export async function buildOperation({
     addresses,
     network: dependencies.network,
   }
-
   if (adjustRiskUp) {
     const borrowAmount = simulation.delta.debt.minus(depositDebtAmountInWei)
     const adjustRiskUpArgs: AdjustRiskUpArgs = {
