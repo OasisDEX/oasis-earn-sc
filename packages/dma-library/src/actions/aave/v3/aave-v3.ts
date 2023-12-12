@@ -36,7 +36,7 @@ export function aaveV3Deposit(
 export function aaveV3Borrow(
   network: Network,
   args: { amount: BigNumber; asset: string; to: string },
-  paramsMapping: [amount: number, asset: number,  to: number] = [0, 0, 0],
+  paramsMapping: [amount: number, asset: number, to: number] = [0, 0, 0],
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 

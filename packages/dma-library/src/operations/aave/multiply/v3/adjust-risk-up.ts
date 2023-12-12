@@ -130,7 +130,7 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
     depositCollateral,
     withdrawFlashloan,
   ]
-  
+
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: flashloan.token.address,
