@@ -367,6 +367,10 @@ export const config: SystemConfig = {
     AAVE: { name: 'AAVE', address: '0x251661BB7C6869165eF35810E5e1D25Ed57be2Fe' },
     BAL: { name: 'BAL', address: '0x8c6e73CA229AB3933426aDb5cc829c1E4928551d' },
     BAT: { name: 'BAT', address: '0x75645f86e90a1169e697707C813419977ea26779' },
+    BWAJNA: {
+      name: 'BWAJNA',
+      address: ADDRESS_ZERO,
+    },
     CBETH: { name: 'CBETH', address: ADDRESS_ZERO },
     COMP: { name: 'COMP', address: '0x8032dce0b793C21B8F7B648C01224c3b557271ED' },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
@@ -967,61 +971,61 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0x44fc9f35aF1f650B84754643B371A077F54009F7',
+      address: '0x4BBd196eee782DC8870f0eDE43c1405b5707745C',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x499afBC7aE808e51e48A29FD30e80DfC5B1F2e56',
+      address: '0xF0ab770321D5D132433ed95D6564fCc3d60AaD9E',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
-      address: '0xaDA56C802feDdE9259e5F356b0129a082C6FEC66',
+      address: '0x074Fdc33C363e92D3b8e2eaD7Ecd3127d20F36F3',
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: '0x1EA51D6Ae2A97d36629dF42024C8B047E8Ff60E3',
+      address: '0x8f69E68d16D83B24B2dDB4F6A7b51D3d2e1b47a2',
     },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
-      address: '0x6C431C9dE55da03D770E0370F646DdA9F6CEc1c3',
+      address: '0xd76625faC65b4bb68a67D85F378577FE45fFA518',
     },
     AjnaPoolPairs_RETHETH: {
       name: 'AjnaPoolPairs_RETHETH',
-      address: '0x91406eDac3c7d65A58389837142C8e965a5C92f2',
+      address: '0xC3197cE145dd35Efd9EAEf5cCc6C47b3FB2BB109',
     },
     AjnaPoolPairs_RETHUSDC: {
       name: 'AjnaPoolPairs_RETHUSDC',
-      address: '0x8A45d54f6cBf9753771fFEF3968a190e782D2431',
+      address: '0xFb35819d63F71E6ABc3F7D1936829Ac026a6C7D6',
     },
     AjnaPoolPairs_USDCETH: {
       name: 'AjnaPoolPairs_USDCETH',
-      address: '0x94828107b6d2a7b9Dedd294d341484470fD9A585',
+      address: '0x6eB7814efa401Fe3A7A119367eCF9632355204c9',
     },
     AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: ADDRESS_ZERO },
     AjnaPoolPairs_USDCWBTC: {
       name: 'AjnaPoolPairs_USDCWBTC',
-      address: '0x606cD45656b5A02d336125fe75b4184C89313F79',
+      address: '0x4FFfF7986e04C32b99F3031F52BDe1a9034BcAE6',
     },
     AjnaPoolPairs_WBTCDAI: {
       name: 'AjnaPoolPairs_WBTCDAI',
-      address: '0x4A9CFa0b38D7dB17b0f53E01c63b95BFdB935F2B',
+      address: '0xEA84200161b331462f564704776748Bbf86A0f81',
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
-      address: '0xc475ef9647A27d4d31952a8CE433115E86D54B96',
+      address: '0x3C38132a9aE99e1B947896F2024b4BCd295c98BD',
     },
     AjnaPoolPairs_WSTETHDAI: {
       name: 'AjnaPoolPairs_WSTETHDAI',
-      address: '0x50eD0F9f3CDD03de1bc02B3eF9ACea0a152E8d57',
+      address: '0x4D44b53a2E47B0E484E957CA1E82Cabb05175431',
     },
     AjnaPoolPairs_WSTETHETH: {
       name: 'AjnaPoolPairs_WSTETHETH',
-      address: 'ADDRESS_ZERO',
+      address: '0x0e675A9Cb51a098128e12108Ee46F2153CBa3f4F',
     },
     AjnaPoolPairs_WSTETHUSDC: {
       name: 'AjnaPoolPairs_WSTETHUSDC',
-      address: '0xF8A41b6714c7C811C4772d7900A8423721616401',
+      address: '0xb9F3A5bf5484F1B5F1D87b294AaB6c3DAFCeE4B6',
     },
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
@@ -1029,7 +1033,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_TBTCWBTC: {
       name: 'AjnaPoolPairs_TBTCWBTC',
-      address: '0x0b5a9Bd1C1cfa712328465d7d3186317d0780974',
+      address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_TBTCUSDC: {
       name: 'AjnaPoolPairs_TBTCUSDC',
@@ -1083,6 +1087,14 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
       address: ADDRESS_ZERO,
     },
+    AjnaPoolPairs_TBTCGHO: {
+      name: 'AjnaPoolPairs_TBTCGHO',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_CBETHUSDBC: {
+      name: 'AjnaPoolPairs_CBETHUSDBC',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0x994dE190dd763Af3126FcC8EdC139275937d800b',
@@ -1093,7 +1105,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0xe86a0B3031a01eAB1eD850074476B80cCBc2B33d',
+      address: '0x856c05F817B8A9E9e301523Ba0bFe187b83A03d7',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },

@@ -1,4 +1,4 @@
-import { loadContractNames } from '@deploy-configurations/constants'
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
@@ -431,6 +431,10 @@ export const config: SystemConfig = {
     BAT: {
       name: 'BAT',
       address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF',
+    },
+    BWAJNA: {
+      name: 'BWAJNA',
+      address: '0x936Ab482d6bd111910a42849D3A51Ff80BB0A711',
     },
     CBETH: {
       name: 'CBETH',
@@ -1173,12 +1177,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0xF086B79D71d55806493fD8CA4DB39a81C82e28d4',
+      address: '0xd51789b0B9b6be8A89778e3C93cC365511bf382c',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x53B1f1B3f34b5B3C7dA8BD60a7E8ee2eFd175603',
+      address: '0x601a8F7EA34168D912fB3C214a377CB544F18c0d',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1289,6 +1293,14 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
       address: '0x67a64e974bfeaded23cf479e27654d8face82126',
     },
+    AjnaPoolPairs_TBTCGHO: {
+      name: 'AjnaPoolPairs_TBTCGHO',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_CBETHUSDBC: {
+      name: 'AjnaPoolPairs_CBETHUSDBC',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0xaF9bc1F09fe561CbD00018fC352507fD23cD46E2',
@@ -1299,7 +1311,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x03907900D4120956BA3E253e7580B29e618091a4',
+      address: '0x33960C912b67Fe1Abf4738e2b754d299d99cF2F1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },

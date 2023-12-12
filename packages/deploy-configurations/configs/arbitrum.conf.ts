@@ -285,6 +285,10 @@ export const config: SystemConfig = {
       name: 'BAT',
       address: ADDRESS_ZERO,
     },
+    BWAJNA: {
+      name: 'BWAJNA',
+      address: ADDRESS_ZERO,
+    },
     CBETH: {
       name: 'CBETH',
       address: ADDRESS_ZERO,
@@ -757,6 +761,14 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_YIELDBTCWBTC: {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_TBTCGHO: {
+      name: 'AjnaPoolPairs_TBTCGHO',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_CBETHUSDBC: {
+      name: 'AjnaPoolPairs_CBETHUSDBC',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

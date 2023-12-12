@@ -380,6 +380,10 @@ export const config: SystemConfig = {
     ADAI: { name: 'ADAI', address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3' },
     BAL: { name: 'BAL', address: '0xba100000625a3754423978a60c9317c58a424e3D' },
     BAT: { name: 'BAT', address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF' },
+    BWAJNA: {
+      name: 'BWAJNA',
+      address: '0x936Ab482d6bd111910a42849D3A51Ff80BB0A711',
+    },
     CBETH: { name: 'CBETH', address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704' },
     COMP: { name: 'COMP', address: '0xc00e94Cb662C3520282E6f5717214004A7f26888' },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: '0x06325440D014e39736583c165C2963BA99fAf14E' },
@@ -984,12 +988,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0xF086B79D71d55806493fD8CA4DB39a81C82e28d4',
+      address: '0xd51789b0B9b6be8A89778e3C93cC365511bf382c',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x53B1f1B3f34b5B3C7dA8BD60a7E8ee2eFd175603',
+      address: '0x601a8F7EA34168D912fB3C214a377CB544F18c0d',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1100,6 +1104,14 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
       address: '0x67a64e974bfeaded23cf479e27654d8face82126',
     },
+    AjnaPoolPairs_TBTCGHO: {
+      name: 'AjnaPoolPairs_TBTCGHO',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_CBETHUSDBC: {
+      name: 'AjnaPoolPairs_CBETHUSDBC',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: ADDRESS_ZERO,
@@ -1110,7 +1122,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x03907900D4120956BA3E253e7580B29e618091a4',
+      address: '0x33960C912b67Fe1Abf4738e2b754d299d99cF2F1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },
