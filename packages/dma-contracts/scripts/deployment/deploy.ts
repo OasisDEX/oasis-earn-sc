@@ -363,9 +363,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     configString = this.replaceServiceRegistryName(configString, this.findStringPath)
 
     const networkEnumString =
-      this.network !== Network.TENDERLY
-        ? this.getNetworkEnumString(this.network)
-        : this.getNetworkEnumString(Network.MAINNET)
+      this.network === Network.TENDERLY
+        ? this.getNetworkEnumString(Network.MAINNET)
+        : this.getNetworkEnumString(this.network)
 
     writeFile(
       `./../deploy-configurations/configs/${this.network}.conf.ts`,
