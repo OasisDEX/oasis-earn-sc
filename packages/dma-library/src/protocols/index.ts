@@ -7,6 +7,7 @@ import { AaveVersion } from '@dma-library/types/aave'
 import { AaveProtocol, AaveProtocolData, AaveProtocolDataArgs } from './aave'
 import {
   ajnaCollateralizationFactor,
+  ajnaPaybackAllWithdrawAllValueOffset,
   calculateAjnaApyPerDays,
   calculateAjnaMaxLiquidityWithdraw,
   getAjnaEarnDepositFee,
@@ -33,6 +34,7 @@ const ajna = {
   getAjnaEarnDepositFee,
   calculateAjnaMaxLiquidityWithdraw,
   ajnaCollateralizationFactor,
+  ajnaPaybackAllWithdrawAllValueOffset,
 }
 
 export const protocols = {
