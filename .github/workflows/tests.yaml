@@ -69,6 +69,7 @@ jobs:
           NETWORK_FORK: mainnet
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
           PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}
+          PRIV_KEY_TENDERLY: ${{ secrets.PRIV_KEY_MAINNET }}
 
       - name: Run all tests
         id: all-tests
@@ -81,3 +82,4 @@ jobs:
           NETWORK_FORK: mainnet
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
           PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}
+          PRIV_KEY_TENDERLY: ${{ secrets.PRIV_KEY_MAINNET }}

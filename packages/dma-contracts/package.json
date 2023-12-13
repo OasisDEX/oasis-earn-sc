@@ -10,6 +10,7 @@
     "dev:mainnet": "yarn ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
     "dev:optimism": "yarn ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep OPTIMISM_URL ../../.env | cut -d '=' -f2)",
     "deploy:dev": "yarn compile && yarn hardhat deploy --network local",
+    "deploy:morphoblue:integration": "yarn clean && yarn compile && yarn hardhat run scripts/morphoblue/deploy-morphoblue-integration.ts",
     "compile": "npx hardhat --config hardhat.config.base.ts compile",
     "clean": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache",
     "format": "prettier --write contracts/**/*.sol tasks/**/*.ts test/**/*.ts scripts/**/*.ts && yarn lint:fix",

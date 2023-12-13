@@ -1,7 +1,7 @@
 export {
   createMarkets,
+  deployMockOracles,
   deployMorphoBlue,
-  deployOracles,
   deployTokens,
   getMarketId,
   setupMarkets,

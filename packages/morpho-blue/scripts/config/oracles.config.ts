@@ -1,4 +1,4 @@
-import { OraclesConfig } from '@types'
+import { MockOraclesConfig } from '@types'
 import { OracleMock__factory } from '@typechain'
 import { ethers } from 'hardhat'
 
@@ -16,7 +16,7 @@ const WETHDecimals = 18
 const WBTCDecimals = 8
 const WSTETHDecimals = 18
 
-export const MorphoOraclesConfig: OraclesConfig = {
+export const MorphoOraclesConfig: MockOraclesConfig = {
   DAI: {
     WBTC: {
       ...DefaultOracleMock,
@@ -53,6 +53,6 @@ export const MorphoOraclesConfig: OraclesConfig = {
   },
 }
 
-export function getMorphoDefaultOraclesConfig(): OraclesConfig {
+export function getMorphoDefaultMockOraclesConfig(): MockOraclesConfig {
   return MorphoOraclesConfig
 }

@@ -1,24 +1,32 @@
 import { ContractNames } from '@deploy-configurations/constants'
-import { Signer, utils } from 'ethers'
+import { Contract, Signer, utils } from 'ethers'
 
 export class ServiceRegistry {
   address: string
   signer: Signer
+  registry: Contract | undefined
 
   constructor(address: string, signer: Signer) {
     this.address = address
     this.signer = signer
   }
 
+  private async _getRegistry(): Promise<Contract> {
+    if (!this.registry) {
+      const ethers = (await import('hardhat')).ethers
+      this.registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    }
+
+    return this.registry
+  }
+
   async getContractInstance() {
-    const ethers = (await import('hardhat')).ethers
-    return await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    return this._getRegistry()
   }
 
   async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
-    const ethers = (await import('hardhat')).ethers
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    const registry = await this._getRegistry()
     await registry.addNamedService(entryHash, address)
 
     if (debug) {
@@ -29,9 +37,8 @@ export class ServiceRegistry {
   }
 
   async addEntryCalldata(label: ContractNames, address: string, debug = false): Promise<string> {
-    const ethers = (await import('hardhat')).ethers
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    const registry = await this._getRegistry()
 
     const encodedData = registry.interface.encodeFunctionData('addNamedService', [
       entryHash,
@@ -48,20 +55,17 @@ export class ServiceRegistry {
   }
 
   async removeEntry(label: ContractNames) {
-    const ethers = (await import('hardhat')).ethers
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    const registry = await this._getRegistry()
     await registry.removeNamedService(await this.getEntryHash(label))
   }
 
   async getEntryHash(label: ContractNames): Promise<string> {
-    const ethers = (await import('hardhat')).ethers
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    const registry = await this._getRegistry()
     return registry.getServiceNameHash(label)
   }
 
   async getServiceAddress(label: ContractNames): Promise<string> {
-    const ethers = (await import('hardhat')).ethers
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    const registry = await this._getRegistry()
     return registry.getRegisteredService(label)
   }
 }

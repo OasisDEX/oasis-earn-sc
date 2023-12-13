@@ -8,9 +8,9 @@ import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   MarketSupplyConfig,
+  MockOraclesConfig,
   MorphoMarketsConfig,
   MorphoSystem,
-  OraclesConfig,
   OraclesDeployment,
 } from '@morpho-blue'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -19,7 +19,7 @@ import { expect } from 'chai'
 import { Signer } from 'ethers'
 import hre from 'hardhat'
 
-import { deployMorphoBlueSystem } from './utils'
+import { deployTestMorphoBlueSystem } from './utils'
 import { expectMarketStatus, expectPosition } from './utils/morpho.direct.utils'
 import {
   opMorphoBlueBorrow,
@@ -48,7 +48,7 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
 
   let testSystem: TestDeploymentSystem
   let marketsConfig: MorphoMarketsConfig
-  let oraclesConfig: OraclesConfig
+  let oraclesConfig: MockOraclesConfig
   let oraclesDeployment: OraclesDeployment
   let morphoSystem: MorphoSystem
   let supplyConfig: MarketSupplyConfig
@@ -62,7 +62,7 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
         hre,
         blockNumber: testBlockNumber,
       },
-      [deployMorphoBlueSystem],
+      [deployTestMorphoBlueSystem],
     )
 
     provider = snapshot.config.provider
@@ -251,14 +251,14 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
         system.PositionCreated.contract.interface.getEvent('CreatePosition'),
       )
 
-      const collateralToken = morphoSystem.tokensDeployment[market.collateralToken].contract
-      const loanToken = morphoSystem.tokensDeployment[market.loanToken].contract
+      const collateralToken = morphoSystem.tokensDeployment[market.collateralToken].contract.address
+      const loanToken = morphoSystem.tokensDeployment[market.loanToken].contract.address
 
       expect(createPositionEvent.args.proxyAddress).to.be.equal(userDPMProxy.address)
       expect(createPositionEvent.args.protocol).to.be.equal('MorphoBlue')
       expect(createPositionEvent.args.positionType).to.be.equal(positionType)
-      expect(createPositionEvent.args.collateralToken).to.be.equal(collateralToken.address)
-      expect(createPositionEvent.args.debtToken).to.be.equal(loanToken.address)
+      expect(createPositionEvent.args.collateralToken).to.be.equal(collateralToken)
+      expect(createPositionEvent.args.debtToken).to.be.equal(loanToken)
 
       expect(borrowAmount).to.be.gt(0)
 

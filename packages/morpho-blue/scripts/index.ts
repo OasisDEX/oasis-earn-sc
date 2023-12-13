@@ -1,14 +1,20 @@
 export * from './config'
 export {
   MarketSupplyConfig,
+  MockOraclesConfig,
   MorphoMarketInfo,
   MorphoMarketsConfig,
   MorphoSystem,
   MorphoTestDeployment,
-  OraclesConfig,
   OraclesDeployment,
   TokenConfig,
   TokensConfig,
   TokensDeployment,
 } from './types'
-export { createMarkets, deployMorphoBlue, deployOracles, deployTokens, setupMarkets } from './utils'
+export {
+  createMarkets,
+  deployMockOracles,
+  deployMorphoBlue,
+  deployTokens,
+  setupMarkets,
+} from './utils'
