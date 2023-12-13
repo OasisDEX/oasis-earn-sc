@@ -17,7 +17,7 @@ import { AccountImplementation } from '@typechain'
 import { Signer } from 'ethers'
 import hre from 'hardhat'
 
-import { deployMorphoBlueSystem } from '../utils'
+import { deployTestMorphoBlueSystem } from '../utils'
 
 describe.skip('TEST GROUP | MorphoBlue | TEST CATEGORY', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -52,7 +52,7 @@ describe.skip('TEST GROUP | MorphoBlue | TEST CATEGORY', async () => {
         hre,
         blockNumber: testBlockNumber,
       },
-      [deployMorphoBlueSystem],
+      [deployTestMorphoBlueSystem],
     )
 
     provider = snapshot.config.provider

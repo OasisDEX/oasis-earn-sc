@@ -78,10 +78,10 @@ export const SERVICE_REGISTRY_NAMES = {
     MORPHO_BLUE: 'MorphoBlue',
   },
   ajna: {
-    DEPOSIT_BORROW: 'AjnaDepositBorrow',
-    REPAY_WITHDRAW: 'AjnaRepayWithdraw',
-    ERC20_POOL_FACTORY: 'ERC20PoolFactory',
-    AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfo',
+    DEPOSIT_BORROW: 'AjnaDepositBorrow_2',
+    REPAY_WITHDRAW: 'AjnaRepayWithdraw_2',
+    ERC20_POOL_FACTORY: 'ERC20PoolFactoryRc11',
+    AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfoRc11',
   },
   morphoblue: {
     MORPHO_BLUE: 'MorphoBlue',

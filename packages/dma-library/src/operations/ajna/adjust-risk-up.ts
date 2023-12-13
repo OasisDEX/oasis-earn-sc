@@ -90,6 +90,7 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
   )
 
   const depositBorrow = actions.ajna.ajnaDepositBorrow(
+    network,
     {
       quoteToken: debt.address,
       collateralToken: collateral.address,

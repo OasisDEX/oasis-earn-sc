@@ -104,6 +104,7 @@ export async function simulateAdjustment(
     options: {
       collectSwapFeeFrom: collectFeeFrom,
     },
+    network: dependencies.network,
   }
 
   // TODO: Refactor AjnaPosition to extend IPositionV2 (eventually)

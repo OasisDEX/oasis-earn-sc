@@ -1,16 +1,16 @@
 name: Lint
 
-on: 
+on:
   push:
-      branches:
-        - dev
+    branches:
+      - dev
   pull_request:
   workflow_dispatch:
-      inputs:
-        force_lint_files:
-          description: 'Force lint files (true/false)'
-          required: false
-          default: 'false'
+    inputs:
+      force_lint_files:
+        description: 'Force lint files (true/false)'
+        required: false
+        default: 'false'
 jobs:
   files:
     runs-on: ubuntu-latest
@@ -46,6 +46,8 @@ jobs:
           BLOCK_NUMBER: 15946543
           NETWORK_FORK: 'mainnet'
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
+          PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}
+          PRIV_KEY_TENDERLY: ${{ secrets.PRIV_KEY_MAINNET }}
 
       - name: Lint
         run: yarn lint

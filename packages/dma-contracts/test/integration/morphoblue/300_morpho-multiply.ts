@@ -18,7 +18,7 @@ import { expect } from 'chai'
 import { Signer } from 'ethers'
 import hre from 'hardhat'
 
-import { deployMorphoBlueSystem } from './utils'
+import { deployTestMorphoBlueSystem } from './utils'
 import { expectMarketStatus, expectPosition } from './utils/morpho.direct.utils'
 import { opMorphoBlueOpenMultiply } from './utils/morpho.operations.multiply.utils'
 
@@ -55,7 +55,7 @@ describe.skip('Multiply Operations | MorphoBlue | Integration', async () => {
         hre,
         blockNumber: testBlockNumber,
       },
-      [deployMorphoBlueSystem],
+      [deployTestMorphoBlueSystem],
     )
 
     provider = snapshot.config.provider

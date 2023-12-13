@@ -432,6 +432,10 @@ export const config: SystemConfig = {
       name: 'BAT',
       address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF',
     },
+    BWAJNA: {
+      name: 'BWAJNA',
+      address: '0x936Ab482d6bd111910a42849D3A51Ff80BB0A711',
+    },
     CBETH: {
       name: 'CBETH',
       address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704',
@@ -1293,6 +1297,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_TBTCGHO',
       address: ADDRESS_ZERO,
     },
+    AjnaPoolPairs_CBETHUSDBC: {
+      name: 'AjnaPoolPairs_CBETHUSDBC',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0xaF9bc1F09fe561CbD00018fC352507fD23cD46E2',
@@ -1300,6 +1308,14 @@ export const config: SystemConfig = {
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
       address: '0xFb6EdFC7ADc67645423c233332efD6E6804e72F5',
+    },
+    AjnaRewardsReedemer: {
+      name: 'AjnaRewardsReedemer',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaBonusRewardsReedemer: {
+      name: 'AjnaBonusRewardsReedemer',
+      address: '0x0000000000000000000000000000000000000000',
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',

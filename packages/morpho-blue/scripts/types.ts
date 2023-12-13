@@ -27,14 +27,28 @@ export type TokensDeployment = {
 }
 
 /**
- * @notice Oracle deployment configuration
+ * @notice Mock oracle deployment configuration
  */
-export type OraclesConfig = {
+export type MockOraclesConfig = {
   [loanToken: string]: {
     [collateralToken: string]: {
       factory: typeof ContractFactory
       contractName: string
       initialPrice: BigNumber
+    }
+  }
+}
+
+/**
+ * @notice Wrapper oracle deployment configuration
+ */
+export type WrapperOraclesConfig = {
+  [loanToken: string]: {
+    [collateralToken: string]: {
+      factory: typeof ContractFactory
+      contractName: string
+      loanTokenAggregator: Address
+      collateralTokenAggregator: Address
     }
   }
 }

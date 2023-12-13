@@ -362,11 +362,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     let configString = inspect(this.config, { depth: null })
     configString = this.replaceServiceRegistryName(configString, this.findStringPath)
 
+    const networkEnumString =
+      this.network === Network.TENDERLY
+        ? this.getNetworkEnumString(Network.MAINNET)
+        : this.getNetworkEnumString(this.network)
+
     writeFile(
       `./../deploy-configurations/configs/${this.network}.conf.ts`,
-      `import { loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${this.getNetworkEnumString(
-        this.network,
-      )})\n\nexport const config: SystemConfig = ${configString}`,
+      `import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${networkEnumString})\n\nexport const config: SystemConfig = ${configString}`,
       (error: any) => {
         if (error) {
           console.log('ERROR: ', error)
@@ -1080,6 +1083,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
+    if (this.network !== Network.HARDHAT) {
+      console.log('Not resetting node, not on hardhat network')
+      return
+    }
     if (!this.provider) throw new Error('No provider set')
     this.log(`\x1b[90mResetting fork to block number: ${blockNumber} using ${this.rpcUrl} \x1b[0m`)
     await this.provider.send('hardhat_reset', [
@@ -1093,6 +1100,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async resetNodeToLatestBlock() {
+    if (this.network !== Network.HARDHAT) {
+      console.log('Not resetting node, not on hardhat network')
+      return
+    }
     if (!this.provider) throw new Error('No provider set')
     await this.provider.send('hardhat_reset', [
       {
