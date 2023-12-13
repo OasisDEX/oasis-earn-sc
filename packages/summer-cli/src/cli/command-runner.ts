@@ -57,7 +57,7 @@ export function makeCommandRunner(commands: Record<string, Command>) {
             error: RunFailures.CommandFailed,
             command: commandName,
             args,
-            e: e?.message
+            e: e?.message,
           };
         }
       } catch (e) {

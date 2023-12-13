@@ -1,13 +1,10 @@
 import { MorphoBluePosition } from '@dma-library/types'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
-import morphoblueAbi from '@abis/external/protocols/morphoblue/morpho.json'
-import oracleAbi from '@abis/external/protocols/morphoblue/oracle.json'
-import irmAbi from '@abis/external/protocols/morphoblue/irm.json'
 
-import type { Morpho } from '@oasisdex/abis/types/ethers-contracts/protocols/morphoblue'
-import { Oracle } from '@oasisdex/abis/types/ethers-contracts/protocols/morphoblue/Oracle'
-import { Irm } from '@oasisdex/abis/types/ethers-contracts/protocols/morphoblue/Irm'
+import { Morpho__factory } from "@typechain/factories/abis/external/protocols/morphoblue/Morpho__factory"
+import { Oracle__factory } from "@typechain/factories/abis/external/protocols/morphoblue/Oracle__factory"
+import { Irm__factory } from "@typechain/factories/abis/external/protocols/morphoblue/Irm__factory"
 import { ONE, TEN } from '../../../../dma-common/constants/numbers'
 
 interface Args {
@@ -53,7 +50,7 @@ export async function getMorphoPosition(
   { getCumulatives, morphoAddress, provider }: Dependencies,
 ): Promise<MorphoBluePosition> {
 
-  const morpho = new ethers.Contract(morphoAddress, morphoblueAbi, provider) as any as Morpho
+  const morpho = Morpho__factory.connect(morphoAddress, provider)
 
   const marketParams = await morpho.idToMarketParams(marketId)
   const market = await morpho.market(marketId)
@@ -66,8 +63,8 @@ export async function getMorphoPosition(
     totalBorrowShares: new BigNumber(market.totalBorrowShares.toString()).div(TEN.pow(24)),
   }
 
-  const oracle = new ethers.Contract(marketParams.oracle, oracleAbi, provider) as any as Oracle
-  const irm = new ethers.Contract(marketParams.irm, irmAbi, provider) as any as Irm
+  const oracle = Oracle__factory.connect(marketParams.oracle, provider)
+  const irm = Irm__factory.connect(marketParams.irm, provider)
 
   const price = await oracle.price()
   const rate = await irm.borrowRateView(marketParams, market)

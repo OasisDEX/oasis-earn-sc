@@ -24,7 +24,6 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@oasisdex/abis": "file:../abis",
     "bignumber.js": "9.0.1",
     "ethers": "5.6.2"
   },

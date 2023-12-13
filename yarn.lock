@@ -3543,10 +3543,13 @@
   dependencies:
     nx "15.9.2"
 
-"@oasisdex/abis@file:packages/abis":
-  version "1.0.0"
+"@oasisdex/dma-library@^0.5.18":
+  version "0.5.32"
+  resolved "https://registry.yarnpkg.com/@oasisdex/dma-library/-/dma-library-0.5.32.tgz#f1ad68a1dc4ad3065b633b6d8f7201219ab9a4ec"
+  integrity sha512-A4CxaHHYL2tAYvsndmk5p4VrLAYw5D49l5SDYvtFkTVO18iNuxvXAAtPJLG9aF523eA/PpfUJ4w4HdYZ5wjxUA==
   dependencies:
-    ethers "5.7.2"
+    bignumber.js "9.0.1"
+    ethers "5.6.2"
 
 "@oasisdex/oasis-actions@^0.2.16":
   version "0.2.16"
