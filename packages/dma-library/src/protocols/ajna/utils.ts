@@ -1,6 +1,9 @@
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero } from '@dma-common/utils/common'
-import { ajnaCollateralizationFactor } from '@dma-library/protocols/ajna/consts'
+import {
+  ajnaCollateralizationFactor,
+  ajnaPaybackAllWithdrawAllValueOffset,
+} from '@dma-library/protocols/ajna/consts'
 import { ajnaBuckets } from '@dma-library/strategies'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
 import {
@@ -259,8 +262,9 @@ export function calculateMaxGenerate(
 
   const maxDebt = collateralAmount.times(lup).div(ajnaCollateralizationFactor).minus(positionDebt)
 
-  // This fee calculated here acts like an offset from calculated maxDebt value, which is needed due to
-  // constantly growing debt
+  // This fee calculated here acts like an offset from calculated maxDebt value. It's important
+  // because this fee is added to user debt, and we need to take it into account when calculating max
+  // generate
   const originationFee = getAjnaBorrowOriginationFee({
     interestRate: pool.interestRate,
     quoteAmount: maxDebt,
@@ -270,14 +274,21 @@ export function calculateMaxGenerate(
     buckets: pool.buckets,
     debt: pool.debt,
   })
-  const poolLiquidityWithFee = negativeToZero(poolLiquidity.minus(originationFee))
-  const maxDebtWithFee = negativeToZero(maxDebt.minus(originationFee))
 
-  if (poolLiquidityWithFee.lt(maxDebtWithFee)) {
-    return poolLiquidityWithFee
+  if (poolLiquidity.lte(maxDebt)) {
+    const fee = getAjnaBorrowOriginationFee({
+      interestRate: pool.interestRate,
+      quoteAmount: poolLiquidity,
+    })
+
+    return negativeToZero(
+      poolLiquidity.minus(fee).times(ONE.minus(ajnaPaybackAllWithdrawAllValueOffset)),
+    )
   }
 
-  return maxDebtWithFee
+  return negativeToZero(maxDebt.minus(originationFee)).times(
+    ONE.minus(ajnaPaybackAllWithdrawAllValueOffset),
+  )
 }
 
 export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumber, BigNumber] {
