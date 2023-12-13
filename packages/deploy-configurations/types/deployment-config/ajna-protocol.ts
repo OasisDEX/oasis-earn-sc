@@ -35,5 +35,7 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_CBETHUSDBC'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
+  | 'AjnaRewardsReedemer'
+  | 'AjnaBonusRewardsReedemer'
   | 'ERC20PoolFactory'
 export type AjnaProtocolContracts = Record<AjnaProtocol, ConfigEntry>

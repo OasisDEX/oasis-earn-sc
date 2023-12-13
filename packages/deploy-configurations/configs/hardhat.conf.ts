@@ -1309,6 +1309,14 @@ export const config: SystemConfig = {
       name: 'AjnaRewardsClaimer',
       address: '0xFb6EdFC7ADc67645423c233332efD6E6804e72F5',
     },
+    AjnaRewardsReedemer: {
+      name: 'AjnaRewardsReedemer',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaBonusRewardsReedemer: {
+      name: 'AjnaBonusRewardsReedemer',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
       address: '0x33960C912b67Fe1Abf4738e2b754d299d99cF2F1',
