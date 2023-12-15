@@ -5,7 +5,7 @@ import { ServiceRegistry } from "../core/ServiceRegistry.sol";
 import { IERC20 } from "../interfaces/tokens/IERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { SafeERC20 } from "../libs/SafeERC20.sol";
-import { ONE_INCH_AGGREGATOR } from "../core/constants/Common.sol";
+import { ONE_INCH_AGGREGATOR5 } from "../core/constants/Common.sol";
 import { SwapData } from "../core/types/Common.sol";
 
 contract Swap {
@@ -136,7 +136,7 @@ contract Swap {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
 
-    address oneInch = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
+    address oneInch = registry.getRegisteredService(ONE_INCH_AGGREGATOR5);
 
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,

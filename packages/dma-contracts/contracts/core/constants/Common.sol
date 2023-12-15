@@ -6,6 +6,7 @@ string constant OPERATION_EXECUTOR = "OperationExecutor_3";
 string constant OPERATIONS_REGISTRY = "OperationsRegistry_3";
 string constant CHAINLOG_VIEWER = "ChainLogView";
 string constant ONE_INCH_AGGREGATOR = "OneInchAggregator";
+string constant ONE_INCH_AGGREGATOR5 = "OneInchAggregator5";
 string constant DS_GUARD_FACTORY = "DSGuardFactory";
 string constant WETH = "WETH";
 string constant DAI = "DAI";
