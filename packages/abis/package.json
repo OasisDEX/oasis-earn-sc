@@ -7,10 +7,7 @@
     "typechain": "typechain --target=ethers-v5 \"./external/**/**.json\" \"./system/**/**.json\"",
     "postinstall": "yarn typechain"
   },
-  "devDependencies": {
-    "@typechain/ethers-v5": "^11.1.2",
-    "typechain": "^8.3.2"
-  },
+  "devDependencies": {},
   "dependencies": {
     "ethers": "5.7.2"
   }

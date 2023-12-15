@@ -2,9 +2,12 @@ import { MorphoBluePosition } from '@dma-library/types'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import { Morpho__factory } from "@typechain/factories/abis/external/protocols/morphoblue/Morpho__factory"
-import { Oracle__factory } from "@typechain/factories/abis/external/protocols/morphoblue/Oracle__factory"
-import { Irm__factory } from "@typechain/factories/abis/external/protocols/morphoblue/Irm__factory"
+// import { Morpho } from "@typechain/abis/external/protocols/morphoblue/Morpho"
+// import { Oracle } from "@typechain/abis/external/protocols/morphoblue/Oracle"
+// import { Irm } from "@typechain/abis/external/protocols/morphoblue/Irm"
+
+import { Morpho__factory, Oracle__factory, Irm__factory } from '../../../../dma-contracts/typechain'
+
 import { ONE, TEN } from '../../../../dma-common/constants/numbers'
 
 interface Args {
