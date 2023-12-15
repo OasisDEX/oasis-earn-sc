@@ -126,8 +126,6 @@ describe('OperationExecutorFL', async function () {
       )
     ).address
 
-    console.log('PROXY ADDRESS', proxyAddress)
-
     deploy = await createDeploy({ config, debug: true })
   })
 
@@ -159,20 +157,21 @@ describe('OperationExecutorFL', async function () {
       ADDRESSES.FlashMintModule,
       proxyAddress,
     ])
+    const [opExecTester] = await deploy('OpExecTester', [])
 
     const serviceRegistryWrapper = new ServiceRegistry(serviceRegistry.address, signer)
     // @ts-ignore
     await serviceRegistryWrapper.addEntry('DummyReadAction', dummyReadAction.address)
     // @ts-ignore
     await serviceRegistryWrapper.addEntry('DummyWriteAction', dummyWriteAction.address)
-    await serviceRegistryWrapper.addEntry('TakeFlashloan_3', takeAFlashloan.address)
-    await serviceRegistryWrapper.addEntry('SendToken_4', sendToken.address)
+    await serviceRegistryWrapper.addEntry('TakeFlashloan_4', takeAFlashloan.address)
+    await serviceRegistryWrapper.addEntry('SendToken_5', sendToken.address)
     // @ts-ignore
     await serviceRegistryWrapper.addEntry('MaliciousFlashloanAction', maliciousFLAction.address)
     // @ts-ignore
     await serviceRegistryWrapper.addEntry('ChainLogView', chainLogViewAddress)
     // @ts-ignore
-    await serviceRegistryWrapper.addEntry('OperationExecutor_2', operationExecutor.address)
+    await serviceRegistryWrapper.addEntry('OperationExecutor_3', operationExecutor.address)
     await serviceRegistryWrapper.addEntry('BalancerVault', ADDRESSES.BalancerVault)
 
     return {
@@ -185,6 +184,7 @@ describe('OperationExecutorFL', async function () {
       maliciousFLAction,
       sendToken,
       takeAFlashloan,
+      opExecTester,
     }
   }
 
@@ -209,6 +209,41 @@ describe('OperationExecutorFL', async function () {
 
     const events = getEvents(receipt, EventFragment.from('ReadValue(bytes32 value)'))
     expect(events.length).to.be.equal(2)
+  })
+
+  it('should check if returned operationName from OpExec is the same as expected one', async () => {
+    await system.opsRegistry.addOperation(
+      'CUSTOM_OPERATION2',
+      calculateOperationHash(dummyOperation),
+    )
+
+    const operationNameBytes32 = ethers.utils.formatBytes32String('CUSTOM_OPERATION2')
+
+    const tx = await system.opExecTester.execute(system.operationExecutor.address, system.operationExecutor.interface.encodeFunctionData('executeOp', [
+      dummyOperation,
+    ]), operationNameBytes32)
+    const res = await tx.wait()
+
+    expect(res.status).to.be.eq(1)
+  })
+
+  it('should fail when returned OperationName (bytes32) is different than expected', async () => {
+    await system.opsRegistry.addOperation(
+      'CUSTOM_OPERATION2',
+      calculateOperationHash(dummyOperation),
+    )
+
+    const operationNameBytes32 = ethers.utils.formatBytes32String('CUSTOM_OPERATION3')
+
+    try {
+      await system.opExecTester.execute(system.operationExecutor.address, system.operationExecutor.interface.encodeFunctionData('executeOp', [
+        dummyOperation,
+      ]), operationNameBytes32)
+
+    } catch (e: any) {
+      expect(e.reason.includes('OpExecTester: opName mismatch')).to.be.true
+    }
+
   })
 
   it('should fail because of non-existent operation', async () => {
