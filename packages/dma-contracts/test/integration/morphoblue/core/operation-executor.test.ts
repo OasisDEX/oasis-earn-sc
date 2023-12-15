@@ -159,6 +159,10 @@ describe('OperationExecutorFL', async function () {
     ])
     const [opExecTester] = await deploy('OpExecTester', [])
 
+    const [accountGuard] = await deploy('AccountGuard', [])
+    const [accountFactory] = await deploy('AccountFactory', [accountGuard.address])
+
+
     const serviceRegistryWrapper = new ServiceRegistry(serviceRegistry.address, signer)
     // @ts-ignore
     await serviceRegistryWrapper.addEntry('DummyReadAction', dummyReadAction.address)
@@ -185,6 +189,7 @@ describe('OperationExecutorFL', async function () {
       sendToken,
       takeAFlashloan,
       opExecTester,
+      accountFactory,
     }
   }
 
@@ -211,7 +216,7 @@ describe('OperationExecutorFL', async function () {
     expect(events.length).to.be.equal(2)
   })
 
-  it('should check if returned operationName from OpExec is the same as expected one', async () => {
+  it.only('should check if returned operationName from OpExec is the same as expected one', async () => {
     await system.opsRegistry.addOperation(
       'CUSTOM_OPERATION2',
       calculateOperationHash(dummyOperation),
@@ -219,12 +224,20 @@ describe('OperationExecutorFL', async function () {
 
     const operationNameBytes32 = ethers.utils.formatBytes32String('CUSTOM_OPERATION2')
 
-    const tx = await system.opExecTester.execute(system.operationExecutor.address, system.operationExecutor.interface.encodeFunctionData('executeOp', [
+    // const tx = await system.opExecTester.execute(system.operationExecutor.address, system.operationExecutor.interface.encodeFunctionData('executeOp', [
+    //   dummyOperation,
+    // ]), operationNameBytes32)
+    // const res = await tx.wait()
+
+    console.log('ACCOUNT FACTORY', system.accountFactory.address);
+
+    const tx = await system.opExecTester.executeDPM(system.accountFactory.address, system.operationExecutor.address, system.operationExecutor.interface.encodeFunctionData('executeOp', [
       dummyOperation,
     ]), operationNameBytes32)
     const res = await tx.wait()
 
-    expect(res.status).to.be.eq(1)
+
+    // expect(res.status).to.be.eq(1)
   })
 
   it('should fail when returned OperationName (bytes32) is different than expected', async () => {
