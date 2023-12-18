@@ -17,26 +17,27 @@ function listOperations(network: Network, operationsDatabase: OperationsDatabase
   console.log('\n================================\n')
 }
 
-function generateOperationTuple(
+function generateOperationHash(
   taskArgs: any,
   network: Network,
   operationsDatabase: OperationsDatabase,
 ) {
   console.log('======================================================================')
-  console.log(`Generating tuple for operation ${taskArgs.op} on network '${network}'`)
+  console.log(`Generating hash for operation ${taskArgs.op} on network '${network}'`)
   console.log('======================================================================\n')
 
-  const operationTuple: string | undefined = operationsDatabase.getTuple(taskArgs.op)
+  const operationHash: string | undefined = operationsDatabase.getOpHash(taskArgs.op)
 
-  if (!operationTuple) {
+  if (!operationHash) {
     throw new Error(`Operation ${taskArgs.op} not found`)
   }
 
-  console.log(operationTuple)
+  console.log('Hash of action hashes')
+  console.log(operationHash)
   console.log('\n======================================================================\n')
 }
 
-task('gen-op-tuple', 'Generates calldata for adding an operation to the OperationRegistry')
+task('gen-op-hash', 'Generates operation hash for adding an operation to the OperationRegistry')
   .addOptionalParam<string>('op', 'The name of the operation to generate calldata for')
   .addFlag('list', 'List all available operations')
   .setAction(async (taskArgs, hre) => {
@@ -45,7 +46,6 @@ task('gen-op-tuple', 'Generates calldata for adding an operation to the Operatio
     const network = hreNetwork === 'hardhat' ? Network.MAINNET : (hreNetwork as Network)
 
     const operationsDatabase: OperationsDatabase = new OperationsDatabase(network)
-
     if (!taskArgs.list && !taskArgs.op) {
       throw new Error('Either --list or --op must be specified')
     }
@@ -55,5 +55,5 @@ task('gen-op-tuple', 'Generates calldata for adding an operation to the Operatio
       return
     }
 
-    generateOperationTuple(taskArgs, network, operationsDatabase)
+    generateOperationHash(taskArgs, network, operationsDatabase)
   })

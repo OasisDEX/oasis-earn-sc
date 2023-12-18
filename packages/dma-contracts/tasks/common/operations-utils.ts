@@ -30,32 +30,16 @@ export class OperationsDatabase {
     }
   }
 
-  public getTuple(opName: string): string | undefined {
+  public getOpHash(opName: string): string | undefined {
     const op = this.getDefinition(opName)
     if (!op) {
       return undefined
     }
 
-    return JSON.stringify([
-      op.actions.map(op => op.hash),
-      op.actions.map(op => op.optional),
-      op.name,
-    ])
-  }
+    const hashes = op.actions.map(op => op.hash)
+    const operationHash = ethers.utils.solidityKeccak256(['bytes32[]'], [hashes])
 
-  public getCalldataTuple(opName: string): any[] | undefined {
-    const op = this.getDefinition(opName)
-    if (!op) {
-      return undefined
-    }
-
-    return [
-      {
-        actions: op.actions.map(op => op.hash),
-        optional: op.actions.map(op => op.optional),
-        name: op.name,
-      },
-    ]
+    return operationHash
   }
 
   public getOperationNames(): string[] {
@@ -84,9 +68,12 @@ export class OperationsDatabase {
     const operationsRegistryIface = new ethers.utils.Interface(OperationsRegistryInterface)
 
     operationDefinitions.forEach(operationDefinition => {
-      const parameters = this.getCalldataTuple(operationDefinition.name)
+      const opHash = this.getOpHash(operationDefinition.name)
 
-      const calldata = operationsRegistryIface.encodeFunctionData('addOperation', parameters)
+      const calldata = operationsRegistryIface.encodeFunctionData('addOperation', [
+        operationDefinition.name,
+        opHash,
+      ])
 
       this.opNameToCalldata[operationDefinition.name] = calldata
     })
