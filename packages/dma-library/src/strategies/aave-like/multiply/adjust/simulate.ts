@@ -31,7 +31,7 @@ export async function simulate(
     dependencies.addresses,
   )
 
-  const currentPosition = await resolveCurrentPositionForProtocol(args, dependencies)
+  const currentPosition = dependencies.currentPosition || await resolveCurrentPositionForProtocol(args, dependencies)
   const protocolData = await resolveProtocolData(
     {
       collateralTokenAddress,
