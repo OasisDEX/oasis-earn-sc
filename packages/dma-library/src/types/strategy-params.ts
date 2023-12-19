@@ -102,7 +102,7 @@ export type WithDebtChange<Tokens> = {
 
 type SharedStrategyDependencies = {
   provider: providers.Provider
-  currentPosition: IPosition
+  currentPosition: AaveLikePosition
   proxy: Address
   user: Address
   network: Network
