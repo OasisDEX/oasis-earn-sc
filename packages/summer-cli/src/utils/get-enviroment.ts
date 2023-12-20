@@ -1,4 +1,4 @@
-import { Address } from '@oasisdex/deploy-configurations/types/address';
+import { Address } from '../../../deploy-configurations/types/address';
 import { ethers } from 'ethers';
 
 import { createEnviroment, Enviroment } from '../logic/common/enviroment';

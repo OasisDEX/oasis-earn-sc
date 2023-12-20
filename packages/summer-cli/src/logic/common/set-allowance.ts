@@ -1,6 +1,6 @@
 import ERC20 from '@oasisdex/abis/external/tokens/IERC20.json';
 import { IERC20 } from '@oasisdex/abis/types/ethers-contracts/tokens/IERC20';
-import { Address } from '@oasisdex/deploy-configurations/types/address';
+import { Address } from '../../../../deploy-configurations/types/address';
 import { Contract, ethers } from 'ethers';
 
 import {

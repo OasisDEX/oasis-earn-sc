@@ -1,5 +1,5 @@
 import { ADDRESS_ZERO, ADDRESSES } from '@oasisdex/deploy-configurations';
-import { Address } from '@oasisdex/deploy-configurations/types/address';
+import { Address } from '../../../deploy-configurations/types/address';
 import { ethers } from 'ethers';
 
 import { SupportedNetowkrs } from './network';
