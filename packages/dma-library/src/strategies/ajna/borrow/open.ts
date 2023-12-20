@@ -2,6 +2,7 @@ import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { ajnaBuckets } from '@dma-library/strategies'
 import { validateLiquidationPriceCloseToMarketPrice } from '@dma-library/strategies/ajna/validation/borrowish/liquidationPriceCloseToMarket'
+import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 import { AjnaCommonDependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
 import { AjnaOpenBorrowPayload } from '@dma-library/types/ajna/ajna-dependencies'
 import { views } from '@dma-library/views'
@@ -13,7 +14,6 @@ import {
   validateDustLimit,
   validateLiquidity,
 } from '../validation'
-import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 
 export type AjnaOpenBorrowStrategy = (
   args: AjnaOpenBorrowPayload,

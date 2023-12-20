@@ -1,24 +1,24 @@
+import { Network } from '@deploy-configurations/types/network'
+import { Address } from '@dma-common/types'
+import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
-import { views } from '@dma-library/views'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-
+import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
+import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 // import {
 //   validateBorrowUndercollateralized,
 //   validateDustLimit,
 //   validateLiquidity,
 // } from '../../validation'
 import { AjnaStrategy, MorphoBluePosition } from '@dma-library/types'
-import { Address } from '@dma-common/types'
-import { Network } from '@deploy-configurations/types/network'
-import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
-import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { amountToWei } from '@dma-common/utils/common'
+import { views } from '@dma-library/views'
+import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+
 import { TEN } from '../../../../../dma-common/constants/numbers'
-import { validateLiquidity } from '../validation/validateLiquidity'
 import { validateBorrowUndercollateralized } from '../validation/validateBorrowUndercollateralized'
-import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
+import { validateLiquidity } from '../validation/validateLiquidity'
 
 export interface MorphoblueOpenBorrowPayload {
   quoteAmount: BigNumber
@@ -68,12 +68,17 @@ export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
   }
 
   const isDepositingEth =
-    position.marketPatams.collateralToken.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
-  const isBorrowingEth = position.marketPatams.loanToken.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
+    position.marketPatams.collateralToken.toLowerCase() ===
+    dependencies.addresses.tokens.WETH.toLowerCase()
+  const isBorrowingEth =
+    position.marketPatams.loanToken.toLowerCase() ===
+    dependencies.addresses.tokens.WETH.toLowerCase()
 
   const operation = await operations.morphoblue.borrow.openDepositBorrow(
     {
-      userFundsTokenAddress: isDepositingEth ? dependencies.addresses.tokens.ETH : position.marketPatams.collateralToken,
+      userFundsTokenAddress: isDepositingEth
+        ? dependencies.addresses.tokens.ETH
+        : position.marketPatams.collateralToken,
       userFundsTokenAmount: amountToWei(args.collateralAmount, args.collateralPrecision),
       depositorAddress: args.user,
       morphoBlueMarket: {
@@ -82,7 +87,7 @@ export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
         oracle: position.marketPatams.oracle,
         irm: position.marketPatams.irm,
         lltv: position.marketPatams.lltv.times(TEN.pow(18)),
-      }
+      },
     },
     {
       morphoBlueMarket: {
@@ -98,16 +103,14 @@ export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
     {
       protocol: 'MorphoBlue',
       positionType: 'Borrow',
-    }, 
-    dependencies.addresses, 
-    dependencies.network
-    )
+    },
+    dependencies.addresses,
+    dependencies.network,
+  )
 
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
 
-  const warnings = [
-    ...validateGenerateCloseToMaxLtv(targetPosition, position),
-  ]
+  const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, position)]
 
   const errors = [
     ...validateLiquidity(position, args.quoteAmount),

@@ -13,7 +13,7 @@ export const strategies: {
   aave,
   ajna,
   spark,
-  morphoblue
+  morphoblue,
 }
 
 export const ajnaBuckets = buckets

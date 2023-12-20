@@ -9,12 +9,12 @@ import {
 } from '@dma-library/types/ajna'
 import { ethers } from 'ethers'
 
+import { validateWithdrawCloseToMaxLtv } from '../../validation/closeToMaxLtv'
 import {
   validateDustLimit,
   validateOverWithdraw,
   validateWithdrawUndercollateralized,
 } from '../validation'
-import { validateWithdrawCloseToMaxLtv } from '../../validation/closeToMaxLtv'
 
 export type AjnaPaybackWithdrawStrategy = (
   args: AjnaBorrowPayload,

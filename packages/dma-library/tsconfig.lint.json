@@ -44,5 +44,5 @@
       "path": "../domain"
     }
   ],
-  "include": ["./src/**/*", "./src/strategies/ajna/earn/buckets.json", "test"]
+  "include": ["./src/**/*", "./src/strategies/ajna/earn/buckets.json", "test", "../dma-contracts/typechain",]
 }

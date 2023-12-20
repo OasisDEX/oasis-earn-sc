@@ -1,9 +1,12 @@
-import { MorphoDepositBorrowStrategy, depositBorrow as morphoDepositBorrow } from './borrow/deposit-borrow'
 import {
-  open as morphoblueOpenDepositBorrow,
-  MorphoOpenBorrowStrategy
-} from './borrow/open'
-import { MorphoPaybackWithdrawStrategy, paybackWithdraw as morphoPaybackWithdraw } from './borrow/payback-withdraw'
+  depositBorrow as morphoDepositBorrow,
+  MorphoDepositBorrowStrategy,
+} from './borrow/deposit-borrow'
+import { MorphoOpenBorrowStrategy, open as morphoblueOpenDepositBorrow } from './borrow/open'
+import {
+  MorphoPaybackWithdrawStrategy,
+  paybackWithdraw as morphoPaybackWithdraw,
+} from './borrow/payback-withdraw'
 
 export const morphoblue: {
   borrow: {

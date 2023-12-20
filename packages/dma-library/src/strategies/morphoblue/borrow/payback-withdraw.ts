@@ -1,24 +1,24 @@
+import { Network } from '@deploy-configurations/types/network'
+import { Address } from '@dma-common/types'
+import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
-import { views } from '@dma-library/views'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-
+import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
+import { validateWithdrawCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
+import { validateOverRepay } from '@dma-library/strategies/validation/overRepay'
 // import {
 //   validateBorrowUndercollateralized,
 //   validateDustLimit,
 //   validateLiquidity,
 // } from '../../validation'
 import { AjnaStrategy, MorphoBluePosition } from '@dma-library/types'
-import { Address } from '@dma-common/types'
-import { Network } from '@deploy-configurations/types/network'
-import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
-import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { amountToWei } from '@dma-common/utils/common'
+import { views } from '@dma-library/views'
+import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+
 import { TEN, ZERO } from '../../../../../dma-common/constants/numbers'
 import { validateBorrowUndercollateralized } from '../validation/validateBorrowUndercollateralized'
-import { validateOverRepay } from '@dma-library/strategies/validation/overRepay'
-import { validateGenerateCloseToMaxLtv, validateWithdrawCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 
 export interface MorphobluePaybackWithdrawPayload {
   quoteAmount: BigNumber
@@ -64,13 +64,17 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
   )
 
   const isPaybackingEth =
-    position.marketPatams.collateralToken.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
+    position.marketPatams.collateralToken.toLowerCase() ===
+    dependencies.addresses.tokens.WETH.toLowerCase()
 
   const operation = await operations.morphoblue.borrow.paybackWithdraw(
     {
       amountDebtToPaybackInBaseUnit: amountToWei(args.quoteAmount, args.quotePrecision),
       proxy: args.proxyAddress,
-      amountCollateralToWithdrawInBaseUnit: amountToWei(args.collateralAmount, args.collateralPrecision),
+      amountCollateralToWithdrawInBaseUnit: amountToWei(
+        args.collateralAmount,
+        args.collateralPrecision,
+      ),
       user: args.user,
       morphoBlueMarket: {
         loanToken: position.marketPatams.loanToken,
@@ -78,22 +82,19 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
         oracle: position.marketPatams.oracle,
         irm: position.marketPatams.irm,
         lltv: position.marketPatams.lltv.times(TEN.pow(18)),
-      }
+      },
     },
-    dependencies.addresses, 
-    dependencies.network
-    )
-
+    dependencies.addresses,
+    dependencies.network,
+  )
 
   const targetPosition = position.payback(args.quoteAmount).withdraw(args.collateralAmount)
 
-  const warnings = [
-    ...validateWithdrawCloseToMaxLtv(targetPosition, position),
-  ]
+  const warnings = [...validateWithdrawCloseToMaxLtv(targetPosition, position)]
 
   const errors = [
     ...validateBorrowUndercollateralized(targetPosition, position, ZERO),
-    ...validateOverRepay(position, args.quoteAmount)
+    ...validateOverRepay(position, args.quoteAmount),
   ]
 
   return {

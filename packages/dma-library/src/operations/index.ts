@@ -1,7 +1,6 @@
-
 import { AaveOperations, aaveOperations } from './aave'
 import { AjnaOperations, ajnaOperations } from './ajna'
-import { MorphoBlueOperations, morphoBlueOperations  } from './morphoblue'
+import { MorphoBlueOperations, morphoBlueOperations } from './morphoblue'
 import { SparkOperations, sparkOperations } from './spark'
 
 export { AaveBorrowOperations, AaveMultiplyOperations } from './aave'

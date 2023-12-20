@@ -1,7 +1,7 @@
+export { validateOverRepay } from '../../validation/overRepay'
 export { validateDustLimit } from './borrowish/dustLimit'
 export { validateLiquidity } from './borrowish/notEnoughLiquidity'
 export { getPoolLiquidity } from './borrowish/notEnoughLiquidity'
-export { validateOverRepay } from '../../validation/overRepay'
 export { validateOverWithdraw } from './borrowish/overWithdraw'
 export {
   validateBorrowUndercollateralized,

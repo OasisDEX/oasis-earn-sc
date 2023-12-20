@@ -74,9 +74,6 @@ export const SERVICE_REGISTRY_NAMES = {
     CDP_ALLOW: 'CdpAllow',
     CHAINLOG_VIEW: 'ChainLogView',
   },
-  morphoblue: {
-    MORPHO_BLUE: 'MorphoBlue',
-  },
   ajna: {
     DEPOSIT_BORROW: 'AjnaDepositBorrow_2',
     REPAY_WITHDRAW: 'AjnaRepayWithdraw_2',

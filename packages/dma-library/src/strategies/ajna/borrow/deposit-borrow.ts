@@ -11,12 +11,12 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
+import { validateGenerateCloseToMaxLtv } from '../../validation/closeToMaxLtv'
 import {
   validateBorrowUndercollateralized,
   validateDustLimit,
   validateLiquidity,
 } from '../validation'
-import { validateGenerateCloseToMaxLtv } from '../../validation/closeToMaxLtv'
 
 export type AjnaDepositBorrowStrategy = (
   args: AjnaBorrowPayload,
