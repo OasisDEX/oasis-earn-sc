@@ -51,7 +51,7 @@ export function makeCommandRunner(commands: Record<string, Command>) {
             run: 'successfull',
             command: commandName,
           };
-        } catch (e) {
+        } catch (e: any) {
           return {
             run: 'failed',
             error: RunFailures.CommandFailed,
@@ -60,7 +60,7 @@ export function makeCommandRunner(commands: Record<string, Command>) {
             e: e?.message,
           };
         }
-      } catch (e) {
+      } catch (e: any) {
         return {
           run: 'failed',
           error: RunFailures.InvalidArguments,
