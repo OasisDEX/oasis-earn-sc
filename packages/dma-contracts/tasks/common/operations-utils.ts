@@ -37,6 +37,7 @@ export class OperationsDatabase {
     }
 
     const hashes = op.actions.map(op => op.hash)
+    console.log('Action hashes', hashes)
     const operationHash = ethers.utils.solidityKeccak256(['bytes32[]'], [hashes])
 
     return operationHash
