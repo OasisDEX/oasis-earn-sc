@@ -1,6 +1,7 @@
 {
   "name": "@oasisdex/dma-library",
   "version": "0.5.33-morpho",
+  "packageManager": "yarn@1.22.1",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

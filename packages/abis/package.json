@@ -1,5 +1,6 @@
 {
   "name": "@oasisdex/abis",
+  "packageManager": "yarn@1.22.1",
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
