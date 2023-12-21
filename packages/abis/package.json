@@ -5,6 +5,8 @@
   "private": true,
   "license": "MIT",
   "scripts": {
+    "prebuild": "yarn typechain",
+    "prelint": "yarn typechain",
     "typechain": "typechain --target=ethers-v5 \"./external/**/**.json\" \"./system/**/**.json\"",
     "postinstall": "yarn typechain"
   },

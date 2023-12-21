@@ -24,7 +24,7 @@
     "build": "yarn clean && yarn fetch-compilers && yarn compile && lerna run build --stream",
     "format": "lerna run format --stream",
     "format:check": "lerna run format:check --stream",
-    "lint": "lerna run lint --stream && yarn clean",
+    "lint": "lerna run prelint --stream && lerna run lint --stream && yarn clean",
     "publish:all": "npx lerna publish --no-private"
   },
   "devDependencies": {
