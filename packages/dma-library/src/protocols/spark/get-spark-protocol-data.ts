@@ -14,7 +14,7 @@ import BigNumber from 'bignumber.js'
 export type SparkProtocolData = AaveLikeProtocolData
 
 export type GetSparkProtocolData = (
-  args: SharedAaveLikeProtocolDataArgs,
+  args: SharedAaveLikeProtocolDataArgs & {useUserEmode?: boolean},
 ) => Promise<SparkProtocolData>
 
 export const getSparkProtocolData: GetSparkProtocolData = async args => {
@@ -42,6 +42,7 @@ export const getSparkProtocolData: GetSparkProtocolData = async args => {
     proxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
     poolDataProvider.getReserveEModeCategory(collateralTokenAddress),
     poolDataProvider.getReserveEModeCategory(debtTokenAddress),
+    pool.getUserEMode(proxy)
   ])
   const [
     flashloanPrice,
@@ -53,6 +54,7 @@ export const getSparkProtocolData: GetSparkProtocolData = async args => {
     userCollateralData,
     collateralEModeCategory,
     debtEModeCategory,
+    userEMode
   ] = data
 
   const collateralEModeCategoryAsNumber = new BigNumber(
@@ -63,10 +65,11 @@ export const getSparkProtocolData: GetSparkProtocolData = async args => {
     collateralEModeCategoryAsNumber,
     debtEModeCategoryAsNumber,
   )
+  const eModeToUse = args.useUserEmode ? userEMode : reserveEModeCategory
 
   let eModeCategoryData
-  if (pool && reserveEModeCategory !== 0) {
-    eModeCategoryData = await pool.getEModeCategoryData(reserveEModeCategory)
+  if (pool && eModeToUse !== 0) {
+    eModeCategoryData = await pool.getEModeCategoryData(eModeToUse)
   }
 
   return {

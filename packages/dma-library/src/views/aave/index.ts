@@ -97,7 +97,7 @@ export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, d
 }
 
 export type AaveV3GetCurrentPosition = (
-  args: AaveGetCurrentPositionArgs,
+  args: AaveGetCurrentPositionArgs & { useUserEmode?: boolean },
   dependencies: AaveV3GetCurrentPositionDependencies,
 ) => Promise<AaveLikePosition>
 
@@ -119,6 +119,7 @@ export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, d
     proxy: args.proxy,
     provider: dependencies.provider,
     protocolVersion: dependencies.protocolVersion,
+    useUserEmode: args.useUserEmode,
   })
 
   const {
