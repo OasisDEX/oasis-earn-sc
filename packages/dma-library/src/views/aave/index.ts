@@ -168,5 +168,6 @@ export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, d
       maxLoanToValue: maxLoanToValue,
       liquidationThreshold: liquidationThreshold,
     },
+    eModeCategoryData,
   )
 }
