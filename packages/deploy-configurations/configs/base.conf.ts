@@ -1238,8 +1238,8 @@ export const config: SystemConfig = {
   morphoblue: {
     MorphoBlue: {
       name: 'MorphoBlue',
-      address: '0x0000000000000000000000000000000000000000',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE
-    }
-  }
+      address: ADDRESS_ZERO,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+    },
+  },
 }

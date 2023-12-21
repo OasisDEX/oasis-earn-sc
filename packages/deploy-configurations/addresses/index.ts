@@ -29,6 +29,7 @@ import {
   MakerProtocolJoins,
   MakerProtocolPips,
 } from '@deploy-configurations/types/deployment-config/maker-protocol'
+import { MorphoBlueProtocol } from '@deploy-configurations/types/deployment-config/morpho-blue'
 import {
   OptionalSparkProtocolContracts,
   SparkProtocol,
@@ -63,6 +64,7 @@ type DefaultDeployment = {
   }
   [SystemKeys.AUTOMATION]: Record<Automation, Address>
   [SystemKeys.AJNA]: Record<AjnaProtocol, Address>
+  [SystemKeys.MORPHO_BLUE]: Record<MorphoBlueProtocol, Address>
 }
 
 export type Addresses = {
@@ -120,6 +122,9 @@ const createAddressesStructure = (
   },
   ajna: {
     ...extractAddressesFromConfig(ajnaConfig?.ajna || networkConfig.ajna),
+  },
+  morphoblue: {
+    ...extractAddressesFromConfig(networkConfig.morphoblue),
   },
 })
 
