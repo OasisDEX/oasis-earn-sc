@@ -32,8 +32,18 @@ export interface GetPoolData {
 
 export interface AjnaCumulativesData {
   borrowCumulativeDepositUSD: BigNumber
-  borrowCumulativeFeesUSD: BigNumber
+  borrowCumulativeDepositInQuoteToken: BigNumber
+  borrowCumulativeDepositInCollateralToken: BigNumber
   borrowCumulativeWithdrawUSD: BigNumber
+  borrowCumulativeWithdrawInQuoteToken: BigNumber
+  borrowCumulativeWithdrawInCollateralToken: BigNumber
+  borrowCumulativeCollateralDeposit: BigNumber
+  borrowCumulativeCollateralWithdraw: BigNumber
+  borrowCumulativeDebtDeposit: BigNumber
+  borrowCumulativeDebtWithdraw: BigNumber
+  borrowCumulativeFeesUSD: BigNumber
+  borrowCumulativeFeesInQuoteToken: BigNumber
+  borrowCumulativeFeesInCollateralToken: BigNumber
   earnCumulativeFeesInQuoteToken: BigNumber
   earnCumulativeQuoteTokenDeposit: BigNumber
   earnCumulativeQuoteTokenWithdraw: BigNumber
@@ -72,6 +82,16 @@ export async function getPosition(
       borrowCumulativeFeesUSD,
       borrowCumulativeDepositUSD,
       borrowCumulativeWithdrawUSD,
+      borrowCumulativeDepositInQuoteToken,
+      borrowCumulativeDepositInCollateralToken,
+      borrowCumulativeWithdrawInQuoteToken,
+      borrowCumulativeWithdrawInCollateralToken,
+      borrowCumulativeCollateralDeposit,
+      borrowCumulativeCollateralWithdraw,
+      borrowCumulativeDebtDeposit,
+      borrowCumulativeDebtWithdraw,
+      borrowCumulativeFeesInQuoteToken,
+      borrowCumulativeFeesInCollateralToken,
       earnCumulativeFeesInQuoteToken,
       earnCumulativeQuoteTokenDeposit,
       earnCumulativeQuoteTokenWithdraw,
@@ -98,9 +118,19 @@ export async function getPosition(
       .minus(borrowCumulativeDepositUSD)
       .div(borrowCumulativeDepositUSD),
     cumulatives: {
-      borrowCumulativeDepositUSD,
       borrowCumulativeFeesUSD,
+      borrowCumulativeDepositUSD,
       borrowCumulativeWithdrawUSD,
+      borrowCumulativeDepositInQuoteToken,
+      borrowCumulativeDepositInCollateralToken,
+      borrowCumulativeWithdrawInQuoteToken,
+      borrowCumulativeWithdrawInCollateralToken,
+      borrowCumulativeCollateralDeposit,
+      borrowCumulativeCollateralWithdraw,
+      borrowCumulativeDebtDeposit,
+      borrowCumulativeDebtWithdraw,
+      borrowCumulativeFeesInQuoteToken,
+      borrowCumulativeFeesInCollateralToken,
       earnCumulativeFeesInQuoteToken,
       earnCumulativeQuoteTokenDeposit,
       earnCumulativeQuoteTokenWithdraw,

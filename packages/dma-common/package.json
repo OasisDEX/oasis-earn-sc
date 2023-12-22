@@ -1,5 +1,6 @@
 {
   "name": "@oasisdex/dma-common",
+  "packageManager": "yarn@1.22.1",
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
@@ -29,6 +30,8 @@
     "/constants"
   ],
   "nx": {
-    "implicitDependencies": ["@oasisdex/deploy-configurations"]
+    "implicitDependencies": [
+      "@oasisdex/deploy-configurations"
+    ]
   }
 }

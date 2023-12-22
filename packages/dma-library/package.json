@@ -1,6 +1,7 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.5.33-morpho",
+  "version": "0.5.35-rc.1",
+  "packageManager": "yarn@1.22.1",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -25,7 +26,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "bignumber.js": "9.0.1",
-    "ethers": "5.6.2"
+    "ethers": "^5.7.2"
   },
   "nx": {
     "implicitDependencies": [
