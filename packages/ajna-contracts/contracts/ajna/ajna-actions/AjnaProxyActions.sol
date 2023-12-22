@@ -7,31 +7,18 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 
 import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
 import { IERC20Pool } from "../interfaces/pool/erc20/IERC20Pool.sol";
-import { IPositionManager } from "../interfaces/position/IPositionManager.sol";
-import { IRewardsManager } from "../interfaces/rewards/IRewardsManager.sol";
 
 import { IAccountGuard } from "../../interfaces/dpm/IAccountGuard.sol";
 
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 
-interface IAjnaProxyActions {
-  function positionManager() external view returns (IPositionManager);
-
-  function rewardsManager() external view returns (IRewardsManager);
-
-  function ARC() external view returns (address);
-}
-
-contract AjnaProxyActions is IAjnaProxyActions {
+contract AjnaProxyActions {
   IAjnaPoolUtilsInfo public immutable poolInfoUtils;
   IERC20 public immutable ajnaToken;
   address public immutable WETH;
   address public immutable GUARD;
   address public immutable deployer;
-  string public constant ajnaVersion = "Ajna_rc11";
-  IAjnaProxyActions public immutable self;
-  IPositionManager public positionManager;
-  IRewardsManager public rewardsManager;
+  string public constant ajnaVersion = "Ajna_rc12";
   address public ARC;
 
   using SafeERC20 for IERC20;
@@ -45,24 +32,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
     ajnaToken = _ajnaToken;
     WETH = _WETH;
     GUARD = _GUARD;
-    self = this;
     deployer = msg.sender;
-  }
-
-  function initialize(address _positionManager, address _rewardsManager, address _ARC) external {
-    require(address(_positionManager) != address(0), "apa/zero-address");
-    require(address(_rewardsManager) != address(0), "apa/zero-address");
-    require(_ARC != address(0), "apa/zero-address");
-    require(msg.sender == deployer, "apa/not-deployer");
-    require(
-      address(positionManager) == address(0) &&
-        address(rewardsManager) == address(0) &&
-        ARC == address(0),
-      "apa/already-initialized"
-    );
-    positionManager = IPositionManager(_positionManager);
-    rewardsManager = IRewardsManager(_rewardsManager);
-    ARC = _ARC;
   }
 
   /**
@@ -108,78 +78,6 @@ contract AjnaProxyActions is IAjnaProxyActions {
     if (stamploanEnabled) {
       pool.stampLoan();
     }
-  }
-
-  /**
-   *  @notice Mints and empty NFT for the user, NFT is bound to a specific pool.
-   *  @param  pool            Address of the Ajana Pool.
-   *  @return  tokenId  - id of the minted NFT
-   */
-  function _mintNft(IERC20Pool pool) internal returns (uint256 tokenId) {
-    address _ARC = self.ARC();
-    tokenId = self.positionManager().mint(
-      address(pool),
-      address(this),
-      keccak256("ERC20_NON_SUBSET_HASH")
-    );
-    if (!IAccountGuard(GUARD).canCall(address(this), _ARC)) {
-      IAccountGuard(GUARD).permit(_ARC, address(this), true);
-    }
-  }
-
-  /**
-   *  @notice Redeem bucket from NFT
-   *  @param  price         Price of the momorialized bucket
-   *  @param  tokenId       Nft ID
-   *  @param  pool          Pool address
-   */
-
-  function _redeemPosition(uint256 price, uint256 tokenId, address pool) internal {
-    uint256 index = convertPriceToIndex(price);
-    uint256[] memory indexes = new uint256[](1);
-    indexes[0] = index;
-    address[] memory addresses = new address[](1);
-    addresses[0] = address(self.positionManager());
-    IERC20Pool(pool).approveLPTransferors(addresses);
-    self.positionManager().redeemPositions(address(pool), tokenId, indexes);
-  }
-
-  /**
-   *  @notice Memorialize bucket in NFT
-   *  @param  price         Price of the momorialized bucket
-   *  @param  tokenId       Nft ID
-   */
-  function _memorializeLiquidity(uint256 price, uint256 tokenId, IERC20Pool pool) internal {
-    uint256 index = convertPriceToIndex(price);
-
-    (uint256 lpCount, ) = IERC20Pool(pool).lenderInfo(index, address(this));
-    uint256[] memory indexes = new uint256[](1);
-    indexes[0] = index;
-    uint256[] memory lpCounts = new uint256[](1);
-    lpCounts[0] = lpCount;
-    IERC20Pool(pool).increaseLPAllowance(address(self.positionManager()), indexes, lpCounts);
-    self.positionManager().memorializePositions(address(pool), tokenId, indexes);
-    IERC721(address(self.positionManager())).approve(address(self.rewardsManager()), tokenId);
-  }
-
-  /**
-   *  @notice Move LP from one bucket to another while momorialzied in NFT, requires unstaked NFT
-   *  @param  oldPrice      Old price of the momorialized bucket
-   *  @param  newPrice      New price of the momorialized bucket
-   *  @param  tokenId       Nft ID
-   *  @param  pool           Pool address
-   */
-  function _moveLiquidity(
-    uint256 oldPrice,
-    uint256 newPrice,
-    uint256 tokenId,
-    address pool
-  ) internal {
-    uint256 oldIndex = convertPriceToIndex(oldPrice);
-    uint256 newIndex = convertPriceToIndex(newPrice);
-
-    self.positionManager().moveLiquidity(pool, tokenId, oldIndex, newIndex, block.timestamp + 1);
-    IERC721(address(self.positionManager())).approve(address(self.rewardsManager()), tokenId);
   }
 
   /**
@@ -516,26 +414,6 @@ contract AjnaProxyActions is IAjnaProxyActions {
     emit ProxyActionsOperation("AjnaSupplyQuote");
   }
 
-  /**
-   *  @notice Open Earn (with NFT) position for msg.sender
-   *  @param  pool           Pool address
-   *  @param  depositAmount     Amount of debt to borrow
-   *  @param  price          Price of the bucket
-   */
-  function openEarnPositionNft(
-    IERC20Pool pool,
-    uint256 depositAmount,
-    uint256 price
-  ) public payable {
-    emit CreatePosition(
-      address(this),
-      ajnaVersion,
-      "Earn",
-      pool.collateralAddress(),
-      pool.quoteTokenAddress()
-    );
-    supplyQuoteMintNftAndStake(pool, depositAmount, price);
-  }
 
   /**
      *  @notice Called by lenders to add an amount of credit at a specified price bucket.
@@ -616,217 +494,6 @@ contract AjnaProxyActions is IAjnaProxyActions {
     emit ProxyActionsOperation("AjnaWithdrawAndMoveQuote");
   }
 
-  // REWARDS
-
-  /**
-   *  @notice Mints and NFT, memorizes the LPs of the user and stakes the NFT.
-   *  @param  pool     Address of the Ajana Pool.
-   *  @param  price    Price of the LPs to be memoriazed.
-   *  @return tokenId  Id of the minted NFT
-   */
-  function _mintAndStakeNft(IERC20Pool pool, uint256 price) internal returns (uint256 tokenId) {
-    tokenId = _mintNft(pool);
-
-    _memorializeLiquidity(price, tokenId, pool);
-
-    self.rewardsManager().stake(tokenId);
-  }
-
-  /**
-   *  @notice Unstakes NFT and redeems position
-   *  @param  tokenId      ID of the NFT to modify
-   *  @param  pool         Address of the Ajana Pool.
-   *  @param  price        Price of the bucket to redeem.
-   *  @param  burn         Whether to burn the NFT or not
-   */
-  function _unstakeNftAndRedeem(
-    uint256 tokenId,
-    IERC20Pool pool,
-    uint256 price,
-    bool burn
-  ) internal {
-    address _ARC = self.ARC();
-    self.rewardsManager().unstake(tokenId);
-
-    _redeemPosition(price, tokenId, address(pool));
-
-    if (burn) {
-      self.positionManager().burn(address(pool), tokenId);
-      if (IAccountGuard(GUARD).canCall(address(this), _ARC)) {
-        IAccountGuard(GUARD).permit(_ARC, address(this), false);
-      }
-    }
-  }
-
-  /**
-   *  @notice Supplies quote token, mints and NFT, memorizes the LPs of the user and stakes the NFT.
-   *  @param  pool     Address of the Ajana Pool.
-   *  @param  amount   The maximum amount of quote token to be deposited by a lender.
-   *  @param  price    Price of the bucket to which the quote tokens will be added.
-   *  @return tokenId  Id of the minted NFT
-   */
-  function supplyQuoteMintNftAndStake(
-    IERC20Pool pool,
-    uint256 amount,
-    uint256 price
-  ) public payable returns (uint256 tokenId) {
-    _supplyQuote(pool, amount, price);
-    tokenId = _mintAndStakeNft(pool, price);
-    emit ProxyActionsOperation("AjnaSupplyQuoteMintNftAndStake");
-  }
-
-  /**
-   *  @notice Adds quote token to existing position and moves to different bucket
-   *  @param  pool          Address of the Ajana Pool.
-   *  @param  amountToAdd   The maximum amount of quote token to be deposited by a lender.
-   *  @param  oldPrice      Index of the bucket to move from.
-   *  @param  newPrice      Index of the bucket to move to.
-   *  @param  tokenId       ID of the NFT to modify
-   */
-  function supplyAndMoveQuoteNft(
-    IERC20Pool pool,
-    uint256 amountToAdd,
-    uint256 oldPrice,
-    uint256 newPrice,
-    uint256 tokenId
-  ) public payable {
-    self.rewardsManager().unstake(tokenId);
-
-    _moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
-    _supplyQuote(pool, amountToAdd, newPrice);
-    _memorializeLiquidity(newPrice, tokenId, pool);
-
-    self.rewardsManager().stake(tokenId);
-    emit ProxyActionsOperation("AjnaSupplyAndMoveQuoteNft");
-  }
-
-  /**
-   *  @notice Adds quote token to existing NFT position
-   *  @param  pool          Address of the Ajana Pool.
-   *  @param  amountToAdd   The maximum amount of quote token to be deposited by a lender.
-   *  @param  price      Price of the bucket to move from.
-   *  @param  tokenId       ID of the NFT to modify
-   */
-  function supplyQuoteNft(
-    IERC20Pool pool,
-    uint256 amountToAdd,
-    uint256 price,
-    uint256 tokenId
-  ) public payable {
-    self.rewardsManager().unstake(tokenId);
-
-    _supplyQuote(pool, amountToAdd, price);
-    _memorializeLiquidity(price, tokenId, pool);
-
-    self.rewardsManager().stake(tokenId);
-    emit ProxyActionsOperation("AjnaSupplyQuoteNft");
-  }
-
-  /**
-   *  @notice Withdraws quote token to existing position and moves to different bucket
-   *  @param  pool          Address of the Ajana Pool.
-   *  @param  amountToWithdraw   The maximum amount of quote token to be withdrawn by a lender.
-   *  @param  oldPrice      Index of the bucket to move from.
-   *  @param  newPrice      Index of the bucket to move to.
-   *  @param  tokenId       ID of the NFT to modify
-   */
-  function withdrawAndMoveQuoteNft(
-    IERC20Pool pool,
-    uint256 amountToWithdraw,
-    uint256 oldPrice,
-    uint256 newPrice,
-    uint256 tokenId
-  ) public payable {
-    self.rewardsManager().unstake(tokenId);
-
-    _moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
-    _redeemPosition(newPrice, tokenId, address(pool));
-    _withdrawQuote(pool, amountToWithdraw, newPrice);
-    _memorializeLiquidity(newPrice, tokenId, pool);
-
-    self.rewardsManager().stake(tokenId);
-    emit ProxyActionsOperation("AjnaWithdrawAndMoveQuoteNft");
-  }
-
-  /**
-   *  @notice Withdraws quote token from existing NFT position
-   *  @param  pool          Address of the Ajana Pool.
-   *  @param  amountToWithdraw   The maximum amount of quote token to be withdrawn by a lender.
-   *  @param  price      Price of the bucket to withdraw from
-   *  @param  tokenId       ID of the NFT to modify
-   */
-  function withdrawQuoteNft(
-    IERC20Pool pool,
-    uint256 amountToWithdraw,
-    uint256 price,
-    uint256 tokenId
-  ) public payable {
-    self.rewardsManager().unstake(tokenId);
-
-    _redeemPosition(price, tokenId, address(pool));
-    _withdrawQuote(pool, amountToWithdraw, price);
-    _memorializeLiquidity(price, tokenId, pool);
-
-    self.rewardsManager().stake(tokenId);
-    emit ProxyActionsOperation("AjnaWithdrawQuoteNft");
-  }
-
-  /**
-     *  @notice Called by lenders to move an amount of credit from a specified price bucket to another
-     *  @notice specified price bucket using staked NFT.
-     *  @param  oldPrice     Index of the bucket to move from.
-     *  @param  newPrice     Index of the bucket to move to.
-     *  @param  tokenId      ID of the NFT to modify
-
-     */
-  function moveQuoteNft(
-    IERC20Pool pool,
-    uint256 oldPrice,
-    uint256 newPrice,
-    uint256 tokenId
-  ) public payable {
-    self.rewardsManager().unstake(tokenId);
-    _moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
-    self.rewardsManager().stake(tokenId);
-    emit ProxyActionsOperation("AjnaMoveQuoteNft");
-  }
-
-  /**
-   *  @notice Claim staking rewards
-   *  @param  pool         Address of the Ajana Pool.
-   *  @param  tokenId    TokenId to claim rewards for
-   */
-  function claimRewardsAndSendToOwner(IERC20Pool pool, uint256 tokenId) public {
-    uint256 currentEpoch = IERC20Pool(pool).currentBurnEpoch();
-    uint256 minAmount = self.rewardsManager().calculateRewards(tokenId, currentEpoch);
-    self.rewardsManager().claimRewards(tokenId, currentEpoch, minAmount);
-    ajnaToken.transfer(msg.sender, ajnaToken.balanceOf(address(this)));
-  }
-
-  /**
-   * @notice Unstakes NFT and withdraws quote token
-   * @param  pool         Address of the Ajana Pool.
-   * @param  price        Price of the bucket to redeem.
-   * @param  tokenId      ID of the NFT to unstake
-   */
-  function unstakeNftAndWithdrawQuote(IERC20Pool pool, uint256 price, uint256 tokenId) public {
-    _unstakeNftAndRedeem(tokenId, pool, price, true);
-    _withdrawQuote(pool, type(uint256).max, price);
-    emit ProxyActionsOperation("AjnaUnstakeNftAndWithdrawQuote");
-  }
-
-  /**
-   * @notice Unstakes NFT and withdraws quote token and reclaims collateral from liquidated bucket
-   * @param  pool         Address of the Ajana Pool.
-   * @param  price        Price of the bucket to redeem.
-   * @param  tokenId      ID of the NFT to unstake
-   */
-  function unstakeNftAndClaimCollateral(IERC20Pool pool, uint256 price, uint256 tokenId) public {
-    _unstakeNftAndRedeem(tokenId, pool, price, true);
-    _removeCollateral(pool, price);
-    emit ProxyActionsOperation("AjnaUnstakeNftAndClaimCollateral");
-  }
-
   /**
    * @notice Reclaims collateral from liquidated bucket
    * @param  pool         Address of the Ajana Pool.
@@ -837,32 +504,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
     emit ProxyActionsOperation("AjnaRemoveCollateral");
   }
 
-  // OPT IN AND OUT
-
-  /**
-   *  @notice Mints and NFT, memorizes the LPs of the user and stakes the NFT.
-   *  @param  pool     Address of the Ajana Pool.
-   *  @param  price    Price of the LPs to be memoriazed.
-   *  @return tokenId  Id of the minted NFT
-   */
-  function optInStaking(IERC20Pool pool, uint256 price) public returns (uint256 tokenId) {
-    tokenId = _mintAndStakeNft(pool, price);
-    emit ProxyActionsOperation("AjnaOptInStaking");
-  }
-
-  /**
-   * @notice Unstakes the NFT, burns it and redeems invested LP tokens, memorized by the user.
-   * @param pool Address of the Ajana Pool.
-   * @param tokenId Id of the NFT to unstake and burn.
-   * @param price Price of the LPs to be redeemed.
-   * @dev This function unstakes the NFT which was previously staked and also calls "_unstakeNftAndRedeem" to redeem invested LP tokens.
-   */
-  function optOutStaking(IERC20Pool pool, uint256 tokenId, uint256 price) public {
-    _unstakeNftAndRedeem(tokenId, pool, price, true);
-    emit ProxyActionsOperation("AjnaOptOutStaking");
-  }
-
-  // VIEW FUNCTIONS
+    // VIEW FUNCTIONS
   /**
    * @notice  Converts price to index
    * @param   price   price of uint (10**decimals) collateral token in debt token (10**decimals) with 18 decimal points for instance

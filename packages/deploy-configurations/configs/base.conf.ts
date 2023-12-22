@@ -33,7 +33,7 @@ export const config: SystemConfig = {
       OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: false,
-        address: '0xCf90A985b9648bbe1ECcd87D9B0d73d7f3254f19',
+        address: '0x1F15c0832bF01094C077A780ea85dC7Cfe6C209C',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
         history: [],
         constructorArgs: [],
@@ -212,17 +212,17 @@ export const config: SystemConfig = {
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: false,
-        address: '0xb2e2a088d9705cd412CE6BF94e765743Ec26b1e4',
+        address: '0x0f57A087d7138DE78F2a727C62c06a779450aE68',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
-        history: [],
+        history: ['0xb2e2a088d9705cd412CE6BF94e765743Ec26b1e4'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: false,
-        address: '0x1631FAF05bfFA2200698d71893667C9De1E221fc',
+        address: '0xb26e526A5B1C4A3aE3d4d24e1748df3ff53209d4',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
-        history: [],
+        history: ['0x1631FAF05bfFA2200698d71893667C9De1E221fc'],
         constructorArgs: ['address:ServiceRegistry'],
       },
     },
@@ -1089,12 +1089,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0x6757ccD59eCD0088f01c5F2d4992258CB12cC376',
+      address: '0xC086acc9Bf89D8a0E2209e2870fC020D8f3323a8',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0xD4554D1c818a99D23f29aA6dabB02FE810972b12',
+      address: '0x22e3922fE7E51006c3e37b50F0ea1c9d368853bF',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1234,7 +1234,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x01107D54EAb6d1da84b939e11B7021b23aCc6553',
+      address: '0xdc01502485c02496a929c12762cE99Fd755c6a25',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },

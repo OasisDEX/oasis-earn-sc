@@ -975,12 +975,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0x4BBd196eee782DC8870f0eDE43c1405b5707745C',
+      address: '0x3c5cf15122903C7CabcAA49FcfC090D3A311C038',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0xF0ab770321D5D132433ed95D6564fCc3d60AaD9E',
+      address: '0x35BD299d8E40078056DA8Aa87F9d217acce4D2E8',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1117,7 +1117,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x856c05F817B8A9E9e301523Ba0bFe187b83A03d7',
+      address: '0xA2d6694F24c84e428B97bF9fCD8E3e3dba3023D0',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },
