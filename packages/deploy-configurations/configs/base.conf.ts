@@ -539,7 +539,10 @@ export const config: SystemConfig = {
     USDC: {
       name: 'USDC',
       address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
+    },
+    'USDC.E': {
+      name: 'USDC.E',
+      address: '0x0000000000000000000000000000000000000000',
     },
     USDT: {
       name: 'USDT',

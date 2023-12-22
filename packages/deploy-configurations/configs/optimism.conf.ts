@@ -416,10 +416,14 @@ export const config: SystemConfig = {
     UNIV2USDCETH: { name: 'UNIV2USDCETH', address: ADDRESS_ZERO },
     UNIV2WBTCDAI: { name: 'UNIV2WBTCDAI', address: ADDRESS_ZERO },
     UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: ADDRESS_ZERO },
-    USDC: {
-      name: 'USDC',
+    'USDC.E': {
+      name: 'USDC.E',
       address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
+    },
+    USDC: {
+      name: 'USDC',
+      address: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
     },
     USDBC: {
       name: 'USDBC',
