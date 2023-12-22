@@ -73,7 +73,7 @@ export const paybackWithdraw: MorphoBluePaybackWithdrawOperation = async (
   setDebtApprovalOnLendingPool.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
   wrapEth.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !debtTokenIsEth
   paybackDebt.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
-  unwrapEthDebt.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !debtTokenIsEth
+  unwrapEthDebt.skipped = true //args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !debtTokenIsEth
   returnLeftFundFromPayback.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
 
   withdrawCollateral.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)

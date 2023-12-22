@@ -64,7 +64,7 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
   )
 
   const isPaybackingEth =
-    position.marketPatams.collateralToken.toLowerCase() ===
+    position.marketPatams.loanToken.toLowerCase() ===
     dependencies.addresses.tokens.WETH.toLowerCase()
 
   const operation = await operations.morphoblue.borrow.paybackWithdraw(
@@ -110,7 +110,7 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
     tx: {
       to: dependencies.operationExecutor,
       data: encodeOperation(operation, dependencies),
-      value: isPaybackingEth ? amountToWei(args.collateralAmount, 18).toString() : '0',
+      value: isPaybackingEth ? amountToWei(args.quoteAmount, 18).toString() : '0',
     },
   }
 }
