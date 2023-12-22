@@ -308,6 +308,9 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
         collateralBalanceAfter,
         loanTokenBalanceBefore,
         loanTokenBalanceAfter,
+        userEthBalanceBefore,
+        userEthBalanceAfter,
+        receipt,
       } = await opMorphoBluePaybackWithdraw(
         testSystem,
         market,
@@ -318,7 +321,16 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
 
       expect(successPaybackWithdraw).to.be.true
 
-      expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.add(collateralAmount))
+      if (market.collateralToken === 'WETH') {
+        expect(userEthBalanceAfter).to.be.equal(
+          userEthBalanceBefore
+            .add(collateralAmount)
+            .sub(receipt.gasUsed.mul(receipt.effectiveGasPrice)),
+        )
+      } else {
+        expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.add(collateralAmount))
+      }
+
       expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(borrowAmount))
     }
   })
