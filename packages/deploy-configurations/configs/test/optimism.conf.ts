@@ -406,6 +406,10 @@ export const config: SystemConfig = {
       address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
     },
+    'USDC.E': {
+      name: 'USDC.E',
+      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+    },
     USDBC: {
       name: 'USDBC',
       address: ADDRESS_ZERO,
