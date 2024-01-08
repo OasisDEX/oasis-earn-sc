@@ -212,17 +212,23 @@ export const config: SystemConfig = {
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: false,
-        address: '0x0f57A087d7138DE78F2a727C62c06a779450aE68',
+        address: '0x0b1A4822784648b8aD1D16926Db2a20eb9A41B41',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
-        history: ['0xb2e2a088d9705cd412CE6BF94e765743Ec26b1e4'],
+        history: [
+          '0xb2e2a088d9705cd412CE6BF94e765743Ec26b1e4',
+          '0x0f57A087d7138DE78F2a727C62c06a779450aE68',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: false,
-        address: '0xb26e526A5B1C4A3aE3d4d24e1748df3ff53209d4',
+        address: '0x3A2756376b9a949f7Eca58e73A2D27015AFC594B',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
-        history: ['0x1631FAF05bfFA2200698d71893667C9De1E221fc'],
+        history: [
+          '0x1631FAF05bfFA2200698d71893667C9De1E221fc',
+          '0xb26e526A5B1C4A3aE3d4d24e1748df3ff53209d4',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
     },
@@ -1089,12 +1095,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0xC086acc9Bf89D8a0E2209e2870fC020D8f3323a8',
+      address: '0x1358e3be37C191Eb5B842F673fcB5C79Cc4F6644',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x22e3922fE7E51006c3e37b50F0ea1c9d368853bF',
+      address: '0xf309EE5603bF05E5614dB930E4EAB661662aCeE6',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1234,7 +1240,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0xdc01502485c02496a929c12762cE99Fd755c6a25',
+      address: '0x154FFf344f426F99E328bacf70f4Eb632210ecdc',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },

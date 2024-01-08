@@ -1117,7 +1117,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0xA2d6694F24c84e428B97bF9fCD8E3e3dba3023D0',
+      address: '0xDB61f8aD0B3ed0c5522b8FE71b80023fe9188e9e',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },

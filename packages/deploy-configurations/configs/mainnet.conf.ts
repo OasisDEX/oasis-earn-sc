@@ -245,17 +245,17 @@ export const config: SystemConfig = {
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: false,
-        address: '0x4D6F457C8305A1E6f688a8a05C7341DD959cB681',
+        address: '0x039F7784C5A6f187fcAc027262aA912974A7515D',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
-        history: [],
+        history: ['0x4D6F457C8305A1E6f688a8a05C7341DD959cB681'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: false,
-        address: '0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1',
+        address: '0x508E30f983d8a2F75154f7515f1163a7dE94C5A5',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
-        history: [],
+        history: ['0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       SparkBorrow: {
@@ -1207,12 +1207,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0xd51789b0B9b6be8A89778e3C93cC365511bf382c',
+      address: '0x30c5eF2997d6a882DE52c4ec01B6D0a5e5B4fAAE',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x601a8F7EA34168D912fB3C214a377CB544F18c0d',
+      address: '0x1c98d87b245aA442791Ffb8a7e57380Ed49112FF',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1349,7 +1349,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x33960C912b67Fe1Abf4738e2b754d299d99cF2F1',
+      address: '0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },

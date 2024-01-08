@@ -18,7 +18,7 @@ contract AjnaProxyActions {
   address public immutable WETH;
   address public immutable GUARD;
   address public immutable deployer;
-  string public constant ajnaVersion = "Ajna_rc12";
+  string public constant ajnaVersion = "Ajna_rc13";
   address public ARC;
 
   using SafeERC20 for IERC20;

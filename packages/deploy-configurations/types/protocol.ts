@@ -4,7 +4,7 @@ export const ProtocolNames = [
   'Maker',
   'Compound',
   'Ajna',
-  'Ajna_rc12',
+  'Ajna_rc13',
   'Spark',
   'MorphoBlue',
 ] as const
