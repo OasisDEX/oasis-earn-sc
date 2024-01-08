@@ -245,17 +245,17 @@ export const config: SystemConfig = {
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: false,
-        address: '0x4D6F457C8305A1E6f688a8a05C7341DD959cB681',
+        address: '0x039F7784C5A6f187fcAc027262aA912974A7515D',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
-        history: [],
+        history: ['0x4D6F457C8305A1E6f688a8a05C7341DD959cB681'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: false,
-        address: '0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1',
+        address: '0x508E30f983d8a2F75154f7515f1163a7dE94C5A5',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
-        history: [],
+        history: ['0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       SparkBorrow: {
