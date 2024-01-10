@@ -4,7 +4,11 @@ import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
-import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import {
+  getNeutralPrice,
+  prepareAjnaDMAPayload,
+  resolveAjnaEthAction,
+} from '@dma-library/protocols/ajna'
 import {
   validateBorrowUndercollateralized,
   validateLiquidity,
@@ -193,7 +197,7 @@ export function prepareAjnaMultiplyDMAPayload(
     debtAmount,
     args.collateralPrice,
     args.quotePrice,
-    args.position.t0NeutralPrice,
+    getNeutralPrice(debtAmount, collateralAmount, args.position.pool.interestRate),
     args.position.pnl,
   )
 
