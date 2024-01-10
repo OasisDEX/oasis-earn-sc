@@ -24,13 +24,10 @@ import { getEvents } from "utils/common";
 import { bn } from "../scripts/common";
 import { HardhatUtils, logGasUsage } from "../scripts/common/hardhat.utils";
 import { createDPMProxy } from "../scripts/prepare-env";
-import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
 import { Token, WETH as WETHContract } from "../typechain-types/contracts/ajna";
 
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
-
-const REVERT_IF_BELOW_LUP = false;
 
 describe("AjnaProxyActions", function () {
   async function deploy(initializeStaking = true) {
@@ -65,26 +62,22 @@ describe("AjnaProxyActions", function () {
       deployPool(erc20PoolFactory, wbtc.address, usdc.address),
       deployPool(erc20PoolFactory, weth.address, usdc.address),
     ]);
-    const { rewardsManagerContract, positionManagerContract } = await deployRewardsContracts(
+    const { positionManagerContract } = await deployRewardsContracts(
       positionNFTSVGInstance,
       erc20PoolFactory,
       erc721PoolFactory,
       ajna
     );
-    const { ajnaProxyActionsContract, poolInfoContract, ajnaRewardsClaimerContract } = await deployApa(
+    const { ajnaProxyActionsContract, poolInfoContract } = await deployApa(
       poolCommons,
-      rewardsManagerContract,
-      positionManagerContract,
       dmpGuardContract,
       guardDeployerSigner,
       weth,
-      ajna,
-      initializeStaking
+      ajna
     );
 
     await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(ajnaProxyActionsContract.address, true);
-    await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(rewardsManagerContract.address, true);
-    await dmpGuardContract.connect(guardDeployerSigner).setWhitelistSend(rewardsManagerContract.address, true);
+
     const borrowerProxy = await createDPMProxy(dmpFactory, borrower);
     const lenderProxy = await createDPMProxy(dmpFactory, lender);
     const lenderProxy2 = await createDPMProxy(dmpFactory, lender);
@@ -93,7 +86,6 @@ describe("AjnaProxyActions", function () {
     addresses.lenderAddress = await lender.getAddress();
     addresses.borrowerAddress = await borrower.getAddress();
     addresses.bidderAddress = await bidder.getAddress();
-    addresses.rewardsManager = rewardsManagerContract.address;
     addresses.positionManager = positionManagerContract.address;
     addresses.poolInfoAddress = poolInfoContract.address;
 
@@ -125,13 +117,11 @@ describe("AjnaProxyActions", function () {
       ajnaProxyActionsContract,
       poolInfoContract,
       bidder,
-      rewardsManagerContract,
       positionManagerContract,
       ajna,
       poolContractWeth,
       weth,
       dmpGuardContract,
-      ajnaRewardsClaimerContract,
       hash,
     };
   }
@@ -932,458 +922,6 @@ describe("AjnaProxyActions", function () {
     });
   });
   describe("DPM - lender - AjnaProxyActions - NFT", function () {
-    it("should claim multiple rewards from multiple proxies - same owner - called by the owner", async () => {
-      const {
-        wbtc,
-        lenderProxy,
-        lenderProxy2,
-        poolContract,
-        ajnaProxyActionsContract,
-        lender,
-        usdc,
-        ajna,
-        borrower,
-        borrowerProxy,
-        poolInfoContract,
-        bidder,
-        rewardsManagerContract,
-        ajnaRewardsClaimerContract,
-        hash,
-      } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_4;
-      const lendAmount = bn.six.MILLION;
-      const borrowAmount = bn.six.TEN_THOUSAND;
-
-      await supplyQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        bn.six.MILLION,
-        price,
-        poolInfoContract
-      );
-      await mintAndStakeNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price);
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy2,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-
-      await depositAndDrawDebt(
-        ajnaProxyActionsContract,
-        poolContract,
-        price,
-        wbtc,
-        borrower,
-        borrowerProxy,
-        borrowAmount,
-        bn.eight.TEN
-      );
-
-      await depositAndDrawDebt(
-        ajnaProxyActionsContract,
-        poolContract,
-        price,
-        wbtc,
-        borrower,
-        borrowerProxy,
-        borrowAmount,
-        bn.eight.TEN
-      );
-
-      await hre.network.provider.send("evm_increaseTime", ["0x11C60"]);
-
-      await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
-
-      await poolContract.connect(bidder).kickReserveAuction();
-
-      await hre.network.provider.send("evm_increaseTime", ["0x15180"]);
-
-      await ajna.connect(bidder).approve(poolContract.address, ethers.constants.MaxUint256);
-      await poolContract.connect(bidder).takeReserves(1);
-
-      await rewardsManagerContract
-        .connect(lender)
-        .updateBucketExchangeRatesAndClaim(poolContract.address, hash, [5541, 2000]);
-
-      await hre.network.provider.send("evm_increaseTime", ["0x172800"]);
-      const epoch = await poolContract.currentBurnEpoch();
-      const rewardsToClaim = [
-        await rewardsManagerContract.calculateRewards(1, epoch),
-        await rewardsManagerContract.calculateRewards(2, epoch),
-      ];
-      const ajnaBalanceBefore = await ajna.balanceOf(lender.address);
-      await ajnaRewardsClaimerContract.connect(lender).claimRewardsAndSendToOwner([1, 2]);
-      expect((await ajna.balanceOf(lender.address)).sub(ajnaBalanceBefore)).to.be.equal(
-        rewardsToClaim[0].add(rewardsToClaim[1])
-      );
-    });
-    it("should NOT claim multiple rewards from multiple proxies - same owner - while called not by the owner", async () => {
-      const {
-        wbtc,
-        lenderProxy,
-        lenderProxy2,
-        poolContract,
-        ajnaProxyActionsContract,
-        lender,
-        usdc,
-        ajna,
-        borrower,
-        borrowerProxy,
-        poolInfoContract,
-        bidder,
-        rewardsManagerContract,
-        ajnaRewardsClaimerContract,
-        hash,
-      } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_4;
-      const lendAmount = bn.six.MILLION;
-      const borrowAmount = bn.six.TEN_THOUSAND;
-
-      await supplyQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        bn.six.MILLION,
-        price,
-        poolInfoContract
-      );
-      await mintAndStakeNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price);
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy2,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-
-      await depositAndDrawDebt(
-        ajnaProxyActionsContract,
-        poolContract,
-        price,
-        wbtc,
-        borrower,
-        borrowerProxy,
-        borrowAmount,
-        bn.eight.TEN
-      );
-
-      await depositAndDrawDebt(
-        ajnaProxyActionsContract,
-        poolContract,
-        price,
-        wbtc,
-        borrower,
-        borrowerProxy,
-        borrowAmount,
-        bn.eight.TEN
-      );
-
-      await hre.network.provider.send("evm_increaseTime", ["0x11C60"]);
-
-      await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
-
-      await poolContract.connect(bidder).kickReserveAuction();
-
-      await hre.network.provider.send("evm_increaseTime", ["0x15180"]);
-
-      await ajna.connect(bidder).approve(poolContract.address, ethers.constants.MaxUint256);
-      await poolContract.connect(bidder).takeReserves(1);
-
-      await rewardsManagerContract
-        .connect(lender)
-        .updateBucketExchangeRatesAndClaim(poolContract.address, hash, [5541, 2000]);
-
-      await hre.network.provider.send("evm_increaseTime", ["0x172800"]);
-
-      const tx = ajnaRewardsClaimerContract.connect(borrower).claimRewardsAndSendToOwner([1, 2]);
-      await expect(tx).to.be.revertedWithCustomError(ajnaRewardsClaimerContract, "CallerNotProxyOwner");
-    });
-    it("should NOT claim multiple rewards from multiple proxies - different owners - while called by one of the owners", async () => {
-      const {
-        wbtc,
-        lenderProxy,
-        poolContract,
-        ajnaProxyActionsContract,
-        lender,
-        usdc,
-        ajna,
-        borrower,
-        borrowerProxy,
-        poolInfoContract,
-        bidder,
-        rewardsManagerContract,
-        ajnaRewardsClaimerContract,
-        hash,
-      } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_4;
-      const lendAmount = bn.six.MILLION;
-      const borrowAmount = bn.six.TEN_THOUSAND;
-
-      await supplyQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        bn.six.MILLION,
-        price,
-        poolInfoContract
-      );
-      await mintAndStakeNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price);
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        borrowerProxy,
-        borrower,
-        lendAmount,
-        price,
-        usdc
-      );
-
-      await depositAndDrawDebt(
-        ajnaProxyActionsContract,
-        poolContract,
-        price,
-        wbtc,
-        borrower,
-        borrowerProxy,
-        borrowAmount,
-        bn.eight.TEN
-      );
-
-      await depositAndDrawDebt(
-        ajnaProxyActionsContract,
-        poolContract,
-        price,
-        wbtc,
-        borrower,
-        borrowerProxy,
-        borrowAmount,
-        bn.eight.TEN
-      );
-
-      await hre.network.provider.send("evm_increaseTime", ["0x11C60"]);
-
-      await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
-
-      await poolContract.connect(bidder).kickReserveAuction();
-
-      await hre.network.provider.send("evm_increaseTime", ["0x15180"]);
-
-      await ajna.connect(bidder).approve(poolContract.address, ethers.constants.MaxUint256);
-      await poolContract.connect(bidder).takeReserves(1);
-
-      await rewardsManagerContract
-        .connect(lender)
-        .updateBucketExchangeRatesAndClaim(poolContract.address, hash, [5541, 2000]);
-
-      await hre.network.provider.send("evm_increaseTime", ["0x172800"]);
-
-      const tx = ajnaRewardsClaimerContract.connect(borrower).claimRewardsAndSendToOwner([1, 2]);
-      await expect(tx).to.be.revertedWithCustomError(ajnaRewardsClaimerContract, "CallerNotProxyOwner");
-    });
-    it("should supplyQuoteMintNftAndStake - open with NFT", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_1;
-      const lendAmount = bn.six.MILLION;
-
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-    });
-    it("should supplyQuoteMintNftAndStake --> supplyAndMoveQuoteNft", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_1;
-      const newPrice = bn.eighteen.TEST_PRICE_2;
-      const lendAmount = bn.six.MILLION;
-
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-      await usdc.connect(lender).approve(lenderProxy.address, lendAmount);
-      await supplyAndMoveQuoteNft(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lenderProxy,
-        lender,
-        lendAmount,
-        price,
-        newPrice,
-        1
-      );
-    });
-    it("should supplyQuoteMintNftAndStake --> withdrawAndMoveQuoteNft", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_1;
-      const newPrice = bn.eighteen.TEST_PRICE_2;
-      const lendAmount = bn.six.MILLION;
-
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-      await usdc.connect(lender).approve(lenderProxy.address, lendAmount);
-      await withdrawAndMoveQuoteNft(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lenderProxy,
-        lender,
-        lendAmount.div(10),
-        price,
-        newPrice,
-        1
-      );
-    });
-    it("should supplyQuoteMintNftAndStake --> supplyQuoteNft", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_1;
-      const lendAmount = bn.six.MILLION;
-
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-      await usdc.connect(lender).approve(lenderProxy.address, lendAmount);
-      await supplyQuoteNft(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price, 1);
-    });
-    it("should supplyQuoteMintNftAndStake --> withdrawQuoteNft", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_1;
-      const lendAmount = bn.six.MILLION;
-
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-      await usdc.connect(lender).approve(lenderProxy.address, lendAmount);
-      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
-      await withdrawQuoteNft(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        lendAmount.div(2),
-        price,
-        1
-      );
-    });
-    it("should supplyQuoteMintNftAndStake --> moveQuoteNft ", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_1;
-      const newPrice = bn.eighteen.TEST_PRICE_2;
-      const lendAmount = bn.six.MILLION;
-
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-      await usdc.connect(lender).approve(lenderProxy.address, lendAmount);
-      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
-      await moveQuoteNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price, newPrice, 1);
-    });
-    it("should supplyQuoteMintNftAndStake --> unstakeNftAndWithdrawQuote - close ", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_1;
-      const lendAmount = bn.six.MILLION;
-
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-      await usdc.connect(lender).approve(lenderProxy.address, lendAmount);
-      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
-      await unstakeNftAndWithdrawQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, price, 1);
-    });
-    it("should supplyQuoteMintNftAndStake --> unstakeNftAndClaimCollateral - after auction ", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, wbtc } = await loadFixture(deploy);
-
-      const price = bn.eighteen.TEST_PRICE_1;
-      const lendAmount = bn.six.MILLION;
-
-      await supplyQuoteMintNftAndStake(
-        ajnaProxyActionsContract,
-        poolContract,
-        lenderProxy,
-        lender,
-        lendAmount,
-        price,
-        usdc
-      );
-
-      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      await wbtc.approve(poolContract.address, bn.eighteen.ONE);
-      // add one BTC to the pool
-      await poolContract.addCollateral(bn.eighteen.ONE, index, Date.now() + 100);
-
-      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
-
-      const balanceBefore = await wbtc.balanceOf(lender.address);
-      await unstakeNftAndClaimCollateral(ajnaProxyActionsContract, poolContract, lender, lenderProxy, price, 1);
-      const balanceAfter = await wbtc.balanceOf(lender.address);
-
-      expect(balanceAfter.sub(balanceBefore).toString()).to.be.equal(bn.eight.ONE.toString());
-    });
     it("should supplyQuote --> claimCollateral - after auction ", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, wbtc, poolInfoContract } =
         await loadFixture(deploy);
@@ -1447,7 +985,6 @@ describe("AjnaProxyActions", function () {
       const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(poolContract.address, lpBalance_, index);
       // expect(depositedQuoteAmount).to.be.equal(bn.eighteen.THOUSAND);
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.THOUSAND));
-      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyQuote --> moveQuote - to higher priced bucket", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -1494,7 +1031,6 @@ describe("AjnaProxyActions", function () {
       expect(quoteTokenBalancesAfterMoveQuote.lender).to.be.equal(
         quoteTokenBalancesBeforeSupply.lender.sub(depositAmountTokenDecimals)
       );
-      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyQuote --> moveQuote - to lower priced bucket", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -1547,7 +1083,6 @@ describe("AjnaProxyActions", function () {
       expect(quoteTokenBalancesAfterMoveQuote.lender).to.be.equal(
         quoteTokenBalancesBeforeSupply.lender.sub(depositAmountTokenDecimals)
       );
-      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyAndMoveQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -1591,7 +1126,6 @@ describe("AjnaProxyActions", function () {
       // expected 199995433789954337800000 to be close to 199995433789954338000000 +/- 1000000
       expect(newDepositedQuoteAmount).to.be.closeTo(afterFee.mul(2), bn.MILLION);
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND.mul(2)));
-      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should withdrawAndMoveQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -1643,7 +1177,6 @@ describe("AjnaProxyActions", function () {
       expect(balancesQuoteBefore.lender).to.be.equal(
         balancesQuoteAfter.lender.add(depositAmountTokenDecimals).sub(withdrawAmountTokenDecimals)
       );
-      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyQuote and withdrawQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -1680,7 +1213,6 @@ describe("AjnaProxyActions", function () {
 
       // there are no borrowers hence the depoisit is not earning
       expect(balancesQuoteAfter.lender.add(fee)).to.be.closeTo(balancesQuoteBefore.lender, bn.THOUSAND);
-      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyQuote and withdrawQuote and accrue interest", async () => {
       const {
@@ -1742,7 +1274,6 @@ describe("AjnaProxyActions", function () {
       };
       // expected that the lender will get more quote tokens due to interest
       expect(balancesQuoteAfter.lender).to.be.gt(balancesQuoteBefore.lender);
-      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
   });
 });
@@ -1976,100 +1507,6 @@ async function withdrawAndMoveQuote(
   };
 }
 
-async function supplyQuoteNft(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  usdc: DSToken,
-  lender: Signer,
-  lenderProxy: IAccountImplementation,
-  amountToWithdraw: BigNumber,
-  price: BigNumber,
-  tokenId: number
-) {
-  const encodedWithdrawQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData("supplyQuoteNft", [
-    poolContract.address,
-    amountToWithdraw,
-    price,
-    tokenId,
-  ]);
-  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
-  const txWithdraw = await lenderProxy
-    .connect(lender)
-    .execute(ajnaProxyActionsContract.address, encodedWithdrawQuoteData, {
-      gasLimit: 3000000,
-    });
-  const receipt = await txWithdraw.wait();
-  logGasUsage(receipt, "supplyQuoteNft");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
-async function withdrawQuoteNft(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  usdc: DSToken,
-  lender: Signer,
-  lenderProxy: IAccountImplementation,
-  amountToWithdraw: BigNumber,
-  price: BigNumber,
-  tokenId: number
-) {
-  const encodedWithdrawQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData("withdrawQuoteNft", [
-    poolContract.address,
-    amountToWithdraw,
-    price,
-    tokenId,
-  ]);
-  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
-  const txWithdraw = await lenderProxy
-    .connect(lender)
-    .execute(ajnaProxyActionsContract.address, encodedWithdrawQuoteData, {
-      gasLimit: 3000000,
-    });
-  const receipt = await txWithdraw.wait();
-  logGasUsage(receipt, "withdrawQuoteNft");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
-async function unstakeNftAndWithdrawQuote(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  usdc: DSToken,
-  lender: Signer,
-  lenderProxy: IAccountImplementation,
-  price: BigNumber,
-  tokenId: number
-) {
-  const encodedData = ajnaProxyActionsContract.interface.encodeFunctionData("unstakeNftAndWithdrawQuote", [
-    poolContract.address,
-    price,
-    tokenId,
-  ]);
-  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
-  const txWithdraw = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedData, {
-    gasLimit: 3000000,
-  });
-  const receipt = await txWithdraw.wait();
-  logGasUsage(receipt, "unstakesNftAndWithdrawQuote");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
-async function unstakeNftAndClaimCollateral(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  lender: Signer,
-  lenderProxy: IAccountImplementation,
-  price: BigNumber,
-  tokenId: number
-) {
-  const encodedData = ajnaProxyActionsContract.interface.encodeFunctionData("unstakeNftAndClaimCollateral", [
-    poolContract.address,
-    price,
-    tokenId,
-  ]);
-  const txWithdraw = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedData, {
-    gasLimit: 3000000,
-  });
-  const receipt = await txWithdraw.wait();
-  logGasUsage(receipt, "unstakesNftAndClaimCollateral");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
 async function removeCollateral(
   ajnaProxyActionsContract: AjnaProxyActions,
   poolContract: ERC20Pool,
@@ -2221,123 +1658,6 @@ async function repayAndClose(
     .add(approvalTxReceipt.gasUsed.mul(approvalTxReceipt.effectiveGasPrice));
 }
 
-async function mintAndStakeNft(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  lenderProxy: IAccountImplementation,
-  lender: Signer,
-  price: BigNumber
-) {
-  const mintNftData = ajnaProxyActionsContract.interface.encodeFunctionData("optInStaking", [
-    poolContract.address,
-    price,
-  ]);
-  const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
-    gasLimit: 3000000,
-  });
-  const receipt = await mintNftTx.wait();
-  logGasUsage(receipt, "mintAndStakeNft");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
-
-async function supplyQuoteMintNftAndStake(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  lenderProxy: IAccountImplementation,
-  lender: Signer,
-  amount: BigNumber,
-  price: BigNumber,
-  debt: DSToken
-) {
-  const mintNftData = ajnaProxyActionsContract.interface.encodeFunctionData("supplyQuoteMintNftAndStake", [
-    poolContract.address,
-    amount,
-    price,
-  ]);
-  await debt.connect(lender).approve(lenderProxy.address, amount);
-  const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
-    gasLimit: 3000000,
-  });
-  const receipt = await mintNftTx.wait();
-  logGasUsage(receipt, "supplyQuoteMintNftAndStake");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
-async function moveQuoteNft(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  lenderProxy: IAccountImplementation,
-  lender: Signer,
-  oldPrice: BigNumber,
-  newPrice: BigNumber,
-  tokenId: number
-) {
-  const moveLiquidityData = ajnaProxyActionsContract.interface.encodeFunctionData("moveQuoteNft", [
-    poolContract.address,
-    oldPrice,
-    newPrice,
-    tokenId,
-  ]);
-  const moveLiquidityTx = await lenderProxy
-    .connect(lender)
-    .execute(ajnaProxyActionsContract.address, moveLiquidityData, {
-      gasLimit: 3000000,
-    });
-  const receipt = await moveLiquidityTx.wait();
-  logGasUsage(receipt, "moveQuoteNft");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
-async function supplyAndMoveQuoteNft(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  debt: ERC20 | DSToken,
-  lenderProxy: IAccountImplementation,
-  lender: Signer,
-  amountToAdd: BigNumber,
-  oldPrice: BigNumber,
-  newPrice: BigNumber,
-  tokenId: number
-) {
-  const mintNftData = ajnaProxyActionsContract.interface.encodeFunctionData("supplyAndMoveQuoteNft", [
-    poolContract.address,
-    amountToAdd,
-    oldPrice,
-    newPrice,
-    tokenId,
-  ]);
-  await debt.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
-  const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
-    gasLimit: 3000000,
-  });
-  const receipt = await mintNftTx.wait();
-  logGasUsage(receipt, "supplyAndMoveQuoteNft");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
-async function withdrawAndMoveQuoteNft(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  debt: ERC20 | DSToken,
-  lenderProxy: IAccountImplementation,
-  lender: Signer,
-  amountToWithdraw: BigNumber,
-  oldPrice: BigNumber,
-  newPrice: BigNumber,
-  tokenId: number
-) {
-  const mintNftData = ajnaProxyActionsContract.interface.encodeFunctionData("withdrawAndMoveQuoteNft", [
-    poolContract.address,
-    amountToWithdraw,
-    oldPrice,
-    newPrice,
-    tokenId,
-  ]);
-  await debt.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
-  const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
-    gasLimit: 3000000,
-  });
-  const receipt = await mintNftTx.wait();
-  logGasUsage(receipt, "withdrawAndMoveQuoteNft");
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
 async function repayDebt(
   ajnaProxyActionsContract: AjnaProxyActions,
   poolContract: ERC20Pool,

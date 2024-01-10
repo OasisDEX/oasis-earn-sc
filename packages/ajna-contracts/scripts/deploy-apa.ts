@@ -1,7 +1,6 @@
 import { deployPool, HardhatUtils, Pool } from "@ajna-contracts/scripts";
 import {
   AjnaProxyActions,
-  AjnaRewardClaimer,
   ERC20,
   ERC20Pool,
   ERC20PoolFactory,
@@ -19,7 +18,6 @@ async function main() {
   console.info(`Deployer address: ${signer.address}`);
   const network = hre.network.name === "hardhat" || hre.network.name === "local" ? "mainnet" : hre.network.name;
 
-  const initializeStakingRewards = CONFIG.initializeStakingRewards || false;
   const erc20PoolFactory = await utils.getContract<ERC20PoolFactory>(
     "ERC20PoolFactory",
     ADDRESSES[network].ERC20_POOL_FACTORY
@@ -48,16 +46,6 @@ async function main() {
     }
   } else {
     apa = await utils.getContract<AjnaProxyActions>("AjnaProxyActions", ADDRESSES[network].AJNA_PROXY_ACTIONS);
-    if (initializeStakingRewards) {
-      const arc = await utils.deployContract<AjnaRewardClaimer>("AjnaRewardClaimer", [
-        ADDRESSES[network].REWARD_MANAGER,
-        TOKENS[network].AJNA,
-        ADDRESSES[network].SERVICE_REGISTRY,
-      ]);
-      await apa.initialize(ADDRESSES[network].POSITION_MANAGER, ADDRESSES[network].REWARD_MANAGER, arc.address);
-      console.log(`AjnaProxyActions Address   : ${apa.address}`);
-      console.log(`AjnaRewardsClaimer Deployed: ${arc.address}`);
-    }
   }
   await deployAjnaPools(network, erc20PoolFactory, apa, signer);
 }

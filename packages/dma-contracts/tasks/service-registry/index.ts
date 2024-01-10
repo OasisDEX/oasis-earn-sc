@@ -102,13 +102,14 @@ async function pushEntryToRemote(serviceRegistry: ServiceRegistry, service: Conf
 
   if (isInvalidAddress(serviceAddress)) {
     const serviceNameHash = await serviceRegistry.getServiceNameHash(service.serviceRegistryName)
-
     try {
       const tx = await serviceRegistry.addNamedService(serviceNameHash, service.address)
       await tx.wait()
     } catch (e) {
       if (JSON.stringify(e).includes('registry/only-owner')) {
-        console.log(`[❌][ PUSH ERROR ] ${service.name}: Only owner can push to SystemRegistry`)
+        console.log(
+          `[❌][ PUSH ERROR ] ${service.name}: Only owner can push to SystemRegistry. Hash ${serviceNameHash} for name ${service.serviceRegistryName} is not registered in SystemRegistry. Address: ${service.address}`,
+        )
       } else {
         console.log(`[❌][ PUSH ERROR ] ${service.name}: ${e}`)
       }
