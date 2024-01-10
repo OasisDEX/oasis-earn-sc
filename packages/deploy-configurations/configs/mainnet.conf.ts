@@ -1313,7 +1313,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_YFIDAI: {
       name: 'AjnaPoolPairs_YFIDAI',
-      address: ADDRESS_ZERO,
+      address: '0x66ea46C6e7F9e5BB065bd3B1090FFF229393BA51',
     },
     AjnaPoolPairs_YIELDETHETH: {
       name: 'AjnaPoolPairs_YIELDETHETH',
