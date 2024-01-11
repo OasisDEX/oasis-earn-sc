@@ -6,4 +6,5 @@ export enum SystemKeys {
   MAKER = 'maker',
   AUTOMATION = 'automation',
   AJNA = 'ajna',
+  MORPHO_BLUE = 'morphoblue',
 }

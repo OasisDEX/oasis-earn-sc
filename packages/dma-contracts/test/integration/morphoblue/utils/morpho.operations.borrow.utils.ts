@@ -376,7 +376,6 @@ export async function opMorphoBluePaybackWithdraw(
   )
 
   const userEthBalanceAfter = await user.getBalance()
-
   const loanTokenBalanceAfter = await loanToken.balanceOf(user.address)
   const collateralBalanceAfter = await collateralToken.balanceOf(user.address)
 

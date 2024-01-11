@@ -1,7 +1,6 @@
 {
   "name": "@oasisdex/addresses",
-  "packageManager": "yarn@1.22.1",
-  "version": "0.1.24",
+  "version": "0.1.29",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

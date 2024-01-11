@@ -447,6 +447,10 @@ export const config: SystemConfig = {
       address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
     },
+    'USDC.E': {
+      name: 'USDC.E',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     USDBC: {
       name: 'USDBC',
       address: ADDRESS_ZERO,
@@ -793,7 +797,7 @@ export const config: SystemConfig = {
   morphoblue: {
     MorphoBlue: {
       name: 'MorphoBlue',
-      address: '0x0000000000000000000000000000000000000000',
+      address: ADDRESS_ZERO,
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
     },
   },

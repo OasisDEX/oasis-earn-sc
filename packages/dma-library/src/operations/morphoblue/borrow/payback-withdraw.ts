@@ -26,8 +26,8 @@ export const paybackWithdraw: MorphoBluePaybackWithdrawOperation = async (
   addresses,
   network,
 ) => {
-  const debtTokenIsEth = args.morphoBlueMarket.loanToken === addresses.tokens.WETH
-  const collateralTokenIsEth = args.morphoBlueMarket.collateralToken === addresses.tokens.WETH
+  const debtTokenIsWeth = args.morphoBlueMarket.loanToken === addresses.tokens.WETH
+  const collateralTokenIsWeth = args.morphoBlueMarket.collateralToken === addresses.tokens.WETH
 
   const pullDebtTokensToProxy = actions.common.pullToken(network, {
     asset: args.morphoBlueMarket.loanToken,
@@ -51,7 +51,7 @@ export const paybackWithdraw: MorphoBluePaybackWithdrawOperation = async (
     amount: new BigNumber(MAX_UINT),
   })
   const returnLeftFundFromPayback = actions.common.returnFunds(network, {
-    asset: debtTokenIsEth ? addresses.tokens.ETH : args.morphoBlueMarket.loanToken,
+    asset: args.morphoBlueMarket.loanToken,
   })
 
   const withdrawCollateral = actions.morphoblue.withdraw(network, {
@@ -59,25 +59,26 @@ export const paybackWithdraw: MorphoBluePaybackWithdrawOperation = async (
     amount: args.amountCollateralToWithdrawInBaseUnit,
     to: args.proxy,
   })
+
   const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
 
   const returnFunds = actions.common.returnFunds(network, {
-    asset: collateralTokenIsEth ? addresses.tokens.ETH : args.morphoBlueMarket.collateralToken,
+    asset: collateralTokenIsWeth ? addresses.tokens.ETH : args.morphoBlueMarket.collateralToken,
   })
 
   pullDebtTokensToProxy.skipped =
     args.amountDebtToPaybackInBaseUnit.lte(ZERO) ||
     args.morphoBlueMarket.loanToken === addresses.tokens.ETH
   setDebtApprovalOnLendingPool.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
-  wrapEth.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !debtTokenIsEth
+  wrapEth.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !debtTokenIsWeth
   paybackDebt.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
-  unwrapEthDebt.skipped = true //args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !debtTokenIsEth
+  unwrapEthDebt.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !debtTokenIsWeth
   returnLeftFundFromPayback.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
 
   withdrawCollateral.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
-  unwrapEth.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !collateralTokenIsEth
+  unwrapEth.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !collateralTokenIsWeth
   returnFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
 
   const calls = [
