@@ -23,14 +23,14 @@ import {
 import { close as morphoBlueClose, MorphoBlueCloseOperation } from './multiply/close'
 import { MorphoBlueOpenOperation, open as morphoBlueOpen } from './multiply/open'
 
-const borrow = {
+const borrow: MorphoBlueBorrowOperations = {
   borrow: morphoBlueBorrow,
   deposit: morphoBlueDeposit,
   depositBorrow: morphoBlueDepositBorrow,
   openDepositBorrow: morphoBlueOpenDepositBorrow,
   paybackWithdraw: morphoBluePaybackWithdraw,
 }
-const multiply = {
+const multiply: MorphoBlueMultiplyOperations = {
   open: morphoBlueOpen,
   close: morphoBlueClose,
   adjustRiskUp: morphoBlueAdjustRiskUp,

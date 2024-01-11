@@ -74,14 +74,18 @@ export const SERVICE_REGISTRY_NAMES = {
     CDP_ALLOW: 'CdpAllow',
     CHAINLOG_VIEW: 'ChainLogView',
   },
-  morphoblue: {
-    MORPHO_BLUE: 'MorphoBlue',
-  },
   ajna: {
     DEPOSIT_BORROW: 'AjnaDepositBorrow_4',
     REPAY_WITHDRAW: 'AjnaRepayWithdraw_4',
     ERC20_POOL_FACTORY: 'ERC20PoolFactoryRc13',
     AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfoRc13',
+  },
+  morphoblue: {
+    MORPHO_BLUE: 'MorphoBlue',
+    DEPOSIT: 'MorphoBlueDeposit',
+    WITHDRAW: 'MorphoBlueWithdraw',
+    BORROW: 'MorphoBlueBorrow',
+    PAYBACK: 'MorphoBluePayback',
   },
 } as const
 

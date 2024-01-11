@@ -1,33 +1,99 @@
+import irmAbi from '@abis/external/protocols/morphoblue/irm.json'
+import morphoAbi from '@abis/external/protocols/morphoblue/morpho.json'
+import oracleAbi from '@abis/external/protocols/morphoblue/oracle.json'
 import { MorphoBluePosition } from '@dma-library/types'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
+// import { Morpho__factory, Oracle__factory, Irm__factory } from '../../../../dma-contracts/typechain'
+import { ONE, TEN } from '../../../../dma-common/constants/numbers'
+import type { Irm } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Irm'
+import type { Morpho } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Morpho'
+import type { Oracle } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Oracle'
+
 interface Args {
   proxyAddress: string
-  collateralPrice: BigNumber
-  quotePrice: BigNumber
+  collateralPriceUSD: BigNumber
+  quotePriceUSD: BigNumber
+  collateralPrecision: number
+  quotePrecision: number
+  marketId: string
+}
+
+export interface GetMorphoCumulativesData {
+  (): Promise<{
+    borrowCumulativeDepositUSD: BigNumber
+    borrowCumulativeFeesUSD: BigNumber
+    borrowCumulativeWithdrawUSD: BigNumber
+  }>
 }
 
 interface Dependencies {
   provider: ethers.providers.Provider
-  getCumulatives: () => {
-    borrowCumulativeDepositUSD: BigNumber
-    borrowCumulativeFeesUSD: BigNumber
-    borrowCumulativeWithdrawUSD: BigNumber
-  }
+  morphoAddress: string
+  getCumulatives: GetMorphoCumulativesData
+}
+
+const VIRTUAL_SHARES = TEN.pow(6)
+const VIRTUAL_ASSETS = ONE
+
+function mulDivDown(x: BigNumber, y: BigNumber, d: BigNumber): BigNumber {
+  return x.times(y).div(d)
+}
+
+function toAssetsDown(
+  shares: BigNumber,
+  totalAssets: BigNumber,
+  totalShares: BigNumber,
+): BigNumber {
+  return mulDivDown(shares, totalAssets.plus(VIRTUAL_ASSETS), totalShares.plus(VIRTUAL_SHARES))
 }
 
 export async function getMorphoPosition(
-  { proxyAddress, collateralPrice, quotePrice }: Args,
-  { getCumulatives }: Dependencies,
+  {
+    proxyAddress,
+    collateralPriceUSD,
+    quotePriceUSD,
+    marketId,
+    collateralPrecision,
+    quotePrecision,
+  }: Args,
+  { getCumulatives, morphoAddress, provider }: Dependencies,
 ): Promise<MorphoBluePosition> {
-  const collateralAmount = new BigNumber(5)
-  const debtAmount = new BigNumber(2000)
+  const morpho = new ethers.Contract(morphoAddress, morphoAbi, provider) as any as Morpho
+
+  const marketParams = await morpho.idToMarketParams(marketId)
+  const market = await morpho.market(marketId)
+  const positionParams = await morpho.position(marketId, proxyAddress)
+
+  const totals = {
+    totalSupplyAssets: new BigNumber(market.totalSupplyAssets.toString()).div(TEN.pow(18)),
+    totalSupplyShares: new BigNumber(market.totalSupplyShares.toString()).div(TEN.pow(24)),
+    totalBorrowAssets: new BigNumber(market.totalBorrowAssets.toString()).div(TEN.pow(18)),
+    totalBorrowShares: new BigNumber(market.totalBorrowShares.toString()).div(TEN.pow(24)),
+  }
+
+  const oracle = new ethers.Contract(marketParams.oracle, oracleAbi, provider) as any as Oracle
+  const irm = new ethers.Contract(marketParams.irm, irmAbi, provider) as any as Irm
+
+  const price = await oracle.price()
+  const rate = await irm.borrowRateView(marketParams, market)
+
+  const debtAmount = toAssetsDown(
+    new BigNumber(positionParams.borrowShares.toString()),
+    new BigNumber(market.totalBorrowAssets.toString()),
+    new BigNumber(market.totalBorrowShares.toString()),
+  )
+    .integerValue()
+    .div(TEN.pow(quotePrecision))
+  const collateralAmount = new BigNumber(positionParams.collateral.toString()).div(
+    TEN.pow(collateralPrecision),
+  )
 
   const { borrowCumulativeWithdrawUSD, borrowCumulativeFeesUSD, borrowCumulativeDepositUSD } =
-    getCumulatives()
+    await getCumulatives()
 
-  const netValue = collateralAmount.times(collateralPrice).minus(debtAmount.times(quotePrice))
+  const netValue = collateralAmount.times(collateralPriceUSD).minus(debtAmount.times(quotePriceUSD))
 
   const pnl = {
     withFees: borrowCumulativeWithdrawUSD
@@ -45,8 +111,23 @@ export async function getMorphoPosition(
     proxyAddress,
     collateralAmount,
     debtAmount,
-    collateralPrice,
-    quotePrice,
+    collateralPriceUSD,
+    quotePriceUSD,
+    {
+      id: marketId,
+      loanToken: marketParams.loanToken,
+      collateralToken: marketParams.collateralToken,
+      oracle: marketParams.oracle,
+      irm: marketParams.irm,
+      lltv: new BigNumber(marketParams.lltv.toString()).div(TEN.pow(18)),
+    },
+    {
+      ...totals,
+      lastUpdate: new BigNumber(market.lastUpdate.toString()),
+      fee: new BigNumber(market.fee.toString()),
+    },
+    new BigNumber(price.toString()).div(TEN.pow(36 + quotePrecision - collateralPrecision)),
+    new BigNumber(rate.toString()).div(TEN.pow(36)),
     pnl,
   )
 }

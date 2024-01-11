@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-import { Address } from '@oasisdex/deploy-configurations/types/address';
+import { Address } from '@deploy-configurations/types/address';
 import { ethers } from 'ethers';
 
 import { getSupportedNetwork, SupportedNetowkrs } from '../../utils/network';

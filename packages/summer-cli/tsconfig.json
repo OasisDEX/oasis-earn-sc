@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "target": "es2022",
     "module": "CommonJS",
@@ -18,15 +19,21 @@
     "noImplicitAny": false,
     "noImplicitThis": false,
     "strictNullChecks": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@abis/external/*": ["../abis/external/*"],
+      "@abis/system/*": ["../abis/system/*"],
+      "@deploy-configurations/*": ["../deploy-configurations/*"],
+      "@deploy-configurations/configs": ["../deploy-configurations/configs/index.ts"],
+      "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
+      "@deploy-configurations/addresses/*": ["../deploy-configurations/addresses/*"],
+      "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
+      "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
+      "@deploy-configurations/operation-definitions": ["../deploy-configurations/operation-definitions/index.ts"],
+      "@cli": ["./src/cli/index.ts"]
+    },
   },
   "include": ["src/**/*.ts", "__tests__/**/*.ts"],
-  "paths": {
-    "@abis/external/*": ["../abis/external/*"],
-    "@abis/system/*": ["../abis/system/*"],
-    "@deploy-configurations/*": ["../deploy-configurations/*"],
-    "@cli": "./src/cli/index.ts"
-  },
   "references": [
     {
       "path": "../abis"

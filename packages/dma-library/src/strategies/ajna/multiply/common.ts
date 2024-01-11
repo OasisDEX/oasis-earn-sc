@@ -13,9 +13,9 @@ import {
   validateBorrowUndercollateralized,
   validateLiquidity,
 } from '@dma-library/strategies/ajna/validation'
-import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/ajna/validation/borrowish/closeToMaxLtv'
 import { validateLiquidationPriceCloseToMarketPrice } from '@dma-library/strategies/ajna/validation/borrowish/liquidationPriceCloseToMarket'
 import { validateDustLimitMultiply } from '@dma-library/strategies/ajna/validation/multiply/dustLimit'
+import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 import {
   AjnaMultiplyPayload,
   AjnaPosition,

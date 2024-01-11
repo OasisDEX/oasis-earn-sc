@@ -51,22 +51,22 @@ export function makeCommandRunner(commands: Record<string, Command>) {
             run: 'successfull',
             command: commandName,
           };
-        } catch (e) {
+        } catch (e: any) {
           return {
             run: 'failed',
             error: RunFailures.CommandFailed,
             command: commandName,
             args,
-            e,
+            e: e?.message,
           };
         }
-      } catch (e) {
+      } catch (e: any) {
         return {
           run: 'failed',
           error: RunFailures.InvalidArguments,
           command: commandName,
           args,
-          e,
+          e: e?.message,
         };
       }
     },

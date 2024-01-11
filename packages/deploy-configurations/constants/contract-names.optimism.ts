@@ -80,6 +80,10 @@ export const SERVICE_REGISTRY_NAMES = {
   },
   morphoblue: {
     MORPHO_BLUE: 'MorphoBlue',
+    DEPOSIT: 'MorphoBlueDeposit',
+    WITHDRAW: 'MorphoBlueWithdraw',
+    BORROW: 'MorphoBlueBorrow',
+    PAYBACK: 'MorphoBluePayback',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',

@@ -1,5 +1,6 @@
-import { ADDRESS_ZERO, ADDRESSES } from '@oasisdex/deploy-configurations';
-import { Address } from '@oasisdex/deploy-configurations/types/address';
+import { ADDRESSES } from '@deploy-configurations/addresses';
+import { ADDRESS_ZERO } from '@deploy-configurations/constants';
+import { Address } from '@deploy-configurations/types/address';
 import { ethers } from 'ethers';
 
 import { SupportedNetowkrs } from './network';
@@ -13,6 +14,7 @@ export const tokens = [
   'WSTETH',
   'CBETH',
   'USDBC',
+  'SDAI',
 ] as const;
 
 export type SupportedTokens = (typeof tokens)[number];
@@ -26,6 +28,7 @@ export const tokenPrecision: Record<SupportedTokens, number> = {
   WSTETH: 18,
   CBETH: 18,
   USDBC: 6,
+  SDAI: 18,
 };
 
 export function isSupportedToken(token: string): token is SupportedTokens {

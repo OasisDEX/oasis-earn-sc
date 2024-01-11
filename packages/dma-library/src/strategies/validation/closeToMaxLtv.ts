@@ -1,11 +1,12 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
-import { AjnaPosition, AjnaWarning } from '@dma-library/types/ajna'
+import { AjnaWarning } from '@dma-library/types/ajna'
+import { LendingPosition } from '@dma-library/types/morphoblue/morphoblue-position'
 
 const MAX_LTV_OFFSET = 0.05
 
 export function validateGenerateCloseToMaxLtv(
-  position: AjnaPosition,
-  positionBefore: AjnaPosition,
+  position: LendingPosition,
+  positionBefore: LendingPosition,
 ): AjnaWarning[] {
   if (
     position.maxRiskRatio.loanToValue.minus(MAX_LTV_OFFSET).lte(position.riskRatio.loanToValue) &&
@@ -24,8 +25,8 @@ export function validateGenerateCloseToMaxLtv(
 }
 
 export function validateWithdrawCloseToMaxLtv(
-  position: AjnaPosition,
-  positionBefore: AjnaPosition,
+  position: LendingPosition,
+  positionBefore: LendingPosition,
 ): AjnaWarning[] {
   if (
     position.maxRiskRatio.loanToValue.minus(MAX_LTV_OFFSET).lte(position.riskRatio.loanToValue) &&
