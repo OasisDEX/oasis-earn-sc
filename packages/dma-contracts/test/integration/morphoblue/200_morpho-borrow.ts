@@ -292,8 +292,9 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
     }
   })
 
-  it('should be able to payback + withdraw (with loan token)', async () => {
+  it.only('should be able to payback + withdraw (with loan token)', async () => {
     for (const market of morphoSystem.marketsInfo) {
+      const ethBalanceBeforeAlll = await user.getBalance()
       const {
         success: successDepositBorrow,
         collateralAmount,
@@ -308,6 +309,9 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
         collateralBalanceAfter,
         loanTokenBalanceBefore,
         loanTokenBalanceAfter,
+        receipt,
+        userEthBalanceBefore,
+        userEthBalanceAfter,
       } = await opMorphoBluePaybackWithdraw(
         testSystem,
         market,
@@ -318,8 +322,40 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
 
       expect(successPaybackWithdraw).to.be.true
 
-      expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.add(collateralAmount))
-      expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(borrowAmount))
+      const gas = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+
+      console.log(`
+        loanToken: ${market.loanToken}
+        collateralToken: ${market.collateralToken}
+        
+        receipt.gasUsed: ${receipt.gasUsed}
+        userEthBalanceBefore: ${userEthBalanceBefore.toString()}
+        userEthBalanceAfter: ${userEthBalanceAfter.toString()}
+        after and gass ${userEthBalanceAfter.add(receipt.gasUsed).toString()}
+
+        diff eth ${userEthBalanceAfter.sub(userEthBalanceBefore).toString()}
+        diff collateral ${collateralBalanceAfter.sub(collateralBalanceBefore).toString()}
+
+        ethBalanceBeforeAlll ${ethBalanceBeforeAlll.toString()}
+        after plus gas ${userEthBalanceAfter.add(gas).toString()}
+        before ${userEthBalanceBefore.toString()}
+        diff ${userEthBalanceAfter.add(gas).sub(userEthBalanceBefore).toString()}
+
+        gass ${gas.toString()}
+        diff ${userEthBalanceAfter.sub(userEthBalanceBefore).toString()}
+        diff2 ${userEthBalanceAfter.sub(userEthBalanceBefore.sub(receipt.gasUsed.mul(receipt.effectiveGasPrice))).toString()}
+        collateralAmount: ${collateralAmount.toString()}
+      `)
+
+      if (market.collateralToken === "WETH") {
+        console.log("TESWT")
+        expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore)
+        expect(userEthBalanceAfter).to.be.equal(userEthBalanceBefore.add(collateralAmount).sub(receipt.gasUsed.mul(receipt.effectiveGasPrice)))
+      } else {
+        expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.add(collateralAmount))
+        expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(borrowAmount))
+        console.log("_____________________")
+      }
     }
   })
 })

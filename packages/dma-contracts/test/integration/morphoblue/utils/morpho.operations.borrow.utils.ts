@@ -341,6 +341,8 @@ export async function opMorphoBluePaybackWithdraw(
   collateralBalanceAfter: BigNumber
   loanTokenBalanceBefore: BigNumber
   loanTokenBalanceAfter: BigNumber
+  userEthBalanceBefore: BigNumber
+  userEthBalanceAfter: BigNumber
 }> {
   const { system, morphoSystem, userDPMProxy } = getContextFromTestSystem(testSystem)
 
@@ -363,6 +365,8 @@ export async function opMorphoBluePaybackWithdraw(
   const addresses = toMorphoBlueStrategyAddresses(morphoSystem, testSystem.deployment.system)
   const paybackWithdrawCalls = await paybackWithdraw(paybackWithdrawArgs, addresses, Network.TEST)
 
+  const userEthBalanceBefore = await user.getBalance()
+
   const { success, receipt } = await executeOperation(
     system,
     user,
@@ -370,6 +374,8 @@ export async function opMorphoBluePaybackWithdraw(
     paybackWithdrawCalls.calls,
     paybackWithdrawCalls.operationName,
   )
+
+  const userEthBalanceAfter = await user.getBalance()
 
   const loanTokenBalanceAfter = await loanToken.balanceOf(user.address)
   const collateralBalanceAfter = await collateralToken.balanceOf(user.address)
@@ -381,5 +387,7 @@ export async function opMorphoBluePaybackWithdraw(
     collateralBalanceAfter,
     loanTokenBalanceBefore,
     loanTokenBalanceAfter,
+    userEthBalanceBefore,
+    userEthBalanceAfter,
   }
 }
