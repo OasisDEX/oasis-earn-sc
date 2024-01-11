@@ -292,9 +292,8 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
     }
   })
 
-  it.only('should be able to payback + withdraw (with loan token)', async () => {
+  it('should be able to payback + withdraw (with loan token)', async () => {
     for (const market of morphoSystem.marketsInfo) {
-      const ethBalanceBeforeAlll = await user.getBalance()
       const {
         success: successDepositBorrow,
         collateralAmount,
