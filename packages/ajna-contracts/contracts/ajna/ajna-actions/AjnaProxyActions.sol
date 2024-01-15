@@ -26,7 +26,7 @@ contract AjnaProxyActions {
   constructor(IAjnaPoolUtilsInfo _poolInfoUtils, IERC20 _ajnaToken, address _WETH, address _GUARD) {
     require(address(_poolInfoUtils) != address(0), "apa/pool-info-utils-zero-address");
     require(address(_ajnaToken) != address(0) || block.chainid != 1, "apa/ajna-token-zero-address");
-        require(_WETH != address(0), "apa/weth-zero-address");
+    require(_WETH != address(0), "apa/weth-zero-address");
     require(_GUARD != address(0), "apa/guard-zero-address");
     poolInfoUtils = _poolInfoUtils;
     ajnaToken = _ajnaToken;
@@ -410,10 +410,10 @@ contract AjnaProxyActions {
       pool.collateralAddress(),
       pool.quoteTokenAddress()
     );
+    _validateBucketState(pool, convertPriceToIndex(price));
     _supplyQuote(pool, depositAmount, price);
     emit ProxyActionsOperation("AjnaSupplyQuote");
   }
-
 
   /**
      *  @notice Called by lenders to add an amount of credit at a specified price bucket.
@@ -425,6 +425,7 @@ contract AjnaProxyActions {
      *  @dev 1WBTC = 16,990.23 USDC   translates to: 16990230
      */
   function supplyQuote(IERC20Pool pool, uint256 amount, uint256 price) public payable {
+    _validateBucketState(pool, convertPriceToIndex(price));
     _supplyQuote(pool, amount, price);
     emit ProxyActionsOperation("AjnaSupplyQuote");
   }
@@ -450,6 +451,7 @@ contract AjnaProxyActions {
 
      */
   function moveQuote(IERC20Pool pool, uint256 oldPrice, uint256 newPrice) public {
+    _validateBucketState(pool, convertPriceToIndex(newPrice));
     _moveQuote(pool, oldPrice, newPrice);
     emit ProxyActionsOperation("AjnaMoveQuote");
   }
@@ -469,7 +471,9 @@ contract AjnaProxyActions {
     uint256 oldPrice,
     uint256 newPrice
   ) public payable {
+    _validateBucketState(pool, convertPriceToIndex(newPrice));
     _supplyQuote(pool, amountToAdd, newPrice);
+    _validateBucketState(pool, convertPriceToIndex(newPrice));
     _moveQuote(pool, oldPrice, newPrice);
     emit ProxyActionsOperation("AjnaSupplyAndMoveQuote");
   }
@@ -490,6 +494,7 @@ contract AjnaProxyActions {
     uint256 newPrice
   ) public {
     _withdrawQuote(pool, amountToWithdraw, oldPrice);
+    _validateBucketState(pool, convertPriceToIndex(newPrice));
     _moveQuote(pool, oldPrice, newPrice);
     emit ProxyActionsOperation("AjnaWithdrawAndMoveQuote");
   }
@@ -504,7 +509,7 @@ contract AjnaProxyActions {
     emit ProxyActionsOperation("AjnaRemoveCollateral");
   }
 
-    // VIEW FUNCTIONS
+  // VIEW FUNCTIONS
   /**
    * @notice  Converts price to index
    * @param   price   price of uint (10**decimals) collateral token in debt token (10**decimals) with 18 decimal points for instance
@@ -514,6 +519,16 @@ contract AjnaProxyActions {
    */
   function convertPriceToIndex(uint256 price) public view returns (uint256) {
     return poolInfoUtils.priceToIndex(price);
+  }
+
+  /**
+   * @dev Validates the state of a bucket in an IERC20Pool contract.
+   * @param pool The IERC20Pool contract address.
+   * @param bucket The index of the bucket to validate.
+   */
+  function _validateBucketState(IERC20Pool pool, uint256 bucket) public view {
+    (, , , uint256 bucketLP_, , ) = poolInfoUtils.bucketInfo(address(pool), bucket);
+    require(bucketLP_ == 0 || bucketLP_ > 1_000_000, "apa/bucket-lps-invalid");
   }
 
   /**

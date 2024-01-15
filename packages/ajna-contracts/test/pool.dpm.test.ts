@@ -58,9 +58,10 @@ describe("AjnaProxyActions", function () {
       lenderActionsInstance,
       ajna.address
     );
-    const [poolContract, poolContractWeth] = await Promise.all([
+    const [poolContract, poolContractWeth, poolContractWethAjna] = await Promise.all([
       deployPool(erc20PoolFactory, wbtc.address, usdc.address),
       deployPool(erc20PoolFactory, weth.address, usdc.address),
+      deployPool(erc20PoolFactory, weth.address, ajna.address),
     ]);
     const { positionManagerContract } = await deployRewardsContracts(
       positionNFTSVGInstance,
@@ -102,7 +103,7 @@ describe("AjnaProxyActions", function () {
     addresses.weth = weth.address;
     addresses.ajnaProxyActionsContract = ajnaProxyActionsContract.address;
     console.table(addresses);
-    await provideLiquidity(usdc, poolContract, poolContractWeth, lender);
+    await provideLiquidity(usdc, poolContract, poolContractWeth, lender, ajna, poolContractWethAjna);
     const hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
     return {
       deployer,
@@ -120,6 +121,7 @@ describe("AjnaProxyActions", function () {
       positionManagerContract,
       ajna,
       poolContractWeth,
+      poolContractWethAjna,
       weth,
       dmpGuardContract,
       hash,
@@ -1276,6 +1278,106 @@ describe("AjnaProxyActions", function () {
       expect(balancesQuoteAfter.lender).to.be.gt(balancesQuoteBefore.lender);
     });
   });
+  describe("DPM - lender (dusted bucket) - AjnaProxyActions", function () {
+    it("should not supplyQuote", async () => {
+      const { lenderProxy, poolContractWethAjna, ajna, ajnaProxyActionsContract, lender } = await loadFixture(
+        deployWithoutInitialization
+      );
+      const price = bn.eighteen.DUSTED_BUCKET_PRICE;
+      const encodedSupplyQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData("supplyQuote", [
+        poolContractWethAjna.address,
+        bn.six.THOUSAND,
+        price,
+      ]);
+      await ajna.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
+      const tx = lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedSupplyQuoteData);
+      await expect(tx).to.be.revertedWith("apa/bucket-lps-invalid");
+    });
+    it("should supplyQuote --> not moveQuote - to higher priced bucket", async () => {
+      const { lenderProxy, poolContractWethAjna, ajnaProxyActionsContract, lender, ajna, poolInfoContract } =
+        await loadFixture(deployWithoutInitialization);
+      const depositAmountTokenDecimals = bn.six.HUNDRED_THOUSAND;
+      const price = bn.eighteen.TEST_PRICE_3;
+      const dustedBucketPrice = bn.eighteen.DUSTED_BUCKET_PRICE;
+
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContractWethAjna,
+        ajna,
+        lender,
+        lenderProxy,
+        depositAmountTokenDecimals,
+        price,
+        poolInfoContract
+      );
+      const encodedMoveQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData("moveQuote", [
+        poolContractWethAjna.address,
+        price,
+        dustedBucketPrice,
+      ]);
+      await ajna.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
+      const txMove = lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedMoveQuoteData);
+      await expect(txMove).to.be.revertedWith("apa/bucket-lps-invalid");
+    });
+    it("should not supplyAndMoveQuote", async () => {
+      const { lenderProxy, poolContractWethAjna, ajnaProxyActionsContract, lender, ajna, poolInfoContract } =
+        await loadFixture(deployWithoutInitialization);
+      const depositAmountTokenDecimals = bn.six.HUNDRED_THOUSAND;
+
+      const price = bn.eighteen.TEST_PRICE_3;
+      const dustedBucketPrice = bn.eighteen.DUSTED_BUCKET_PRICE;
+
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContractWethAjna,
+        ajna,
+        lender,
+        lenderProxy,
+        depositAmountTokenDecimals,
+        price,
+        poolInfoContract
+      );
+
+      const encodedSupplyAndMoveQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData(
+        "supplyAndMoveQuote",
+        [poolContractWethAjna.address, depositAmountTokenDecimals, price, dustedBucketPrice]
+      );
+      await ajna.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
+      const txSupplyAndMove = lenderProxy
+        .connect(lender)
+        .execute(ajnaProxyActionsContract.address, encodedSupplyAndMoveQuoteData);
+      await expect(txSupplyAndMove).to.be.revertedWith("apa/bucket-lps-invalid");
+    });
+    it("should not withdrawAndMoveQuote", async () => {
+      const { lenderProxy, poolContractWethAjna, ajnaProxyActionsContract, lender, ajna, poolInfoContract } =
+        await loadFixture(deployWithoutInitialization);
+      const depositAmountTokenDecimals = bn.six.HUNDRED_THOUSAND;
+
+      const price = bn.eighteen.TEST_PRICE_3;
+      const dustedBucketPrice = bn.eighteen.DUSTED_BUCKET_PRICE;
+
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContractWethAjna,
+        ajna,
+        lender,
+        lenderProxy,
+        depositAmountTokenDecimals,
+        price,
+        poolInfoContract
+      );
+
+      const encodedwithdrawAndMoveQuoteData = ajnaProxyActionsContract.interface.encodeFunctionData(
+        "withdrawAndMoveQuote",
+        [poolContractWethAjna.address, depositAmountTokenDecimals.div(2), price, dustedBucketPrice]
+      );
+      await ajna.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
+      const txWithdrawAndMove = lenderProxy
+        .connect(lender)
+        .execute(ajnaProxyActionsContract.address, encodedwithdrawAndMoveQuoteData);
+      await expect(txWithdrawAndMove).to.be.revertedWith("apa/bucket-lps-invalid");
+    });
+  });
 });
 
 async function withdrawQuote(
@@ -1759,15 +1861,35 @@ async function depositAndDrawDebt(
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 
-async function provideLiquidity(usdc: DSToken, poolContract: ERC20Pool, poolContractWeth: ERC20Pool, lender: Signer) {
-  await usdc.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
-  await usdc.connect(lender).approve(poolContractWeth.address, bn.eighteen.MILLION);
+async function provideLiquidity(
+  usdc: DSToken,
+  poolContract: ERC20Pool,
+  poolContractWeth: ERC20Pool,
+  lender: Signer,
+  ajna?: DSToken,
+  poolContractWethAjna?: ERC20Pool
+) {
+  await usdc.connect(lender).approve(poolContract.address, bn.eighteen.MILLION.mul(2));
+  await usdc.connect(lender).approve(poolContractWeth.address, bn.eighteen.MILLION.mul(2));
   const blockNumber = await ethers.provider.getBlockNumber();
   const timestamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
-  const tx = await poolContract.connect(lender).addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
-  const tx2 = await poolContractWeth.connect(lender).addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
-  await tx.wait();
-  await tx2.wait();
+  const seedEthPoolTransaction = await poolContract
+    .connect(lender)
+    .addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
+  const seedWbtcPoolTransaction = await poolContractWeth
+    .connect(lender)
+    .addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
+  await seedEthPoolTransaction.wait();
+  await seedWbtcPoolTransaction.wait();
+
+  if (ajna && poolContractWethAjna) {
+    await ajna.connect(lender).approve(poolContractWethAjna.address, bn.eighteen.MILLION.mul(2));
+
+    const seedDustedBucketEthAjnaTransaction = await poolContractWethAjna
+      .connect(lender)
+      .addQuoteToken(bn.ONE, 3000, timestamp + 100000);
+    await seedDustedBucketEthAjnaTransaction.wait();
+  }
 }
 
 /**
