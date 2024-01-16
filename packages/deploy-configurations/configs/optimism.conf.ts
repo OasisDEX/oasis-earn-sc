@@ -360,6 +360,10 @@ export const config: SystemConfig = {
     COMP: { name: 'COMP', address: ADDRESS_ZERO },
     CBETH: { name: 'CBETH', address: '0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2' },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
+    CRV: {
+      name: 'CRV',
+      address: ADDRESS_ZERO,
+    },
     DAI: {
       name: 'DAI',
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
@@ -395,6 +399,10 @@ export const config: SystemConfig = {
     PAXUSD: { name: 'PAXUSD', address: ADDRESS_ZERO },
     RENBTC: { name: 'RENBTC', address: ADDRESS_ZERO },
     RETH: { name: 'RETH', address: '0x9bcef72be871e61ed4fbbc7630889bee758eb81d' },
+    RPL: {
+      name: 'RPL',
+      address: ADDRESS_ZERO,
+    },
     RWA001: { name: 'RWA001', address: ADDRESS_ZERO },
     RWA002: { name: 'RWA002', address: ADDRESS_ZERO },
     RWA003: { name: 'RWA003', address: ADDRESS_ZERO },

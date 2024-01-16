@@ -381,6 +381,10 @@ export const config: SystemConfig = {
       name: 'CRVV1ETHSTETH',
       address: '0x0000000000000000000000000000000000000000',
     },
+    CRV: {
+      name: 'CRV',
+      address: ADDRESS_ZERO,
+    },
     DAI: {
       name: 'DAI',
       address: '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb',
@@ -457,6 +461,10 @@ export const config: SystemConfig = {
     RETH: {
       name: 'RETH',
       address: '0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c',
+    },
+    RPL: {
+      name: 'RPL',
+      address: ADDRESS_ZERO,
     },
     RWA001: {
       name: 'RWA001',

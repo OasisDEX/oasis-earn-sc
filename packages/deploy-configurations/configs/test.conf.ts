@@ -449,6 +449,10 @@ export const config: SystemConfig = {
       name: 'BAT',
       address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF',
     },
+    CRV: {
+      name: 'CRV',
+      address: ADDRESS_ZERO,
+    },
     BWAJNA: {
       name: 'BWAJNA',
       address: '0x936Ab482d6bd111910a42849D3A51Ff80BB0A711',
@@ -541,6 +545,10 @@ export const config: SystemConfig = {
     RETH: {
       name: 'RETH',
       address: '0xae78736cd615f374d3085123a210448e74fc6393',
+    },
+    RPL: {
+      name: 'RPL',
+      address: ADDRESS_ZERO,
     },
     RWA001: {
       name: 'RWA001',
