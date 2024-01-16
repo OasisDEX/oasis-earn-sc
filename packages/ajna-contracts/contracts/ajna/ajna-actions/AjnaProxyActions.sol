@@ -471,9 +471,10 @@ contract AjnaProxyActions {
     uint256 oldPrice,
     uint256 newPrice
   ) public payable {
-    _validateBucketState(pool, convertPriceToIndex(newPrice));
+    uint256 newIndex = convertPriceToIndex(newPrice);
+    _validateBucketState(pool, newIndex);
     _supplyQuote(pool, amountToAdd, newPrice);
-    _validateBucketState(pool, convertPriceToIndex(newPrice));
+    _validateBucketState(pool, newIndex);
     _moveQuote(pool, oldPrice, newPrice);
     emit ProxyActionsOperation("AjnaSupplyAndMoveQuote");
   }
