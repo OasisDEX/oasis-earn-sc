@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 
+export const EULERIAN_NUMBER = new BigNumber(2.718281828459)
 export const ZERO = new BigNumber(0)
 export const ONE = new BigNumber(1)
 export const TEN = new BigNumber(10)

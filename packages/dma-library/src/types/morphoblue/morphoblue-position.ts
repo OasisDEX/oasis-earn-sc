@@ -62,7 +62,7 @@ export class MorphoBluePosition implements LendingPosition {
     public debtAmount: BigNumber,
     public collateralPrice: BigNumber,
     public debtPrice: BigNumber,
-    public marketPatams: MarketParams,
+    public marketParams: MarketParams,
     public market: Market,
     // collateral / debt
     public price: BigNumber,
@@ -74,7 +74,7 @@ export class MorphoBluePosition implements LendingPosition {
   ) {}
 
   get liquidationPrice() {
-    return this.price.times(this.marketPatams.lltv)
+    return this.price.times(this.marketParams.lltv)
   }
 
   get marketPrice() {
@@ -82,7 +82,7 @@ export class MorphoBluePosition implements LendingPosition {
   }
 
   get liquidationToMarketPrice() {
-    return this.marketPatams.lltv
+    return this.marketParams.lltv
   }
 
   // How much collateral can we withdraw to not get liqidated, (to get to the verge of liquidation)
@@ -101,7 +101,7 @@ export class MorphoBluePosition implements LendingPosition {
   }
 
   get maxRiskRatio() {
-    return new RiskRatio(normalizeValue(this.marketPatams.lltv), RiskRatio.TYPE.LTV)
+    return new RiskRatio(normalizeValue(this.marketParams.lltv), RiskRatio.TYPE.LTV)
   }
 
   get borrowRate(): BigNumber {
@@ -150,7 +150,7 @@ export class MorphoBluePosition implements LendingPosition {
       this.debtAmount,
       this.collateralPrice,
       this.debtPrice,
-      this.marketPatams,
+      this.marketParams,
       this.market,
       this.price,
       this.rate,
@@ -166,7 +166,7 @@ export class MorphoBluePosition implements LendingPosition {
       this.debtAmount,
       this.collateralPrice,
       this.debtPrice,
-      this.marketPatams,
+      this.marketParams,
       this.market,
       this.price,
       this.rate,
@@ -182,7 +182,7 @@ export class MorphoBluePosition implements LendingPosition {
       newDebt,
       this.collateralPrice,
       this.debtPrice,
-      this.marketPatams,
+      this.marketParams,
       this.market,
       this.price,
       this.rate,
@@ -198,7 +198,7 @@ export class MorphoBluePosition implements LendingPosition {
       newDebt,
       this.collateralPrice,
       this.debtPrice,
-      this.marketPatams,
+      this.marketParams,
       this.market,
       this.price,
       this.rate,
@@ -213,7 +213,7 @@ export class MorphoBluePosition implements LendingPosition {
       ZERO,
       this.collateralPrice,
       this.debtPrice,
-      this.marketPatams,
+      this.marketParams,
       this.market,
       this.price,
       this.rate,

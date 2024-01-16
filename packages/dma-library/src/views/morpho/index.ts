@@ -6,7 +6,7 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 // import { Morpho__factory, Oracle__factory, Irm__factory } from '../../../../dma-contracts/typechain'
-import { ONE, TEN } from '../../../../dma-common/constants/numbers'
+import { EULERIAN_NUMBER, ONE, TEN } from '../../../../dma-common/constants/numbers'
 import type { Irm } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Irm'
 import type { Morpho } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Morpho'
 import type { Oracle } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Oracle'
@@ -79,6 +79,15 @@ export async function getMorphoPosition(
   const price = await oracle.price()
   const rate = await irm.borrowRateView(marketParams, market)
 
+  const apy = new BigNumber(
+    EULERIAN_NUMBER.toNumber() **
+      new BigNumber(rate.toString())
+        .shiftedBy(-18)
+        .times(3600 * 24 * 365)
+        .toNumber() -
+      1,
+  )
+
   const debtAmount = toAssetsDown(
     new BigNumber(positionParams.borrowShares.toString()),
     new BigNumber(market.totalBorrowAssets.toString()),
@@ -127,7 +136,7 @@ export async function getMorphoPosition(
       fee: new BigNumber(market.fee.toString()),
     },
     new BigNumber(price.toString()).div(TEN.pow(36 + quotePrecision - collateralPrecision)),
-    new BigNumber(rate.toString()).div(TEN.pow(36)),
+    apy,
     pnl,
   )
 }

@@ -39,9 +39,9 @@ export const morphoViewCommand: Command<typeof argsSchema> = {
     );
     console.log(`
       Morpho position:
-        collateralToken ${position.marketPatams.collateralToken}
+        collateralToken ${position.marketParams.collateralToken}
         collateral ${position.collateralAmount.toString()}
-        debtToken ${position.marketPatams.loanToken}
+        debtToken ${position.marketParams.loanToken}
         debt ${position.debtAmount.toString()}
         liquidationPrice ${position.liquidationPrice.toString()}
 
