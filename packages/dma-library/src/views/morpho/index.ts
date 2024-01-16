@@ -80,7 +80,7 @@ export async function getMorphoPosition(
   const price = await oracle.price()
   const rate = await irm.borrowRateView(marketParams, market)
 
-  const apy = getMarketRate(rate)
+  const apy = getMarketRate(rate.toString())
 
   const debtAmount = toAssetsDown(
     new BigNumber(positionParams.borrowShares.toString()),
