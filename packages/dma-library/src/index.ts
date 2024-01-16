@@ -13,6 +13,7 @@ export { protocols } from './protocols'
 export { strategies } from './strategies'
 export { ajnaBuckets } from './strategies'
 export { getPoolLiquidity } from './strategies/ajna/validation'
+export { getMarketRate } from './strategies/morphoblue/validation'
 
 // VIEWS
 export { views } from './views'
