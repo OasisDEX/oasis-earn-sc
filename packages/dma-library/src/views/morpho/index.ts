@@ -6,7 +6,7 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 // import { Morpho__factory, Oracle__factory, Irm__factory } from '../../../../dma-contracts/typechain'
-import { EULERIAN_NUMBER, ONE, TEN } from '../../../../dma-common/constants/numbers'
+import { ONE, TEN } from '../../../../dma-common/constants/numbers'
 import type { Irm } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Irm'
 import type { Morpho } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Morpho'
 import type { Oracle } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Oracle'
@@ -80,7 +80,7 @@ export async function getMorphoPosition(
   const rate = await irm.borrowRateView(marketParams, market)
 
   const apy = new BigNumber(
-    EULERIAN_NUMBER.toNumber() **
+    Math.E **
       new BigNumber(rate.toString())
         .shiftedBy(-18)
         .times(3600 * 24 * 365)
