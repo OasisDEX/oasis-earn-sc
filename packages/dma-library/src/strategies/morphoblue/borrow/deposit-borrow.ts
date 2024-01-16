@@ -59,10 +59,10 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
   )
 
   const isDepositingEth =
-    position.marketPatams.collateralToken.toLowerCase() ===
+    position.marketParams.collateralToken.toLowerCase() ===
     dependencies.addresses.tokens.WETH.toLowerCase()
   const isBorrowingEth =
-    position.marketPatams.loanToken.toLowerCase() ===
+    position.marketParams.loanToken.toLowerCase() ===
     dependencies.addresses.tokens.WETH.toLowerCase()
 
   const operation = await operations.morphoblue.borrow.depositBorrow(
@@ -70,26 +70,26 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
       ? {
           userFundsTokenAddress: isDepositingEth
             ? dependencies.addresses.tokens.ETH
-            : position.marketPatams.collateralToken,
+            : position.marketParams.collateralToken,
           userFundsTokenAmount: amountToWei(args.collateralAmount, args.collateralPrecision),
           depositorAddress: args.user,
           morphoBlueMarket: {
-            loanToken: position.marketPatams.loanToken,
-            collateralToken: position.marketPatams.collateralToken,
-            oracle: position.marketPatams.oracle,
-            irm: position.marketPatams.irm,
-            lltv: position.marketPatams.lltv.times(TEN.pow(18)),
+            loanToken: position.marketParams.loanToken,
+            collateralToken: position.marketParams.collateralToken,
+            oracle: position.marketParams.oracle,
+            irm: position.marketParams.irm,
+            lltv: position.marketParams.lltv.times(TEN.pow(18)),
           },
         }
       : undefined,
     args.quoteAmount.gt(0)
       ? {
           morphoBlueMarket: {
-            loanToken: position.marketPatams.loanToken,
-            collateralToken: position.marketPatams.collateralToken,
-            oracle: position.marketPatams.oracle,
-            irm: position.marketPatams.irm,
-            lltv: position.marketPatams.lltv.times(TEN.pow(18)),
+            loanToken: position.marketParams.loanToken,
+            collateralToken: position.marketParams.collateralToken,
+            oracle: position.marketParams.oracle,
+            irm: position.marketParams.irm,
+            lltv: position.marketParams.lltv.times(TEN.pow(18)),
           },
           amountToBorrow: amountToWei(args.quoteAmount, args.quotePrecision),
           isEthToken: isBorrowingEth,
