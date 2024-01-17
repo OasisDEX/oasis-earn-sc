@@ -2,6 +2,7 @@ import { Network } from '@deploy-configurations/types/network'
 
 import { ADDRESS_ZERO, loadContractNames } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
+import { commonDefaults } from './shared/common-defaults'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.GOERLI)
 
@@ -248,6 +249,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x41A92d82D70005B55070dB7138b21d7c28F27CC0',

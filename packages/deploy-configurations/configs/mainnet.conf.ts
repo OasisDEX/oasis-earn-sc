@@ -2,6 +2,8 @@ import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from './shared/common-defaults'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export const config: SystemConfig = {
@@ -333,6 +335,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -474,6 +477,10 @@ export const config: SystemConfig = {
       name: 'CRVV1ETHSTETH',
       address: '0x06325440D014e39736583c165C2963BA99fAf14E',
     },
+    CRV: {
+      name: 'CRV',
+      address: '0xD533a949740bb3306d119CC777fa900bA034cd52',
+    },
     DAI: {
       name: 'DAI',
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -535,6 +542,11 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
     },
+    // For MKR use McdGov instead
+    // MKR: {
+    //   name: 'MKR',
+    //   address: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
+    // },
     PAX: {
       name: 'PAX',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
@@ -550,6 +562,10 @@ export const config: SystemConfig = {
     RETH: {
       name: 'RETH',
       address: '0xae78736cd615f374d3085123a210448e74fc6393',
+    },
+    RPL: {
+      name: 'RPL',
+      address: '0xd33526068d116ce69f19a9ee46f0bd304f21a51f',
     },
     RWA001: {
       name: 'RWA001',
