@@ -1,4 +1,4 @@
-import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
+import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
@@ -301,7 +301,7 @@ export const config: SystemConfig = {
       MorphoBlueBorrow: {
         name: 'MorphoBlueBorrow',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x519A76090AF5952af5966F0c234B34eD1B59f07c',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.BORROW,
         history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
@@ -309,7 +309,7 @@ export const config: SystemConfig = {
       MorphoBlueWithdraw: {
         name: 'MorphoBlueWithdraw',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x50241265F81a568a536a205F1F4bea8899Df9eFe',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.WITHDRAW,
         history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
@@ -317,7 +317,7 @@ export const config: SystemConfig = {
       MorphoBlueDeposit: {
         name: 'MorphoBlueDeposit',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x839eeb8C62162f20f3B15163D4253e266C70f84f',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.DEPOSIT,
         history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
@@ -325,7 +325,7 @@ export const config: SystemConfig = {
       MorphoBluePayback: {
         name: 'MorphoBluePayback',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x77f36e80BC366E6C13Cc7e8e1EB5dF8190D2bD8e',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.PAYBACK,
         history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
@@ -1216,7 +1216,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
@@ -1232,7 +1232,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_RETHUSDC: {
       name: 'AjnaPoolPairs_RETHUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_USDCETH: {
       name: 'AjnaPoolPairs_USDCETH',
@@ -1242,7 +1242,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_USDCWBTC',
       address: '0xE92Cd0ACF334D1133551bC4c87eA73BbC49Ce711',
     },
-    AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: ADDRESS_ZERO },
+    AjnaPoolPairs_USDCDAI: {
+      name: 'AjnaPoolPairs_USDCDAI',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     AjnaPoolPairs_WBTCDAI: {
       name: 'AjnaPoolPairs_WBTCDAI',
       address: '0x50f1C63f3AEfD60C665eF45aA74f274dABf93405',
@@ -1265,47 +1268,47 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_TBTCWBTC: {
       name: 'AjnaPoolPairs_TBTCWBTC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_TBTCUSDC: {
       name: 'AjnaPoolPairs_TBTCUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_ETHGHO: {
       name: 'AjnaPoolPairs_ETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WSTETHGHO: {
       name: 'AjnaPoolPairs_WSTETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_GHODAI: {
       name: 'AjnaPoolPairs_GHODAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_RETHGHO: {
       name: 'AjnaPoolPairs_RETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WBTCGHO: {
       name: 'AjnaPoolPairs_WBTCGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_CBETHGHO: {
       name: 'AjnaPoolPairs_CBETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WLDUSDC: {
       name: 'AjnaPoolPairs_WLDUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_USDCWLD: {
       name: 'AjnaPoolPairs_USDCWLD',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_SDAIUSDC: {
       name: 'AjnaPoolPairs_SDAIUSDC',
@@ -1317,27 +1320,27 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_YIELDETHETH: {
       name: 'AjnaPoolPairs_YIELDETHETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_YIELDBTCWBTC: {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_TBTCGHO: {
       name: 'AjnaPoolPairs_TBTCGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaRewardsReedemer: {
       name: 'AjnaRewardsReedemer',
