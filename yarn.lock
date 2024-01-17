@@ -3159,10 +3159,10 @@
   dependencies:
     nx "15.9.2"
 
-"@oasisdex/dma-library@^0.5.18":
-  version "0.5.34"
-  resolved "https://registry.yarnpkg.com/@oasisdex/dma-library/-/dma-library-0.5.34.tgz#0a49ccd89574a545c2d1d08b4089b06ba530393a"
-  integrity sha512-iEG+W/vLtniagsjo0FY7v4VMdWO4Fk3AF0S+9xBQWwlAEeFN0hebe3OSD5pLE16hVavI7TkGgRdV0D2PwxlewA==
+"@oasisdex/dma-library@^0.5.35-rc.1":
+  version "0.5.39"
+  resolved "https://registry.yarnpkg.com/@oasisdex/dma-library/-/dma-library-0.5.39.tgz#0502ec208a0ee27bb2d6c22429459281ae40cc94"
+  integrity sha512-+aORXu+EjQPzVDyn6tWSkkLtY2gHNgiaYYh0i89qOQz9Eg6UZbaRLD9vHeFzJRkUCR+CBEIwW0+tzTkjQXj80Q==
   dependencies:
     bignumber.js "9.0.1"
     ethers "5.6.2"
@@ -9402,7 +9402,7 @@ ethereumjs-wallet@0.6.5:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
-ethers@5.7.2, ethers@^4.0.32, ethers@^4.0.40, ethers@^5.0.1, ethers@^5.0.2, ethers@^5.5.2, ethers@^5.5.3, ethers@^5.6.1, ethers@^5.6.2, ethers@^5.7.0, ethers@^5.7.1, ethers@^5.7.2:
+ethers@5.6.2, ethers@5.7.2, ethers@^4.0.32, ethers@^4.0.40, ethers@^5.0.1, ethers@^5.0.2, ethers@^5.5.2, ethers@^5.5.3, ethers@^5.6.1, ethers@^5.6.2, ethers@^5.7.0, ethers@^5.7.1, ethers@^5.7.2:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==

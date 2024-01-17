@@ -2,6 +2,8 @@ import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constant
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from './shared/common-defaults'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export const config: SystemConfig = {
@@ -333,6 +335,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -538,6 +541,10 @@ export const config: SystemConfig = {
     MATIC: {
       name: 'MATIC',
       address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
+    },
+    MKR: {
+      name: 'MKR',
+      address: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
     },
     PAX: {
       name: 'PAX',
