@@ -24,7 +24,8 @@ export type Tokens =
   | 'LUSD'
   | 'MANA'
   | 'MATIC'
-  | 'MKR'
+  // For MKR use McdGov instead
+  // | 'MKR'
   | 'OP'
   | 'PAX'
   | 'PAXUSD'
