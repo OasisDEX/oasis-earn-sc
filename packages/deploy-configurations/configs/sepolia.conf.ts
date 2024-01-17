@@ -376,10 +376,6 @@ export const config: SystemConfig = {
     CBETH: { name: 'CBETH', address: ADDRESS_ZERO },
     COMP: { name: 'COMP', address: '0x8032dce0b793C21B8F7B648C01224c3b557271ED' },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
-    CRV: {
-      name: 'CRV',
-      address: ADDRESS_ZERO,
-    },
     DAI: {
       name: 'DAI',
       address: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',

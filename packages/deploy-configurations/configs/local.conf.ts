@@ -422,10 +422,6 @@ export const config: SystemConfig = {
       name: 'CRVV1ETHSTETH',
       address: '0x06325440D014e39736583c165C2963BA99fAf14E',
     },
-    CRV: {
-      name: 'CRV',
-      address: ADDRESS_ZERO,
-    },
     DAI: {
       name: 'DAI',
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',

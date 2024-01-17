@@ -1,8 +1,15 @@
 import { ADDRESS_ZERO } from '@deploy-configurations/constants'
 
+// defaults for easily adding ADDRESS_ZERO addresses to tokens across all networks
+// Just add override of the default for each network if you want to use that token
+
 export const commonDefaults = {
   ARB: {
     name: 'ARB',
+    address: ADDRESS_ZERO,
+  },
+  CRV: {
+    name: 'CRV',
     address: ADDRESS_ZERO,
   },
   MKR: {

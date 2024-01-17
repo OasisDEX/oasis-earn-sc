@@ -452,10 +452,6 @@ export const config: SystemConfig = {
       name: 'BAT',
       address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF',
     },
-    CRV: {
-      name: 'CRV',
-      address: ADDRESS_ZERO,
-    },
     BWAJNA: {
       name: 'BWAJNA',
       address: '0x936Ab482d6bd111910a42849D3A51Ff80BB0A711',

@@ -304,10 +304,6 @@ export const config: SystemConfig = {
       name: 'COMP',
       address: ADDRESS_ZERO,
     },
-    CRV: {
-      name: 'CRV',
-      address: ADDRESS_ZERO,
-    },
     CRVV1ETHSTETH: {
       name: 'CRVV1ETHSTETH',
       address: ADDRESS_ZERO,
