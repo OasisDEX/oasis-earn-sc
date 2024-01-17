@@ -12,10 +12,11 @@ export const commonDefaults = {
     name: 'CRV',
     address: ADDRESS_ZERO,
   },
-  MKR: {
-    name: 'MKR',
-    address: ADDRESS_ZERO,
-  },
+  // For MKR use McdGov instead
+  // MKR: {
+  //   name: 'MKR',
+  //   address: ADDRESS_ZERO,
+  // },
   OP: {
     name: 'OP',
     address: ADDRESS_ZERO,

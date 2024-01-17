@@ -542,10 +542,11 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
     },
-    MKR: {
-      name: 'MKR',
-      address: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
-    },
+    // For MKR use McdGov instead
+    // MKR: {
+    //   name: 'MKR',
+    //   address: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
+    // },
     PAX: {
       name: 'PAX',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
