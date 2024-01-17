@@ -405,10 +405,6 @@ export const config: SystemConfig = {
     },
     RENBTC: { name: 'RENBTC', address: ADDRESS_ZERO },
     RETH: { name: 'RETH', address: '0x9bcef72be871e61ed4fbbc7630889bee758eb81d' },
-    RPL: {
-      name: 'RPL',
-      address: ADDRESS_ZERO,
-    },
     RWA001: { name: 'RWA001', address: ADDRESS_ZERO },
     RWA002: { name: 'RWA002', address: ADDRESS_ZERO },
     RWA003: { name: 'RWA003', address: ADDRESS_ZERO },

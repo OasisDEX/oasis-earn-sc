@@ -17,4 +17,8 @@ export const commonDefaults = {
     name: 'SUSD',
     address: ADDRESS_ZERO,
   },
+  RPL: {
+    name: 'RPL',
+    address: ADDRESS_ZERO,
+  },
 } as const

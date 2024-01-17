@@ -532,10 +532,6 @@ export const config: SystemConfig = {
       name: 'RETH',
       address: '0xae78736cd615f374d3085123a210448e74fc6393',
     },
-    RPL: {
-      name: 'RPL',
-      address: ADDRESS_ZERO,
-    },
     RWA001: {
       name: 'RWA001',
       address: '0x10b2aA5D77Aa6484886d8e244f0686aB319a270d',
