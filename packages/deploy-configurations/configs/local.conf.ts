@@ -1289,5 +1289,9 @@ export const config: SystemConfig = {
       address: ADDRESS_ZERO,
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
     },
+    AdaptiveCurveIrm: {
+      name: 'AdaptiveCurveIrm',
+      address: ADDRESS_ZERO,
+    },
   },
 }
