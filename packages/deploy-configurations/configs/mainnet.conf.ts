@@ -1,6 +1,8 @@
-import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
+import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
+
+import { commonDefaults } from './shared/common-defaults'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
@@ -245,17 +247,17 @@ export const config: SystemConfig = {
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: false,
-        address: '0x4D6F457C8305A1E6f688a8a05C7341DD959cB681',
+        address: '0x039F7784C5A6f187fcAc027262aA912974A7515D',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
-        history: [],
+        history: ['0x4D6F457C8305A1E6f688a8a05C7341DD959cB681'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: false,
-        address: '0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1',
+        address: '0x508E30f983d8a2F75154f7515f1163a7dE94C5A5',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
-        history: [],
+        history: ['0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       SparkBorrow: {
@@ -301,7 +303,7 @@ export const config: SystemConfig = {
       MorphoBlueBorrow: {
         name: 'MorphoBlueBorrow',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x519A76090AF5952af5966F0c234B34eD1B59f07c',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.BORROW,
         history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
@@ -309,7 +311,7 @@ export const config: SystemConfig = {
       MorphoBlueWithdraw: {
         name: 'MorphoBlueWithdraw',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x50241265F81a568a536a205F1F4bea8899Df9eFe',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.WITHDRAW,
         history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
@@ -317,7 +319,7 @@ export const config: SystemConfig = {
       MorphoBlueDeposit: {
         name: 'MorphoBlueDeposit',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x839eeb8C62162f20f3B15163D4253e266C70f84f',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.DEPOSIT,
         history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
@@ -325,7 +327,7 @@ export const config: SystemConfig = {
       MorphoBluePayback: {
         name: 'MorphoBluePayback',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x77f36e80BC366E6C13Cc7e8e1EB5dF8190D2bD8e',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.PAYBACK,
         history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
@@ -333,6 +335,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -474,6 +477,10 @@ export const config: SystemConfig = {
       name: 'CRVV1ETHSTETH',
       address: '0x06325440D014e39736583c165C2963BA99fAf14E',
     },
+    CRV: {
+      name: 'CRV',
+      address: '0xD533a949740bb3306d119CC777fa900bA034cd52',
+    },
     DAI: {
       name: 'DAI',
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -535,6 +542,11 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
     },
+    // For MKR use McdGov instead
+    // MKR: {
+    //   name: 'MKR',
+    //   address: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
+    // },
     PAX: {
       name: 'PAX',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
@@ -550,6 +562,10 @@ export const config: SystemConfig = {
     RETH: {
       name: 'RETH',
       address: '0xae78736cd615f374d3085123a210448e74fc6393',
+    },
+    RPL: {
+      name: 'RPL',
+      address: '0xd33526068d116ce69f19a9ee46f0bd304f21a51f',
     },
     RWA001: {
       name: 'RWA001',
@@ -640,6 +656,10 @@ export const config: SystemConfig = {
       name: 'USDC',
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
+    },
+    'USDC.E': {
+      name: 'USDC.E',
+      address: '0x0000000000000000000000000000000000000000',
     },
     USDBC: {
       name: 'USDBC',
@@ -1203,157 +1223,164 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0xd51789b0B9b6be8A89778e3C93cC365511bf382c',
+      address: '0x30c5eF2997d6a882DE52c4ec01B6D0a5e5B4fAAE',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x601a8F7EA34168D912fB3C214a377CB544F18c0d',
+      address: '0x3637DF43F938b05A71bb828f13D9f14498E6883c',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: ADDRESS_ZERO,
+      address: '0xE4BfB9b344A0Ae89702184281F13A295F3D49e15',
     },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
-      address: ADDRESS_ZERO,
+      address: '0x9cdB48FcBd8241Bb75887AF04d3b1302c410F671',
     },
     AjnaPoolPairs_RETHETH: {
       name: 'AjnaPoolPairs_RETHETH',
-      address: ADDRESS_ZERO,
+      address: '0xE300B3A6b24cB3c5c87034155F7ffF7F77C862a0',
     },
     AjnaPoolPairs_RETHUSDC: {
       name: 'AjnaPoolPairs_RETHUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_USDCETH: {
       name: 'AjnaPoolPairs_USDCETH',
-      address: ADDRESS_ZERO,
+      address: '0x2Ceb74Bb7a92D652C850C16F48547aa49F8bca31',
     },
     AjnaPoolPairs_USDCWBTC: {
       name: 'AjnaPoolPairs_USDCWBTC',
-      address: ADDRESS_ZERO,
+      address: '0xE92Cd0ACF334D1133551bC4c87eA73BbC49Ce711',
     },
-    AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: ADDRESS_ZERO },
+    AjnaPoolPairs_USDCDAI: {
+      name: 'AjnaPoolPairs_USDCDAI',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     AjnaPoolPairs_WBTCDAI: {
       name: 'AjnaPoolPairs_WBTCDAI',
-      address: ADDRESS_ZERO,
+      address: '0x50f1C63f3AEfD60C665eF45aA74f274dABf93405',
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
-      address: '0x6271486E0057B74F6e6b7A92fb9C2F3B14a3BD6F',
+      address: '0x3BB7C1E268A51b2D933C0490e282e20b906f8652',
     },
     AjnaPoolPairs_WSTETHDAI: {
       name: 'AjnaPoolPairs_WSTETHDAI',
-      address: ADDRESS_ZERO,
+      address: '0xcD261cd365389A58e6467bb8a83A9E437864e8E5',
     },
     AjnaPoolPairs_WSTETHETH: {
       name: 'AjnaPoolPairs_WSTETHETH',
-      address: ADDRESS_ZERO,
+      address: '0x3BA6A019eD5541b5F5555d8593080042Cf3ae5f4',
     },
     AjnaPoolPairs_WSTETHUSDC: {
       name: 'AjnaPoolPairs_WSTETHUSDC',
-      address: ADDRESS_ZERO,
+      address: '0xF5B1AD7F82549c2BBf08AAa79c9eFC70C6E46b06',
     },
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_TBTCWBTC: {
       name: 'AjnaPoolPairs_TBTCWBTC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_TBTCUSDC: {
       name: 'AjnaPoolPairs_TBTCUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_ETHGHO: {
       name: 'AjnaPoolPairs_ETHGHO',
-      address: '0x9B832637F29D7A144B4e227C224F10ff068F4411',
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WSTETHGHO: {
       name: 'AjnaPoolPairs_WSTETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_GHODAI: {
       name: 'AjnaPoolPairs_GHODAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_RETHGHO: {
       name: 'AjnaPoolPairs_RETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WBTCGHO: {
       name: 'AjnaPoolPairs_WBTCGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_CBETHGHO: {
       name: 'AjnaPoolPairs_CBETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WLDUSDC: {
       name: 'AjnaPoolPairs_WLDUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_USDCWLD: {
       name: 'AjnaPoolPairs_USDCWLD',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_SDAIUSDC: {
       name: 'AjnaPoolPairs_SDAIUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x90Ac6604aE71B5D978f3fC6074078987249119Ea',
     },
     AjnaPoolPairs_YFIDAI: {
       name: 'AjnaPoolPairs_YFIDAI',
-      address: ADDRESS_ZERO,
+      address: '0x66ea46C6e7F9e5BB065bd3B1090FFF229393BA51',
     },
     AjnaPoolPairs_YIELDETHETH: {
       name: 'AjnaPoolPairs_YIELDETHETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_YIELDBTCWBTC: {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_TBTCGHO: {
       name: 'AjnaPoolPairs_TBTCGHO',
-      address: '0x3507673C0fd553EF6d4e69c4b913308cF363B7F4',
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaRewardsReedemer: {
       name: 'AjnaRewardsReedemer',
-      address: ADDRESS_ZERO,
+      address: '0xf309EE5603bF05E5614dB930E4EAB661662aCeE6',
     },
     AjnaBonusRewardsReedemer: {
       name: 'AjnaBonusRewardsReedemer',
-      address: ADDRESS_ZERO,
+      address: '0xEB233d4D1D756469A2C7f0b42034D0507d744542',
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x33960C912b67Fe1Abf4738e2b754d299d99cF2F1',
+      address: '0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },
   morphoblue: {
     MorphoBlue: {
       name: 'MorphoBlue',
-      address: ADDRESS_ZERO,
+      address: '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+    },
+    AdaptiveCurveIrm: {
+      name: 'AdaptiveCurveIrm',
+      address: '0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC',
     },
   },
 }

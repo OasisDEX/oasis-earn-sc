@@ -2,6 +2,8 @@ import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constant
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from './shared/common-defaults'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.HARDHAT)
 
 export const config: SystemConfig = {
@@ -307,6 +309,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -614,6 +617,10 @@ export const config: SystemConfig = {
       name: 'USDC',
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
+    },
+    'USDC.E': {
+      name: 'USDC.E',
+      address: '0x0000000000000000000000000000000000000000',
     },
     USDBC: {
       name: 'USDBC',
@@ -1177,12 +1184,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0xd51789b0B9b6be8A89778e3C93cC365511bf382c',
+      address: '0x30c5eF2997d6a882DE52c4ec01B6D0a5e5B4fAAE',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x601a8F7EA34168D912fB3C214a377CB544F18c0d',
+      address: '0x1c98d87b245aA442791Ffb8a7e57380Ed49112FF',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1319,7 +1326,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x33960C912b67Fe1Abf4738e2b754d299d99cF2F1',
+      address: '0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },
@@ -1328,6 +1335,10 @@ export const config: SystemConfig = {
       name: 'MorphoBlue',
       address: ADDRESS_ZERO,
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+    },
+    AdaptiveCurveIrm: {
+      name: 'AdaptiveCurveIrm',
+      address: ADDRESS_ZERO,
     },
   },
 }

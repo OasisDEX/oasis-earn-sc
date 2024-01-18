@@ -6,7 +6,6 @@ import {
   AccountFactory,
   AccountGuard,
   AjnaProxyActions,
-  AjnaRewardClaimer,
   BorrowerActions,
   ERC20Pool,
   ERC20PoolFactory,
@@ -18,7 +17,6 @@ import {
   PoolInfoUtils,
   PositionManager,
   PositionNFTSVG,
-  RewardsManager,
   ServiceRegistry,
   SettlerActions,
   TakerActions,
@@ -84,11 +82,7 @@ export async function deployRewardsContracts(
     }
   );
 
-  const rewardsManagerContract = await utils.deployContract<RewardsManager>("RewardsManager", [
-    ajna.address,
-    positionManagerContract.address,
-  ]);
-  return { rewardsManagerContract, positionManagerContract };
+  return { positionManagerContract };
 }
 
 async function deployServiceRegistry() {
@@ -99,13 +93,10 @@ async function deployServiceRegistry() {
 
 export async function deployApa(
   poolInstance: PoolCommons,
-  rewardsManager: RewardsManager,
-  positionManager: PositionManager,
   dmpGuardContract: Contract,
   guardDeployerSigner: Signer,
   weth: WETH,
-  ajna: Token,
-  initializeStaking = true
+  ajna: Token
 ) {
   const { serviceRegistryContract } = await deployServiceRegistry();
   const hash = await serviceRegistryContract.getServiceNameHash("DPM_GUARD");
@@ -116,12 +107,6 @@ export async function deployApa(
     },
   });
 
-  const arc = await utils.deployContract<AjnaRewardClaimer>("AjnaRewardClaimer", [
-    rewardsManager.address,
-    ajna.address,
-    serviceRegistryContract.address,
-  ]);
-
   const ajnaProxyActionsContract = await utils.deployContract<AjnaProxyActions>("AjnaProxyActions", [
     poolInfoContract.address,
     ajna.address,
@@ -129,14 +114,9 @@ export async function deployApa(
     dmpGuardContract.address,
   ]);
 
-  if (initializeStaking) {
-    await ajnaProxyActionsContract.initialize(positionManager.address, rewardsManager.address, arc.address);
-    await arc.initializeAjnaProxyActions(ajnaProxyActionsContract.address);
-  }
-
   await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(ajnaProxyActionsContract.address, true);
 
-  return { ajnaProxyActionsContract, poolInfo: poolInfoContract, poolInfoContract, ajnaRewardsClaimerContract: arc };
+  return { ajnaProxyActionsContract, poolInfo: poolInfoContract, poolInfoContract };
 }
 export async function deployGuard() {
   const dmpGuardContract = await utils.deployContract<AccountGuard>("AccountGuard", []);
@@ -239,7 +219,7 @@ export async function deploy(mainnet = false) {
     ajna.address
   );
 
-  const { rewardsManagerContract, positionManagerContract } = await deployRewardsContracts(
+  const { positionManagerContract } = await deployRewardsContracts(
     positionNFTSVGInstance,
     erc20PoolFactory,
     erc721PoolFactory,
@@ -248,8 +228,6 @@ export async function deploy(mainnet = false) {
 
   const { ajnaProxyActionsContract, poolInfoContract } = await deployApa(
     poolCommons,
-    rewardsManagerContract,
-    positionManagerContract,
     dmpGuardContract,
     guardDeployerSigner,
     weth,
@@ -264,7 +242,6 @@ export async function deploy(mainnet = false) {
     erc20PoolFactory,
     erc721PoolFactory,
     positionManagerContract,
-    rewardsManagerContract,
     ajnaProxyActionsContract,
     poolInfoContract,
     usdc,

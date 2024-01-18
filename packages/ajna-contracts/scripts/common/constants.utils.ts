@@ -10,6 +10,9 @@ export const bn = {
   THOUSAND: ethers.BigNumber.from("1000"),
   HUNDRED_THOUSAND: ethers.BigNumber.from("100000"),
   MILLION: ethers.BigNumber.from("1000000"),
+  TEN_MILLION: ethers.BigNumber.from("10000000"),
+  HUNDRED_MILLION: ethers.BigNumber.from("100000000"),
+  USDC_DUST: ethers.BigNumber.from("1000000000000"),
   six: {
     ONE: ethers.utils.parseUnits("1", 6),
     HUNDRED: ethers.utils.parseUnits("100", 6),
@@ -37,5 +40,6 @@ export const bn = {
     TEST_PRICE_2: ethers.utils.parseUnits("99863.654", 18),
     TEST_PRICE_3: ethers.utils.parseUnits("16821.273", 18),
     TEST_PRICE_4: ethers.utils.parseUnits("46776653369145271678115", 0),
+    DUSTED_BUCKET_PRICE: ethers.BigNumber.from("319129822397980242280"),
   },
 };

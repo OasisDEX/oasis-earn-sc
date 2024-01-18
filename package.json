@@ -1,5 +1,6 @@
 {
   "name": "oasis-mono",
+  "packageManager": "yarn@1.22.17",
   "license": "ISC",
   "engines": {
     "node": ">=16"
@@ -23,7 +24,7 @@
     "build": "yarn clean && yarn fetch-compilers && yarn compile && lerna run build --stream",
     "format": "lerna run format --stream",
     "format:check": "lerna run format:check --stream",
-    "lint": "lerna run lint --stream && yarn clean",
+    "lint": "lerna run prelint --stream && lerna run lint --stream && yarn clean",
     "publish:all": "npx lerna publish --no-private"
   },
   "devDependencies": {
@@ -90,7 +91,7 @@
   "dependencies": {
     "bignumber.js": "9.0.1",
     "chalk": "^4.1.1",
-    "ethers": "5.6.2",
+    "ethers": "^5.7.2",
     "prettier": "^2.1.2",
     "ramda": "^0.28.0"
   },
@@ -128,7 +129,7 @@
     "@domain/risk-ratio": "./packages/domain/src/risk-ratio.ts"
   },
   "resolutions": {
-    "hardhat/**/@ethereumjs/tx": "3.5.0"
-  },
-  "version": "0.0.0"
+    "hardhat/**/@ethereumjs/tx": "3.5.0",
+    "ethers": "^5.7.2"
+  }
 }

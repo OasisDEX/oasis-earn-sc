@@ -2,6 +2,8 @@ import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constant
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from '../shared/common-defaults'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.ARBITRUM)
 
 export const config: SystemConfig = {
@@ -224,6 +226,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: { name: 'GnosisSafe', address: '' },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
@@ -446,6 +449,10 @@ export const config: SystemConfig = {
       name: 'USDC',
       address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
+    },
+    'USDC.E': {
+      name: 'USDC.E',
+      address: '0x0000000000000000000000000000000000000000',
     },
     USDBC: {
       name: 'USDBC',
@@ -795,6 +802,10 @@ export const config: SystemConfig = {
       name: 'MorphoBlue',
       address: ADDRESS_ZERO,
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+    },
+    AdaptiveCurveIrm: {
+      name: 'AdaptiveCurveIrm',
+      address: ADDRESS_ZERO,
     },
   },
 }

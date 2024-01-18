@@ -2,5 +2,5 @@
 pragma solidity ^0.8.15;
 
 interface IServiceRegistry {
-    function getRegisteredService(string memory) external view returns (address);
+  function getRegisteredService(string memory) external view returns (address);
 }

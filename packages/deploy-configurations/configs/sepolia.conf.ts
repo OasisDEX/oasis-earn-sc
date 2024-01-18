@@ -2,6 +2,7 @@ import { Network } from '@deploy-configurations/types/network'
 
 import { ADDRESS_ZERO, loadContractNames } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
+import { commonDefaults } from './shared/common-defaults'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.SEPOLIA)
 
@@ -248,6 +249,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x41A92d82D70005B55070dB7138b21d7c28F27CC0',
@@ -434,6 +436,10 @@ export const config: SystemConfig = {
       name: 'USDC',
       address: '0x6Fb5ef893d44F4f88026430d82d4ef269543cB23',
       serviceRegistryName: 'USDC',
+    },
+    'USDC.E': {
+      name: 'USDC.E',
+      address: '0x0000000000000000000000000000000000000000',
     },
     USDBC: {
       name: 'USDBC',
@@ -1113,7 +1119,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x856c05F817B8A9E9e301523Ba0bFe187b83A03d7',
+      address: '0xDB61f8aD0B3ed0c5522b8FE71b80023fe9188e9e',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },
@@ -1122,6 +1128,10 @@ export const config: SystemConfig = {
       name: 'MorphoBlue',
       address: ADDRESS_ZERO,
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+    },
+    AdaptiveCurveIrm: {
+      name: 'AdaptiveCurveIrm',
+      address: ADDRESS_ZERO,
     },
   },
 }

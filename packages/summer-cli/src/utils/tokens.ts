@@ -1,7 +1,6 @@
+import { ADDRESSES } from '@deploy-configurations/addresses';
 import { ADDRESS_ZERO } from '@deploy-configurations/constants';
 import { Address } from '@deploy-configurations/types/address';
-import { ADDRESSES } from '@deploy-configurations/addresses';
-
 import { ethers } from 'ethers';
 
 import { SupportedNetowkrs } from './network';

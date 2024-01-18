@@ -125,6 +125,17 @@ export async function deployMorphoBlueSystem(
     },
   })
 
+  // Override WETH address in the deployment system config
+  ds.addConfigOverrides({
+    common: {
+      WETH: {
+        name: 'WETH',
+        address: tokensDeployment.WETH.contract.address,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
+      },
+    },
+  })
+
   return {
     system: morphoBlueSystem,
     supplyConfig: supplyConfig,
