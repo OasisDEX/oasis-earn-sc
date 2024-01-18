@@ -1,5 +1,5 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
-import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { prepareAjnaPayload, resolveTxValue } from '@dma-library/protocols/ajna'
 import { validateLiquidationPriceCloseToMarketPrice } from '@dma-library/strategies/ajna/validation/borrowish/liquidationPriceCloseToMarket'
 import {
   AjnaBorrowPayload,
@@ -61,6 +61,6 @@ export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, depende
     notices: [],
     successes: [],
     data,
-    txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),
+    txValue: resolveTxValue(isPayingBackEth, args.quoteAmount),
   })
 }

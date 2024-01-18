@@ -2,7 +2,7 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
 import { ZERO } from '@dma-common/constants'
-import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { getAjnaEarnActionOutput, resolveTxValue } from '@dma-library/protocols/ajna'
 import { AjnaCommonDependencies, AjnaEarnPosition, AjnaStrategy } from '@dma-library/types/ajna'
 import { AjnaEarnPayload } from '@dma-library/types/ajna/ajna-dependencies'
 import BigNumber from 'bignumber.js'
@@ -88,7 +88,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
     data,
     dependencies,
     args,
-    txValue: resolveAjnaEthAction(isLendingEth, args.quoteAmount),
+    txValue: resolveTxValue(isLendingEth, args.quoteAmount),
     action,
   })
 }

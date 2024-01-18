@@ -4,7 +4,7 @@ import { amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { operations } from '@dma-library/operations'
-import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { prepareAjnaDMAPayload, resolveTxValue } from '@dma-library/protocols/ajna'
 import { ajnaBuckets } from '@dma-library/strategies'
 import * as StrategiesCommon from '@dma-library/strategies/common'
 import {
@@ -92,7 +92,7 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
     successes: [],
     notices: [],
     // TODO instead of zero we will need data from swap
-    txValue: resolveAjnaEthAction(isDepositingEth, ZERO),
+    txValue: resolveTxValue(isDepositingEth, ZERO),
   })
 }
 

@@ -1,7 +1,7 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
 import { ZERO } from '@dma-common/constants'
-import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { getAjnaEarnActionOutput, resolveTxValue } from '@dma-library/protocols/ajna'
 import {
   AjnaEarnPosition,
   AjnaOpenEarnDependencies,
@@ -81,7 +81,7 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
       collateralAmount: ZERO,
       ...args,
     },
-    txValue: resolveAjnaEthAction(isLendingEth, args.quoteAmount),
+    txValue: resolveTxValue(isLendingEth, args.quoteAmount),
     action,
   })
 }

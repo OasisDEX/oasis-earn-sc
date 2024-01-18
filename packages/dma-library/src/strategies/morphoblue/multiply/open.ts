@@ -1,30 +1,33 @@
 import { getNetwork } from '@deploy-configurations/utils/network/index'
 import { ONE, ZERO } from '@dma-common/constants'
-import { Address } from '@dma-common/types'
-import { amountToWei } from '@dma-common/utils/common'
-import { areSymbolsEqual } from '@dma-common/utils/symbols/index'
+import { Address, CollectFeeFrom } from '@dma-common/types'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
 import { Network } from '@deploy-configurations/types/network'
 import {
-  prepareAjnaMultiplyDMAPayload,
-} from '@dma-library/strategies/ajna/multiply/common'
-import {
   FlashloanProvider,
+  IOperation,
   MorphoBluePosition,
   PositionType,
   SwapData,
 } from '@dma-library/types'
-import { AjnaStrategy } from '@dma-library/types/ajna'
+import { AjnaError, AjnaNotice, AjnaStrategy, AjnaSuccess, AjnaWarning } from '@dma-library/types/ajna'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
 import * as Domain from '@domain'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
-import { providers } from 'ethers'
-import { GetSwapData } from '@dma-library/types/common'
+import { ethers, providers } from 'ethers'
+import { CommonDMADependencies, GetSwapData } from '@dma-library/types/common'
 import { MorphoBlueOpenOperationArgs } from '@dma-library/operations/morphoblue/multiply/open'
+import erc30Abi from '@abis/external/tokens/IERC20.json'
+import { areAddressesEqual } from '@dma-common/utils/addresses'
+import { calculateFee } from '@dma-common/utils/swap'
+import { encodeOperation } from '@dma-library/utils/operation'
+import { resolveTxValue } from '@dma-library/protocols/ajna'
+import { TokenAddresses } from '@dma-library/operations/morphoblue/addresses'
 
 interface MorphoOpenMultiplyPayload {
     collateralPriceUSD: BigNumber
@@ -36,21 +39,15 @@ interface MorphoOpenMultiplyPayload {
     riskRatio: Domain.IRiskRatio
     collateralAmount: BigNumber
     slippage: BigNumber
+    user: string
 }
 
-interface MorphoOpenMultiplyDependencies {
+interface MorphoOpenMultiplyDependencies extends CommonDMADependencies {
     getCumulatives: GetMorphoCumulativesData,
     getSwapData: GetSwapData,
     morphoAddress: string, 
-    provider: providers.Provider
     network: Network
-    addresses: {
-        DAI: Address
-        ETH: Address
-        WSTETH: Address
-        USDC: Address
-        WBTC: Address
-      }
+    addresses: TokenAddresses
 }
 
 export type MorphoOpenMultiplyStrategy = (
@@ -64,6 +61,8 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
   const position = await getPosition(args, dependencies)
   const riskIsIncreasing = verifyRiskDirection(args, position)
   const oraclePrice = args.collateralPriceUSD.div(args.quotePriceUSD)
+  const collateralTokenSymbol = await getTokenSymbol(position.marketParams.collateralToken, dependencies.provider)
+  const debtTokenSymbol = await getTokenSymbol(position.marketParams.loanToken, dependencies.provider)
 
   const mappedArgs = {
     ...args,
@@ -76,6 +75,8 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     position,
     riskIsIncreasing,
     oraclePrice,
+    collateralTokenSymbol,
+    debtTokenSymbol,
   )
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
     mappedArgs,
@@ -84,6 +85,8 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     simulatedAdjustment,
     riskIsIncreasing,
     positionType,
+    collateralTokenSymbol,
+    debtTokenSymbol,
   )
   const operation = await buildOperation(
     args,
@@ -94,8 +97,8 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     riskIsIncreasing,
   )
 
-  return prepareAjnaMultiplyDMAPayload(
-    { ...args, position },
+  return prepareMorphoMultiplyDMAPayload(
+    args,
     dependencies,
     simulatedAdjustment,
     operation,
@@ -103,6 +106,9 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     collectFeeFrom,
     preSwapFee,
     riskIsIncreasing,
+    position,
+    collateralTokenSymbol,
+    debtTokenSymbol,
   )
 }
 
@@ -139,32 +145,32 @@ function verifyRiskDirection(args: MorphoOpenMultiplyPayload, position: MorphoBl
   return riskIsIncreasing
 }
 
-export function buildFromToken(args: MorphoOpenMultiplyPayload, position: MorphoBluePosition, isIncreasingRisk: boolean) {
+export function buildFromToken(args: MorphoOpenMultiplyPayload, position: MorphoBluePosition, isIncreasingRisk: boolean, collateralTokenSymbol: string, debtTokenSymbol: string) {
     if (isIncreasingRisk) {
       return {
-        symbol: 'TOKEN_SYMBOL',
+        symbol: debtTokenSymbol,
         address: position.marketParams.loanToken,
         precision: args.quoteTokenPrecision,
       }
     } else {
       return {
-        symbol: 'TOKEN_SYMBOL',
+        symbol: collateralTokenSymbol,
         address: position.marketParams.collateralToken,
         precision: args.collateralTokenPrecision,
       }
     }
   }
   
-  export function buildToToken(args: MorphoOpenMultiplyPayload, position: MorphoBluePosition, isIncreasingRisk: boolean) {
+  export function buildToToken(args: MorphoOpenMultiplyPayload, position: MorphoBluePosition, isIncreasingRisk: boolean, collateralTokenSymbol: string, debtTokenSymbol: string) {
     if (isIncreasingRisk) {
       return {
-        symbol: 'TOKEN_SYMBOL',
+        symbol: collateralTokenSymbol,
         address: position.marketParams.collateralToken,
         precision: args.collateralTokenPrecision,
       }
     } else {
       return {
-        symbol: 'TOKEN_SYMBOL',
+        symbol: debtTokenSymbol,
         address: position.marketParams.loanToken,
         precision: args.quoteTokenPrecision,
       }
@@ -177,10 +183,12 @@ async function simulateAdjustment(
   position: MorphoBluePosition,
   riskIsIncreasing: true,
   oraclePrice: BigNumber,
+  collateralTokenSymbol: string,
+  debtTokenSymbol: string,
 ) {
   const preFlightSwapAmount = amountToWei(ONE, args.quoteTokenPrecision)
-  const fromToken = buildFromToken(args, position, riskIsIncreasing)
-  const toToken = buildToToken(args, position, riskIsIncreasing)
+  const fromToken = buildFromToken(args, position, riskIsIncreasing, collateralTokenSymbol, debtTokenSymbol)
+  const toToken = buildToToken(args, position, riskIsIncreasing, collateralTokenSymbol, debtTokenSymbol)
   const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromToken.symbol, toToken.symbol),
@@ -263,7 +271,7 @@ async function buildOperation(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
   riskIsIncreasing: true,
-) {
+): Promise<IOperation> {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
   const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
@@ -282,19 +290,20 @@ async function buildOperation(
   const network = await getNetwork(dependencies.provider)
 
   const openMultiplyArgs: MorphoBlueOpenOperationArgs = {
+    morphoBlueMarket: position.marketParams,
+    collateral: {
+      address: position.marketParams.collateralToken,
+      isEth: areAddressesEqual(position.marketParams.collateralToken, dependencies.addresses.WETH),
+    },
     debt: {
-      address: position.pool.quoteToken,
-      isEth: areSymbolsEqual(simulatedAdjust.position.debt.symbol, 'ETH'),
+      address: position.marketParams.loanToken,
+      isEth: areAddressesEqual(position.marketParams.loanToken, dependencies.addresses.WETH),
       borrow: {
         amount: borrowAmount,
       },
     },
-    collateral: {
-      address: position.pool.collateralToken,
-      isEth: areSymbolsEqual(simulatedAdjust.position.collateral.symbol, 'ETH'),
-    },
     deposit: {
-      address: position.pool.collateralToken,
+      address: position.marketParams.collateralToken,
       amount: args.collateralAmount,
     },
     swap: {
@@ -307,28 +316,24 @@ async function buildOperation(
     flashloan: {
       token: {
         amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
-        address: position.pool.quoteToken,
+        address: position.marketParams.loanToken,
       },
       amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
-      // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
     },
     position: {
       type: positionType,
     },
+    addresses: {
+      morphoblue: dependencies.morphoAddress,
+      operationExecutor: dependencies.operationExecutor,
+      tokens: dependencies.addresses,
+    },
     proxy: {
       address: args.dpmProxyAddress,
-      // Ajna is always DPM
       isDPMProxy: true,
       owner: args.user,
     },
-    addresses: {
-      ...dependencies.addresses,
-      WETH: dependencies.WETH,
-      operationExecutor: dependencies.operationExecutor,
-      pool: args.poolAddress,
-    },
-    price: new BigNumber(ajnaBuckets[ajnaBuckets.length - 1]),
     network,
   }
   return await operations.morphoblue.multiply.open(openMultiplyArgs)
@@ -341,6 +346,8 @@ export async function getSwapData(
     simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
     riskIsIncreasing: boolean,
     positionType: PositionType,
+    collateralTokenSymbol: string,
+    debtTokenSymbol: string,
     __feeOverride?: BigNumber,
   ) {
     const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
@@ -360,8 +367,8 @@ export async function getSwapData(
       string
     >({
       args: {
-        fromToken: buildFromToken(args, position, riskIsIncreasing),
-        toToken: buildToToken(args, position, riskIsIncreasing),
+        fromToken: buildFromToken(args, position, riskIsIncreasing, collateralTokenSymbol, debtTokenSymbol),
+        toToken: buildToToken(args, position, riskIsIncreasing, collateralTokenSymbol, debtTokenSymbol),
         slippage: args.slippage,
         fee,
         swapAmountBeforeFees: swapAmountBeforeFees,
@@ -374,3 +381,131 @@ export async function getSwapData(
   
     return { swapData, collectFeeFrom, preSwapFee }
   }
+
+async function getTokenSymbol(token: Address, provider: providers.Provider): Promise<string> {
+  const erc20 = new ethers.Contract(token, erc30Abi, provider)
+
+  return erc20.symbol()
+}
+
+function prepareMorphoMultiplyDMAPayload(
+  args: MorphoOpenMultiplyPayload,
+  dependencies: MorphoOpenMultiplyDependencies,
+  simulatedAdjustment: Domain.ISimulationV2 & Domain.WithSwap,
+  operation: IOperation,
+  swapData: SwapData,
+  collectFeeFrom: CollectFeeFrom,
+  preSwapFee: BigNumber,
+  riskIsIncreasing: boolean,
+  position: MorphoBluePosition,
+  collateralTokenSymbol: string,
+  debtTokenSymbol: string,
+) {
+  const collateralAmount = amountFromWei(
+    simulatedAdjustment.position.collateral.amount,
+    simulatedAdjustment.position.collateral.precision,
+  )
+  const debtAmount = amountFromWei(
+    simulatedAdjustment.position.debt.amount,
+    simulatedAdjustment.position.debt.precision,
+  )
+
+  const targetPosition = new MorphoBluePosition(
+    position.owner,
+    collateralAmount,
+    debtAmount,
+    position.collateralPrice,
+    position.debtPrice,
+    position.marketParams,
+    position.market,
+    position.price,
+    position.rate,
+    position.pnl,
+  )
+
+  const isDepositingEth = areAddressesEqual(position.marketParams.collateralToken, dependencies.addresses.WETH)
+  const txAmount = args.collateralAmount
+  const fromTokenSymbol = riskIsIncreasing ? debtTokenSymbol : collateralTokenSymbol
+  const toTokenSymbol = riskIsIncreasing ? collateralTokenSymbol : debtTokenSymbol
+  const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
+    isIncreasingRisk: riskIsIncreasing,
+    isEarnPosition: false,
+  })
+  const postSwapFee =
+    collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
+  const tokenFee = preSwapFee.plus(postSwapFee)
+
+  // Validation
+  const borrowAmount = simulatedAdjustment.delta.debt
+    .shiftedBy(-args.quoteTokenPrecision)
+
+  const errors = [
+    // Add as required...
+    // ...validateDustLimitMultiply(targetPosition),
+    // ...validateLiquidity(targetPosition, args.position, borrowAmount),
+    // ...validateBorrowUndercollateralized(targetPosition, args.position, borrowAmount),
+  ]
+
+  const warnings = [
+    // ...validateGenerateCloseToMaxLtv(targetPosition, args.position),
+    // ...validateLiquidationPriceCloseToMarketPrice(targetPosition),
+  ]
+
+  return prepareDMAPayload({
+    swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
+    dependencies,
+    targetPosition,
+    data: encodeOperation(operation, dependencies),
+    errors,
+    warnings,
+    successes: [],
+    notices: [],
+    txValue: resolveTxValue(isDepositingEth, txAmount),
+  })
+}
+
+const prepareDMAPayload = ({
+  dependencies,
+  targetPosition,
+  errors,
+  warnings,
+  data,
+  txValue,
+  swaps,
+}: {
+  dependencies: CommonDMADependencies
+  targetPosition: MorphoBluePosition
+  errors: AjnaError[]
+  warnings: AjnaWarning[]
+  notices: AjnaNotice[]
+  successes: AjnaSuccess[]
+  data: string
+  txValue: string
+  swaps: (SwapData & { collectFeeFrom: 'sourceToken' | 'targetToken'; tokenFee: BigNumber })[]
+}): AjnaStrategy<MorphoBluePosition> => {
+  return {
+    simulation: {
+      swaps: swaps.map(swap => ({
+        fromTokenAddress: swap.fromTokenAddress,
+        toTokenAddress: swap.toTokenAddress,
+        fromTokenAmount: swap.fromTokenAmount,
+        toTokenAmount: swap.toTokenAmount,
+        minToTokenAmount: swap.minToTokenAmount,
+        exchangeCalldata: swap.exchangeCalldata,
+        collectFeeFrom: swap.collectFeeFrom,
+        fee: swap.tokenFee,
+      })),
+      errors,
+      warnings,
+      notices: [],
+      successes: [],
+      targetPosition,
+      position: targetPosition,
+    },
+    tx: {
+      to: dependencies.operationExecutor,
+      data,
+      value: txValue,
+    },
+  }
+}

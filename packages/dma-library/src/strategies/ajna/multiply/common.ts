@@ -7,7 +7,7 @@ import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   getNeutralPrice,
   prepareAjnaDMAPayload,
-  resolveAjnaEthAction,
+  resolveTxValue,
 } from '@dma-library/protocols/ajna'
 import {
   validateBorrowUndercollateralized,
@@ -240,7 +240,7 @@ export function prepareAjnaMultiplyDMAPayload(
     warnings,
     successes: [],
     notices: [],
-    txValue: resolveAjnaEthAction(isDepositingEth, txAmount),
+    txValue: resolveTxValue(isDepositingEth, txAmount),
   })
 }
 

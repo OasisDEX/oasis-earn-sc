@@ -74,7 +74,7 @@ export class MorphoBluePosition implements LendingPosition {
   ) {}
 
   get liquidationPrice() {
-    return this.price.times(this.marketParams.lltv)
+    return this.debtAmount.div(this.collateralAmount.times(this.marketParams.lltv))
   }
 
   get marketPrice() {

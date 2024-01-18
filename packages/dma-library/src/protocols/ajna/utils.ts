@@ -11,7 +11,7 @@ import {
   getPoolLiquidity,
   getTotalPoolLiquidity,
 } from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
-import { SwapData } from '@dma-library/types'
+import { CommonDMADependencies, SwapData } from '@dma-library/types'
 import {
   AjnaCommonDependencies,
   AjnaCommonDMADependencies,
@@ -37,7 +37,7 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
   txValue,
   swaps,
 }: {
-  dependencies: AjnaCommonDMADependencies
+  dependencies: CommonDMADependencies
   targetPosition: T
   errors: AjnaError[]
   warnings: AjnaWarning[]
@@ -152,7 +152,7 @@ export const getAjnaEarnActionOutput = async ({
   })
 }
 
-export const resolveAjnaEthAction = (isUsingEth: boolean, amount: BigNumber) =>
+export const resolveTxValue = (isUsingEth: boolean, amount: BigNumber) =>
   isUsingEth ? ethers.utils.parseEther(amount.toString()).toString() : '0'
 
 export const calculateAjnaApyPerDays = (amount: BigNumber, apy: BigNumber, days: number) =>

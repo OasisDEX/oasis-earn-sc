@@ -1,0 +1,1 @@
+export { openMultiply, MorphoOpenMultiplyStrategy } from './open'
