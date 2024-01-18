@@ -7,6 +7,7 @@ import {
   aaveV3Payback,
   aaveV3SetEMode,
   aaveV3Withdraw,
+  aaveV3WithdrawAuto,
   aaveWithdraw,
 } from './aave'
 import {
@@ -23,6 +24,7 @@ import {
   setApproval,
   swap,
   takeAFlashLoan,
+  takeAFlashLoanBalancer,
   unwrapEth,
   wrapEth,
 } from './common'
@@ -46,6 +48,7 @@ const aave = {
     aaveV3Deposit,
     aaveV3Payback,
     aaveV3Withdraw,
+    aaveV3WithdrawAuto,
     aaveV3SetEMode,
   },
 }
@@ -60,6 +63,7 @@ const common = {
   wrapEth,
   unwrapEth,
   takeAFlashLoan,
+  takeAFlashLoanBalancer,
 }
 
 const ajna: {

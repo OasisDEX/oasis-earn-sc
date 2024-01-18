@@ -73,6 +73,29 @@ export function aaveV3Withdraw(
     ],
   )
 }
+// Import ActionCall as it assists type generation
+// Special Withdraw action that always takes amount from mapping
+
+export function aaveV3WithdrawAuto(
+  network: Network,
+  args: { amount: BigNumber; asset: string; to: string },
+  paramsMapping: [amount: number] = [0],
+): ActionCall {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO),
+    [calldataTypes.aaveV3.Withdraw],
+    [
+      {
+        asset: args.asset,
+        amount: 0, // always taken from mapping
+        to: args.to,
+      },
+      paramsMapping
+    ],
+  )
+}
 
 // Import ActionCall as it assists type generation
 export function aaveV3Payback(

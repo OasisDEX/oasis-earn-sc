@@ -4,6 +4,7 @@ export type AaveV3Actions =
   | `AaveV3Borrow`
   | `AaveV3Deposit`
   | `AaveV3Withdraw`
+  | `AaveV3WithdrawAuto`
   | `AaveV3Payback`
   | `AaveV3SetEMode`
 
@@ -15,6 +16,7 @@ export type CommonActions =
   | 'WrapEth'
   | 'UnwrapEth'
   | 'TakeFlashloan'
+  | 'TakeFlashloanBalancer'
   | 'ReturnFunds'
   | 'PositionCreated'
 

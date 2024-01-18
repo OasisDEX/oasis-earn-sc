@@ -5,6 +5,7 @@ export const SERVICE_REGISTRY_NAMES = {
     SEND_TOKEN: 'SendToken_6',
     SET_APPROVAL: 'SetApproval_5',
     TAKE_A_FLASHLOAN: 'TakeFlashloan_5',
+    TAKE_A_FLASHLOAN_BALANCER: 'TakeFlashloanBalancer',
     SWAP_ACTION: 'SwapAction_5',
     WRAP_ETH: 'WrapEth_5',
     UNWRAP_ETH: 'UnwrapEth_5',
@@ -45,6 +46,7 @@ export const SERVICE_REGISTRY_NAMES = {
     v3: {
       DEPOSIT: 'AaveV3Deposit_3',
       WITHDRAW: 'AaveV3Withdraw_3',
+      WITHDRAW_AUTO: 'AaveV3WithdrawAuto',
       BORROW: 'AaveV3Borrow_3',
       PAYBACK: 'AaveV3Payback_3',
       AAVE_POOL: 'AavePool',

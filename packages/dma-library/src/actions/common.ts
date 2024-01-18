@@ -132,6 +132,35 @@ export function takeAFlashLoan(
   )
 }
 
+export function takeAFlashLoanBalancer(
+  network: Network,
+  args: {
+    flashloanAmount: BigNumber
+    asset: string
+    isProxyFlashloan: boolean
+    isDPMProxy: boolean
+    provider: number
+    calls: ActionCall[]
+  },
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER),
+    [calldataTypes.common.TakeAFlashLoan],
+    [
+      {
+        amount: args.flashloanAmount.toFixed(0),
+        asset: args.asset,
+        isProxyFlashloan: args.isProxyFlashloan,
+        isDPMProxy: args.isDPMProxy,
+        provider: args.provider,
+        calls: args.calls,
+      },
+    ],
+  )
+}
+
 export function wrapEth(
   network: Network,
   args: { amount: BigNumber | 0 },
