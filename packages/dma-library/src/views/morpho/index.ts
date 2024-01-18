@@ -68,9 +68,13 @@ export async function getMorphoPosition(
   const positionParams = await morpho.position(marketId, proxyAddress)
 
   const totals = {
-    totalSupplyAssets: new BigNumber(market.totalSupplyAssets.toString()).div(TEN.pow(18)),
+    totalSupplyAssets: new BigNumber(market.totalSupplyAssets.toString()).div(
+      TEN.pow(quotePrecision),
+    ),
     totalSupplyShares: new BigNumber(market.totalSupplyShares.toString()).div(TEN.pow(24)),
-    totalBorrowAssets: new BigNumber(market.totalBorrowAssets.toString()).div(TEN.pow(18)),
+    totalBorrowAssets: new BigNumber(market.totalBorrowAssets.toString()).div(
+      TEN.pow(quotePrecision),
+    ),
     totalBorrowShares: new BigNumber(market.totalBorrowShares.toString()).div(TEN.pow(24)),
   }
 

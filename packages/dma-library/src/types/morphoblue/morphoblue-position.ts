@@ -1,5 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
-import { ZERO } from '@dma-common/constants'
+import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
@@ -75,7 +75,7 @@ export class MorphoBluePosition implements LendingPosition {
 
   get liquidationPrice() {
     return normalizeValue(
-      this.collateralAmount.times(this.maxRiskRatio.loanToValue).div(this.debtAmount),
+      ONE.div(this.collateralAmount.times(this.maxRiskRatio.loanToValue).div(this.debtAmount)),
     )
   }
 
