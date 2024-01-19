@@ -1,11 +1,5 @@
 import { deployPool, HardhatUtils, Pool } from "@ajna-contracts/scripts";
-import {
-  AjnaProxyActions,
-  ERC20,
-  ERC20Pool,
-  ERC20PoolFactory,
-  IWETH,
-} from "@ajna-contracts/typechain";
+import { AjnaProxyActions, ERC20, ERC20Pool, ERC20PoolFactory, IWETH } from "@ajna-contracts/typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import chalk from "chalk";
 import hre from "hardhat";
@@ -16,6 +10,10 @@ const utils = new HardhatUtils(hre);
 async function main() {
   const signer: SignerWithAddress = await getSigner();
   console.info(`Deployer address: ${signer.address}`);
+  console.info(`Deployer balance: ${hre.ethers.utils.formatEther(await signer.getBalance())}`);
+  console.info(`Deploying on network: ${hre.network.name}`);
+  console.info(`Deploying on chainId: ${hre.network.config.chainId}`);
+
   const network = hre.network.name === "hardhat" || hre.network.name === "local" ? "mainnet" : hre.network.name;
 
   const erc20PoolFactory = await utils.getContract<ERC20PoolFactory>(
@@ -31,8 +29,8 @@ async function main() {
       ADDRESSES[network].GUARD,
     ]);
     console.log(`AjnaProxyActions Deployed: ${apa.address}`);
-    if (network === "mainnet" || network === "goerli") {
-      console.log(`Waiting for 60 seconds...`);
+    if (network !== "hardhat") {
+      console.log(`Waiting for 60 seconds, before verification on etherscan...`);
       await new Promise(resolve => setTimeout(resolve, 60000));
       await hre.run("verify:verify", {
         address: apa.address,

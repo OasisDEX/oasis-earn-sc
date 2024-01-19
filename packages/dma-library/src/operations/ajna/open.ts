@@ -1,4 +1,5 @@
 import { getAjnaOpenOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { Network } from '@deploy-configurations/types/network'
 import { FEE_BASE, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
@@ -115,7 +116,7 @@ export const open: AjnaOpenOperation = async ({
     amount: flashloan.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),
   })
 
-  const protocol: Protocol = 'Ajna_rc13'
+  const protocol: Protocol = network === Network.MAINNET ? 'Ajna_rc13' : 'Ajna_rc14'
 
   const positionCreated = actions.common.positionCreated(network, {
     protocol,

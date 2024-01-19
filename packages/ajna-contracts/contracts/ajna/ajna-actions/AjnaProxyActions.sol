@@ -18,8 +18,12 @@ contract AjnaProxyActions {
   address public immutable WETH;
   address public immutable GUARD;
   address public immutable deployer;
-  string public constant ajnaVersion = "Ajna_rc13";
-  address public ARC;
+  /* 
+  This configuration is applicable across all Layer 2 (L2) networks. However, on the Ethereum mainnet, 
+  we continue to use 'Ajna_rc13'. Due to the nature of 'string' data type in Solidity, it cannot be 
+  declared as 'immutable' and initialized within the constructor. 
+  */
+  string public constant ajnaVersion = "Ajna_rc14";
 
   using SafeERC20 for IERC20;
 
