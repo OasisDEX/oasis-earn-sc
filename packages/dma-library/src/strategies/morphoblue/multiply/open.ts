@@ -1,5 +1,5 @@
 import { getNetwork } from '@deploy-configurations/utils/network/index'
-import { ONE, ZERO } from '@dma-common/constants'
+import { ONE, TEN, ZERO } from '@dma-common/constants'
 import { Address, CollectFeeFrom } from '@dma-common/types'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
@@ -22,7 +22,6 @@ import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 import { CommonDMADependencies, GetSwapData } from '@dma-library/types/common'
 import { MorphoBlueOpenOperationArgs } from '@dma-library/operations/morphoblue/multiply/open'
-import erc30Abi from '@abis/external/tokens/IERC20.json'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { calculateFee } from '@dma-common/utils/swap'
 import { encodeOperation } from '@dma-library/utils/operation'
@@ -60,10 +59,10 @@ const positionType: PositionType = 'Multiply'
 export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencies) => {
   const position = await getPosition(args, dependencies)
   const riskIsIncreasing = verifyRiskDirection(args, position)
-  const oraclePrice = args.collateralPriceUSD.div(args.quotePriceUSD)
+  const oraclePrice = position.collateralPrice
   const collateralTokenSymbol = await getTokenSymbol(position.marketParams.collateralToken, dependencies.provider)
   const debtTokenSymbol = await getTokenSymbol(position.marketParams.loanToken, dependencies.provider)
-
+  
   const mappedArgs = {
     ...args,
     collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
@@ -289,8 +288,42 @@ async function buildOperation(
 
   const network = await getNetwork(dependencies.provider)
 
+  console.log(`
+  simulation:
+    colateralDelta ${simulatedAdjust.delta.collateral.div(TEN.pow(18)).toString()}
+    debtDelta ${simulatedAdjust.delta.debt.div(TEN.pow(6)).toString()}
+    simulated ltv ${simulatedAdjust.position.riskRatio.loanToValue.toString()}
+    simulated ltv ${simulatedAdjust.position.riskRatio.multiple.toString()}
+
+    args.collateralAmount ${args.collateralAmount.toString()}
+    position coll ${simulatedAdjust.position.collateral.amount.div(TEN.pow(18)).toString()}
+  `)
+
+  console.log(`
+
+    ${args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision))}
+
+    ${simulatedAdjust.swap.minToTokenAmount}
+    ${simulatedAdjust.delta.collateral}
+    args.collateralAmount.plus(simulatedAdjust.delta.collateral)
+    ${args.collateralAmount.plus(simulatedAdjust.delta.collateral)}
+
+    ${position.market.totalBorrowAssets}
+    ${position.market.totalBorrowShares}
+    ${position.market.totalSupplyShares}
+    ${position.market.totalSupplyAssets}
+    ${position.market.fee}
+  
+  `)
+
   const openMultiplyArgs: MorphoBlueOpenOperationArgs = {
-    morphoBlueMarket: position.marketParams,
+    morphoBlueMarket: {
+      loanToken: position.marketParams.loanToken,
+      collateralToken: position.marketParams.collateralToken,
+      oracle: position.marketParams.oracle,
+      irm: position.marketParams.irm,
+      lltv: position.marketParams.lltv.times(TEN.pow(18)),
+    },
     collateral: {
       address: position.marketParams.collateralToken,
       isEth: areAddressesEqual(position.marketParams.collateralToken, dependencies.addresses.WETH),
@@ -304,7 +337,7 @@ async function buildOperation(
     },
     deposit: {
       address: position.marketParams.collateralToken,
-      amount: args.collateralAmount,
+      amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)),
     },
     swap: {
       fee: fee.toNumber(),
@@ -383,9 +416,26 @@ export async function getSwapData(
   }
 
 async function getTokenSymbol(token: Address, provider: providers.Provider): Promise<string> {
-  const erc20 = new ethers.Contract(token, erc30Abi, provider)
+  const erc20 = new ethers.Contract(token, [{
+    "constant": true,
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
+        {
+            "name": "",
+            "type": "string"
+        }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+},], provider)
 
-  return erc20.symbol()
+const symbol = await erc20.symbol()
+
+console.log(symbol, token)
+
+  return symbol
 }
 
 function prepareMorphoMultiplyDMAPayload(
