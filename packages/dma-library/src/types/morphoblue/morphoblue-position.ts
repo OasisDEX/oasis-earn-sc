@@ -84,7 +84,7 @@ export class MorphoBluePosition implements LendingPosition {
   }
 
   get liquidationToMarketPrice() {
-    return this.marketParams.lltv
+    return this.liquidationPrice.div(this.marketPrice)
   }
 
   // How much collateral can we withdraw to not get liquidated, (to get to the verge of liquidation)
