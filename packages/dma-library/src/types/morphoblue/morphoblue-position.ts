@@ -26,7 +26,7 @@ export interface LendingPosition {
     withoutFees: BigNumber
   }
 
-  debtAvailable(collateralAmount?: BigNumber): BigNumber
+  debtAvailable(collateralAmount?: BigNumber, debtAmount?: BigNumber): BigNumber
 
   deposit(amount: BigNumber): LendingPosition
 
@@ -87,10 +87,10 @@ export class MorphoBluePosition implements LendingPosition {
     return this.marketParams.lltv
   }
 
-  // How much collateral can we withdraw to not get liqidated, (to get to the verge of liquidation)
+  // How much collateral can we withdraw to not get liquidated, (to get to the verge of liquidation)
   get collateralAvailable() {
     const collateralAvailable = this.collateralAmount.minus(
-      this.debtAmount.div(this.liquidationPrice),
+      this.debtAmount.div(this.maxRiskRatio.loanToValue).div(this.price),
     )
 
     return negativeToZero(normalizeValue(collateralAvailable))
@@ -129,8 +129,7 @@ export class MorphoBluePosition implements LendingPosition {
       .minus(this.debtAmount.times(this.debtPrice))
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  debtAvailable(collateralAmount: BigNumber = ZERO) {
+  debtAvailable(collateralAmount?: BigNumber, debtAmount?: BigNumber) {
     // (debt + addDebt) / ((col + addedColl) * price) = lltv
     // lltv*price*(col + addedColl) - debt = addDebt
 
@@ -138,8 +137,8 @@ export class MorphoBluePosition implements LendingPosition {
       normalizeValue(
         this.maxRiskRatio.loanToValue
           .times(this.price)
-          .times(this.collateralAmount.plus(collateralAmount))
-          .minus(this.debtAmount),
+          .times(collateralAmount || this.collateralAmount)
+          .minus(debtAmount || this.debtAmount),
       ),
     )
   }

@@ -55,13 +55,6 @@ export type AjnaErrorOverWithdraw = {
   }
 }
 
-export type AjnaErrorOverRepay = {
-  name: 'payback-amount-exceeds-debt-token-balance'
-  data: {
-    amount: string
-  }
-}
-
 export type AjnaError =
   | AjnaErrorWithdrawUndercollateralized
   | AjnaErrorBorrowUndercollateralized
@@ -72,7 +65,6 @@ export type AjnaError =
   | AjnaErrorDustLimitMultiply
   | AjnaErrorNotEnoughLiquidity
   | AjnaErrorOverWithdraw
-  | AjnaErrorOverRepay
 
 type AjnaWarningGenerateCloseToMaxLtv = {
   name: 'generate-close-to-max-ltv'
