@@ -21,7 +21,6 @@ export type {
   AjnaErrorBorrowUndercollateralized,
   AjnaErrorDustLimit,
   AjnaErrorNotEnoughLiquidity,
-  AjnaErrorOverRepay,
   AjnaErrorOverWithdraw,
   AjnaErrorWithdrawMoreThanAvailable,
   AjnaErrorWithdrawUndercollateralized,
