@@ -2,6 +2,7 @@ import { Network } from '@deploy-configurations/types/network'
 
 import { ADDRESS_ZERO, loadContractNames } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
+import { commonDefaults } from './shared/common-defaults'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.OPTIMISM)
 
@@ -234,6 +235,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: ADDRESS_ZERO,
@@ -383,16 +385,20 @@ export const config: SystemConfig = {
     GUSD: { name: 'GUSD', address: ADDRESS_ZERO },
     KNC: { name: 'KNC', address: ADDRESS_ZERO },
     LDO: { name: 'LDO', address: ADDRESS_ZERO },
-    LINK: { name: 'LINK', address: ADDRESS_ZERO },
+    LINK: { name: 'LINK', address: '0x350a791bfc2c21f9ed5d10980dad2e2638ffa7f6' },
     LRC: { name: 'LRC', address: ADDRESS_ZERO },
     LUSD: {
       name: 'LUSD',
-      address: ADDRESS_ZERO,
+      address: '0xc40f949f8a4e094d1b49a23ea9241d289b7b2819',
     },
     MANA: { name: 'MANA', address: ADDRESS_ZERO },
     MATIC: { name: 'MATIC', address: ADDRESS_ZERO },
     PAX: { name: 'PAX', address: ADDRESS_ZERO },
     PAXUSD: { name: 'PAXUSD', address: ADDRESS_ZERO },
+    OP: {
+      name: 'OP',
+      address: '0x4200000000000000000000000000000000000042',
+    },
     RENBTC: { name: 'RENBTC', address: ADDRESS_ZERO },
     RETH: { name: 'RETH', address: '0x9bcef72be871e61ed4fbbc7630889bee758eb81d' },
     RWA001: { name: 'RWA001', address: ADDRESS_ZERO },
@@ -403,6 +409,10 @@ export const config: SystemConfig = {
     RWA006: { name: 'RWA006', address: ADDRESS_ZERO },
     SDAI: { name: 'SDAI', address: ADDRESS_ZERO },
     STETH: { name: 'STETH', address: ADDRESS_ZERO },
+    SUSD: {
+      name: 'SUSD',
+      address: '0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9',
+    },
     TBTC: { name: 'TBTC', address: ADDRESS_ZERO },
     TUSD: { name: 'TUSD', address: ADDRESS_ZERO },
     UNI: { name: 'UNI', address: ADDRESS_ZERO },
@@ -429,7 +439,7 @@ export const config: SystemConfig = {
       name: 'USDBC',
       address: '0x0000000000000000000000000000000000000000',
     },
-    USDT: { name: 'USDT', address: ADDRESS_ZERO },
+    USDT: { name: 'USDT', address: '0x94b008aa00579c1307b0ef2c499ad98a8ce58e58' },
     WBTC: {
       name: 'WBTC',
       address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
@@ -1109,6 +1119,10 @@ export const config: SystemConfig = {
       name: 'MorphoBlue',
       address: ADDRESS_ZERO,
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+    },
+    AdaptiveCurveIrm: {
+      name: 'AdaptiveCurveIrm',
+      address: ADDRESS_ZERO,
     },
   },
 }

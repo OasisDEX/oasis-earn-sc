@@ -28,4 +28,19 @@ interface IAjnaPoolUtilsInfo {
     uint256 lp_,
     uint256 index_
   ) external view returns (uint256 quoteAmount_);
+
+  function bucketInfo(
+    address ajnaPool_,
+    uint256 index_
+  )
+    external
+    view
+    returns (
+      uint256 price_,
+      uint256 quoteTokens_,
+      uint256 collateral_,
+      uint256 bucketLP_,
+      uint256 scale_,
+      uint256 exchangeRate_
+    );
 }

@@ -2,6 +2,8 @@ import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constant
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from './shared/common-defaults'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.BASE)
 
 export const config: SystemConfig = {
@@ -234,6 +236,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x0000000000000000000000000000000000000000',
@@ -388,7 +391,7 @@ export const config: SystemConfig = {
     },
     ETH: {
       name: 'ETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     },
     FRAX: {
       name: 'FRAX',
@@ -1100,7 +1103,7 @@ export const config: SystemConfig = {
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0xf309EE5603bF05E5614dB930E4EAB661662aCeE6',
+      address: '0x508E30f983d8a2F75154f7515f1163a7dE94C5A5',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1249,6 +1252,10 @@ export const config: SystemConfig = {
       name: 'MorphoBlue',
       address: ADDRESS_ZERO,
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+    },
+    AdaptiveCurveIrm: {
+      name: 'AdaptiveCurveIrm',
+      address: ADDRESS_ZERO,
     },
   },
 }

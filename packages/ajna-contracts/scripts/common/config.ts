@@ -3,7 +3,7 @@ import { Pool } from "./types";
 export const ADDRESSES = {
   // Ajna rc 13
   goerli: {
-    AJNA_PROXY_ACTIONS: "0x28470A23f89b1b0fe51509296a2e54cE54977adE",
+    AJNA_PROXY_ACTIONS: "0x5bEDD64d9f5ae046ca42c29FCD815ff73E96bCC5",
     ERC20_POOL_FACTORY: "0xDB61f8aD0B3ed0c5522b8FE71b80023fe9188e9e",
     POOL_INFO_UTILS: "0xdE8D83e069F552fbf3EE5bF04E8C4fa53a097ee5",
     POSITION_MANAGER: "0x7b6C6917ACA28BA790837d41e5aA4A49c9Ad4570",
@@ -13,7 +13,7 @@ export const ADDRESSES = {
   },
   // Ajna rc 13
   mainnet: {
-    AJNA_PROXY_ACTIONS: "0x1c98d87b245aA442791Ffb8a7e57380Ed49112FF",
+    AJNA_PROXY_ACTIONS: "0x3637DF43F938b05A71bb828f13D9f14498E6883c",
     ERC20_POOL_FACTORY: "0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625",
     POOL_INFO_UTILS: "0x30c5eF2997d6a882DE52c4ec01B6D0a5e5B4fAAE",
     POSITION_MANAGER: "0x87B0F458d8F1ACD28A83A748bFFbE24bD6B701B1",
@@ -23,7 +23,7 @@ export const ADDRESSES = {
   },
   // Ajna rc 13
   base: {
-    AJNA_PROXY_ACTIONS: "0xf309EE5603bF05E5614dB930E4EAB661662aCeE6",
+    AJNA_PROXY_ACTIONS: "0x508E30f983d8a2F75154f7515f1163a7dE94C5A5",
     ERC20_POOL_FACTORY: "0x154FFf344f426F99E328bacf70f4Eb632210ecdc",
     POOL_INFO_UTILS: "0x1358e3be37C191Eb5B842F673fcB5C79Cc4F6644",
     POSITION_MANAGER: "0xA650Fad48AA4F9cF3a5858460563B2227d6BD4E7",
@@ -45,6 +45,7 @@ export const TOKENS = {
     AJNA: "0xaadebCF61AA7Da0573b524DE57c67aDa797D46c5",
     TBTC: "0x679874fbe6d4e7cc54a59e315ff1eb266686a937",
     GHO: "0x0000000000000000000000000000000000000000",
+    SDAI: "0x0000000000000000000000000000000000000000",
   },
   mainnet: {
     WETH: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
@@ -57,11 +58,12 @@ export const TOKENS = {
     AJNA: "0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079",
     TBTC: "0x18084fbA666a33d37592fA2633fD49a74DD93a88",
     GHO: "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
+    SDAI: "0x83F20F44975D03b1b09e64809B757c47f942BEeA",
   },
   base: {
     WETH: "0x4200000000000000000000000000000000000006",
     RETH: "0x0000000000000000000000000000000000000000",
-    WSTETH: "0x0000000000000000000000000000000000000000",
+    WSTETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
     WBTC: "0x0000000000000000000000000000000000000000",
     USDC: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     DAI: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
@@ -69,22 +71,24 @@ export const TOKENS = {
     AJNA: "0x0000000000000000000000000000000000000000",
     TBTC: "0x0000000000000000000000000000000000000000",
     GHO: "0x0000000000000000000000000000000000000000",
+    SDAI: "0x0000000000000000000000000000000000000000",
   },
 };
 
 export const POOLS: Pool[] = [
-  { pair: "WBTC-USDC", amount: 5000, price: 20000, deposit: false, deploy: false, rate: "50000000000000000" },
-  { pair: "WBTC-DAI", amount: 5000, price: 20000, deposit: false, deploy: false, rate: "50000000000000000" },
-  { pair: "USDC-WBTC", amount: 1, price: 0.000030769, deposit: false, deploy: false, rate: "40000000000000000" },
-  { pair: "WETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
-  { pair: "WETH-DAI", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
-  { pair: "USDC-WETH", amount: 1, price: 0.0005, deposit: false, deploy: false, rate: "40000000000000000" },
   { pair: "RETH-DAI", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
-  { pair: "RETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
-  { pair: "RETH-WETH", amount: 1, price: 1.07, deposit: false, deploy: false, rate: "40000000000000000" },
+  { pair: "WBTC-DAI", amount: 5000, price: 20000, deposit: false, deploy: false, rate: "50000000000000000" },
   { pair: "WSTETH-DAI", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "WETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "WBTC-USDC", amount: 5000, price: 20000, deposit: false, deploy: false, rate: "50000000000000000" },
   { pair: "WSTETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
-  { pair: "WSTETH-WETH", amount: 1, price: 1.09, deposit: false, deploy: false, rate: "40000000000000000" },
+  { pair: "USDC-WETH", amount: 1, price: 0.0005, deposit: false, deploy: false, rate: "40000000000000000" },
+  { pair: "USDC-WBTC", amount: 1, price: 0.000030769, deposit: false, deploy: false, rate: "40000000000000000" },
+  { pair: "WSTETH-WETH", amount: 1, price: 1.09, deposit: false, deploy: true, rate: "40000000000000000" },
+  { pair: "RETH-WETH", amount: 1, price: 1.07, deposit: false, deploy: true, rate: "40000000000000000" },
+  { pair: "SDAI-USDC", amount: 5000, price: 20000, deposit: false, deploy: true, rate: "40000000000000000" },
+  { pair: "WETH-DAI", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
+  { pair: "RETH-USDC", amount: 5000, price: 1500, deposit: false, deploy: false, rate: "50000000000000000" },
   { pair: "CBETH-WETH", amount: 1, price: 1.09, deposit: false, deploy: false, rate: "40000000000000000" },
   { pair: "TBTC-WBTC", amount: 1, price: 1.01, deposit: false, deploy: false, rate: "40000000000000000" },
   { pair: "TBTC-GHO", amount: 1, price: 1.01, deposit: false, deploy: false, rate: "40000000000000000" },

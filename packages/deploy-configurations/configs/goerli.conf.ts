@@ -2,6 +2,7 @@ import { Network } from '@deploy-configurations/types/network'
 
 import { ADDRESS_ZERO, loadContractNames } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
+import { commonDefaults } from './shared/common-defaults'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.GOERLI)
 
@@ -248,6 +249,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x41A92d82D70005B55070dB7138b21d7c28F27CC0',
@@ -980,7 +982,7 @@ export const config: SystemConfig = {
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x28470A23f89b1b0fe51509296a2e54cE54977adE',
+      address: '0x5bEDD64d9f5ae046ca42c29FCD815ff73E96bCC5',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1126,6 +1128,10 @@ export const config: SystemConfig = {
       name: 'MorphoBlue',
       address: '0x64c7044050Ba0431252df24fEd4d9635a275CB41',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
+    },
+    AdaptiveCurveIrm: {
+      name: 'AdaptiveCurveIrm',
+      address: '0xC71F367DABb23E85E5FC6FdaD1a28F2240326b87',
     },
   },
 }

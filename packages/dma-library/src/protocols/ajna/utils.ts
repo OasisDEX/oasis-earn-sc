@@ -499,7 +499,7 @@ export function getNeutralPrice(
   }
   const npToTpRatio = ONE.plus(interestRate.sqrt().div(2))
 
-  return positionDebt.times(npToTpRatio).div(positionCollateral)
+  return positionDebt.times(ajnaCollateralizationFactor).div(positionCollateral).times(npToTpRatio)
 }
 
 export function getAjnaEarnDepositFee({

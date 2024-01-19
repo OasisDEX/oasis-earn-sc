@@ -1,6 +1,7 @@
 import irmAbi from '@abis/external/protocols/morphoblue/irm.json'
 import morphoAbi from '@abis/external/protocols/morphoblue/morpho.json'
 import oracleAbi from '@abis/external/protocols/morphoblue/oracle.json'
+import { getMarketRate } from '@dma-library/strategies/morphoblue/validation'
 import { MorphoBluePosition } from '@dma-library/types'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -67,9 +68,13 @@ export async function getMorphoPosition(
   const positionParams = await morpho.position(marketId, proxyAddress)
 
   const totals = {
-    totalSupplyAssets: new BigNumber(market.totalSupplyAssets.toString()).div(TEN.pow(18)),
+    totalSupplyAssets: new BigNumber(market.totalSupplyAssets.toString()).div(
+      TEN.pow(quotePrecision),
+    ),
     totalSupplyShares: new BigNumber(market.totalSupplyShares.toString()).div(TEN.pow(24)),
-    totalBorrowAssets: new BigNumber(market.totalBorrowAssets.toString()).div(TEN.pow(18)),
+    totalBorrowAssets: new BigNumber(market.totalBorrowAssets.toString()).div(
+      TEN.pow(quotePrecision),
+    ),
     totalBorrowShares: new BigNumber(market.totalBorrowShares.toString()).div(TEN.pow(24)),
   }
 
@@ -78,6 +83,8 @@ export async function getMorphoPosition(
 
   const price = await oracle.price()
   const rate = await irm.borrowRateView(marketParams, market)
+
+  const apy = getMarketRate(rate.toString())
 
   const debtAmount = toAssetsDown(
     new BigNumber(positionParams.borrowShares.toString()),
@@ -127,7 +134,7 @@ export async function getMorphoPosition(
       fee: new BigNumber(market.fee.toString()),
     },
     new BigNumber(price.toString()).div(TEN.pow(36 + quotePrecision - collateralPrecision)),
-    new BigNumber(rate.toString()).div(TEN.pow(36)),
+    apy,
     pnl,
   )
 }

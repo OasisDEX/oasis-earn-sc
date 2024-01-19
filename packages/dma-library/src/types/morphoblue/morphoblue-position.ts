@@ -1,5 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
-import { ZERO } from '@dma-common/constants'
+import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
@@ -26,7 +26,7 @@ export interface LendingPosition {
     withoutFees: BigNumber
   }
 
-  debtAvailable(collateralAmount?: BigNumber): BigNumber
+  debtAvailable(collateralAmount?: BigNumber, debtAmount?: BigNumber): BigNumber
 
   deposit(amount: BigNumber): LendingPosition
 
@@ -74,7 +74,9 @@ export class MorphoBluePosition implements LendingPosition {
   ) {}
 
   get liquidationPrice() {
-    return this.debtAmount.div(this.collateralAmount.times(this.marketParams.lltv))
+    return normalizeValue(
+      ONE.div(this.collateralAmount.times(this.maxRiskRatio.loanToValue).div(this.debtAmount)),
+    )
   }
 
   get marketPrice() {
@@ -82,13 +84,13 @@ export class MorphoBluePosition implements LendingPosition {
   }
 
   get liquidationToMarketPrice() {
-    return this.marketParams.lltv
+    return this.liquidationPrice.div(this.marketPrice)
   }
 
-  // How much collateral can we withdraw to not get liqidated, (to get to the verge of liquidation)
+  // How much collateral can we withdraw to not get liquidated, (to get to the verge of liquidation)
   get collateralAvailable() {
     const collateralAvailable = this.collateralAmount.minus(
-      this.debtAmount.div(this.liquidationPrice),
+      this.debtAmount.div(this.maxRiskRatio.loanToValue).div(this.price),
     )
 
     return negativeToZero(normalizeValue(collateralAvailable))
@@ -127,8 +129,7 @@ export class MorphoBluePosition implements LendingPosition {
       .minus(this.debtAmount.times(this.debtPrice))
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  debtAvailable(collateralAmount: BigNumber = ZERO) {
+  debtAvailable(collateralAmount?: BigNumber, debtAmount?: BigNumber) {
     // (debt + addDebt) / ((col + addedColl) * price) = lltv
     // lltv*price*(col + addedColl) - debt = addDebt
 
@@ -136,8 +137,8 @@ export class MorphoBluePosition implements LendingPosition {
       normalizeValue(
         this.maxRiskRatio.loanToValue
           .times(this.price)
-          .times(this.collateralAmount.plus(collateralAmount))
-          .minus(this.debtAmount),
+          .times(collateralAmount || this.collateralAmount)
+          .minus(debtAmount || this.debtAmount),
       ),
     )
   }

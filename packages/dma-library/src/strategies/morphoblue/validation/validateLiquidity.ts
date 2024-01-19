@@ -5,12 +5,14 @@ export function validateLiquidity(
   position: MorphoBluePosition,
   borrowAmount: BigNumber,
 ): AjnaError[] {
-  if (position.market.totalSupplyAssets.minus(position.market.totalBorrowAssets).lt(borrowAmount)) {
+  const liquidity = position.market.totalSupplyAssets.minus(position.market.totalBorrowAssets)
+
+  if (liquidity.lt(borrowAmount)) {
     return [
       {
         name: 'not-enough-liquidity',
         data: {
-          amount: borrowAmount.toString(),
+          amount: liquidity.toString(),
         },
       },
     ]
