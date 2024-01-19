@@ -25,8 +25,12 @@ contract AjnaRepayWithdraw is Executable, UseStore {
   IERC20PoolFactory public immutable erc20PoolFactory;
 
   constructor(address _registry) UseStore(_registry) {
-    poolUtilsInfo = IAjnaPoolUtilsInfo(registry.getRegisteredService(AJNA_POOL_UTILS_INFO));
-    erc20PoolFactory = IERC20PoolFactory(registry.getRegisteredService(ERC20_POOL_FACTORY));
+    address poolUtilsInfoAddress = registry.getRegisteredService(AJNA_POOL_UTILS_INFO);
+    require(poolUtilsInfoAddress != address(0), "AjnaDepositBorrow: PoolUtilsInfo not found");
+    address erc20PoolFactoryAddress = registry.getRegisteredService(ERC20_POOL_FACTORY);
+    require(erc20PoolFactoryAddress != address(0), "AjnaDepositBorrow: PoolFactory not found");
+    poolUtilsInfo = IAjnaPoolUtilsInfo(poolUtilsInfoAddress);
+    erc20PoolFactory = IERC20PoolFactory(erc20PoolFactoryAddress);
   }
 
   /**

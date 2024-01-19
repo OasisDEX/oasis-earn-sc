@@ -2,8 +2,6 @@ import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constant
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
-import { commonDefaults } from './shared/common-defaults'
-
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.BASE)
 
 export const config: SystemConfig = {
@@ -214,29 +212,50 @@ export const config: SystemConfig = {
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: false,
-        address: '0x0b1A4822784648b8aD1D16926Db2a20eb9A41B41',
+        address: '0x4C020189Ed0556bD934F6d459003c95706b2D71d',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [
           '0xb2e2a088d9705cd412CE6BF94e765743Ec26b1e4',
           '0x0f57A087d7138DE78F2a727C62c06a779450aE68',
+          '0x0b1A4822784648b8aD1D16926Db2a20eb9A41B41',
         ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: false,
-        address: '0x3A2756376b9a949f7Eca58e73A2D27015AFC594B',
+        address: '0x595e9375bF40f2B9112c21b3Ded4e06cF3641982',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [
           '0x1631FAF05bfFA2200698d71893667C9De1E221fc',
           '0xb26e526A5B1C4A3aE3d4d24e1748df3ff53209d4',
+          '0x3A2756376b9a949f7Eca58e73A2D27015AFC594B',
         ],
         constructorArgs: ['address:ServiceRegistry'],
       },
     },
   },
   common: {
-    ...commonDefaults,
+    ARB: {
+      name: 'ARB',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    CRV: {
+      name: 'CRV',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    OP: {
+      name: 'OP',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    SUSD: {
+      name: 'SUSD',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    RPL: {
+      name: 'RPL',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x0000000000000000000000000000000000000000',
