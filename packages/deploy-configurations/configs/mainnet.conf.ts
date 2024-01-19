@@ -152,6 +152,18 @@ export const config: SystemConfig = {
           '0x5a15566417e6C1c9546523066500bDDBc53F88C7'
         ]
       },
+      TakeFlashloanBalancer: {
+        name: 'TakeFlashloanBalancer',
+        deploy: false,
+        address: '0x03644F489Bf16B1eAFa68F495955eb5a78189314',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER,
+        history: [ '' ],
+        constructorArgs: [
+          'address:ServiceRegistry',
+          '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          '0x5a15566417e6C1c9546523066500bDDBc53F88C7'
+        ]
+      },
       SetApproval: {
         name: 'SetApproval',
         deploy: false,
@@ -278,6 +290,14 @@ export const config: SystemConfig = {
           '0xDA39737E1b15619D6eAC2eeFa2990277c9898ACE',
           '0xbA06eb5D30Ec7D6B47e5FC30457D7b2Be5AB784a'
         ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
+      },
+      AaveV3WithdrawAuto: {
+        name: 'AaveV3WithdrawAuto',
+        deploy: false,
+        address: '0xB186178E3076CE299b187c1d2c12544F6db52f8f',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO,
+        history: [],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3Deposit: {
