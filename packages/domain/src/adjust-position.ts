@@ -154,7 +154,7 @@ export function adjustToTargetRiskRatio(
         .minus(ONE.plus(flashloanFee).times(marketPriceAdjustedForSlippage)),
     )
     .integerValue(BigNumber.ROUND_DOWN)
-
+  console.log(`Unknown variable X: ${unknownVarX.toString()}`)
   /**
    * Finally, we can compute the deltas in debt & collateral
    *

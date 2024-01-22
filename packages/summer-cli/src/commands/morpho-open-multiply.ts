@@ -13,7 +13,7 @@ import { getOneInchCall } from '../logic/common/swap';
 const argsSchema = yup.object().shape({});
 
 const morphoBlueMarket =
-  '0x7dde86a1e94561d9690ec678db673c1a6396365f7d1d65e129c5fff0990ff758';
+  '0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41';
 const morphoAddress = '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb';
 const proxyAddress = '0x8451C582AB882fb534175B5465E91DfbDE97917e';
 
@@ -24,18 +24,17 @@ export const morphoOpenMultiplyCommand: Command<typeof argsSchema> = {
   description: ``,
   args: argsSchema,
   async run(_args, enviroment) {
-    console.log('Opening position...');
     const strategy = await strategies.morphoblue.multiply.open(
       {
-        collateralAmount: new BigNumber(1),
-        collateralPriceUSD: new BigNumber(2488),
-        quotePriceUSD: new BigNumber(1),
+        collateralAmount: new BigNumber(5),
+        collateralPriceUSD: new BigNumber(2385),
+        quotePriceUSD: new BigNumber(2758),
         marketId: morphoBlueMarket,
         dpmProxyAddress: proxyAddress,
         collateralTokenPrecision: 18,
-        quoteTokenPrecision: 6,
+        quoteTokenPrecision: 18,
         user: await enviroment.walletSigner.getAddress(),
-        riskRatio: new RiskRatio(new BigNumber(1.2), RiskRatio.TYPE.MULITPLE),
+        riskRatio: new RiskRatio(new BigNumber(0.7), RiskRatio.TYPE.LTV),
         slippage: new BigNumber(0.1),
       },
       {

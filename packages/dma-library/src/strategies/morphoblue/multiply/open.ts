@@ -62,7 +62,6 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
   const oraclePrice = position.collateralPrice
   const collateralTokenSymbol = await getTokenSymbol(position.marketParams.collateralToken, dependencies.provider)
   const debtTokenSymbol = await getTokenSymbol(position.marketParams.loanToken, dependencies.provider)
-  
   const mappedArgs = {
     ...args,
     collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
@@ -77,6 +76,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     collateralTokenSymbol,
     debtTokenSymbol,
   )
+
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
     mappedArgs,
     position,
@@ -192,6 +192,7 @@ async function simulateAdjustment(
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromToken.symbol, toToken.symbol),
   })
+  
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string
@@ -297,6 +298,7 @@ async function buildOperation(
 
     args.collateralAmount ${args.collateralAmount.toString()}
     position coll ${simulatedAdjust.position.collateral.amount.div(TEN.pow(18)).toString()}
+    delta simulatedAdjust.delta.debt ${simulatedAdjust.delta.debt}
   `)
 
   console.log(`
@@ -307,6 +309,11 @@ async function buildOperation(
     ${simulatedAdjust.delta.collateral}
     args.collateralAmount.plus(simulatedAdjust.delta.collateral)
     ${args.collateralAmount.plus(simulatedAdjust.delta.collateral)}
+    amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees)
+    ${Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees)}
+
+    borrowAmount ${borrowAmount}
+    debt simulated ${simulatedAdjust.position.debt.amount}
 
     ${position.market.totalBorrowAssets}
     ${position.market.totalBorrowShares}
@@ -337,7 +344,7 @@ async function buildOperation(
     },
     deposit: {
       address: position.marketParams.collateralToken,
-      amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)),
+      amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)).integerValue(),
     },
     swap: {
       fee: fee.toNumber(),
@@ -384,6 +391,7 @@ export async function getSwapData(
     __feeOverride?: BigNumber,
   ) {
     const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
+  
     const fee =
       __feeOverride ||
       SwapUtils.feeResolver(
