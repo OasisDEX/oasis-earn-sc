@@ -1,11 +1,12 @@
+import { formatCryptoBalance } from '@dma-common/utils/common'
 import { AjnaError, MorphoBluePosition } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { validateLiquidity } from './validateLiquidity'
 
 export function validateBorrowUndercollateralized(
-  position: MorphoBluePosition,
   targetPosition: MorphoBluePosition,
+  position: MorphoBluePosition,
   borrowAmount: BigNumber,
 ): AjnaError[] {
   if (validateLiquidity(position, borrowAmount).length > 0) {
@@ -13,11 +14,16 @@ export function validateBorrowUndercollateralized(
   }
 
   if (targetPosition.riskRatio.loanToValue.gt(targetPosition.maxRiskRatio.loanToValue)) {
+    const maxDebt = position.debtAvailable(
+      targetPosition?.collateralAmount || position.collateralAmount,
+      position.debtAmount,
+    )
+
     return [
       {
         name: 'borrow-undercollateralized',
         data: {
-          amount: borrowAmount.toString(),
+          amount: formatCryptoBalance(maxDebt),
         },
       },
     ]
