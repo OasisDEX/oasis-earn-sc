@@ -34,7 +34,7 @@ export const morphoOpenMultiplyCommand: Command<typeof argsSchema> = {
         collateralTokenPrecision: 18,
         quoteTokenPrecision: 18,
         user: await enviroment.walletSigner.getAddress(),
-        riskRatio: new RiskRatio(new BigNumber(0.7), RiskRatio.TYPE.LTV),
+        riskRatio: new RiskRatio(new BigNumber(0.2), RiskRatio.TYPE.LTV),
         slippage: new BigNumber(0.1),
       },
       {

@@ -59,14 +59,13 @@ const positionType: PositionType = 'Multiply'
 export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencies) => {
   const position = await getPosition(args, dependencies)
   const riskIsIncreasing = verifyRiskDirection(args, position)
-  const oraclePrice = position.collateralPrice
+  const oraclePrice = ONE.div(position.marketPrice)
   const collateralTokenSymbol = await getTokenSymbol(position.marketParams.collateralToken, dependencies.provider)
   const debtTokenSymbol = await getTokenSymbol(position.marketParams.loanToken, dependencies.provider)
   const mappedArgs = {
     ...args,
     collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
   }
-
   const simulatedAdjustment = await simulateAdjustment(
     mappedArgs,
     dependencies,
@@ -227,7 +226,6 @@ async function simulateAdjustment(
   const positionAdjustArgs = {
     toDeposit: {
       collateral: args.collateralAmount,
-      /** Not relevant for Ajna */
       debt: ZERO,
     },
     fees: {
@@ -246,7 +244,6 @@ async function simulateAdjustment(
     network: dependencies.network,
   }
 
-  // TODO: Refactor AjnaPosition to extend IPositionV2 (eventually)
   const mappedPosition = {
     debt: {
       amount: position.debtAmount,
