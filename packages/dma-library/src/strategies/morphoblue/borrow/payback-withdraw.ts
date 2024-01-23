@@ -87,7 +87,12 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
   const warnings = [...validateWithdrawCloseToMaxLtv(targetPosition, position)]
 
   const errors = [
-    ...validateWithdrawUndercollateralized(targetPosition, position, args.collateralPrecision),
+    ...validateWithdrawUndercollateralized(
+      targetPosition,
+      position,
+      args.collateralPrecision,
+      args.collateralAmount,
+    ),
   ]
 
   return {
