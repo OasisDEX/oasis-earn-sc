@@ -396,6 +396,10 @@ export const config: SystemConfig = {
       name: 'STETH',
       address: ADDRESS_ZERO,
     },
+    STYETH: {
+      name: 'STYETH',
+      address: ADDRESS_ZERO,
+    },
     TUSD: {
       name: 'TUSD',
       address: ADDRESS_ZERO,
@@ -773,6 +777,10 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

@@ -40,6 +40,7 @@ export type Tokens =
   | 'RWA006'
   | 'SDAI'
   | 'STETH'
+  | 'STYETH'
   | 'SUSD'
   | 'TBTC'
   | 'TUSD'

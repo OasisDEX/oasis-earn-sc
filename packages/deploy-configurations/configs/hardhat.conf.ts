@@ -561,6 +561,10 @@ export const config: SystemConfig = {
       address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.STETH,
     },
+    STYETH: {
+      name: 'STYETH',
+      address: ADDRESS_ZERO,
+    },
     TBTC: {
       name: 'TBTC',
       address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
@@ -1306,6 +1310,10 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {
