@@ -41,29 +41,19 @@ export const adjustMultiply: MorphoAdjustRiskStrategy = (
     dependencies: MorphoMultiplyDependencies,
 ) => {
     if (isRiskIncreasing(args.riskRatio.loanToValue, args.position.riskRatio.loanToValue)) {
+        console.log("Risk is increasing")
         return adjustRiskUp(args, dependencies)
     } else {
+        console.log("Risk is decreasing")
         return adjustRiskDown(args, dependencies)
     }
 }
 
 const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
-    const oraclePrice = ONE.div(args.position.marketPrice)
+    const oraclePrice = args.position.marketPrice
+    console.log("Oracle price: ", oraclePrice.toString())
     const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
     const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
-
-
-    // Simulate adjust
-    const riskIsIncreasing = true
-    const simulatedAdjustment = await simulateAdjustment(
-        args,
-        dependencies,
-        args.position,
-        riskIsIncreasing,
-        oraclePrice,
-        collateralTokenSymbol,
-        debtTokenSymbol
-    )
 
     const mappedArgs = {
         ...args,
@@ -71,6 +61,18 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         quoteTokenSymbol: debtTokenSymbol,
         collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
     }
+
+    // Simulate adjust
+    const riskIsIncreasing = true
+    const simulatedAdjustment = await simulateAdjustment(
+        mappedArgs,
+        dependencies,
+        args.position,
+        riskIsIncreasing,
+        oraclePrice,
+        collateralTokenSymbol,
+        debtTokenSymbol
+    )
 
     // Get swap data
     const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
@@ -92,6 +94,11 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         swapData,
         riskIsIncreasing,
     )
+
+    console.log(`
+    
+    ${JSON.stringify(simulatedAdjustment, null, 2)}
+    `)
 
     // Prepare payload
     return prepareMorphoMultiplyDMAPayload(
@@ -113,12 +120,17 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
     const oraclePrice = ONE.div(args.position.marketPrice)
     const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
     const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
-
+    const mappedArgs = {
+        ...args,
+        collateralTokenSymbol,
+        quoteTokenSymbol: debtTokenSymbol,
+        collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
+    }
 
     // Simulate adjust
     const riskIsIncreasing = false
     const simulatedAdjustment = await simulateAdjustment(
-        args,
+        mappedArgs,
         dependencies,
         args.position,
         riskIsIncreasing,
@@ -126,13 +138,6 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         collateralTokenSymbol,
         debtTokenSymbol
     )
-
-    const mappedArgs = {
-        ...args,
-        collateralTokenSymbol,
-        quoteTokenSymbol: debtTokenSymbol,
-        collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
-    }
 
     // Get swap data
     const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
@@ -154,7 +159,7 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         swapData,
         riskIsIncreasing,
     )
-
+    
     // Prepare payload
     return prepareMorphoMultiplyDMAPayload(
         args,

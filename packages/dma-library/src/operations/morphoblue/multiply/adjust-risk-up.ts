@@ -102,7 +102,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
       amount: depositAmount,
       sumAmounts: true,
     },
-    [swapActionStorageIndex, 0],
+    [0, swapActionStorageIndex],
   )
 
   const borrowDebtToRepayFL = actions.morphoblue.borrow(network, {
