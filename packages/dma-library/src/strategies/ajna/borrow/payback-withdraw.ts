@@ -5,7 +5,7 @@ import {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
   AjnaPosition,
-  AjnaStrategy,
+  SummerStrategy,
 } from '@dma-library/types/ajna'
 import { ethers } from 'ethers'
 
@@ -19,7 +19,7 @@ import {
 export type AjnaPaybackWithdrawStrategy = (
   args: AjnaBorrowPayload,
   dependencies: AjnaCommonDependencies,
-) => Promise<AjnaStrategy<AjnaPosition>>
+) => Promise<SummerStrategy<AjnaPosition>>
 
 export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, dependencies) => {
   const apa = new ethers.Contract(

@@ -9,7 +9,7 @@ import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validatio
 //   validateDustLimit,
 //   validateLiquidity,
 // } from '../../validation'
-import { AjnaStrategy, MorphoBluePosition } from '@dma-library/types'
+import { SummerStrategy, MorphoBluePosition } from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { views } from '@dma-library/views'
 import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
@@ -43,7 +43,7 @@ export interface MorphoBlueCommonDependencies {
 export type MorphoOpenBorrowStrategy = (
   args: MorphoblueOpenBorrowPayload,
   dependencies: MorphoBlueCommonDependencies,
-) => Promise<AjnaStrategy<MorphoBluePosition>>
+) => Promise<SummerStrategy<MorphoBluePosition>>
 
 export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
   const getPosition = views.morpho.getPosition

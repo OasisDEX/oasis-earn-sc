@@ -1,4 +1,4 @@
-export interface AjnaStrategyAddresses {
+export interface SummerStrategyAddresses {
   DAI: string
   ETH: string
   WETH: string

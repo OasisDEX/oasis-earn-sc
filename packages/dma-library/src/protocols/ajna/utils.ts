@@ -21,7 +21,7 @@ import {
   AjnaError,
   AjnaNotice,
   AjnaPool,
-  AjnaStrategy,
+  SummerStrategy,
   AjnaSuccess,
   AjnaWarning,
 } from '@dma-library/types/ajna'
@@ -46,7 +46,7 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
   data: string
   txValue: string
   swaps: (SwapData & { collectFeeFrom: 'sourceToken' | 'targetToken'; tokenFee: BigNumber })[]
-}): AjnaStrategy<T> => {
+}): SummerStrategy<T> => {
   return {
     simulation: {
       swaps: swaps.map(swap => ({
@@ -92,7 +92,7 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   successes: AjnaSuccess[]
   data: string
   txValue: string
-}): AjnaStrategy<T> => {
+}): SummerStrategy<T> => {
   return {
     simulation: {
       swaps: [],

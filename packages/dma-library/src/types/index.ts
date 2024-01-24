@@ -2,7 +2,7 @@ import { isProtocol, Protocol, ProtocolNames } from '@deploy-configurations/type
 
 import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
-import type { AjnaError, AjnaStrategy } from './ajna'
+import type { AjnaError, SummerStrategy } from './ajna'
 import {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
@@ -20,7 +20,7 @@ import { MorphoBlueMarket, MorphoBluePosition } from './morphoblue'
 import type {
   IOperation,
   WithAjnaBucketPrice,
-  WithAjnaStrategyAddresses,
+  WithSummerStrategyAddresses,
   WithBorrowing,
   WithCollateral,
   WithCollateralAndWithdrawal,
@@ -57,7 +57,7 @@ import type { SwapData } from './swap-data'
 export type { IMultiplyStrategy, IStrategy }
 export type { CommonDMADependencies } from './common'
 export { FlashloanProvider }
-export type { AjnaError, AjnaStrategy, Strategy }
+export type { AjnaError, SummerStrategy, Strategy }
 export { AjnaEarnPosition, AjnaPosition }
 
 export type {
@@ -78,7 +78,7 @@ export { calldataTypes }
 export type {
   IOperation,
   WithAjnaBucketPrice,
-  WithAjnaStrategyAddresses,
+  WithSummerStrategyAddresses,
   WithBorrowing,
   WithCollateral,
   WithCollateralAndWithdrawal,

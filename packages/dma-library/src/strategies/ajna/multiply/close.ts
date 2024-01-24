@@ -9,7 +9,7 @@ import { ajnaBuckets } from '@dma-library/strategies'
 import * as StrategiesCommon from '@dma-library/strategies/common'
 import {
   AjnaPosition,
-  AjnaStrategy,
+  SummerStrategy,
   FlashloanProvider,
   IOperation,
   PositionType,
@@ -27,7 +27,7 @@ import BigNumber from 'bignumber.js'
 export type AjnaCloseStrategy = (
   args: AjnaCloseMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
-) => Promise<AjnaStrategy<AjnaPosition>>
+) => Promise<SummerStrategy<AjnaPosition>>
 
 const positionType: PositionType = 'Multiply'
 

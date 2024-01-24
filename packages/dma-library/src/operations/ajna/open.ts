@@ -7,7 +7,7 @@ import {
   IOperation,
   Protocol,
   WithAjnaBucketPrice,
-  WithAjnaStrategyAddresses,
+  WithSummerStrategyAddresses,
   WithCollateral,
   WithDebtAndBorrow,
   WithFlashloan,
@@ -27,7 +27,7 @@ type OpenArgs = WithCollateral &
   WithFlashloan &
   WithProxy &
   WithPosition &
-  WithAjnaStrategyAddresses &
+  WithSummerStrategyAddresses &
   WithAjnaBucketPrice &
   WithNetwork
 

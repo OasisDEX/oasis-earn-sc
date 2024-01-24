@@ -5,7 +5,7 @@ import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
   WithAjnaBucketPrice,
-  WithAjnaStrategyAddresses,
+  WithSummerStrategyAddresses,
   WithCollateralAndWithdrawal,
   WithDebt,
   WithFlashloan,
@@ -21,7 +21,7 @@ type AjnaAdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithAjnaStrategyAddresses &
+  WithSummerStrategyAddresses &
   WithAjnaBucketPrice &
   WithNetwork
 

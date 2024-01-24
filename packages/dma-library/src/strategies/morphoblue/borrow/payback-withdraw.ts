@@ -4,7 +4,7 @@ import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
 import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
 import { validateWithdrawCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
-import { AjnaStrategy, MorphoBluePosition } from '@dma-library/types'
+import { SummerStrategy, MorphoBluePosition } from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { views } from '@dma-library/views'
 import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
@@ -37,7 +37,7 @@ export interface MorphoBlueCommonDependencies {
 export type MorphoPaybackWithdrawStrategy = (
   args: MorphobluePaybackWithdrawPayload,
   dependencies: MorphoBlueCommonDependencies,
-) => Promise<AjnaStrategy<MorphoBluePosition>>
+) => Promise<SummerStrategy<MorphoBluePosition>>
 
 export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, dependencies) => {
   const getPosition = views.morpho.getPosition

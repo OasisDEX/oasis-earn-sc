@@ -10,7 +10,12 @@ import { sendTxThroughProxy } from '../logic/common/sendTxThroughProxy';
 import { throwOnRevertedTx } from '../utils/tx';
 import { getOneInchCall } from '../logic/common/swap';
 
-const argsSchema = yup.object().shape({});
+const argsSchema = yup.object().shape({
+  amount: yup.number().required(),
+  ltv: yup.number().required().min(0.1).max(0.9),
+  collateralPriceUsd: yup.number().required(),
+  quotePriceUsd: yup.number().required(),
+});
 
 const morphoBlueMarket =
   '0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41';
@@ -23,18 +28,19 @@ export const morphoOpenMultiplyCommand: Command<typeof argsSchema> = {
   name: 'morpho-open-multiply' as const,
   description: ``,
   args: argsSchema,
-  async run(_args, enviroment) {
+  async run(args, enviroment) {
+
     const strategy = await strategies.morphoblue.multiply.open(
       {
-        collateralAmount: new BigNumber(5),
-        collateralPriceUSD: new BigNumber(2385),
-        quotePriceUSD: new BigNumber(2758),
+        collateralAmount: new BigNumber(args.amount),
+        collateralPriceUSD: new BigNumber(args.collateralPriceUsd),
+        quotePriceUSD: new BigNumber(args.quotePriceUsd),
         marketId: morphoBlueMarket,
         dpmProxyAddress: proxyAddress,
         collateralTokenPrecision: 18,
         quoteTokenPrecision: 18,
         user: await enviroment.walletSigner.getAddress(),
-        riskRatio: new RiskRatio(new BigNumber(0.2), RiskRatio.TYPE.LTV),
+        riskRatio: new RiskRatio(new BigNumber(args.ltv), RiskRatio.TYPE.LTV),
         slippage: new BigNumber(0.1),
       },
       {

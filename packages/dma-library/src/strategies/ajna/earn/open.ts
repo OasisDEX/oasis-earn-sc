@@ -6,7 +6,7 @@ import {
   AjnaEarnPosition,
   AjnaOpenEarnDependencies,
   AjnaOpenEarnPayload,
-  AjnaStrategy,
+  SummerStrategy,
 } from '@dma-library/types/ajna'
 import { views } from '@dma-library/views'
 import BigNumber from 'bignumber.js'
@@ -15,7 +15,7 @@ import { ethers } from 'ethers'
 export type AjnaOpenEarnStrategy = (
   args: AjnaOpenEarnPayload,
   dependencies: AjnaOpenEarnDependencies,
-) => Promise<AjnaStrategy<AjnaEarnPosition>>
+) => Promise<SummerStrategy<AjnaEarnPosition>>
 
 export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
   const action = 'open-earn'
