@@ -512,6 +512,10 @@ export const config: SystemConfig = {
       name: 'STETH',
       address: '0x0000000000000000000000000000000000000000',
     },
+    STYETH: {
+      name: 'STYETH',
+      address: ADDRESS_ZERO,
+    },
     TBTC: {
       name: 'TBTC',
       address: '0x0000000000000000000000000000000000000000',
@@ -1243,6 +1247,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
       address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
+      address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
