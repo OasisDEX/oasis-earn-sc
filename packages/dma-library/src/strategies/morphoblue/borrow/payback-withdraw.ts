@@ -11,8 +11,8 @@ import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import { TEN, ZERO } from '../../../../../dma-common/constants/numbers'
-import { validateBorrowUndercollateralized } from '../validation/validateBorrowUndercollateralized'
+import { TEN } from '../../../../../dma-common/constants/numbers'
+import { validateWithdrawUndercollateralized } from '../validation'
 
 export interface MorphobluePaybackWithdrawPayload {
   quoteAmount: BigNumber
@@ -86,7 +86,14 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
 
   const warnings = [...validateWithdrawCloseToMaxLtv(targetPosition, position)]
 
-  const errors = [...validateBorrowUndercollateralized(targetPosition, position, ZERO)]
+  const errors = [
+    ...validateWithdrawUndercollateralized(
+      targetPosition,
+      position,
+      args.collateralPrecision,
+      args.collateralAmount,
+    ),
+  ]
 
   return {
     simulation: {
