@@ -57,7 +57,7 @@ export const morphoAdjustMultiplyCommand: Command<typeof argsSchema> = {
         quoteTokenPrecision: 18,
         user: await enviroment.walletSigner.getAddress(),
         riskRatio: new RiskRatio(new BigNumber(args.ltv), RiskRatio.TYPE.LTV),
-        slippage: new BigNumber(0.1),
+        slippage: new BigNumber(0.005),
       },
       {
         provider: enviroment.provider,

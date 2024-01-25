@@ -12,11 +12,12 @@ import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
 import { isRiskIncreasing } from '@domain/utils'
 import BigNumber from 'bignumber.js'
-import { MorphoMultiplyDependencies, getSwapData, getTokenSymbol, prepareMorphoMultiplyDMAPayload, simulateAdjustment } from './open'
+import { MinimalPosition, MorphoMultiplyDependencies, getSwapData, getTokenSymbol, prepareMorphoMultiplyDMAPayload, simulateAdjustment } from './open'
 import { MorphoBlueAdjustRiskUpArgs } from '@dma-library/operations/morphoblue/multiply/adjust-risk-up'
 import { MorphoBlueAdjustRiskDownArgs } from '@dma-library/operations/morphoblue/multiply/adjust-risk-down'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { SummerStrategy } from '@dma-library/types/ajna/ajna-strategy'
+import { o } from 'ramda'
 
 interface MorphoAdjustMultiplyPayload {
     riskRatio: Domain.IRiskRatio
@@ -50,7 +51,7 @@ export const adjustMultiply: MorphoAdjustRiskStrategy = (
 }
 
 const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
-    const oraclePrice = ONE.div(args.position.marketPrice)
+    const oraclePrice = args.position.marketPrice
     const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
     const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
 
@@ -60,13 +61,23 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         quoteTokenSymbol: debtTokenSymbol,
         collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
     }
+    
+    const mappedPosition: MinimalPosition = {
+        collateralAmount: args.position.collateralAmount.shiftedBy(args.collateralTokenPrecision),
+        debtAmount: args.position.debtAmount.shiftedBy(args.quoteTokenPrecision),
+        riskRatio: args.position.riskRatio,
+        marketParams: {
+            loanToken: args.position.marketParams.loanToken,
+            collateralToken: args.position.marketParams.collateralToken,
+        }
+    }
 
     // Simulate adjust
     const riskIsIncreasing = true
     const simulatedAdjustment = await simulateAdjustment(
         mappedArgs,
         dependencies,
-        args.position,
+        mappedPosition,
         riskIsIncreasing,
         oraclePrice,
         collateralTokenSymbol,
@@ -118,6 +129,7 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
 
 const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
     const oraclePrice = ONE.div(args.position.marketPrice)
+    console.log(oraclePrice.toString(), "oraclePrice")
     const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
     const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
     const mappedArgs = {
@@ -127,12 +139,22 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
     }
 
+    const mappedPosition: MinimalPosition = {
+        collateralAmount: args.position.collateralAmount.shiftedBy(args.collateralTokenPrecision),
+        debtAmount: args.position.debtAmount.shiftedBy(args.quoteTokenPrecision),
+        riskRatio: args.position.riskRatio,
+        marketParams: {
+            loanToken: args.position.marketParams.loanToken,
+            collateralToken: args.position.marketParams.collateralToken,
+        }
+    }
+
     // Simulate adjust
     const riskIsIncreasing = false
     const simulatedAdjustment = await simulateAdjustment(
         mappedArgs,
         dependencies,
-        args.position,
+        mappedPosition,
         riskIsIncreasing,
         oraclePrice,
         collateralTokenSymbol,
@@ -217,7 +239,7 @@ async function buildOperation(
                 address: args.position.marketParams.loanToken,
                 isEth: areAddressesEqual(args.position.marketParams.loanToken, dependencies.addresses.WETH),
                 borrow: {
-                    amount: borrowAmount.times(TEN.pow(args.quoteTokenPrecision)).integerValue(),
+                    amount: borrowAmount,
                 },
             },
             deposit: {
@@ -262,11 +284,15 @@ async function buildOperation(
             irm: args.position.marketParams.irm,
             lltv: args.position.marketParams.lltv.times(TEN.pow(18)),
         },
+        // deposit: {
+        //     address: args.position.marketParams.collateralToken,
+        //     amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)).integerValue()),
+        // },
         collateral: {
             address: args.position.marketParams.collateralToken,
             isEth: areAddressesEqual(args.position.marketParams.collateralToken, dependencies.addresses.WETH),
             withdrawal: {
-                amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)).integerValue(),
+                amount: simulatedAdjust.delta.collateral.abs(),
             }
         },
         debt: {

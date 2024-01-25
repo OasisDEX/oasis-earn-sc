@@ -59,7 +59,7 @@ const positionType: PositionType = 'Multiply'
 export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencies) => {
   const position = await getPosition(args, dependencies)
   const riskIsIncreasing = verifyRiskDirection(args, position)
-  const oraclePrice = ONE.div(position.marketPrice)
+  const oraclePrice = position.marketPrice
   const collateralTokenSymbol = await getTokenSymbol(position.marketParams.collateralToken, dependencies.provider)
   const debtTokenSymbol = await getTokenSymbol(position.marketParams.loanToken, dependencies.provider)
   const mappedArgs = {
@@ -155,7 +155,7 @@ export interface AdjustArgs {
   user: string
 }
 
-export function buildFromToken(args: AdjustArgs, position: MorphoBluePosition, isIncreasingRisk: boolean, collateralTokenSymbol: string, debtTokenSymbol: string) {
+export function buildFromToken(args: AdjustArgs, position: MinimalPosition, isIncreasingRisk: boolean, collateralTokenSymbol: string, debtTokenSymbol: string) {
     if (isIncreasingRisk) {
       return {
         symbol: debtTokenSymbol,
@@ -171,7 +171,7 @@ export function buildFromToken(args: AdjustArgs, position: MorphoBluePosition, i
     }
   }
   
-  export function buildToToken(args: AdjustArgs, position: MorphoBluePosition, isIncreasingRisk: boolean, collateralTokenSymbol: string, debtTokenSymbol: string) {
+  export function buildToToken(args: AdjustArgs, position: MinimalPosition, isIncreasingRisk: boolean, collateralTokenSymbol: string, debtTokenSymbol: string) {
     if (isIncreasingRisk) {
       return {
         symbol: collateralTokenSymbol,
@@ -187,10 +187,20 @@ export function buildFromToken(args: AdjustArgs, position: MorphoBluePosition, i
     }
   }
 
+export interface MinimalPosition {
+  collateralAmount: BigNumber
+  debtAmount: BigNumber
+  riskRatio: Domain.IRiskRatio
+  marketParams: {
+    loanToken: string
+    collateralToken: string
+  }
+}
+
 export async function simulateAdjustment(
   args: AdjustArgs,
   dependencies: MorphoMultiplyDependencies,
-  position: MorphoBluePosition,
+  position: MinimalPosition,
   riskIsIncreasing: boolean,
   oraclePrice: BigNumber,
   collateralTokenSymbol: string,
@@ -372,6 +382,7 @@ export async function getSwapData(
     simulatedAdjust.delta.debt = ${simulatedAdjust.delta.debt.toString()}
     simulatedAdjust.swap.fromTokenAmount = ${simulatedAdjust.swap.fromTokenAmount.toString()}
     swapAmountBeforeFees = ${swapAmountBeforeFees.toString()}
+    mim ${simulatedAdjust.swap.minToTokenAmount.toString()}
     
     `)
     const fee =

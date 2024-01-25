@@ -13,6 +13,7 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types/operations'
+import { WithDeposit } from '@dma-library/types/strategy-params'
 import BigNumber from 'bignumber.js'
 
 export type MorphoBlueAdjustRiskDownArgs = WithMorphoBlueMarket &
@@ -22,7 +23,7 @@ export type MorphoBlueAdjustRiskDownArgs = WithMorphoBlueMarket &
   WithFlashloan &
   WithProxy &
   WithMorphpBlueStrategyAddresses &
-  WithNetwork
+  WithNetwork 
 
 export type MorphoBlueAdjustDownOperation = ({
   morphoBlueMarket,
@@ -65,7 +66,7 @@ export const adjustRiskDown: MorphoBlueAdjustDownOperation = async ({
     amount: flashloan.token.amount,
     sumAmounts: false,
   })
-
+  console.log(`swap.receiveAtLeast`,swap.receiveAtLeast.toString())
   const paybackDebt = actions.morphoblue.payback(network, {
     morphoBlueMarket: morphoBlueMarket,
     // Payback the max amount we can get from the swap
