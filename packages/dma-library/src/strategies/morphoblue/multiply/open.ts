@@ -27,6 +27,11 @@ import { calculateFee } from '@dma-common/utils/swap'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { resolveTxValue } from '@dma-library/protocols/ajna'
 import { TokenAddresses } from '@dma-library/operations/morphoblue/addresses'
+import { validateLiquidity } from "@dma-library/strategies/morphoblue/validation/validateLiquidity";
+import {
+  validateBorrowUndercollateralized,
+} from "@dma-library/strategies/morphoblue/validation";
+import { validateGenerateCloseToMaxLtv } from "@dma-library/strategies/validation/closeToMaxLtv";
 
 interface MorphoOpenMultiplyPayload {
     collateralPriceUSD: BigNumber
@@ -44,7 +49,7 @@ interface MorphoOpenMultiplyPayload {
 export interface MorphoMultiplyDependencies extends CommonDMADependencies {
     getCumulatives: GetCumulativesData<MorphoCumulativesData>,
     getSwapData: GetSwapData,
-    morphoAddress: string, 
+    morphoAddress: string,
     network: Network
     addresses: TokenAddresses
 }
@@ -412,7 +417,7 @@ export async function getSwapData(
         getSwapData: dependencies.getSwapData,
       },
     })
-  
+
     return { swapData, collectFeeFrom, preSwapFee }
   }
 
@@ -489,15 +494,12 @@ export function prepareMorphoMultiplyDMAPayload(
     .shiftedBy(-args.quoteTokenPrecision)
 
   const errors = [
-    // Add as required...
-    // ...validateDustLimitMultiply(targetPosition),
-    // ...validateLiquidity(targetPosition, args.position, borrowAmount),
-    // ...validateBorrowUndercollateralized(targetPosition, args.position, borrowAmount),
+    ...validateLiquidity(position, position.debtAmount.minus(debtAmount).abs()),
+    ...validateBorrowUndercollateralized(targetPosition, position, position.debtAmount.minus(debtAmount).abs()),
   ]
 
   const warnings = [
-    // ...validateGenerateCloseToMaxLtv(targetPosition, args.position),
-    // ...validateLiquidationPriceCloseToMarketPrice(targetPosition),
+    ...validateGenerateCloseToMaxLtv(targetPosition, position)
   ]
 
   return prepareDMAPayload({
