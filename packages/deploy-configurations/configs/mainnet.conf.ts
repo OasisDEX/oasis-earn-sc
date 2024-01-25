@@ -2,8 +2,6 @@ import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
-import { commonDefaults } from './shared/common-defaults'
-
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export const config: SystemConfig = {
@@ -247,17 +245,23 @@ export const config: SystemConfig = {
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: false,
-        address: '0x039F7784C5A6f187fcAc027262aA912974A7515D',
+        address: '0x1b5A437A706778C14C0a4572e27A4bb9D94273f5',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
-        history: ['0x4D6F457C8305A1E6f688a8a05C7341DD959cB681'],
+        history: [
+          '0x4D6F457C8305A1E6f688a8a05C7341DD959cB681',
+          '0x039F7784C5A6f187fcAc027262aA912974A7515D',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: false,
-        address: '0x508E30f983d8a2F75154f7515f1163a7dE94C5A5',
+        address: '0xA6bD68Afa1dbc0D02F9839bD9eed04F73CaA114f',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
-        history: ['0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1'],
+        history: [
+          '0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1',
+          '0x508E30f983d8a2F75154f7515f1163a7dE94C5A5',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       SparkBorrow: {
@@ -335,7 +339,26 @@ export const config: SystemConfig = {
     },
   },
   common: {
-    ...commonDefaults,
+    ARB: {
+      name: 'ARB',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    CRV: {
+      name: 'CRV',
+      address: '0xD533a949740bb3306d119CC777fa900bA034cd52',
+    },
+    OP: {
+      name: 'OP',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    SUSD: {
+      name: 'SUSD',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    RPL: {
+      name: 'RPL',
+      address: '0xd33526068d116ce69f19a9ee46f0bd304f21a51f',
+    },
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -477,10 +500,6 @@ export const config: SystemConfig = {
       name: 'CRVV1ETHSTETH',
       address: '0x06325440D014e39736583c165C2963BA99fAf14E',
     },
-    CRV: {
-      name: 'CRV',
-      address: '0xD533a949740bb3306d119CC777fa900bA034cd52',
-    },
     DAI: {
       name: 'DAI',
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -563,10 +582,6 @@ export const config: SystemConfig = {
       name: 'RETH',
       address: '0xae78736cd615f374d3085123a210448e74fc6393',
     },
-    RPL: {
-      name: 'RPL',
-      address: '0xd33526068d116ce69f19a9ee46f0bd304f21a51f',
-    },
     RWA001: {
       name: 'RWA001',
       address: '0x10b2aA5D77Aa6484886d8e244f0686aB319a270d',
@@ -599,6 +614,10 @@ export const config: SystemConfig = {
       name: 'STETH',
       address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.STETH,
+    },
+    STYETH: {
+      name: 'STYETH',
+      address: '0x583019ff0f430721ada9cfb4fac8f06ca104d0b4',
     },
     TBTC: {
       name: 'TBTC',
@@ -1349,6 +1368,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
       address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
+      address: '0x304375e4890146dc575b894b35a42608fab823a8',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',

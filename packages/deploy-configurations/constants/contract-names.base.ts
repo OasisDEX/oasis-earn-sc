@@ -75,10 +75,10 @@ export const SERVICE_REGISTRY_NAMES = {
     CHAINLOG_VIEW: 'ChainLogView',
   },
   ajna: {
-    DEPOSIT_BORROW: 'AjnaDepositBorrow_4',
-    REPAY_WITHDRAW: 'AjnaRepayWithdraw_4',
-    ERC20_POOL_FACTORY: 'ERC20PoolFactoryRc13',
-    AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfoRc13',
+    DEPOSIT_BORROW: 'AjnaDepositBorrow_5',
+    REPAY_WITHDRAW: 'AjnaRepayWithdraw_5',
+    ERC20_POOL_FACTORY: 'ERC20PoolFactoryRc14',
+    AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfoRc14',
   },
   morphoblue: {
     MORPHO_BLUE: 'MorphoBlue',

@@ -2,8 +2,6 @@ import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constant
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
-import { commonDefaults } from './shared/common-defaults'
-
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.BASE)
 
 export const config: SystemConfig = {
@@ -214,29 +212,50 @@ export const config: SystemConfig = {
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: false,
-        address: '0x0b1A4822784648b8aD1D16926Db2a20eb9A41B41',
+        address: '0x4C020189Ed0556bD934F6d459003c95706b2D71d',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [
           '0xb2e2a088d9705cd412CE6BF94e765743Ec26b1e4',
           '0x0f57A087d7138DE78F2a727C62c06a779450aE68',
+          '0x0b1A4822784648b8aD1D16926Db2a20eb9A41B41',
         ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: false,
-        address: '0x3A2756376b9a949f7Eca58e73A2D27015AFC594B',
+        address: '0x595e9375bF40f2B9112c21b3Ded4e06cF3641982',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [
           '0x1631FAF05bfFA2200698d71893667C9De1E221fc',
           '0xb26e526A5B1C4A3aE3d4d24e1748df3ff53209d4',
+          '0x3A2756376b9a949f7Eca58e73A2D27015AFC594B',
         ],
         constructorArgs: ['address:ServiceRegistry'],
       },
     },
   },
   common: {
-    ...commonDefaults,
+    ARB: {
+      name: 'ARB',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    CRV: {
+      name: 'CRV',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    OP: {
+      name: 'OP',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    SUSD: {
+      name: 'SUSD',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    RPL: {
+      name: 'RPL',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x0000000000000000000000000000000000000000',
@@ -492,6 +511,10 @@ export const config: SystemConfig = {
     STETH: {
       name: 'STETH',
       address: '0x0000000000000000000000000000000000000000',
+    },
+    STYETH: {
+      name: 'STYETH',
+      address: ADDRESS_ZERO,
     },
     TBTC: {
       name: 'TBTC',
@@ -1098,12 +1121,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0x1358e3be37C191Eb5B842F673fcB5C79Cc4F6644',
+      address: '0x97fa9b0909C238D170C1ab3B5c728A3a45BBEcBa',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x508E30f983d8a2F75154f7515f1163a7dE94C5A5',
+      address: '0x099708408aDb18F6D49013c88F3b1Bb514cC616F',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1111,7 +1134,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: '0x38c5721979c057c99393076cb85f089263fad51f',
+      address: '0x0B17159F2486f669a1F930926638008E2ccB4287',
     },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
@@ -1151,7 +1174,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_WSTETHETH: {
       name: 'AjnaPoolPairs_WSTETHETH',
-      address: '0xa0277f33c9f5286b0d804cf872d4b1c56f29ab01',
+      address: '0x63A366fc5976FF72999C89f69366F388b7D233e8',
     },
     AjnaPoolPairs_WSTETHUSDC: {
       name: 'AjnaPoolPairs_WSTETHUSDC',
@@ -1159,7 +1182,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
-      address: '0xc7c05420f3d9e5bd0d8268f487ee6990d0ab1e0e',
+      address: '0xCB1953EE28f89731C0ec088dA0720FC282fCFa9c',
     },
     AjnaPoolPairs_TBTCWBTC: {
       name: 'AjnaPoolPairs_TBTCWBTC',
@@ -1225,6 +1248,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_CBETHUSDBC',
       address: '0x0000000000000000000000000000000000000000',
     },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0x0000000000000000000000000000000000000000',
@@ -1243,7 +1270,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x154FFf344f426F99E328bacf70f4Eb632210ecdc',
+      address: '0x214f62B5836D83f3D6c4f71F174209097B1A779C',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },
