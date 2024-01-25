@@ -14,8 +14,8 @@ import {
 } from '@dma-library/types'
 import { AjnaError, AjnaNotice, SummerStrategy, AjnaSuccess, AjnaWarning } from '@dma-library/types/ajna'
 import * as SwapUtils from '@dma-library/utils/swap'
-import { views } from '@dma-library/views'
-import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
+import { GetCumulativesData, views } from "@dma-library/views";
+import { MorphoCumulativesData } from '@dma-library/views/morpho'
 import * as Domain from '@domain'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
@@ -42,7 +42,7 @@ interface MorphoOpenMultiplyPayload {
 }
 
 export interface MorphoMultiplyDependencies extends CommonDMADependencies {
-    getCumulatives: GetMorphoCumulativesData,
+    getCumulatives: GetCumulativesData<MorphoCumulativesData>,
     getSwapData: GetSwapData,
     morphoAddress: string, 
     network: Network

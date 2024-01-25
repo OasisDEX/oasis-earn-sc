@@ -6,8 +6,8 @@ import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/
 import { validateWithdrawCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 import { SummerStrategy, MorphoBluePosition } from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { views } from '@dma-library/views'
-import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
+import { GetCumulativesData, views } from "@dma-library/views";
+import { MorphoCumulativesData } from '@dma-library/views/morpho'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -28,7 +28,7 @@ export interface MorphobluePaybackWithdrawPayload {
 
 export interface MorphoBlueCommonDependencies {
   provider: ethers.providers.Provider
-  getCumulatives: GetMorphoCumulativesData
+  getCumulatives: GetCumulativesData<MorphoCumulativesData>
   network: Network
   addresses: MorphoBlueStrategyAddresses
   operationExecutor: Address

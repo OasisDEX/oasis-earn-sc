@@ -49,15 +49,15 @@ export interface AjnaCumulativesData {
   earnCumulativeQuoteTokenWithdraw: BigNumber
 }
 
-export interface GetCumulativesData {
-  (proxyAddress: Address, poolAddress: Address): Promise<AjnaCumulativesData>
+export interface GetCumulativesData<T> {
+  (proxyAddress: Address, poolAddress: Address): Promise<T>
 }
 
 interface Dependencies {
   poolInfoAddress: Address
   provider: ethers.providers.Provider
   getPoolData: GetPoolData
-  getCumulatives: GetCumulativesData
+  getCumulatives: GetCumulativesData<AjnaCumulativesData>
 }
 
 interface EarnDependencies {
