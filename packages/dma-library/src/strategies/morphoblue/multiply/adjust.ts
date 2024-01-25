@@ -50,8 +50,7 @@ export const adjustMultiply: MorphoAdjustRiskStrategy = (
 }
 
 const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
-    const oraclePrice = args.position.marketPrice
-    console.log("Oracle price: ", oraclePrice.toString())
+    const oraclePrice = ONE.div(args.position.marketPrice)
     const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
     const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
 
@@ -74,6 +73,12 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         debtTokenSymbol
     )
 
+    console.log("Simulated adjustment: ", `
+    delta collateral: ${simulatedAdjustment.delta.collateral.toString()}
+    delta: ${simulatedAdjustment.delta.debt.toString()}
+    swap: ${simulatedAdjustment.swap.fromTokenAmount.toString()}
+    `)
+
     // Get swap data
     const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
         mappedArgs,
@@ -94,11 +99,6 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         swapData,
         riskIsIncreasing,
     )
-
-    console.log(`
-    
-    ${JSON.stringify(simulatedAdjustment, null, 2)}
-    `)
 
     // Prepare payload
     return prepareMorphoMultiplyDMAPayload(
@@ -217,7 +217,7 @@ async function buildOperation(
                 address: args.position.marketParams.loanToken,
                 isEth: areAddressesEqual(args.position.marketParams.loanToken, dependencies.addresses.WETH),
                 borrow: {
-                    amount: borrowAmount,
+                    amount: borrowAmount.times(TEN.pow(args.quoteTokenPrecision)).integerValue(),
                 },
             },
             deposit: {
@@ -266,7 +266,7 @@ async function buildOperation(
             address: args.position.marketParams.collateralToken,
             isEth: areAddressesEqual(args.position.marketParams.collateralToken, dependencies.addresses.WETH),
             withdrawal: {
-                amount: args.collateralAmount
+                amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)).integerValue(),
             }
         },
         debt: {

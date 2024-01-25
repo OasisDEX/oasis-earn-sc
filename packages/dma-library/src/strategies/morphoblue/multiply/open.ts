@@ -76,6 +76,8 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     debtTokenSymbol,
   )
 
+  console.log(simulatedAdjustment)
+
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
     mappedArgs,
     position,
@@ -364,7 +366,14 @@ export async function getSwapData(
     __feeOverride?: BigNumber,
   ) {
     const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
-  
+    console.log(`
+    getSwapData
+    simulatedAdjust.delta.collateral = ${simulatedAdjust.delta.collateral.toString()}
+    simulatedAdjust.delta.debt = ${simulatedAdjust.delta.debt.toString()}
+    simulatedAdjust.swap.fromTokenAmount = ${simulatedAdjust.swap.fromTokenAmount.toString()}
+    swapAmountBeforeFees = ${swapAmountBeforeFees.toString()}
+    
+    `)
     const fee =
       __feeOverride ||
       SwapUtils.feeResolver(
