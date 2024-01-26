@@ -3543,6 +3543,11 @@
   dependencies:
     nx "15.9.2"
 
+"@oasisdex/addresses@*":
+  version "0.1.36"
+  resolved "https://registry.yarnpkg.com/@oasisdex/addresses/-/addresses-0.1.36.tgz#402b07288c674fe0d39610d80e2f29dde2fd3782"
+  integrity sha512-HRTjoOdOcWslSFycgifqOvmhwgvHhTPJxnkQZRkB2qFMWstMYX10598iv+lZmFJ1XJz8Z7wyUL2oaLWl7cek2A==
+
 "@oasisdex/oasis-actions@^0.2.16":
   version "0.2.16"
   resolved "https://registry.npmjs.org/@oasisdex/oasis-actions/-/oasis-actions-0.2.16.tgz"

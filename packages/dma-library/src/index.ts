@@ -55,3 +55,4 @@ export type {
 export { AjnaEarnPosition, AjnaPosition } from './types/ajna'
 export { MorphoBluePosition } from './types/morphoblue'
 export { Network } from '@deploy-configurations/types/network'
+export { adjustToTargetRiskRatio } from '@domain/adjust-position'
