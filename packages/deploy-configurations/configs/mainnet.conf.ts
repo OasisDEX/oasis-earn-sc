@@ -133,9 +133,9 @@ export const config: SystemConfig = {
       PullToken: {
         name: 'PullToken',
         deploy: false,
-        address: '0x73835b6c3179a7788df7fb6272fd69bba97907be',
+        address: '0xe518b0cecc56f705788545c51f04f49d1fdca5cb',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
-        history: ['0x0bE3B9c118eD4eF2002Fd58d0d8cc8f7c76e168C'],
+        history: ['0x0bE3B9c118eD4eF2002Fd58d0d8cc8f7c76e168C', '0x73835b6c3179a7788df7fb6272fd69bba97907be'],
         constructorArgs: [],
       },
       SendToken: {
@@ -173,7 +173,7 @@ export const config: SystemConfig = {
       TokenBalance: {
         name: 'TokenBalance',
         deploy: false,
-        address: '',
+        address: '0xe4c3add19f5a82b38b9f553122d8a890f81d652b',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -213,9 +213,9 @@ export const config: SystemConfig = {
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
         deploy: false,
-        address: '0x8a8c9Bad73369Fc12e6BF1EA09c76d37466C08d8',
+        address: '0x2007f5e3b6734d16a425182c3df0995993febc3c',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
-        history: ['0x18ca8bE41D32727383bC0F98705f7662ed0B7E28'],
+        history: ['0x18ca8bE41D32727383bC0F98705f7662ed0B7E28', '0x8a8c9Bad73369Fc12e6BF1EA09c76d37466C08d8'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3Withdraw: {
@@ -237,9 +237,9 @@ export const config: SystemConfig = {
       AaveV3Payback: {
         name: 'AaveV3Payback',
         deploy: false,
-        address: '0xeAc4F77ddA4Fe5396674a69a7f7865d87Fd7D5d1',
+        address: '0x8ccf69d7d74ce35a843b222678346ccd766cff69',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
-        history: ['0xdB736d13CE851Ee81ac2109DF37EBAb8Ce525C42'],
+        history: ['0xdB736d13CE851Ee81ac2109DF37EBAb8Ce525C42', '0xeAc4F77ddA4Fe5396674a69a7f7865d87Fd7D5d1'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3SetEMode: {
