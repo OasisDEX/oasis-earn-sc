@@ -2,7 +2,7 @@ import irmAbi from '@abis/external/protocols/morphoblue/irm.json'
 import morphoAbi from '@abis/external/protocols/morphoblue/morpho.json'
 import oracleAbi from '@abis/external/protocols/morphoblue/oracle.json'
 import { getMarketRate } from '@dma-library/strategies/morphoblue/validation'
-import { MorphoBluePosition } from '@dma-library/types'
+import { LendingCumulativesData, MorphoBluePosition } from '@dma-library/types'
 import { GetCumulativesData } from '@dma-library/views'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -22,21 +22,7 @@ interface Args {
   marketId: string
 }
 
-export interface MorphoCumulativesData {
-  borrowCumulativeDepositUSD: BigNumber
-  borrowCumulativeDepositInQuoteToken: BigNumber
-  borrowCumulativeDepositInCollateralToken: BigNumber
-  borrowCumulativeWithdrawUSD: BigNumber
-  borrowCumulativeWithdrawInQuoteToken: BigNumber
-  borrowCumulativeWithdrawInCollateralToken: BigNumber
-  borrowCumulativeCollateralDeposit: BigNumber
-  borrowCumulativeCollateralWithdraw: BigNumber
-  borrowCumulativeDebtDeposit: BigNumber
-  borrowCumulativeDebtWithdraw: BigNumber
-  borrowCumulativeFeesUSD: BigNumber
-  borrowCumulativeFeesInQuoteToken: BigNumber
-  borrowCumulativeFeesInCollateralToken: BigNumber
-}
+export type MorphoCumulativesData = LendingCumulativesData
 
 interface Dependencies {
   provider: ethers.providers.Provider
