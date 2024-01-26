@@ -258,6 +258,7 @@ function buildSwapSimulation(
     minToTokenAmount: ${minToTokenAmount.toString()}
     debtDelta: ${debtDelta.toString()}
     collateralDelta: ${collateralDelta.toString()}
+    options: ${JSON.stringify(options)}
   `)
 
   return {

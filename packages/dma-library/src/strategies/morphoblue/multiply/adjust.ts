@@ -17,7 +17,6 @@ import { MorphoBlueAdjustRiskUpArgs } from '@dma-library/operations/morphoblue/m
 import { MorphoBlueAdjustRiskDownArgs } from '@dma-library/operations/morphoblue/multiply/adjust-risk-down'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { SummerStrategy } from '@dma-library/types/ajna/ajna-strategy'
-import { o } from 'ramda'
 
 interface MorphoAdjustMultiplyPayload {
     riskRatio: Domain.IRiskRatio
@@ -72,6 +71,8 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         }
     }
 
+    console.log(mappedArgs)
+
     // Simulate adjust
     const riskIsIncreasing = true
     const simulatedAdjustment = await simulateAdjustment(
@@ -83,12 +84,6 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         collateralTokenSymbol,
         debtTokenSymbol
     )
-
-    console.log("Simulated adjustment: ", `
-    delta collateral: ${simulatedAdjustment.delta.collateral.toString()}
-    delta: ${simulatedAdjustment.delta.debt.toString()}
-    swap: ${simulatedAdjustment.swap.fromTokenAmount.toString()}
-    `)
 
     // Get swap data
     const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
@@ -128,8 +123,10 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
 }
 
 const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
-    const oraclePrice = ONE.div(args.position.marketPrice)
+    const oraclePrice = args.position.marketPrice
     console.log(oraclePrice.toString(), "oraclePrice")
+    console.log(args.position.price.toString(), "price")
+
     const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
     const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
     const mappedArgs = {
@@ -161,6 +158,14 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         debtTokenSymbol
     )
 
+    console.log("Simulated adjustment: ", `
+        simulatedAdjustment.delta.collateral: ${simulatedAdjustment.delta.collateral.toString()}
+        simulatedAdjustment.delta.debt: ${simulatedAdjustment.delta.debt.toString()}
+        swap.fromTokenAmount: ${simulatedAdjustment.swap.fromTokenAmount.toString()}
+        swap.minToTokenAmount: ${simulatedAdjustment.swap.minToTokenAmount.toString()}
+    
+    `)
+
     // Get swap data
     const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
         mappedArgs,
@@ -172,6 +177,11 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         collateralTokenSymbol,
         debtTokenSymbol,
     )
+
+    console.log("Simulated adjustment: XXX ", `
+    swapData.min: ${swapData.minToTokenAmount.toString()}
+    simulatedAdjustment ${simulatedAdjustment.swap.minToTokenAmount.toString()}
+    `)
 
     // Build operation
     const operation = await buildOperation(
