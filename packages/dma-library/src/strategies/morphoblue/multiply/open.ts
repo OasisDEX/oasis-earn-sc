@@ -208,9 +208,9 @@ export async function simulateAdjustment(
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
 ) {
-  const preFlightSwapAmount = amountToWei(ONE, args.quoteTokenPrecision)
   const fromToken = buildFromToken(args, position, riskIsIncreasing, collateralTokenSymbol, debtTokenSymbol)
   const toToken = buildToToken(args, position, riskIsIncreasing, collateralTokenSymbol, debtTokenSymbol)
+  const preFlightSwapAmount = amountToWei(ONE, fromToken.precision)
   const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromToken.symbol, toToken.symbol),
@@ -232,13 +232,20 @@ export async function simulateAdjustment(
       getSwapData: dependencies.getSwapData,
     },
   })
+  console.log(`
+  preflight 
+  fromToken.symbol = ${fromToken.symbol}
+  toToken.symbol = ${toToken.symbol}
+  fromToken.address = ${fromToken.address}
+  toToken.address = ${toToken.address}
+  `)
   const preFlightMarketPrice = DomainUtils.standardiseAmountTo18Decimals(
     preFlightSwapData.fromTokenAmount,
-    args.quoteTokenPrecision,
+    fromToken.precision,
   ).div(
     DomainUtils.standardiseAmountTo18Decimals(
       preFlightSwapData.toTokenAmount,
-      args.collateralTokenPrecision,
+      toToken.precision,
     ),
   )
 
@@ -265,7 +272,7 @@ export async function simulateAdjustment(
     prices: {
       oracle: oraclePrice,
       // Get pre-flight market price from 1inch
-      market: preFlightMarketPrice,
+      market: riskIsIncreasing ? preFlightMarketPrice : ONE.div(preFlightMarketPrice),
     },
     slippage: args.slippage,
     options: {
@@ -277,16 +284,18 @@ export async function simulateAdjustment(
   const mappedPosition = {
     debt: {
       amount: position.debtAmount,
-      symbol: fromToken.symbol,
+      symbol: riskIsIncreasing ? fromToken.symbol : toToken.symbol,
       precision: args.quoteTokenPrecision,
     },
     collateral: {
       amount: position.collateralAmount,
-      symbol: toToken.symbol,
+      symbol: riskIsIncreasing ? toToken.symbol : fromToken.symbol,
       precision: args.collateralTokenPrecision,
     },
     riskRatio: position.riskRatio,
   }
+
+  console.log(JSON.stringify(mappedPosition))
 
   return Domain.adjustToTargetRiskRatio(mappedPosition, args.riskRatio, positionAdjustArgs)
 }
@@ -313,6 +322,8 @@ async function buildOperation(
     fromTokenSymbol: simulatedAdjust.position.debt.symbol,
     toTokenSymbol: simulatedAdjust.position.collateral.symbol,
   })
+
+  console.log(collectFeeFrom, 'collectFeeFrom')
 
   const network = await getNetwork(dependencies.provider)
 

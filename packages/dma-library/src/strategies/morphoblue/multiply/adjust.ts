@@ -123,7 +123,7 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
 }
 
 const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
-    const oraclePrice = args.position.marketPrice
+    const oraclePrice = ONE.div(args.position.marketPrice)
     console.log(oraclePrice.toString(), "oraclePrice")
     console.log(args.position.price.toString(), "price")
 
@@ -226,8 +226,8 @@ async function buildOperation(
     })
     const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
     const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
-        fromTokenSymbol: simulatedAdjust.position.debt.symbol,
-        toTokenSymbol: simulatedAdjust.position.collateral.symbol,
+        fromTokenSymbol: riskIsIncreasing ? simulatedAdjust.position.debt.symbol : simulatedAdjust.position.collateral.symbol,
+        toTokenSymbol: riskIsIncreasing ? simulatedAdjust.position.collateral.symbol : simulatedAdjust.position.debt.symbol,
     })
 
     const network = await getNetwork(dependencies.provider)
@@ -318,10 +318,10 @@ async function buildOperation(
         },
         flashloan: {
             token: {
-                amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+                amount: Domain.collateralToDebtSwapFlashloan(swapData.minToTokenAmount),
                 address: args.position.marketParams.loanToken,
             },
-            amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+            amount: Domain.collateralToDebtSwapFlashloan(swapData.minToTokenAmount),
             provider: FlashloanProvider.Balancer,
         },
         addresses: {
@@ -336,6 +336,8 @@ async function buildOperation(
         },
         network,
     }
+
+    console.log(JSON.stringify(riskDownMultiplyArgs,null,4))
 
     return await operations.morphoblue.multiply.adjustRiskDown(riskDownMultiplyArgs)
 }

@@ -46,6 +46,8 @@ async function swapOneInchTokens(
     protocols
   );
 
+  console.log(`url ${url}`)
+
   return exchangeTokens(url);
 }
 const ETHEREUM_MAINNET_DEFAULT_PROTOCOLS = [
@@ -189,6 +191,8 @@ export function getOneInchCall(
 
     if (debug) {
       console.info('1inch');
+      console.info('from', from);
+      console.info('to', to);
       console.info('fromTokenAmount', response.fromTokenAmount.toString());
       console.info('toTokenAmount', response.toTokenAmount.toString());
       console.info('slippage', slippage.times('100').toString());

@@ -52,9 +52,9 @@ export function adjustToTargetRiskRatio(
   params: AdjustToParams,
 ): ISimulationV2 & WithSwap {
   const targetLTV = targetRiskRatio.loanToValue
-
+  
   const riskIsIncreasing = isRiskIncreasing(targetLTV, position.riskRatio.loanToValue)
-
+  console.log(`adjustToTargetRiskRatio ${riskIsIncreasing}`)
   const { toDeposit, fees, prices, slippage } = params
   const { collectSwapFeeFrom = 'sourceToken', isFlashloanRequired = true } = params.options || {}
   const collectFeeFromSourceToken = collectSwapFeeFrom === 'sourceToken'
@@ -254,6 +254,8 @@ function buildSwapSimulation(
 
   console.log(`
   buildSwapSimulation
+    fromToken: ${JSON.stringify(fromToken)}
+    toToken: ${JSON.stringify(toToken)}
     fromTokenAmount: ${fromTokenAmount.toString()}
     minToTokenAmount: ${minToTokenAmount.toString()}
     debtDelta: ${debtDelta.toString()}

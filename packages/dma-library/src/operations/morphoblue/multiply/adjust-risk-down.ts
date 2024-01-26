@@ -66,18 +66,21 @@ export const adjustRiskDown: MorphoBlueAdjustDownOperation = async ({
     amount: flashloan.token.amount,
     sumAmounts: false,
   })
+  console.log(`APPROVE`, flashloan.token.amount)
   console.log(`swap.receiveAtLeast`,swap.receiveAtLeast.toString())
   const paybackDebt = actions.morphoblue.payback(network, {
     morphoBlueMarket: morphoBlueMarket,
     // Payback the max amount we can get from the swap
     amount: swap.receiveAtLeast,
   })
+  console.log(`PAYBACK`, swap.receiveAtLeast.toString())
 
   const withdrawCollateral = actions.morphoblue.withdraw(network, {
     morphoBlueMarket: morphoBlueMarket,
     amount: collateral.withdrawal.amount,
     to: proxy.address,
   })
+  console.log(`WITHDRAW`, collateral.withdrawal.amount.toString())
 
   const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: collateral.address,
@@ -88,6 +91,8 @@ export const adjustRiskDown: MorphoBlueAdjustDownOperation = async ({
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
+  console.log(`SWAP`, swap.amount.toString())
+  console.log(`SWAP RECEIVE`, swap.receiveAtLeast.toString())
 
   const sendDebtTokenToOpExecutor = actions.common.sendToken(network, {
     asset: debt.address,
