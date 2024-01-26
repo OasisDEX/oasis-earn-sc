@@ -53,17 +53,20 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
   //   amount: depositAmount,
   //   from: proxy.owner,
   // })
+
   const setFlashLoanApproval = actions.common.setApproval(network, {
     amount: flashloan.token.amount,
     asset: flashloan.token.address,
     delegate: addresses.lendingPool,
     sumAmounts: false,
   })
+
   const depositFlashloan = actions.aave.v3.aaveV3Deposit(network, {
     amount: flashloan.token.amount,
     asset: flashloan.token.address,
     sumAmounts: false,
   })
+
   const borrowDebtTokensFromAAVE = actions.aave.v3.aaveV3Borrow(network, {
     amount: debt.borrow.amount,
     asset: debt.address,
@@ -73,13 +76,13 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
   const wrapEth = actions.common.wrapEth(network, {
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
+
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
     toAsset: collateral.address,
     amount: swap.amount,
     receiveAtLeast: swap.receiveAtLeast,
-    // fee: swap.fee,
-    fee: 0,
+    fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
@@ -93,7 +96,7 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
       amount: depositIsCollateral ? depositAmount : ZERO,
       sumAmounts: true,
     },
-    [0, 0, 3, 0],
+    [0, 0, 4, 0],
   )
 
   const depositCollateral = actions.aave.v3.aaveV3Deposit(
@@ -104,14 +107,16 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
       sumAmounts: true,
       setAsCollateral: true,
     },
-    [0, 3, 0, 0],
+    [0, 4, 0, 0],
   )
 
-  const withdrawFlashloan = actions.aave.v3.aaveV3Withdraw(network, {
+  const withdrawFlashloan = actions.aave.v3.aaveV3WithdrawAuto(network, {
     asset: flashloan.token.address,
     amount: flashloan.token.amount,
     to: addresses.operationExecutor,
-  })
+  },
+    [1]
+  )
 
   // pullDepositTokensToProxy.skipped = depositAmount.eq(ZERO) || debt.isEth
   // wrapEth.skipped = !debt.isEth && !collateral.isEth
@@ -128,7 +133,7 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
     withdrawFlashloan,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
+  const takeAFlashLoan = actions.common.takeAFlashLoanBalancer(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: flashloan.token.address,
     flashloanAmount: flashloan.token.amount,

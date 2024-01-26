@@ -1,5 +1,6 @@
 import { Network } from '@deploy-configurations/types/network'
 import { task } from 'hardhat/config'
+import { utils } from 'ethers'
 
 import { OperationsDatabase } from '../common'
 
@@ -23,7 +24,7 @@ function generateOperationTuple(
   operationsDatabase: OperationsDatabase,
 ) {
   console.log('======================================================================')
-  console.log(`Generating tuple for operation ${taskArgs.op} on network '${network}'`)
+  console.log(`Generating tuple for operation ${taskArgs.op} (hash: ${utils.formatBytes32String(taskArgs.op)}) on network '${network}'`)
   console.log('======================================================================\n')
 
   const operationTuple: string | undefined = operationsDatabase.getTuple(taskArgs.op)

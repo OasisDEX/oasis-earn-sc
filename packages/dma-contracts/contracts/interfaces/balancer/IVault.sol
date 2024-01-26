@@ -11,4 +11,6 @@ interface IVault {
     uint256[] memory amounts,
     bytes memory userData
   ) external;
+
+  function getProtocolFeesCollector() external view returns (address);
 }

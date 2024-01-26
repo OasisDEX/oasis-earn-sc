@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
-string constant OPERATION_STORAGE = "OperationStorage_3";
-string constant OPERATION_EXECUTOR = "OperationExecutor_3";
-string constant OPERATIONS_REGISTRY = "OperationsRegistry_3";
+string constant OPERATION_STORAGE = "OperationStorage_4";
+string constant OPERATION_EXECUTOR = "OperationExecutor_4";
+string constant OPERATIONS_REGISTRY = "OperationsRegistry_4";
 string constant CHAINLOG_VIEWER = "ChainLogView";
 string constant ONE_INCH_AGGREGATOR = "OneInchAggregator";
+string constant ONE_INCH_AGGREGATOR5 = "OneInchAggregator5";
 string constant DS_GUARD_FACTORY = "DSGuardFactory";
 string constant WETH = "WETH";
 string constant DAI = "DAI";
@@ -23,6 +24,6 @@ bytes32 constant NULL = "";
 string constant POSITION_CREATED_ACTION = "PositionCreated";
 
 string constant UNISWAP_ROUTER = "UniswapRouter";
-string constant SWAP = "Swap";
+string constant SWAP = "Swap_2";
 
 address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;

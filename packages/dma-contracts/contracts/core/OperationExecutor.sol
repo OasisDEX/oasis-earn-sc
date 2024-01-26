@@ -83,7 +83,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
    *
    * @param calls List of action calls to be executed.
    */
-  function executeOp(Call[] memory calls) public payable {
+  function executeOp(Call[] memory calls) public payable returns (bytes32) {
     
     StorageSlot.TransactionStorage storage txStorage = StorageSlot.getTransactionStorage();
     
@@ -98,6 +98,8 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     delete txStorage.actions;
     delete txStorage.returnedValues;
+
+    return operationName;
   }
 
   function aggregate(Call[] memory calls) internal {

@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
@@ -15,6 +14,7 @@ error UnknownOperationHash(bytes32 packedActionHashes);
  */
 contract OperationsRegistry {
   mapping(bytes32 => bytes32) private operations;
+  mapping(bytes32 => bytes32) private operationNames;
 
   ///@notice Owner of the countract. Allowed to add new operations.
   address public owner;
@@ -47,8 +47,10 @@ contract OperationsRegistry {
    */
   function addOperation(string memory name, bytes32 operationHash) external onlyOwner {
     require(operations[operationHash] == bytes32(""), "op-registry/operation-exists");
-  
+    require(operationNames[bytes32(bytes(name))] == bytes32(""), "op-registry/name-exists");
+
     operations[operationHash] = bytes32(bytes(name));
+    operationNames[bytes32(bytes(name))] = operationHash;
     // By packing the string into bytes32 which means the max char length is capped at 64
     emit OperationAdded(name, operationHash);
   }

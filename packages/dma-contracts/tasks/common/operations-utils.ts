@@ -1,13 +1,18 @@
 import OperationsRegistryInterface from '@abis/system/contracts/core/OperationsRegistry.sol/OperationsRegistry.json'
 import * as OperationGetters from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
-import { ethers } from 'ethers'
+import { ethers, utils } from 'ethers'
 
 import { ActionDefinition } from './verification-utils'
 
 export type OperationDefinition = {
   name: string
   actions: ActionDefinition[]
+}
+
+type Action = {
+  hash: string
+  optional?: boolean
 }
 
 export type OperationDefinitionMaybe = OperationDefinition | undefined
@@ -37,8 +42,7 @@ export class OperationsDatabase {
     }
 
     return JSON.stringify([
-      op.actions.map(op => op.hash),
-      op.actions.map(op => op.optional),
+      this.calculateActionsHash(op.actions),
       op.name,
     ])
   }
@@ -50,12 +54,15 @@ export class OperationsDatabase {
     }
 
     return [
-      {
-        actions: op.actions.map(op => op.hash),
-        optional: op.actions.map(op => op.optional),
-        name: op.name,
-      },
+        op.name,
+        this.calculateActionsHash(op.actions),
     ]
+  }
+
+  public calculateActionsHash(actions: Action[]): string {
+    const actionHashes = actions.map(a => a.hash)
+    const concatenatedHashes = utils.solidityPack(['bytes32[]'], [actionHashes])
+    return utils.keccak256(concatenatedHashes)
   }
 
   public getOperationNames(): string[] {
@@ -86,6 +93,8 @@ export class OperationsDatabase {
     operationDefinitions.forEach(operationDefinition => {
       const parameters = this.getCalldataTuple(operationDefinition.name)
 
+      console.log('PARAMS', parameters );
+      
       const calldata = operationsRegistryIface.encodeFunctionData('addOperation', parameters)
 
       this.opNameToCalldata[operationDefinition.name] = calldata
