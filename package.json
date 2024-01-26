@@ -1,5 +1,6 @@
 {
   "name": "oasis-mono",
+  "packageManager": "yarn@1.22.17",
   "license": "ISC",
   "engines": {
     "node": ">=16"
