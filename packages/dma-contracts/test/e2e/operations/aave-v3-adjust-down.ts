@@ -102,17 +102,15 @@ describe('AAVE V3 | Adjust Risk Down | E2E', async () => {
     expect(success).to.be.true
   })
 
-  it('should adjust risk up on opened ETH/USDC position', async () => {
-    const depositEthAmount = ethers.utils.parseEther('1')
-    const maxLTV = toSolidityPercentage(50.0)
+  it('should adjust risk down on opened ETH/USDC position', async () => {
+    const reduceETHByAmount = ethers.utils.parseEther('1')
 
     const { success: successAdjust } = await adjustRiskDownAAVEv3(
       snapshot,
       WETH,
       DAI,
       aaveLikeAddresses,
-      depositEthAmount,
-      maxLTV,
+      reduceETHByAmount,
       user,
     )
 

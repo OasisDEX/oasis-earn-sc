@@ -12,15 +12,12 @@ import { ERC20, WETH } from '@typechain'
 import { BigNumber as BigNumberJS } from 'bignumber.js'
 import { BigNumber, ethers } from 'ethers'
 
-import { getMaxDebtToBorrow } from './debt-calculation'
-
 export async function adjustRiskDownAAVEv3(
   snapshot: Snapshot,
   WETH: WETH,
   debtToken: ERC20,
   aaveLikeAddresses: AaveLikeStrategyAddresses,
-  depositEthAmount: BigNumber,
-  maxLTV: BigNumber,
+  reduceETHByAmount: BigNumber,
   signer?: SignerWithAddress,
 ) {
   const config = snapshot.config
@@ -36,38 +33,36 @@ export async function adjustRiskDownAAVEv3(
     )
   }
 
-  const requestedBorrowAmount = await getMaxDebtToBorrow(
-    snapshot,
-    WETH,
-    debtToken,
-    depositEthAmount,
-    maxLTV,
-  )
-
   const { DAI } = aaveLikeAddresses.tokens
-  const flashloanAmount = new BigNumberJS(1000).times(10 ** 18)
+  const flashloanAmount = new BigNumberJS(10000).times(10 ** 18)
   const adjustRiskDownArgs: AdjustRiskDownArgs = {
     collateral: {
       address: WETH.address,
       isEth: false,
+      withdrawal: {
+        amount: new BigNumberJS(reduceETHByAmount.toString()),
+      },
     },
     debt: {
       address: debtToken.address,
       isEth: false,
-      borrow: {
-        amount: new BigNumberJS(requestedBorrowAmount.toString()),
-      },
     },
     deposit: undefined,
     swap: {
       fee: 0,
-      data: mockExchangeGetData(mockExchange, DAI, WETH.address, flashloanAmount.toString(), false),
+      data: mockExchangeGetData(
+        mockExchange,
+        WETH.address,
+        DAI,
+        reduceETHByAmount.toString(),
+        false,
+      ),
       collectFeeFrom: 'sourceToken',
       receiveAtLeast: new BigNumberJS(0),
-      amount: new BigNumberJS(flashloanAmount.toString()),
+      amount: new BigNumberJS(reduceETHByAmount.toString()),
     },
     flashloan: {
-      provider: FlashloanProvider.DssFlash,
+      provider: FlashloanProvider.Balancer,
       token: {
         address: debtToken.address,
         amount: flashloanAmount,
@@ -83,9 +78,11 @@ export async function adjustRiskDownAAVEv3(
     network,
   }
 
-  const adjustRiskUpOperation = await aaveOperations.multiply.v3.adjustRiskUp(adjustUpArgs)
+  const adjustRiskDownOperation = await aaveOperations.multiply.v3.adjustRiskDown(
+    adjustRiskDownArgs,
+  )
 
-  const calldata = encodeOperation(adjustRiskUpOperation, {
+  const calldata = encodeOperation(adjustRiskDownOperation, {
     operationExecutor: operationExecutor.address,
     provider: config.provider,
   })
@@ -100,7 +97,7 @@ export async function adjustRiskDownAAVEv3(
       calldata: calldata,
     },
     signer,
-    depositEthAmount.toString(),
+    '0',
   )
 
   const txCostEth = contractReceipt.gasUsed.mul(contractReceipt.effectiveGasPrice)
@@ -114,7 +111,7 @@ export async function adjustRiskDownAAVEv3(
   return {
     success,
     ethDeposited,
-    requestedBorrowAmount,
+    reduceETHByAmount,
     totalDaiBorrowed,
   }
 }
