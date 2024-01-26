@@ -105,7 +105,7 @@ async function main() {
   await aWETHContract.approve(dpmProxy, aBal2.times(new BigNumber(1.01)).toFixed(0)) //aave aToken approval - slightly bigger, as aToken balance grows constantly
   
   const flAmount = new BigNumber(aaveDebtInfo.currentVariableDebt.toString()).times(TEN.pow(12)).times(100) //usdc precision is 6, so need to multiply by 10^12
-  
+    
   const op = await migrateEOA({
     debt: {
       address: USDCaddress,
@@ -144,6 +144,7 @@ async function main() {
         lendingPool: systemConfig.aave.v3.LendingPool.address,
         poolDataProvider: systemConfig.aave.v3.PoolDataProvider.address
     },
+    positionType: 'Migrate',
     network: Network.MAINNET,
   })  
 
@@ -158,6 +159,7 @@ async function main() {
     },
     signer,
     '0',
+    5000000,
     hre,
   )
 

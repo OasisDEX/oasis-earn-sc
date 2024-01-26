@@ -45,7 +45,7 @@ export function getSparkMigrateEOAOperationDefinition(network: Network) {
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.MIGRATE_EOA),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.POSITION_CREATED),
         optional: false,
       },
     ],

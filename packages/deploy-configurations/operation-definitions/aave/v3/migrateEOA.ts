@@ -45,7 +45,7 @@ export function getAaveMigrateEOAV3OperationDefinition(network: Network) {
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.MIGRATE_EOA),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.POSITION_CREATED),
         optional: false,
       },
     ],
