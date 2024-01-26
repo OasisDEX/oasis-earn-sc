@@ -90,11 +90,15 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
     [0, 3, 0],
   )
 
-  const withdrawFlashloanTokenFromAave = actions.aave.v3.aaveV3Withdraw(network, {
-    asset: flashloan.token.address,
-    amount: flashloan.token.amount,
-    to: addresses.operationExecutor,
-  })
+  const withdrawFlashloanTokenFromAave = actions.aave.v3.aaveV3WithdrawAuto(
+    network,
+    {
+      asset: flashloan.token.address,
+      amount: flashloan.token.amount,
+      to: addresses.operationExecutor,
+    },
+    [1],
+  )
 
   const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
@@ -123,7 +127,7 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
     returnCollateralFunds,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
+  const takeAFlashLoan = actions.common.takeAFlashLoanBalancer(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: flashloan.token.address,
     flashloanAmount: flashloan.token.amount,
