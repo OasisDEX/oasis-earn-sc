@@ -14,8 +14,8 @@ import {
 } from '@dma-library/types'
 import { AjnaError, AjnaNotice, SummerStrategy, AjnaSuccess, AjnaWarning } from '@dma-library/types/ajna'
 import * as SwapUtils from '@dma-library/utils/swap'
-import { views } from '@dma-library/views'
-import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
+import { GetCumulativesData, views } from "@dma-library/views";
+import { MorphoCumulativesData } from '@dma-library/views/morpho'
 import * as Domain from '@domain'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
@@ -27,6 +27,11 @@ import { calculateFee } from '@dma-common/utils/swap'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { resolveTxValue } from '@dma-library/protocols/ajna'
 import { TokenAddresses } from '@dma-library/operations/morphoblue/addresses'
+import { validateLiquidity } from "@dma-library/strategies/morphoblue/validation/validateLiquidity";
+import {
+  validateBorrowUndercollateralized,
+} from "@dma-library/strategies/morphoblue/validation";
+import { validateGenerateCloseToMaxLtv } from "@dma-library/strategies/validation/closeToMaxLtv";
 
 interface MorphoOpenMultiplyPayload {
     collateralPriceUSD: BigNumber
@@ -42,9 +47,9 @@ interface MorphoOpenMultiplyPayload {
 }
 
 export interface MorphoMultiplyDependencies extends CommonDMADependencies {
-    getCumulatives: GetMorphoCumulativesData,
+    getCumulatives: GetCumulativesData<MorphoCumulativesData>,
     getSwapData: GetSwapData,
-    morphoAddress: string, 
+    morphoAddress: string,
     network: Network
     addresses: TokenAddresses
 }
@@ -410,19 +415,6 @@ export async function getSwapData(
       },
     })
 
-    console.log(`
-    ACTUAL SWAP
-      fromToken: ${buildFromToken(args, position, riskIsIncreasing, collateralTokenSymbol, debtTokenSymbol).address},
-      toToken: ${buildToToken(args, position, riskIsIncreasing, collateralTokenSymbol, debtTokenSymbol).address},
-          
-      swapData.fromTokenAddress = ${swapData.fromTokenAddress}
-      swapData.toTokenAddress = ${swapData.toTokenAddress}
-      swapData.fromTokenAmount = ${swapData.fromTokenAmount.toString()}
-      swapData.toTokenAmount = ${swapData.toTokenAmount.toString()}
-      swapData.minToTokenAmount = ${swapData.minToTokenAmount.toString()}
-
-    `)
-  
     return { swapData, collectFeeFrom, preSwapFee }
   }
 
@@ -499,15 +491,12 @@ export function prepareMorphoMultiplyDMAPayload(
     .shiftedBy(-args.quoteTokenPrecision)
 
   const errors = [
-    // Add as required...
-    // ...validateDustLimitMultiply(targetPosition),
-    // ...validateLiquidity(targetPosition, args.position, borrowAmount),
-    // ...validateBorrowUndercollateralized(targetPosition, args.position, borrowAmount),
+    ...validateLiquidity(position, position.debtAmount.minus(debtAmount).abs()),
+    ...validateBorrowUndercollateralized(targetPosition, position, position.debtAmount.minus(debtAmount).abs()),
   ]
 
   const warnings = [
-    // ...validateGenerateCloseToMaxLtv(targetPosition, args.position),
-    // ...validateLiquidationPriceCloseToMarketPrice(targetPosition),
+    ...validateGenerateCloseToMaxLtv(targetPosition, position)
   ]
 
 return prepareDMAPayload({

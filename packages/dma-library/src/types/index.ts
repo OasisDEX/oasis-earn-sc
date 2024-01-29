@@ -20,7 +20,6 @@ import { MorphoBlueMarket, MorphoBluePosition } from './morphoblue'
 import type {
   IOperation,
   WithAjnaBucketPrice,
-  WithSummerStrategyAddresses,
   WithBorrowing,
   WithCollateral,
   WithCollateralAndWithdrawal,
@@ -34,6 +33,7 @@ import type {
   WithPosition,
   WithPositionAndLockedCollateral,
   WithProxy,
+  WithSummerStrategyAddresses,
   WithSwap,
   WithWithdrawal,
 } from './operations'
@@ -57,7 +57,7 @@ import type { SwapData } from './swap-data'
 export type { IMultiplyStrategy, IStrategy }
 export type { CommonDMADependencies } from './common'
 export { FlashloanProvider }
-export type { AjnaError, SummerStrategy, Strategy }
+export type { AjnaError, Strategy, SummerStrategy }
 export { AjnaEarnPosition, AjnaPosition }
 
 export type {
@@ -78,7 +78,6 @@ export { calldataTypes }
 export type {
   IOperation,
   WithAjnaBucketPrice,
-  WithSummerStrategyAddresses,
   WithBorrowing,
   WithCollateral,
   WithCollateralAndWithdrawal,
@@ -92,6 +91,7 @@ export type {
   WithPosition,
   WithPositionAndLockedCollateral,
   WithProxy,
+  WithSummerStrategyAddresses,
   WithSwap,
   WithWithdrawal,
 }
@@ -117,3 +117,10 @@ export type { Swap }
 
 export { MorphoBluePosition }
 export type { MorphoBlueMarket }
+
+export type {
+  EarnCumulativesData,
+  EarnCumulativesRawData,
+  LendingCumulativesData,
+  LendingCumulativesRawData,
+} from './cumulatives'
