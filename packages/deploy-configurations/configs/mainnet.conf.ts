@@ -1377,6 +1377,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_CBETHUSDBC',
       address: '0x0000000000000000000000000000000000000000',
     },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
+      address: '0x304375e4890146dc575b894b35a42608fab823a8',
+    },
     AjnaPoolPairs_RBNETH: {
       name: 'AjnaPoolPairs_RBNETH',
       address: '0xc2a03288c046c7447faa598a515e494cbc7187c3',
@@ -1384,10 +1388,6 @@ export const config: SystemConfig = {
     AjnaPoolPairs_AJNADAI: {
       name: 'AjnaPoolPairs_AJNADAI',
       address: '0x2feef99a711d684e00a017c4ac587bea31f12875',
-    },
-    AjnaPoolPairs_STYETHDAI: {
-      name: 'AjnaPoolPairs_STYETHDAI',
-      address: '0x304375e4890146dc575b894b35a42608fab823a8',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
