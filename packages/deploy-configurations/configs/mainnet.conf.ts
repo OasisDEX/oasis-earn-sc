@@ -476,6 +476,10 @@ export const config: SystemConfig = {
       name: 'ADAI',
       address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3',
     },
+    AJNA: {
+      name: 'AJNA',
+      address: '0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079',
+    },
     BAL: {
       name: 'BAL',
       address: '0xba100000625a3754423978a60c9317c58a424e3D',
@@ -581,6 +585,10 @@ export const config: SystemConfig = {
     RETH: {
       name: 'RETH',
       address: '0xae78736cd615f374d3085123a210448e74fc6393',
+    },
+    RBN: {
+      name: 'RBN',
+      address: '0x6123b0049f904d730db3c36a31167d9d4121fa6b',
     },
     RWA001: {
       name: 'RWA001',
@@ -1368,6 +1376,14 @@ export const config: SystemConfig = {
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
       address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_RBNETH: {
+      name: 'AjnaPoolPairs_RBNETH',
+      address: '0xc2a03288c046c7447faa598a515e494cbc7187c3',
+    },
+    AjnaPoolPairs_AJNADAI: {
+      name: 'AjnaPoolPairs_AJNADAI',
+      address: '0x2feef99a711d684e00a017c4ac587bea31f12875',
     },
     AjnaPoolPairs_STYETHDAI: {
       name: 'AjnaPoolPairs_STYETHDAI',
