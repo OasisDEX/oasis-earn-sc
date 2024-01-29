@@ -18,7 +18,7 @@ import { MorphoBlueAdjustRiskDownArgs } from '@dma-library/operations/morphoblue
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { SummerStrategy } from '@dma-library/types/ajna/ajna-strategy'
 
-interface MorphoAdjustMultiplyPayload {
+export interface MorphoAdjustMultiplyPayload {
     riskRatio: Domain.IRiskRatio
     collateralAmount: BigNumber
     slippage: BigNumber
@@ -70,8 +70,6 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
             collateralToken: args.position.marketParams.collateralToken,
         }
     }
-
-    console.log(mappedArgs)
 
     // Simulate adjust
     const riskIsIncreasing = true
@@ -158,14 +156,6 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         debtTokenSymbol
     )
 
-    console.log("Simulated adjustment: ", `
-        simulatedAdjustment.delta.collateral: ${simulatedAdjustment.delta.collateral.toString()}
-        simulatedAdjustment.delta.debt: ${simulatedAdjustment.delta.debt.toString()}
-        swap.fromTokenAmount: ${simulatedAdjustment.swap.fromTokenAmount.toString()}
-        swap.minToTokenAmount: ${simulatedAdjustment.swap.minToTokenAmount.toString()}
-    
-    `)
-
     // Get swap data
     const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
         mappedArgs,
@@ -177,11 +167,6 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
         collateralTokenSymbol,
         debtTokenSymbol,
     )
-
-    console.log("Simulated adjustment: XXX ", `
-    swapData.min: ${swapData.minToTokenAmount.toString()}
-    simulatedAdjustment ${simulatedAdjustment.swap.minToTokenAmount.toString()}
-    `)
 
     // Build operation
     const operation = await buildOperation(
@@ -336,8 +321,6 @@ async function buildOperation(
         },
         network,
     }
-
-    console.log(JSON.stringify(riskDownMultiplyArgs,null,4))
-
+    
     return await operations.morphoblue.multiply.adjustRiskDown(riskDownMultiplyArgs)
 }

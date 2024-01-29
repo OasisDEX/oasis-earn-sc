@@ -163,8 +163,6 @@ export function buildFromToken(args: AdjustArgs, position: MinimalPosition, isIn
         precision: args.quoteTokenPrecision,
       }
     } else {
-      console.log(`buildFromToken decrease collateralTokenSymbol = ${collateralTokenSymbol}`)
-      console.log(`buildFromToken decrease debtTokenSymbol = ${debtTokenSymbol}`)
       return {
         symbol: collateralTokenSymbol,
         address: position.marketParams.collateralToken,
@@ -232,13 +230,7 @@ export async function simulateAdjustment(
       getSwapData: dependencies.getSwapData,
     },
   })
-  console.log(`
-  preflight 
-  fromToken.symbol = ${fromToken.symbol}
-  toToken.symbol = ${toToken.symbol}
-  fromToken.address = ${fromToken.address}
-  toToken.address = ${toToken.address}
-  `)
+
   const preFlightMarketPrice = DomainUtils.standardiseAmountTo18Decimals(
     preFlightSwapData.fromTokenAmount,
     fromToken.precision,
@@ -249,11 +241,6 @@ export async function simulateAdjustment(
     ),
   )
 
-  console.log(`
-  preFlightSwapData.fromTokenAmount = ${preFlightSwapData.fromTokenAmount.toString()}
-  preFlightSwapData.toTokenAmount = ${preFlightSwapData.toTokenAmount.toString()}
-  preFlightMarketPrice = ${preFlightMarketPrice.toString()}
-  `)
 
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: fromToken.symbol,
@@ -395,20 +382,6 @@ export async function getSwapData(
     __feeOverride?: BigNumber,
   ) {
     const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
-    console.log(`
-    getSwapData
-    riskIsIncreasing = ${riskIsIncreasing}
-    ${simulatedAdjust.swap.sourceToken.symbol} source token
-    ${simulatedAdjust.swap.targetToken.symbol} target token
-    simulatedAdjust.delta.collateral = ${simulatedAdjust.delta.collateral.toString()}
-    simulatedAdjust.delta.debt = ${simulatedAdjust.delta.debt.toString()}
-    simulatedAdjust.swap.fromTokenAmount = ${simulatedAdjust.swap.fromTokenAmount.toString()}
-    swapAmountBeforeFees = ${swapAmountBeforeFees.toString()}
-    mim ${simulatedAdjust.swap.minToTokenAmount.toString()}
-    position.collateral.symbol = ${position.marketParams.collateralToken}
-    position.debt.symbol = ${position.marketParams.loanToken}
-    
-    `)
     const fee =
       __feeOverride ||
       SwapUtils.feeResolver(
@@ -537,7 +510,7 @@ export function prepareMorphoMultiplyDMAPayload(
     // ...validateLiquidationPriceCloseToMarketPrice(targetPosition),
   ]
 
-  return prepareDMAPayload({
+return prepareDMAPayload({
     swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
     dependencies,
     targetPosition,

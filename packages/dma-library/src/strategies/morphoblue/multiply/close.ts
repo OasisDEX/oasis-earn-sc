@@ -1,0 +1,286 @@
+import { FEE_ESTIMATE_INFLATOR, ONE, TEN, ZERO } from '@dma-common/constants'
+import { CollectFeeFrom } from '@dma-common/types'
+import { amountToWei } from '@dma-common/utils/common'
+import { calculateFee } from '@dma-common/utils/swap'
+import { operations } from '@dma-library/operations'
+import { prepareAjnaDMAPayload, resolveTxValue } from '@dma-library/protocols/ajna'
+import * as StrategiesCommon from '@dma-library/strategies/common'
+import * as SwapUtils from '@dma-library/utils/swap'
+import {
+    AjnaPosition,
+    SummerStrategy,
+    FlashloanProvider,
+    IOperation,
+    PositionType,
+    SwapData,
+    MorphoBluePosition,
+} from '@dma-library/types'
+import { encodeOperation } from '@dma-library/utils/operation'
+import * as Domain from '@domain'
+import BigNumber from 'bignumber.js'
+import { MorphoMultiplyDependencies, getTokenSymbol, prepareMorphoMultiplyDMAPayload } from './open'
+import { areAddressesEqual } from '@dma-common/utils/addresses'
+
+export interface MorphoCloseMultiplyPayload {
+    riskRatio: Domain.IRiskRatio
+    collateralAmount: BigNumber
+    slippage: BigNumber
+    position: MorphoBluePosition
+    quoteTokenPrecision: number
+    collateralTokenPrecision: number
+    user: string
+    dpmProxyAddress: string
+    shouldCloseToCollateral: false
+}
+
+export type MorphoCloseStrategy = (
+    args: MorphoCloseMultiplyPayload,
+    dependencies: MorphoMultiplyDependencies,
+) => Promise<SummerStrategy<AjnaPosition>>
+
+const positionType: PositionType = 'Multiply'
+
+export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => {
+    const position = args.position
+    // Get Swap Data
+    const getSwapData = args.shouldCloseToCollateral
+        ? getAjnaSwapDataToCloseToDebt /* getMorphoSwapDataToCloseToCollateral */
+        : getAjnaSwapDataToCloseToDebt
+    const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
+    const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
+
+
+    const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies, position, collateralTokenSymbol, debtTokenSymbol)
+
+    // Build operation
+    const operation = await buildOperation(
+        args,
+        dependencies,
+        position,
+        swapData,
+        preSwapFee,
+        collectFeeFrom,
+        collateralTokenSymbol,
+        debtTokenSymbol,
+    )
+
+    // Prepare Payload
+    const isDepositingEth =
+        args.position.pool.collateralToken.toLowerCase() === dependencies.addresses.WETH.toLowerCase()
+
+    const targetPosition = args.position.close()
+
+    const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+      isEarnPosition: SwapUtils.isCorrelatedPosition(
+        args.collateralTokenSymbol,
+        args.quoteTokenSymbol,
+      ),
+      isIncreasingRisk: false,
+    })
+
+    const postSwapFee =
+        collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
+
+    const tokenFee = preSwapFee.plus(
+        postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+    )
+
+    // Validation
+    const errors = [
+        // Add as required...
+    ]
+
+    const warnings = [
+        // Add as required..
+    ]
+
+    return prepareMorphoMultiplyDMAPayload(
+        args,
+        dependencies,
+        simulatedAdjustment,
+        operation,
+        swapData,
+        collectFeeFrom,
+        preSwapFee,
+        false,
+        args.position,
+        collateralTokenSymbol,
+        debtTokenSymbol,
+    )
+}
+
+async function getAjnaSwapDataToCloseToDebt(
+    args: MorphoCloseMultiplyPayload,
+    dependencies: MorphoMultiplyDependencies,
+    position: MorphoBluePosition,
+    collateralTokenSymbol: string,
+    debtTokenSymbol: string,
+) {
+    const swapAmountBeforeFees = amountToWei(
+        position.collateralAmount,
+        args.collateralTokenPrecision,
+    ).integerValue(BigNumber.ROUND_DOWN)
+
+    const fromToken = {
+        symbol: collateralTokenSymbol,
+        precision: args.collateralTokenPrecision,
+        address: position.marketParams.collateralToken,
+    }
+    const toToken = {
+        symbol: debtTokenSymbol,
+        precision: args.quoteTokenPrecision,
+        address: position.marketParams.loanToken,
+    }
+
+    return StrategiesCommon.getSwapDataForCloseToDebt({
+        fromToken,
+        toToken,
+        slippage: args.slippage,
+        swapAmountBeforeFees: swapAmountBeforeFees,
+        getSwapData: dependencies.getSwapData,
+    })
+}
+
+// async function _getMorphoSwapDataToCloseToCollateral(
+//   args: MorphoCloseMultiplyPayload,
+//   dependencies: MorphoCloseStrategy,
+//   position: MorphoBluePosition,
+//   collateralTokenSymbol: string,
+//   debtTokenSymbol: string,
+// ) {
+//     throw new Error('Not implemented')
+//   const outstandingDebt = amountToWei(position.debtAmount, args.quoteTokenPrecision).integerValue(
+//     BigNumber.ROUND_DOWN,
+//   )
+
+//   const collateralToken = {
+//     symbol: collateralTokenSymbol,
+//     precision: args.collateralTokenPrecision,
+//     address: position.marketParams.collateralToken,
+//   }
+//   const debtToken = {
+//     symbol: debtTokenSymbol,
+//     precision: args.quoteTokenPrecision,
+//     address: position.marketParams.loanToken,
+//   }
+
+//   const colPrice = args.position.collateralPrice
+//   const debtPrice = args.position.debtPrice
+
+//   return StrategiesCommon.getSwapDataForCloseToCollateral({
+//     collateralToken,
+//     debtToken,
+//     colPrice,
+//     debtPrice,
+//     slippage: args.slippage,
+//     outstandingDebt,
+//     ETHAddress: dependencies.addresses,
+//     getSwapData: dependencies.getSwapData,
+//     // TODO: remove this
+//     __feeOverride: ZERO,
+//   })
+// }
+
+async function buildOperation(
+    args: MorphoCloseMultiplyPayload,
+    dependencies: MorphoMultiplyDependencies,
+    position: MorphoBluePosition,
+    swapData: SwapData,
+    preSwapFee: BigNumber,
+    collectFeeFrom: CollectFeeFrom,
+    collateralTokenSymbol: string,
+    debtTokenSymbol: string,
+): Promise<IOperation> {
+    const amountToFlashloan = amountToWei(
+        position.debtAmount,
+        args.quoteTokenPrecision,
+    ).integerValue(BigNumber.ROUND_DOWN)
+
+    const lockedCollateralAmount = amountToWei(
+        position.collateralAmount,
+        args.collateralTokenPrecision,
+    ).integerValue(BigNumber.ROUND_DOWN)
+
+    const collateralToken = {
+        symbol: collateralTokenSymbol,
+        precision: args.collateralTokenPrecision,
+        address: position.marketParams.collateralToken,
+    }
+    const debtToken = {
+        symbol: debtTokenSymbol,
+        precision: args.quoteTokenPrecision,
+        address: position.marketParams.loanToken,
+    }
+
+    // // TODO: remove this
+    // const fee = ZERO
+    const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+      isEarnPosition: SwapUtils.isCorrelatedPosition(
+        collateralTokenSymbol,
+        debtTokenSymbol,
+      ),
+      isIncreasingRisk: false,
+    })
+    const collateralAmountToBeSwapped = args.shouldCloseToCollateral
+        ? swapData.fromTokenAmount.plus(preSwapFee)
+        : lockedCollateralAmount
+
+    const closeArgs = {
+        collateral: {
+            address: collateralToken.address,
+            isEth: areAddressesEqual(collateralToken.address, dependencies.addresses.WETH),
+        },
+        debt: {
+            address: debtToken.address,
+            isEth: areAddressesEqual(debtToken.address, dependencies.addresses.WETH),
+        },
+        swap: {
+            fee: fee.toNumber(),
+            data: swapData.exchangeCalldata,
+            amount: collateralAmountToBeSwapped,
+            collectFeeFrom,
+            receiveAtLeast: swapData.minToTokenAmount,
+        },
+        flashloan: {
+            token: {
+                amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
+                address: position.marketParams.loanToken,
+            },
+            // Always balancer on Ajna for now
+            provider: FlashloanProvider.Balancer,
+            amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
+        },
+        position: {
+            type: positionType,
+            collateral: { amount: collateralAmountToBeSwapped },
+        },
+        proxy: {
+            address: args.dpmProxyAddress,
+            // Ajna is always DPM
+            isDPMProxy: true,
+            owner: args.user,
+        },
+        addresses: {
+            morphoblue: dependencies.morphoAddress,
+            operationExecutor: dependencies.operationExecutor,
+            tokens: dependencies.addresses,
+        },
+        network: dependencies.network,
+        amountDebtToPaybackInBaseUnit: amountToFlashloan,
+        amountCollateralToWithdrawInBaseUnit: collateralAmountToBeSwapped,
+        morphoBlueMarket: {
+            loanToken: args.position.marketParams.loanToken,
+            collateralToken: args.position.marketParams.collateralToken,
+            oracle: args.position.marketParams.oracle,
+            irm: args.position.marketParams.irm,
+            lltv: args.position.marketParams.lltv.times(TEN.pow(18)),
+        },
+    }
+
+    if (args.shouldCloseToCollateral) {
+        throw new Error('Not implemented')
+        // return await operations.morphoblue.closeToCollateral(closeArgs)
+    } else {
+        return await operations.morphoblue.multiply.closeToQuote(closeArgs)
+    }
+}

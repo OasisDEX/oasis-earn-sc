@@ -8,11 +8,13 @@ import {
   WithDebt,
   WithFlashloan,
   WithNetwork,
+  WithPaybackDebt,
   WithPositionAndLockedCollateral,
   WithProxy,
   WithSwap,
+  WithWithdrawCollateral,
 } from '@dma-library/types'
-import { WithAaveLikeStrategyAddresses, WithMorphoBlueMarket } from '@dma-library/types/operations'
+import { WithMorphoBlueMarket, WithMorphpBlueStrategyAddresses } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 
 export type MorphoBlueCloseArgs = WithMorphoBlueMarket &
@@ -22,8 +24,10 @@ export type MorphoBlueCloseArgs = WithMorphoBlueMarket &
   WithFlashloan &
   WithProxy &
   WithPositionAndLockedCollateral &
-  WithAaveLikeStrategyAddresses &
-  WithNetwork
+  WithMorphpBlueStrategyAddresses &
+  WithNetwork & 
+  WithPaybackDebt &
+  WithWithdrawCollateral
 
 export type MorphoBlueCloseOperation = ({
   morphoBlueMarket,
@@ -36,7 +40,7 @@ export type MorphoBlueCloseOperation = ({
   network,
 }: MorphoBlueCloseArgs) => Promise<IOperation>
 
-export const close: MorphoBlueCloseOperation = async ({
+export const closeToQuote: MorphoBlueCloseOperation = async ({
   morphoBlueMarket,
   collateral,
   debt,
@@ -45,6 +49,8 @@ export const close: MorphoBlueCloseOperation = async ({
   proxy,
   addresses,
   network,
+  amountDebtToPaybackInBaseUnit,
+  amountCollateralToWithdrawInBaseUnit
 }) => {
   if (collateral.address !== morphoBlueMarket.collateralToken) {
     throw new Error('Collateral token must be the same as MorphoBlue market collateral token')
@@ -55,19 +61,19 @@ export const close: MorphoBlueCloseOperation = async ({
 
   const setDebtTokenApprovalOnPool = actions.common.setApproval(network, {
     asset: debt.address,
-    delegate: addresses.lendingPool,
+    delegate: addresses.morphoblue,
     amount: flashloan.token.amount,
     sumAmounts: false,
   })
 
   const paybackDebt = actions.morphoblue.payback(network, {
     morphoBlueMarket: morphoBlueMarket,
-    amount: ZERO,
+    amount: amountDebtToPaybackInBaseUnit
   })
 
   const withdrawCollateral = actions.morphoblue.withdraw(network, {
     morphoBlueMarket: morphoBlueMarket,
-    amount: new BigNumber(MAX_UINT),
+    amount: amountCollateralToWithdrawInBaseUnit.minus(10),
     to: proxy.address,
   })
 
