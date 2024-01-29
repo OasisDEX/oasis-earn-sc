@@ -34,6 +34,8 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_TBTCGHO'
   | 'AjnaPoolPairs_CBETHUSDBC'
   | 'AjnaPoolPairs_STYETHDAI'
+  | 'AjnaPoolPairs_RBNETH'
+  | 'AjnaPoolPairs_AJNADAI'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
   | 'AjnaRewardsReedemer'
