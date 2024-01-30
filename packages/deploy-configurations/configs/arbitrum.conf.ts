@@ -28,7 +28,12 @@ export const config: SystemConfig = {
         address: '0x90feaf7727a6ce75f518728d296877830fd39a49',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        constructorArgs: [
+          'address:ServiceRegistry',
+          'address:OperationsRegistry',
+          '0x0000000000000000000000000000000000000000',
+          '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+        ],
       },
       OperationStorage: {
         name: 'OperationStorage',
