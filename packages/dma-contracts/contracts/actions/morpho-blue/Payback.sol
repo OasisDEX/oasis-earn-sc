@@ -51,6 +51,7 @@ contract MorphoBluePayback is Executable, UseStore {
       uint256 assetsMax = shares.toAssetsUp(totalBorrowAssets, totalBorrowShares);
 
       require(paybackData.amount >= assetsMax, "MorphoBluePayback: payback amount too low");
+      paybackData.amount = assetsMax;
 
       morphoBlue.repay(paybackData.marketParams, 0, shares, onBehalf, bytes(""));
     } else {
