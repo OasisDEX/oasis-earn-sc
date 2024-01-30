@@ -1,5 +1,6 @@
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
+import { advanceTime, YEAR_IN_SECONDS } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
@@ -353,6 +354,8 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
       } = await opMorphoBlueDepositBorrow(testSystem, market, user)
 
       expect(successDepositBorrow).to.be.true
+
+      await advanceTime(hre.ethers, YEAR_IN_SECONDS)
 
       const augmentedRepayAmount = repayAmount.add(repayAmount.div(10))
 
