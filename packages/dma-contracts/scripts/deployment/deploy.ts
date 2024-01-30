@@ -90,7 +90,8 @@ const restrictedNetworks = [Network.MAINNET, Network.OPTIMISM, Network.GOERLI]
 
 const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
-  [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+  // [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+  [Network.OPTIMISM]: 'https://rpc.tenderly.co/fork/a94ba794-d053-446c-8afc-201cccdb7fdb',
   [Network.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.BASE]: 'https://base-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
@@ -178,6 +179,7 @@ abstract class DeployedSystemHelpers {
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
+    this.log('RPC URL', this.rpcUrl)
     this.log(
       'NETWORK / FORKED NETWORK / ChainID',
       `${this.network} / ${this.forkedNetwork} / ${this.chainId}`,
@@ -465,9 +467,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           senderAddress: ethers.utils.getAddress(address),
           senderSignature: ownerSignature.data,
         })
-        // Mainnet is excluded because Service Registry is managed by multi-sig wallet
-      } else if (this.network !== Network.MAINNET) {
+        // Mainnet & Optimism are excluded because Service Registry is managed by multi-sig wallet
+      } else if (this.network !== Network.MAINNET && this.network !== Network.OPTIMISM) {
         await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
+      } else {
+        this.log('SERVICE REGISTRY', 'SKIPPED', configItem.serviceRegistryName, contract.address)
       }
     }
 
