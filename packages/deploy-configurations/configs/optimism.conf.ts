@@ -140,6 +140,18 @@ export const config: SystemConfig = {
           'address:DSGuardFactory',
         ],
       },
+      TakeFlashloanBalancer: {
+        name: 'TakeFlashloanBalancer',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER,
+        history: [],
+        constructorArgs: [
+          'address:ServiceRegistry',
+          '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+          'address:DSGuardFactory',
+        ],
+      },
       SetApproval: {
         name: 'SetApproval',
         deploy: false,
@@ -202,6 +214,17 @@ export const config: SystemConfig = {
         address: '0x98Ee526EdF6c9c3cfa1369a5D24bC2c6c278bB19',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW,
         history: ['0xb3f0C5E4012aF22359c9Ab233DABd80cD81F5ec5'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      AaveV3WithdrawAuto: {
+        name: 'AaveV3WithdrawAuto',
+        deploy: false,
+        address: '0x81b5936c30e2E72112878577c8E50436591c4FA8',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO,
+        history: [
+          '0x32Dae0AD2A6D9813854ad085d71932Ed409EF265',
+          '0xB186178E3076CE299b187c1d2c12544F6db52f8f',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3Deposit: {
