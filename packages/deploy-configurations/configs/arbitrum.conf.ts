@@ -14,9 +14,17 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [0],
       },
+      OperationsRegistry: {
+        name: 'OperationsRegistry',
+        deploy: true,
+        address: '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
+        history: [],
+        constructorArgs: [],
+      },
       OperationExecutor: {
         name: 'OperationExecutor',
-        deploy: false,
+        deploy: true,
         address: '0x90feaf7727a6ce75f518728d296877830fd39a49',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: [],
@@ -24,19 +32,11 @@ export const config: SystemConfig = {
       },
       OperationStorage: {
         name: 'OperationStorage',
-        deploy: false,
+        deploy: true,
         address: '0xd4FEaf1023CD6998053a1eb02460000980Cc908f',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
-      },
-      OperationsRegistry: {
-        name: 'OperationsRegistry',
-        deploy: false,
-        address: '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
-        history: [],
-        constructorArgs: [],
       },
       DSProxyFactory: {
         name: 'DSProxyFactory',
@@ -117,6 +117,18 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry', ADDRESS_ZERO, 'address:DSGuardFactory'],
       },
+      TakeFlashloanBalancer: {
+        name: 'TakeFlashloanBalancer',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER,
+        history: [''],
+        constructorArgs: [
+          'address:ServiceRegistry',
+          '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+          'address:DSGuardFactory',
+        ],
+      },
       SetApproval: {
         name: 'SetApproval',
         deploy: false,
@@ -181,6 +193,14 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
+      AaveV3WithdrawAuto: {
+        name: 'AaveV3WithdrawAuto',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO,
+        history: [''],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       AaveV3Deposit: {
         name: 'AaveV3Deposit',
         deploy: false,
@@ -207,7 +227,7 @@ export const config: SystemConfig = {
       },
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
-        deploy: true,
+        deploy: false,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
@@ -215,7 +235,7 @@ export const config: SystemConfig = {
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
-        deploy: true,
+        deploy: false,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
