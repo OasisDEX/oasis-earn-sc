@@ -72,7 +72,7 @@ export const paybackWithdraw: MorphoBluePaybackWithdrawOperation = async (
 
   pullDebtTokensToProxy.skipped =
     args.amountDebtToPaybackInBaseUnit.lte(ZERO) ||
-    args.morphoBlueMarket.loanToken === addresses.tokens.ETH
+    args.morphoBlueMarket.loanToken === addresses.tokens.WETH
   setDebtApprovalOnLendingPool.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
   wrapEth.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !debtTokenIsWeth
   paybackDebt.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)

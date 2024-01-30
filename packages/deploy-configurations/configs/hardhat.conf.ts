@@ -2,6 +2,8 @@ import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constant
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from './shared/common-defaults'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.HARDHAT)
 
 export const config: SystemConfig = {
@@ -307,6 +309,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -424,6 +427,10 @@ export const config: SystemConfig = {
       name: 'ADAI',
       address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3',
     },
+    AJNA: {
+      name: 'AJNA',
+      address: '0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079',
+    },
     BAL: {
       name: 'BAL',
       address: '0xba100000625a3754423978a60c9317c58a424e3D',
@@ -525,6 +532,10 @@ export const config: SystemConfig = {
       name: 'RETH',
       address: '0xae78736cd615f374d3085123a210448e74fc6393',
     },
+    RBN: {
+      name: 'RBN',
+      address: '0x6123b0049f904d730db3c36a31167d9d4121fa6b',
+    },
     RWA001: {
       name: 'RWA001',
       address: '0x10b2aA5D77Aa6484886d8e244f0686aB319a270d',
@@ -557,6 +568,10 @@ export const config: SystemConfig = {
       name: 'STETH',
       address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.STETH,
+    },
+    STYETH: {
+      name: 'STYETH',
+      address: ADDRESS_ZERO,
     },
     TBTC: {
       name: 'TBTC',
@@ -1304,6 +1319,18 @@ export const config: SystemConfig = {
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
       address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RBNETH: {
+      name: 'AjnaPoolPairs_RBNETH',
+      address: '0xc2a03288c046c7447faa598a515e494cbc7187c3',
+    },
+    AjnaPoolPairs_AJNADAI: {
+      name: 'AjnaPoolPairs_AJNADAI',
+      address: '0x2feef99a711d684e00a017c4ac587bea31f12875',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',

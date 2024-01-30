@@ -2,6 +2,8 @@ import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constant
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from '../shared/common-defaults'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.OPTIMISM)
 
 export const config: SystemConfig = {
@@ -228,6 +230,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     GnosisSafe: {
       name: 'GnosisSafe',
       address: ADDRESS_ZERO,
@@ -344,6 +347,10 @@ export const config: SystemConfig = {
       address: ADDRESS_ZERO,
     },
     ADAI: { name: 'ADAI', address: ADDRESS_ZERO },
+    AJNA: {
+      name: 'AJNA',
+      address: ADDRESS_ZERO,
+    },
     AAVE: { name: 'AAVE', address: ADDRESS_ZERO },
     BAL: { name: 'BAL', address: ADDRESS_ZERO },
     BAT: { name: 'BAT', address: ADDRESS_ZERO },
@@ -380,6 +387,10 @@ export const config: SystemConfig = {
     PAXUSD: { name: 'PAXUSD', address: ADDRESS_ZERO },
     RENBTC: { name: 'RENBTC', address: ADDRESS_ZERO },
     RETH: { name: 'RETH', address: ADDRESS_ZERO },
+    RBN: {
+      name: 'RBN',
+      address: ADDRESS_ZERO,
+    },
     RWA001: { name: 'RWA001', address: ADDRESS_ZERO },
     RWA002: { name: 'RWA002', address: ADDRESS_ZERO },
     RWA003: { name: 'RWA003', address: ADDRESS_ZERO },
@@ -388,6 +399,10 @@ export const config: SystemConfig = {
     RWA006: { name: 'RWA006', address: ADDRESS_ZERO },
     SDAI: { name: 'SDAI', address: ADDRESS_ZERO },
     STETH: { name: 'STETH', address: ADDRESS_ZERO },
+    STYETH: {
+      name: 'STYETH',
+      address: ADDRESS_ZERO,
+    },
     TBTC: { name: 'TBTC', address: ADDRESS_ZERO },
     TUSD: { name: 'TUSD', address: ADDRESS_ZERO },
     UNI: { name: 'UNI', address: ADDRESS_ZERO },
@@ -1065,6 +1080,18 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RBNETH: {
+      name: 'AjnaPoolPairs_RBNETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_AJNADAI: {
+      name: 'AjnaPoolPairs_AJNADAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

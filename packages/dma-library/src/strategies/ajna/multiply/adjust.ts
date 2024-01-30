@@ -95,8 +95,6 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
     riskIsIncreasing,
     oraclePrice,
     positionType,
-    // TODO: remove this
-    ZERO,
   )
 
   // Get swap data
@@ -106,8 +104,6 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
     simulatedAdjustment,
     riskIsIncreasing,
     positionType,
-    // TODO: remove this
-    ZERO,
   )
 
   // Build operation

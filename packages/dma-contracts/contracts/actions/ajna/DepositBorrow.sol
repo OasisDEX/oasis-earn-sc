@@ -25,8 +25,11 @@ contract AjnaDepositBorrow is Executable, UseStore {
   IERC20PoolFactory public immutable erc20PoolFactory;
 
   constructor(address _registry) UseStore(_registry) {
-    poolUtilsInfo = IAjnaPoolUtilsInfo(registry.getRegisteredService(AJNA_POOL_UTILS_INFO));
-    erc20PoolFactory = IERC20PoolFactory(registry.getRegisteredService(ERC20_POOL_FACTORY));
+    address poolUtilsInfoAddress = registry.getRegisteredService(AJNA_POOL_UTILS_INFO);
+    address erc20PoolFactoryAddress = registry.getRegisteredService(ERC20_POOL_FACTORY);
+    // TODO: add address safeguards
+    poolUtilsInfo = IAjnaPoolUtilsInfo(poolUtilsInfoAddress);
+    erc20PoolFactory = IERC20PoolFactory(erc20PoolFactoryAddress);
   }
 
   /**
