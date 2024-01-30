@@ -21,7 +21,7 @@ export const SERVICE_REGISTRY_NAMES = {
     DS_GUARD_FACTORY: 'DSGuardFactory',
     DS_PROXY_REGISTRY: 'DSProxyRegistry',
     DS_PROXY_FACTORY: 'DSProxyFactory',
-    SWAP: 'Swap2',
+    SWAP: 'Swap_2',
     EXCHANGE: 'Exchange',
     UNISWAP_ROUTER: 'UniswapRouter',
     BALANCER_VAULT: 'BalancerVault',
