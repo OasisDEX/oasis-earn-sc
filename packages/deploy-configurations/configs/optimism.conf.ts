@@ -81,7 +81,7 @@ export const config: SystemConfig = {
       },
       Swap: {
         name: 'Swap',
-        deploy: false,
+        deploy: true,
         address: '0x6e4c6e76b3C1D834c0e3c4c2bAec8d58B8421A99',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
         history: ['0x4De3CA09e803969408f83F453416b3e2D70C12Fe'],
