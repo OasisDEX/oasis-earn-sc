@@ -1,15 +1,15 @@
 // Service Registry Entry Names
 export const SERVICE_REGISTRY_NAMES = {
   common: {
-    PULL_TOKEN: 'PullToken_3',
-    SEND_TOKEN: 'SendToken_4',
-    SET_APPROVAL: 'SetApproval_3',
-    TAKE_A_FLASHLOAN: 'TakeFlashloan_3',
+    PULL_TOKEN: 'PullToken_5',
+    SEND_TOKEN: 'SendToken_6',
+    SET_APPROVAL: 'SetApproval_5',
+    TAKE_A_FLASHLOAN: 'TakeFlashloan_5',
     TAKE_A_FLASHLOAN_BALANCER: 'TakeFlashloanBalancer_2',
-    SWAP_ACTION: 'SwapAction_3',
-    WRAP_ETH: 'WrapEth_3',
-    UNWRAP_ETH: 'UnwrapEth_3',
-    RETURN_FUNDS: 'ReturnFunds_3',
+    SWAP_ACTION: 'SwapAction_7',
+    WRAP_ETH: 'WrapEth_5',
+    UNWRAP_ETH: 'UnwrapEth_5',
+    RETURN_FUNDS: 'ReturnFunds_5',
     POSITION_CREATED: 'PositionCreated',
     ACCOUNT_GUARD: 'AccountGuard',
     ACCOUNT_FACTORY: 'AccountFactory',
