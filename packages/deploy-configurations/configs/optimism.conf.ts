@@ -17,7 +17,7 @@ export const config: SystemConfig = {
       },
       OperationExecutor: {
         name: 'OperationExecutor',
-        deploy: false,
+        deploy: true,
         address: '0xFDFf46fF5752CE2A4CAbAAf5a2cFF3744E1D09de',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: ['0x5AB3e51608cEa26090445CA89bc91628C8bB99f9'],
@@ -25,7 +25,7 @@ export const config: SystemConfig = {
       },
       OperationStorage: {
         name: 'OperationStorage',
-        deploy: false,
+        deploy: true,
         address: '0x6d3af85e27686FfF7686b2FAe174b0a7d8c95e16',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
         history: ['0xd4FEaf1023CD6998053a1eb02460000980Cc908f'],
@@ -33,7 +33,7 @@ export const config: SystemConfig = {
       },
       OperationsRegistry: {
         name: 'OperationsRegistry',
-        deploy: false,
+        deploy: true,
         address: '0x3Dd262181BA245184a903CD8B77E23417f815669',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
         history: ['0x392ACeBea829373A3eFDc0dA80a16003106d8f6E'],
