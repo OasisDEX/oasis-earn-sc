@@ -1,5 +1,6 @@
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
+import { advanceTime, YEAR_IN_SECONDS } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
@@ -297,10 +298,16 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
       const {
         success: successDepositBorrow,
         collateralAmount,
-        borrowAmount,
+        borrowAmount: repayAmount,
       } = await opMorphoBlueDepositBorrow(testSystem, market, user)
 
       expect(successDepositBorrow).to.be.true
+
+      // Substract 10% of the borrow amount
+      const diminishedRepayAmount = repayAmount.sub(repayAmount.div(10))
+
+      // Withdraw only 10% of the collateral amount
+      const diminishedWithdrawAmount = collateralAmount.div(10)
 
       const {
         success: successPaybackWithdraw,
@@ -315,8 +322,59 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
         testSystem,
         market,
         user,
-        borrowAmount,
+        diminishedRepayAmount,
+        diminishedWithdrawAmount,
+        false,
+      )
+
+      expect(successPaybackWithdraw).to.be.true
+
+      if (market.collateralToken === 'WETH') {
+        expect(userEthBalanceAfter).to.be.equal(
+          userEthBalanceBefore
+            .add(diminishedWithdrawAmount)
+            .sub(receipt.gasUsed.mul(receipt.effectiveGasPrice)),
+        )
+      } else {
+        expect(collateralBalanceAfter).to.be.equal(
+          collateralBalanceBefore.add(diminishedWithdrawAmount),
+        )
+      }
+
+      expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(diminishedRepayAmount))
+    }
+  })
+
+  it('should be able to payback all + withdraw (with loan token)', async () => {
+    for (const market of morphoSystem.marketsInfo) {
+      const {
+        success: successDepositBorrow,
         collateralAmount,
+        borrowAmount: repayAmount,
+      } = await opMorphoBlueDepositBorrow(testSystem, market, user)
+
+      expect(successDepositBorrow).to.be.true
+
+      await advanceTime(hre.ethers, YEAR_IN_SECONDS)
+
+      const augmentedRepayAmount = repayAmount.add(repayAmount.div(10))
+
+      const {
+        success: successPaybackWithdraw,
+        collateralBalanceBefore,
+        collateralBalanceAfter,
+        loanTokenBalanceBefore,
+        loanTokenBalanceAfter,
+        receipt,
+        userEthBalanceBefore,
+        userEthBalanceAfter,
+      } = await opMorphoBluePaybackWithdraw(
+        testSystem,
+        market,
+        user,
+        augmentedRepayAmount,
+        collateralAmount,
+        true,
       )
 
       expect(successPaybackWithdraw).to.be.true
@@ -331,7 +389,7 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
         expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.add(collateralAmount))
       }
 
-      expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(borrowAmount))
+      expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(repayAmount))
     }
   })
 })
