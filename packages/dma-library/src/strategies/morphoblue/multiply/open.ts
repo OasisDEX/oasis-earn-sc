@@ -287,8 +287,6 @@ export async function simulateAdjustment(
     riskRatio: position.riskRatio,
   }
 
-  console.log(JSON.stringify(mappedPosition))
-
   return Domain.adjustToTargetRiskRatio(mappedPosition, args.riskRatio, positionAdjustArgs)
 }
 

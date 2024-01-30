@@ -6,3 +6,4 @@ export * from './morpho-view';
 export * from './open-aave-eoa';
 export * from './morpho-open-multiply'
 export * from './morpho-adjust'
+export * from './morpho-close'

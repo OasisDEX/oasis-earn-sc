@@ -3,11 +3,10 @@ import { CollectFeeFrom } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { operations } from '@dma-library/operations'
-import { prepareAjnaDMAPayload, resolveTxValue } from '@dma-library/protocols/ajna'
+import { resolveTxValue } from '@dma-library/protocols/ajna'
 import * as StrategiesCommon from '@dma-library/strategies/common'
 import * as SwapUtils from '@dma-library/utils/swap'
 import {
-    AjnaPosition,
     SummerStrategy,
     FlashloanProvider,
     IOperation,
@@ -18,33 +17,32 @@ import {
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as Domain from '@domain'
 import BigNumber from 'bignumber.js'
-import { MorphoMultiplyDependencies, getTokenSymbol, prepareMorphoMultiplyDMAPayload } from './open'
+import { MorphoMultiplyDependencies, getTokenSymbol } from './open'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
+import { StrategyError, StrategyWarning } from '@dma-library/types/ajna/ajna-validations'
 
 export interface MorphoCloseMultiplyPayload {
-    riskRatio: Domain.IRiskRatio
-    collateralAmount: BigNumber
     slippage: BigNumber
     position: MorphoBluePosition
     quoteTokenPrecision: number
     collateralTokenPrecision: number
     user: string
     dpmProxyAddress: string
-    shouldCloseToCollateral: false
+    shouldCloseToCollateral: boolean
 }
 
 export type MorphoCloseStrategy = (
     args: MorphoCloseMultiplyPayload,
     dependencies: MorphoMultiplyDependencies,
-) => Promise<SummerStrategy<AjnaPosition>>
+) => Promise<SummerStrategy<MorphoBluePosition>>
 
 const positionType: PositionType = 'Multiply'
 
 export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => {
     const position = args.position
-    // Get Swap Data
+    
     const getSwapData = args.shouldCloseToCollateral
-        ? getAjnaSwapDataToCloseToDebt /* getMorphoSwapDataToCloseToCollateral */
+        ? getMorphoSwapDataToCloseToCollateral
         : getAjnaSwapDataToCloseToDebt
     const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
     const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
@@ -66,14 +64,14 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
 
     // Prepare Payload
     const isDepositingEth =
-        args.position.pool.collateralToken.toLowerCase() === dependencies.addresses.WETH.toLowerCase()
+        args.position.marketParams.collateralToken.toLowerCase() === dependencies.addresses.WETH.toLowerCase()
 
     const targetPosition = args.position.close()
 
-    const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+    const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
       isEarnPosition: SwapUtils.isCorrelatedPosition(
-        args.collateralTokenSymbol,
-        args.quoteTokenSymbol,
+        collateralTokenSymbol,
+        debtTokenSymbol,
       ),
       isIncreasingRisk: false,
     })
@@ -94,18 +92,17 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
         // Add as required..
     ]
 
-    return prepareMorphoMultiplyDMAPayload(
-        args,
+    return prepareMorphoDMAPayload({
+        swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
         dependencies,
-        simulatedAdjustment,
-        operation,
-        swapData,
-        collectFeeFrom,
-        preSwapFee,
-        false,
-        args.position,
-        collateralTokenSymbol,
-        debtTokenSymbol,
+        targetPosition,
+        data: encodeOperation(operation, dependencies),
+        errors: errors,
+        warnings: warnings,
+        successes: [],
+        notices: [],
+        txValue: resolveTxValue(isDepositingEth, ZERO)
+    }
     )
 }
 
@@ -141,45 +138,42 @@ async function getAjnaSwapDataToCloseToDebt(
     })
 }
 
-// async function _getMorphoSwapDataToCloseToCollateral(
-//   args: MorphoCloseMultiplyPayload,
-//   dependencies: MorphoCloseStrategy,
-//   position: MorphoBluePosition,
-//   collateralTokenSymbol: string,
-//   debtTokenSymbol: string,
-// ) {
-//     throw new Error('Not implemented')
-//   const outstandingDebt = amountToWei(position.debtAmount, args.quoteTokenPrecision).integerValue(
-//     BigNumber.ROUND_DOWN,
-//   )
+async function getMorphoSwapDataToCloseToCollateral(
+  args: MorphoCloseMultiplyPayload,
+  dependencies: MorphoMultiplyDependencies,
+  position: MorphoBluePosition,
+  collateralTokenSymbol: string,
+  debtTokenSymbol: string,
+) {
+  const outstandingDebt = amountToWei(position.debtAmount, args.quoteTokenPrecision).integerValue(
+    BigNumber.ROUND_DOWN,
+  )
 
-//   const collateralToken = {
-//     symbol: collateralTokenSymbol,
-//     precision: args.collateralTokenPrecision,
-//     address: position.marketParams.collateralToken,
-//   }
-//   const debtToken = {
-//     symbol: debtTokenSymbol,
-//     precision: args.quoteTokenPrecision,
-//     address: position.marketParams.loanToken,
-//   }
+  const collateralToken = {
+    symbol: collateralTokenSymbol,
+    precision: args.collateralTokenPrecision,
+    address: position.marketParams.collateralToken,
+  }
+  const debtToken = {
+    symbol: debtTokenSymbol,
+    precision: args.quoteTokenPrecision,
+    address: position.marketParams.loanToken,
+  }
 
-//   const colPrice = args.position.collateralPrice
-//   const debtPrice = args.position.debtPrice
+  const colPrice = args.position.collateralPrice
+  const debtPrice = args.position.debtPrice
 
-//   return StrategiesCommon.getSwapDataForCloseToCollateral({
-//     collateralToken,
-//     debtToken,
-//     colPrice,
-//     debtPrice,
-//     slippage: args.slippage,
-//     outstandingDebt,
-//     ETHAddress: dependencies.addresses,
-//     getSwapData: dependencies.getSwapData,
-//     // TODO: remove this
-//     __feeOverride: ZERO,
-//   })
-// }
+  return StrategiesCommon.getSwapDataForCloseToCollateral({
+    collateralToken,
+    debtToken,
+    colPrice,
+    debtPrice,
+    slippage: args.slippage,
+    outstandingDebt,
+    ETHAddress: dependencies.addresses.ETH,
+    getSwapData: dependencies.getSwapData,
+  })
+}
 
 async function buildOperation(
     args: MorphoCloseMultiplyPayload,
@@ -191,8 +185,9 @@ async function buildOperation(
     collateralTokenSymbol: string,
     debtTokenSymbol: string,
 ): Promise<IOperation> {
+    const DEBT_OFFSET = new BigNumber(1.01)
     const amountToFlashloan = amountToWei(
-        position.debtAmount,
+        position.debtAmount.times(DEBT_OFFSET),
         args.quoteTokenPrecision,
     ).integerValue(BigNumber.ROUND_DOWN)
 
@@ -212,8 +207,6 @@ async function buildOperation(
         address: position.marketParams.loanToken,
     }
 
-    // // TODO: remove this
-    // const fee = ZERO
     const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
       isEarnPosition: SwapUtils.isCorrelatedPosition(
         collateralTokenSymbol,
@@ -246,7 +239,6 @@ async function buildOperation(
                 amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
                 address: position.marketParams.loanToken,
             },
-            // Always balancer on Ajna for now
             provider: FlashloanProvider.Balancer,
             amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
         },
@@ -256,7 +248,6 @@ async function buildOperation(
         },
         proxy: {
             address: args.dpmProxyAddress,
-            // Ajna is always DPM
             isDPMProxy: true,
             owner: args.user,
         },
@@ -277,10 +268,51 @@ async function buildOperation(
         },
     }
 
-    if (args.shouldCloseToCollateral) {
-        throw new Error('Not implemented')
-        // return await operations.morphoblue.closeToCollateral(closeArgs)
-    } else {
-        return await operations.morphoblue.multiply.closeToQuote(closeArgs)
-    }
+    return await operations.morphoblue.multiply.close(closeArgs)
 }
+
+export const prepareMorphoDMAPayload = ({
+    dependencies,
+    targetPosition,
+    errors,
+    warnings,
+    data,
+    txValue,
+    swaps,
+  }: {
+    dependencies: MorphoMultiplyDependencies
+    targetPosition: MorphoBluePosition
+    errors: StrategyError[]
+    warnings: StrategyWarning[]
+    notices: []
+    successes: []
+    data: string
+    txValue: string
+    swaps: (SwapData & { collectFeeFrom: 'sourceToken' | 'targetToken'; tokenFee: BigNumber })[]
+  }): SummerStrategy<MorphoBluePosition> => {
+    return {
+      simulation: {
+        swaps: swaps.map(swap => ({
+          fromTokenAddress: swap.fromTokenAddress,
+          toTokenAddress: swap.toTokenAddress,
+          fromTokenAmount: swap.fromTokenAmount,
+          toTokenAmount: swap.toTokenAmount,
+          minToTokenAmount: swap.minToTokenAmount,
+          exchangeCalldata: swap.exchangeCalldata,
+          collectFeeFrom: swap.collectFeeFrom,
+          fee: swap.tokenFee,
+        })),
+        errors,
+        warnings,
+        notices: [],
+        successes: [],
+        targetPosition,
+        position: targetPosition,
+      },
+      tx: {
+        to: dependencies.operationExecutor,
+        data,
+        value: txValue,
+      },
+    }
+  }

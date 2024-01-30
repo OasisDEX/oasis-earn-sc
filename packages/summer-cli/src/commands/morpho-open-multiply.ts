@@ -9,6 +9,7 @@ import type { Command } from '../cli/command';
 import { sendTxThroughProxy } from '../logic/common/sendTxThroughProxy';
 import { throwOnRevertedTx } from '../utils/tx';
 import { getOneInchCall } from '../logic/common/swap';
+import { getCumulatives } from '../logic/common/getCumulatives';
 
 const argsSchema = yup.object().shape({
   amount: yup.number().required(),
@@ -59,13 +60,7 @@ export const morphoOpenMultiplyCommand: Command<typeof argsSchema> = {
             WSTETH: ADDRESSES[enviroment.network].common.WSTETH,
         },
         getSwapData: getOneInchCall(ADDRESSES[enviroment.network].mpa.core.Swap, 1, 'v4.0', true),
-        getCumulatives: () => {
-          return Promise.resolve({
-            borrowCumulativeDepositUSD: new BigNumber('0'),
-            borrowCumulativeFeesUSD: new BigNumber('0'),
-            borrowCumulativeWithdrawUSD: new BigNumber('0'),
-          });
-        },
+        getCumulatives,
       },
     );
 

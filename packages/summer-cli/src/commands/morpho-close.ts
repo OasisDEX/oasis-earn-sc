@@ -1,5 +1,5 @@
 import { ADDRESSES } from '@oasisdex/addresses';
-import { RiskRatio, strategies, views } from '@oasisdex/dma-library';
+import { strategies, views } from '@oasisdex/dma-library';
 
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
@@ -12,8 +12,6 @@ import { getOneInchCall } from '../logic/common/swap';
 import { getCumulatives } from '../logic/common/getCumulatives';
 
 const argsSchema = yup.object().shape({
-  amount: yup.number().required(),
-  ltv: yup.number().required().min(0.1).max(0.9),
   collateralPriceUsd: yup.number().required(),
   quotePriceUsd: yup.number().required(),
 });
@@ -25,8 +23,8 @@ const proxyAddress = '0x8451C582AB882fb534175B5465E91DfbDE97917e';
 
 const operationExecutor = '0xcA71C36D26f515AD0cce1D806B231CBC1185CdfC';
 
-export const morphoAdjustMultiplyCommand: Command<typeof argsSchema> = {
-  name: 'morpho-adjust' as const,
+export const morphoCloseCommand: Command<typeof argsSchema> = {
+  name: 'morpho-close' as const,
   description: ``,
   args: argsSchema,
   async run(args, enviroment) {
@@ -43,16 +41,15 @@ export const morphoAdjustMultiplyCommand: Command<typeof argsSchema> = {
       getCumulatives,
     })
 
-    const strategy = await strategies.morphoblue.multiply.adjust(
+    const strategy = await strategies.morphoblue.multiply.close(
       {
-        collateralAmount: new BigNumber(args.amount),
         position,
         dpmProxyAddress: proxyAddress,
         collateralTokenPrecision: 18,
         quoteTokenPrecision: 18,
         user: await enviroment.walletSigner.getAddress(),
-        riskRatio: new RiskRatio(new BigNumber(args.ltv), RiskRatio.TYPE.LTV),
         slippage: new BigNumber(0.006),
+        shouldCloseToCollateral: false,
       },
       {
         provider: enviroment.provider,

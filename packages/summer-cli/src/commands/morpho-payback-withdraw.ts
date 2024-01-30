@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import type { Command } from '../cli/command';
 import { sendTxThroughProxy } from '../logic/common/sendTxThroughProxy';
 import { throwOnRevertedTx } from '../utils/tx';
+import { getCumulatives } from '../logic/common/getCumulatives';
 
 const argsSchema = yup.object().shape({});
 
@@ -55,13 +56,7 @@ export const morphoPaybackWithdrawCommand: Command<typeof argsSchema> = {
         operationExecutor:
           operationExecutor ||
           ADDRESSES[enviroment.network].mpa.core.OperationExecutor,
-        getCumulatives: () => {
-          return Promise.resolve({
-            borrowCumulativeDepositUSD: new BigNumber('0'),
-            borrowCumulativeFeesUSD: new BigNumber('0'),
-            borrowCumulativeWithdrawUSD: new BigNumber('0'),
-          });
-        },
+        getCumulatives,
       },
     );
 

@@ -40,7 +40,7 @@ export type MorphoBlueCloseOperation = ({
   network,
 }: MorphoBlueCloseArgs) => Promise<IOperation>
 
-export const closeToQuote: MorphoBlueCloseOperation = async ({
+export const close: MorphoBlueCloseOperation = async ({
   morphoBlueMarket,
   collateral,
   debt,

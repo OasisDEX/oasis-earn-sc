@@ -15,7 +15,7 @@ export type { AjnaPool } from './ajna-pool'
 export { AjnaPosition } from './ajna-position'
 export type { SummerStrategy as SummerStrategy } from './ajna-strategy'
 export type {
-  AjnaError,
+  StrategyError as AjnaError,
   AjnaErrorAfterLupIndexBiggerThanHtpIndexDeposit,
   AjnaErrorAfterLupIndexBiggerThanHtpIndexWithdraw,
   AjnaErrorBorrowUndercollateralized,
@@ -29,5 +29,5 @@ export type {
   AjnaSuccess,
   AjnaSuccessPriceaboveLup,
   AjnaSuccessPriceBetweenHtpAndLup,
-  AjnaWarning,
+  StrategyWarning as AjnaWarning,
 } from './ajna-validations'

@@ -3,6 +3,7 @@ import { BigNumber } from 'bignumber.js';
 import * as yup from 'yup';
 
 import type { Command } from '../cli/command';
+import { getCumulatives } from '../logic/common/getCumulatives';
 
 const argsSchema = yup.object().shape({});
 
@@ -26,13 +27,7 @@ export const morphoViewCommand: Command<typeof argsSchema> = {
         quotePrecision: 18,
       },
       {
-        getCumulatives: () => {
-          return Promise.resolve({
-            borrowCumulativeDepositUSD: new BigNumber('0'),
-            borrowCumulativeFeesUSD: new BigNumber('0'),
-            borrowCumulativeWithdrawUSD: new BigNumber('0'),
-          });
-        },
+        getCumulatives,
         provider: enviroment.provider,
         morphoAddress: morphoAddress,
       },

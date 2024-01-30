@@ -20,7 +20,7 @@ import {
   adjustRiskUp as morphoBlueAdjustRiskUp,
   MorphoBlueAdjustUpOperation,
 } from './multiply/adjust-risk-up'
-import { closeToQuote as morphoBlueCloseToQuote, MorphoBlueCloseOperation } from './multiply/close-to-quote'
+import { close as morphoBlueClose, MorphoBlueCloseOperation } from './multiply/close'
 import { MorphoBlueOpenOperation, open as morphoBlueOpen } from './multiply/open'
 
 const borrow: MorphoBlueBorrowOperations = {
@@ -32,7 +32,7 @@ const borrow: MorphoBlueBorrowOperations = {
 }
 const multiply: MorphoBlueMultiplyOperations = {
   open: morphoBlueOpen,
-  closeToQuote: morphoBlueCloseToQuote,
+  close: morphoBlueClose,
   adjustRiskUp: morphoBlueAdjustRiskUp,
   adjustRiskDown: morphoBlueAdjustRiskDown,
 }
@@ -47,7 +47,7 @@ export type MorphoBlueBorrowOperations = {
 
 export type MorphoBlueMultiplyOperations = {
   open: MorphoBlueOpenOperation
-  closeToQuote: MorphoBlueCloseOperation
+  close: MorphoBlueCloseOperation
   adjustRiskUp: MorphoBlueAdjustUpOperation
   adjustRiskDown: MorphoBlueAdjustDownOperation
 }
