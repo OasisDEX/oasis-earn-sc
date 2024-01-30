@@ -80,6 +80,7 @@ export const SERVICE_REGISTRY_NAMES = {
   ajna: {
     DEPOSIT_BORROW: 'AjnaDepositBorrow',
     REPAY_WITHDRAW: 'AjnaRepayWithdraw',
+    ERC20_POOL_FACTORY: 'ERC20PoolFactory',
   },
   morphoblue: {
     MORPHO_BLUE: 'MorphoBlue',
