@@ -9,7 +9,7 @@ export function getAaveAdjustDownV3OperationDefinition(network: Network) {
     name: OPERATION_NAMES.aave.v3.ADJUST_RISK_DOWN,
     actions: [
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER),
         optional: false,
       },
       {
@@ -37,13 +37,13 @@ export function getAaveAdjustDownV3OperationDefinition(network: Network) {
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO),
         optional: false,
       },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
-        optional: true,
-      },
+      // {
+      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
+      //   optional: true,
+      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
         optional: false,

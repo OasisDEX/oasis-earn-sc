@@ -26,7 +26,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { ERC20, ERC20__factory, MockExchange, Swap, WETH, WETH__factory } from '@typechain'
 import { BigNumber as BigNumberJS } from 'bignumber.js'
 import { assert, expect } from 'chai'
-import { ethers, utils } from 'ethers'
+import { ethers } from 'ethers'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -139,7 +139,7 @@ describe('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
       },
       [fundMockExchange, enableZeroFee],
     ))
-    
+
     signer = await SignerWithAddress.create(
       snapshot.config.signer as ethers.providers.JsonRpcSigner,
     )
@@ -177,7 +177,7 @@ describe('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
       config.provider,
       'AAVE_V3',
     ))
-    
+
     // Register the refinance operation in the OperationsRegistry
     const operationDefinitionFull = getRefinanceOperationDefinition(network, 'AAVE_V3', 'AAVE_V3')
     if (!operationDefinitionFull) {
@@ -187,16 +187,18 @@ describe('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
     const actions = operationDefinitionFull.actions.map(action => action.hash)
 
     const concatenatedHashes = ethers.utils.solidityPack(['bytes32[]'], [actions])
-        
+
     const operationHash = ethers.utils.keccak256(concatenatedHashes)
     await system.OperationsRegistry.contract.addOperation(
       operationDefinitionFull.name,
-      operationHash
-    )    
-  
-    const nameBytes32 = ethers.utils.formatBytes32String(operationDefinitionFull.name);    
-    const nameBytes32Stored = await system.OperationsRegistry.contract.getOperationName(operationHash)
-      
+      operationHash,
+    )
+
+    const nameBytes32 = ethers.utils.formatBytes32String(operationDefinitionFull.name)
+    const nameBytes32Stored = await system.OperationsRegistry.contract.getOperationName(
+      operationHash,
+    )
+
     expect(nameBytes32Stored).to.be.equal(nameBytes32)
   })
 

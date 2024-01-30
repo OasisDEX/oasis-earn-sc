@@ -98,7 +98,7 @@ export const deposit: AaveV3DepositOperation = async (
     isSwapNeeded,
     network,
   )
-  
+
   return {
     calls: [
       ...tokenTransferCalls,

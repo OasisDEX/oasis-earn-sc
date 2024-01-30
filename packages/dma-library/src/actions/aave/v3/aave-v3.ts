@@ -4,6 +4,7 @@ import { getActionHash } from '@deploy-configurations/utils/action-hash'
 import { ActionFactory } from '@dma-library/actions/action-factory'
 import { ActionCall, calldataTypes } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
+import { constants } from 'ethers'
 
 const createAction = ActionFactory.create
 
@@ -36,7 +37,7 @@ export function aaveV3Deposit(
 export function aaveV3Borrow(
   network: Network,
   args: { amount: BigNumber; asset: string; to: string },
-  paramsMapping: [amount: number, asset: number,  to: number] = [0, 0, 0],
+  paramsMapping: [amount: number, asset: number, to: number] = [0, 0, 0],
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
@@ -92,7 +93,7 @@ export function aaveV3WithdrawAuto(
         amount: 0, // always taken from mapping
         to: args.to,
       },
-      paramsMapping
+      paramsMapping,
     ],
   )
 }
@@ -113,6 +114,7 @@ export function aaveV3Payback(
         asset: args.asset,
         amount: args.amount.toFixed(0),
         paybackAll: args.paybackAll,
+        onBehalf: constants.AddressZero,
       },
       paramsMapping,
     ],

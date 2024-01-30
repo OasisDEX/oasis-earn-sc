@@ -6,7 +6,7 @@ import { getNetwork } from '@deploy-configurations/utils/network'
 import { addressesByNetwork, asPercentageValue } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumberForAaveV3 } from '@dma-contracts/test/config'
-import { adjustRiskUpAAVEv3 } from '@dma-contracts/test/utils/aave/aave.operation.adjust-risk-up'
+import { adjustRiskDownAAVEv3 } from '@dma-contracts/test/utils/aave/aave.operation.adjust-risk-down'
 import { createETHPositionAAVEv3 } from '@dma-contracts/test/utils/aave/aave.operation.create-position'
 import { enableZeroFee } from '@dma-contracts/test/utils/enable-zero-fees'
 import { fundMockExchange } from '@dma-contracts/test/utils/fund-mock-exchange'
@@ -20,7 +20,7 @@ import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
 
-describe('AAVE V3 | Adjust Risk Up | E2E', async () => {
+describe('AAVE V3 | Adjust Risk Down | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let signer: SignerWithAddress
@@ -102,17 +102,15 @@ describe('AAVE V3 | Adjust Risk Up | E2E', async () => {
     expect(success).to.be.true
   })
 
-  it('should adjust risk up on opened ETH/USDC position', async () => {
-    const depositEthAmount = ethers.utils.parseEther('1')
-    const maxLTV = toSolidityPercentage(50.0)
+  it('should adjust risk down on opened ETH/USDC position', async () => {
+    const reduceETHByAmount = ethers.utils.parseEther('1')
 
-    const { success: successAdjust } = await adjustRiskUpAAVEv3(
+    const { success: successAdjust } = await adjustRiskDownAAVEv3(
       snapshot,
       WETH,
       DAI,
       aaveLikeAddresses,
-      depositEthAmount,
-      maxLTV,
+      reduceETHByAmount,
       user,
     )
 
