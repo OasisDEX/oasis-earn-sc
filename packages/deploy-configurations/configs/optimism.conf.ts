@@ -17,23 +17,17 @@ export const config: SystemConfig = {
       OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: true,
-        address: '0xa7840fa682506117F4549E918930C80c1FC3A46c',
+        address: '0x3Dd262181BA245184a903CD8B77E23417f815669',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
-        history: [
-          '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
-          '0x3Dd262181BA245184a903CD8B77E23417f815669',
-        ],
+        history: ['0x392ACeBea829373A3eFDc0dA80a16003106d8f6E'],
         constructorArgs: [],
       },
       OperationExecutor: {
         name: 'OperationExecutor',
         deploy: true,
-        address: '0x28cd581B0F96BC046f461cAE9BBd7303fA0fF8e6',
+        address: '0xFDFf46fF5752CE2A4CAbAAf5a2cFF3744E1D09de',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
-        history: [
-          '0x5AB3e51608cEa26090445CA89bc91628C8bB99f9',
-          '0xFDFf46fF5752CE2A4CAbAAf5a2cFF3744E1D09de',
-        ],
+        history: ['0x5AB3e51608cEa26090445CA89bc91628C8bB99f9'],
         constructorArgs: [
           'address:ServiceRegistry',
           'address:OperationsRegistry',
@@ -44,12 +38,9 @@ export const config: SystemConfig = {
       OperationStorage: {
         name: 'OperationStorage',
         deploy: true,
-        address: '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
+        address: '0x6d3af85e27686FfF7686b2FAe174b0a7d8c95e16',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
-        history: [
-          '0xd4FEaf1023CD6998053a1eb02460000980Cc908f',
-          '0x6d3af85e27686FfF7686b2FAe174b0a7d8c95e16',
-        ],
+        history: ['0xd4FEaf1023CD6998053a1eb02460000980Cc908f'],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
       DSProxyFactory: {
@@ -145,7 +136,7 @@ export const config: SystemConfig = {
         deploy: true,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER,
-        history: [],
+        history: [''],
         constructorArgs: [
           'address:ServiceRegistry',
           '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
@@ -218,10 +209,10 @@ export const config: SystemConfig = {
       },
       AaveV3WithdrawAuto: {
         name: 'AaveV3WithdrawAuto',
-        deploy: false,
+        deploy: true,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO,
-        history: [],
+        history: [''],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3Deposit: {
@@ -258,7 +249,7 @@ export const config: SystemConfig = {
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
-        deploy: true,
+        deploy: false,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
