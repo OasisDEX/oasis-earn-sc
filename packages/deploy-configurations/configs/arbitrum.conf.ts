@@ -1,4 +1,4 @@
-import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
+import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
@@ -16,7 +16,7 @@ export const config: SystemConfig = {
       },
       OperationsRegistry: {
         name: 'OperationsRegistry',
-        deploy: true,
+        deploy: false,
         address: '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
         history: [],
@@ -24,10 +24,10 @@ export const config: SystemConfig = {
       },
       OperationExecutor: {
         name: 'OperationExecutor',
-        deploy: true,
-        address: '0x90feaf7727a6ce75f518728d296877830fd39a49',
+        deploy: false,
+        address: '0xa7840fa682506117F4549E918930C80c1FC3A46c',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
-        history: [],
+        history: ['0x90feaf7727a6ce75f518728d296877830fd39a49'],
         constructorArgs: [
           'address:ServiceRegistry',
           'address:OperationsRegistry',
@@ -37,10 +37,10 @@ export const config: SystemConfig = {
       },
       OperationStorage: {
         name: 'OperationStorage',
-        deploy: true,
-        address: '0xd4FEaf1023CD6998053a1eb02460000980Cc908f',
+        deploy: false,
+        address: '0x28cd581B0F96BC046f461cAE9BBd7303fA0fF8e6',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
-        history: [],
+        history: ['0xd4FEaf1023CD6998053a1eb02460000980Cc908f'],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
       DSProxyFactory: {
@@ -120,12 +120,16 @@ export const config: SystemConfig = {
         address: '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN,
         history: [],
-        constructorArgs: ['address:ServiceRegistry', ADDRESS_ZERO, 'address:DSGuardFactory'],
+        constructorArgs: [
+          'address:ServiceRegistry',
+          '0x0000000000000000000000000000000000000000',
+          'address:DSGuardFactory',
+        ],
       },
       TakeFlashloanBalancer: {
         name: 'TakeFlashloanBalancer',
-        deploy: true,
-        address: '',
+        deploy: false,
+        address: '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER,
         history: [''],
         constructorArgs: [
@@ -200,8 +204,8 @@ export const config: SystemConfig = {
       },
       AaveV3WithdrawAuto: {
         name: 'AaveV3WithdrawAuto',
-        deploy: true,
-        address: '',
+        deploy: false,
+        address: '0x601a8F7EA34168D912fB3C214a377CB544F18c0d',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO,
         history: [''],
         constructorArgs: ['address:ServiceRegistry'],
@@ -296,31 +300,31 @@ export const config: SystemConfig = {
     },
     ADAI: {
       name: 'ADAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AAVE: {
       name: 'AAVE',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     BAL: {
       name: 'BAL',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     BAT: {
       name: 'BAT',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     CBETH: {
       name: 'CBETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     COMP: {
       name: 'COMP',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     CRVV1ETHSTETH: {
       name: 'CRVV1ETHSTETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     DAI: {
       name: 'DAI',
@@ -333,57 +337,57 @@ export const config: SystemConfig = {
     },
     FRAX: {
       name: 'FRAX',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     GNO: {
       name: 'GNO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     GUNIV3DAIUSDC1: { name: 'GUNIV3DAIUSDC1', address: '' },
     GUNIV3DAIUSDC2: { name: 'GUNIV3DAIUSDC2', address: '' },
     GUSD: {
       name: 'GUSD',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     KNC: {
       name: 'KNC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     LDO: {
       name: 'LDO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     LINK: {
       name: 'LINK',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     LRC: {
       name: 'LRC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     LUSD: {
       name: 'LUSD',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     MANA: {
       name: 'MANA',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     MATIC: {
       name: 'MATIC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     PAX: {
       name: 'PAX',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     PAXUSD: {
       name: 'PAXUSD',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     RENBTC: {
       name: 'RENBTC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     RETH: {
       name: 'RETH',
@@ -391,83 +395,95 @@ export const config: SystemConfig = {
     },
     RWA001: {
       name: 'RWA001',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     RWA002: {
       name: 'RWA002',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     RWA003: {
       name: 'RWA003',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     RWA004: {
       name: 'RWA004',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     RWA005: {
       name: 'RWA005',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     RWA006: {
       name: 'RWA006',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
-    GHO: { name: 'GHO', address: ADDRESS_ZERO },
+    GHO: {
+      name: 'GHO',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     TUSD: {
       name: 'TUSD',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     SdaiOracle: {
       name: 'SdaiOracle',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
-    SDAI: { name: 'SDAI', address: ADDRESS_ZERO },
-    STETH: { name: 'STETH', address: ADDRESS_ZERO },
-    TBTC: { name: 'TBTC', address: ADDRESS_ZERO },
+    SDAI: {
+      name: 'SDAI',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    STETH: {
+      name: 'STETH',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    TBTC: {
+      name: 'TBTC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     UNI: {
       name: 'UNI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2AAVEETH: {
       name: 'UNIV2AAVEETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2DAIETH: {
       name: 'UNIV2DAIETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2DAIUSDC: {
       name: 'UNIV2DAIUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2DAIUSDT: {
       name: 'UNIV2DAIUSDT',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2ETHUSDT: {
       name: 'UNIV2ETHUSDT',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2LINKETH: {
       name: 'UNIV2LINKETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2UNIETH: {
       name: 'UNIV2UNIETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2USDCETH: {
       name: 'UNIV2USDCETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2WBTCDAI: {
       name: 'UNIV2WBTCDAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     UNIV2WBTCETH: {
       name: 'UNIV2WBTCETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     USDC: {
       name: 'USDC',
@@ -492,7 +508,10 @@ export const config: SystemConfig = {
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
     },
-    WLD: { name: 'WLD', address: ADDRESS_ZERO },
+    WLD: {
+      name: 'WLD',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     WSTETH: {
       name: 'WSTETH',
       address: '0x5979D7b546E38E414F7E9822514be443A4800529',
@@ -500,19 +519,19 @@ export const config: SystemConfig = {
     },
     YIELDBTC: {
       name: 'YIELDBTC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     YIELDETH: {
       name: 'YIELDETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     YFI: {
       name: 'YFI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     ZRX: {
       name: 'ZRX',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
   },
   aave: {
@@ -668,134 +687,134 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: ADDRESS_ZERO,
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
+      address: '0x0000000000000000000000000000000000000000',
+      serviceRegistryName: undefined,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_RETHETH: {
       name: 'AjnaPoolPairs_RETHETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_RETHUSDC: {
       name: 'AjnaPoolPairs_RETHUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_USDCETH: {
       name: 'AjnaPoolPairs_USDCETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_USDCWBTC: {
       name: 'AjnaPoolPairs_USDCWBTC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: '' },
     AjnaPoolPairs_WBTCDAI: {
       name: 'AjnaPoolPairs_WBTCDAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WSTETHDAI: {
       name: 'AjnaPoolPairs_WSTETHDAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WSTETHETH: {
       name: 'AjnaPoolPairs_WSTETHETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WSTETHUSDC: {
       name: 'AjnaPoolPairs_WSTETHUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_TBTCWBTC: {
       name: 'AjnaPoolPairs_TBTCWBTC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_TBTCUSDC: {
       name: 'AjnaPoolPairs_TBTCUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_ETHGHO: {
       name: 'AjnaPoolPairs_ETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WSTETHGHO: {
       name: 'AjnaPoolPairs_WSTETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_GHODAI: {
       name: 'AjnaPoolPairs_GHODAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_RETHGHO: {
       name: 'AjnaPoolPairs_RETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WBTCGHO: {
       name: 'AjnaPoolPairs_WBTCGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_CBETHGHO: {
       name: 'AjnaPoolPairs_CBETHGHO',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WLDUSDC: {
       name: 'AjnaPoolPairs_WLDUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_USDCWLD: {
       name: 'AjnaPoolPairs_USDCWLD',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_SDAIUSDC: {
       name: 'AjnaPoolPairs_SDAIUSDC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_YFIDAI: {
       name: 'AjnaPoolPairs_YFIDAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_YIELDETHETH: {
       name: 'AjnaPoolPairs_YIELDETHETH',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_YIELDBTCWBTC: {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
       address: '0x0000000000000000000000000000000000000000',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
+      serviceRegistryName: undefined,
     },
   },
   morphoblue: {
