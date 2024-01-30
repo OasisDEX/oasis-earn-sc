@@ -483,7 +483,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (
       this.network === Network.MAINNET ||
       this.network === Network.ARBITRUM ||
-      this.network === Network.GOERLI
+      this.network === Network.GOERLI ||
+      this.network === Network.OPTIMISM
     ) {
       await this.verifyContract(contract.address, constructorArguments)
     }
