@@ -479,8 +479,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     }
 
-    // ETHERSCAN VERIFICATION (only for mainnet and L1 testnets)
-    if (this.network === Network.MAINNET || this.network === Network.GOERLI) {
+    // ETHERSCAN VERIFICATION
+    if (
+      this.network === Network.MAINNET ||
+      this.network === Network.ARBITRUM ||
+      this.network === Network.GOERLI
+    ) {
       await this.verifyContract(contract.address, constructorArguments)
     }
   }
@@ -655,6 +659,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         this.ethers.getContractFactory(configItem.name as string, this.signer),
         constructorParams,
       )
+
+      // Note: Useful for verifying contracts retrospectively. Comment out the lines above
+      // const contractInstance = await this.ethers.getContractAt(configItem.name, configItem.address)
 
       if (configItem.name === 'ServiceRegistry') {
         this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer)
