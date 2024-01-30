@@ -10,7 +10,6 @@ import { Id, IMorpho, MarketParams } from "../../interfaces/morpho-blue/IMorpho.
 import { MarketParamsLib } from "../../libs/morpho-blue/MarketParamsLib.sol";
 import { MorphoLib } from "../../libs/morpho-blue/MorphoLib.sol";
 import { SharesMathLib } from "../../libs/morpho-blue/SharesMathLib.sol";
-import { console } from "hardhat/console.sol";
 
 /**
  * @title Payback | MorphoBlue Action contract
@@ -41,25 +40,15 @@ contract MorphoBluePayback is Executable, UseStore {
     address onBehalf = paybackData.onBehalf == address(0) ? address(this) : paybackData.onBehalf;
 
     if (paybackData.paybackAll) {
-      console.log("paybackAll");
-
       Id id = paybackData.marketParams.id();
 
       // Need to call accrueInterest to get the latest snapshot of the shares/asset ratio
-      console.log("Calling accrue interest");
       morphoBlue.accrueInterest(paybackData.marketParams);
 
-      console.log("Calling totalBorrowAssets");
       uint256 totalBorrowAssets = morphoBlue.totalBorrowAssets(id);
-      console.log("Calling totalBorrowShares");
       uint256 totalBorrowShares = morphoBlue.totalBorrowShares(id);
-      console.log("Calling borrowShares");
       uint256 shares = morphoBlue.borrowShares(id, onBehalf);
-      console.log("Calling toAssetsUp");
       uint256 assetsMax = shares.toAssetsUp(totalBorrowAssets, totalBorrowShares);
-
-      console.log("payback.amount", paybackData.amount);
-      console.log("assetsMax", assetsMax);
 
       require(paybackData.amount >= assetsMax, "MorphoBluePayback: payback amount too low");
 
