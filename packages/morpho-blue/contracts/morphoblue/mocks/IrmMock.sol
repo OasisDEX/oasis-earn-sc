@@ -25,6 +25,8 @@ contract IrmMock is IIrm {
       return forcedRate;
     }
 
+    if (market.totalSupplyAssets == 0) return 0;
+
     uint256 utilization = market.totalBorrowAssets.wDivDown(market.totalSupplyAssets);
 
     // Divide by the number of seconds in a year.

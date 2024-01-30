@@ -29,7 +29,7 @@ import {
   opMorphoBluePaybackWithdraw,
 } from './utils/morpho.operations.borrow.utils'
 
-describe('Borrow Operations | MorphoBlue | Integration', async () => {
+describe.only('Borrow Operations | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let provider: JsonRpcProvider
   let owner: Signer
@@ -317,6 +317,51 @@ describe('Borrow Operations | MorphoBlue | Integration', async () => {
         user,
         borrowAmount,
         collateralAmount,
+        false,
+      )
+
+      expect(successPaybackWithdraw).to.be.true
+
+      if (market.collateralToken === 'WETH') {
+        expect(userEthBalanceAfter).to.be.equal(
+          userEthBalanceBefore
+            .add(collateralAmount)
+            .sub(receipt.gasUsed.mul(receipt.effectiveGasPrice)),
+        )
+      } else {
+        expect(collateralBalanceAfter).to.be.equal(collateralBalanceBefore.add(collateralAmount))
+      }
+
+      expect(loanTokenBalanceAfter).to.be.equal(loanTokenBalanceBefore.sub(borrowAmount))
+    }
+  })
+
+  it('should be able to payback all + withdraw (with loan token)', async () => {
+    for (const market of morphoSystem.marketsInfo) {
+      const {
+        success: successDepositBorrow,
+        collateralAmount,
+        borrowAmount,
+      } = await opMorphoBlueDepositBorrow(testSystem, market, user)
+
+      expect(successDepositBorrow).to.be.true
+
+      const {
+        success: successPaybackWithdraw,
+        collateralBalanceBefore,
+        collateralBalanceAfter,
+        loanTokenBalanceBefore,
+        loanTokenBalanceAfter,
+        receipt,
+        userEthBalanceBefore,
+        userEthBalanceAfter,
+      } = await opMorphoBluePaybackWithdraw(
+        testSystem,
+        market,
+        user,
+        borrowAmount,
+        collateralAmount,
+        true,
       )
 
       expect(successPaybackWithdraw).to.be.true

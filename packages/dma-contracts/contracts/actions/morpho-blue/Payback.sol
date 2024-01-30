@@ -6,7 +6,11 @@ import { UseStore, Write, Read } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { PaybackData } from "../../core/types/MorphoBlue.sol";
 import { MORPHO_BLUE } from "../../core/constants/MorphoBlue.sol";
-import { IMorpho } from "../../interfaces/morpho-blue/IMorpho.sol";
+import { Id, IMorpho, MarketParams } from "../../interfaces/morpho-blue/IMorpho.sol";
+import { MarketParamsLib } from "../../libs/morpho-blue/MarketParamsLib.sol";
+import { MorphoLib } from "../../libs/morpho-blue/MorphoLib.sol";
+import { SharesMathLib } from "../../libs/morpho-blue/SharesMathLib.sol";
+import { console } from "hardhat/console.sol";
 
 /**
  * @title Payback | MorphoBlue Action contract
@@ -15,6 +19,9 @@ import { IMorpho } from "../../interfaces/morpho-blue/IMorpho.sol";
 contract MorphoBluePayback is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
+  using MarketParamsLib for MarketParams;
+  using MorphoLib for IMorpho;
+  using SharesMathLib for uint256;
 
   constructor(address _registry) UseStore(_registry) {}
 
@@ -32,7 +39,34 @@ contract MorphoBluePayback is Executable, UseStore {
     IMorpho morphoBlue = IMorpho(registry.getRegisteredService(MORPHO_BLUE));
 
     address onBehalf = paybackData.onBehalf == address(0) ? address(this) : paybackData.onBehalf;
-    morphoBlue.repay(paybackData.marketParams, paybackData.amount, 0, onBehalf, bytes(""));
+
+    if (paybackData.paybackAll) {
+      console.log("paybackAll");
+
+      Id id = paybackData.marketParams.id();
+
+      // Need to call accrueInterest to get the latest snapshot of the shares/asset ratio
+      console.log("Calling accrue interest");
+      morphoBlue.accrueInterest(paybackData.marketParams);
+
+      console.log("Calling totalBorrowAssets");
+      uint256 totalBorrowAssets = morphoBlue.totalBorrowAssets(id);
+      console.log("Calling totalBorrowShares");
+      uint256 totalBorrowShares = morphoBlue.totalBorrowShares(id);
+      console.log("Calling borrowShares");
+      uint256 shares = morphoBlue.borrowShares(id, onBehalf);
+      console.log("Calling toAssetsUp");
+      uint256 assetsMax = shares.toAssetsUp(totalBorrowAssets, totalBorrowShares);
+
+      console.log("payback.amount", paybackData.amount);
+      console.log("assetsMax", assetsMax);
+
+      require(paybackData.amount >= assetsMax, "MorphoBluePayback: payback amount too low");
+
+      morphoBlue.repay(paybackData.marketParams, 0, shares, onBehalf, bytes(""));
+    } else {
+      morphoBlue.repay(paybackData.marketParams, paybackData.amount, 0, onBehalf, bytes(""));
+    }
 
     store().write(bytes32(paybackData.amount));
   }

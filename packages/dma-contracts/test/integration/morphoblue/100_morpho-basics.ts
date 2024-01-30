@@ -6,9 +6,9 @@ import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   MarketSupplyConfig,
+  MockOraclesConfig,
   MorphoMarketsConfig,
   MorphoSystem,
-  OraclesConfig,
   OraclesDeployment,
 } from '@morpho-blue'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -44,7 +44,7 @@ describe('Basics | MorphoBlue | Integration', async () => {
   let WSTETH: Contract
 
   let marketsConfig: MorphoMarketsConfig
-  let oraclesConfig: OraclesConfig
+  let oraclesConfig: MockOraclesConfig
   let oraclesDeployment: OraclesDeployment
   let morphoBlue: MorphoSystem
   let supplyConfig: MarketSupplyConfig
