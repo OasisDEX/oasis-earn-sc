@@ -91,7 +91,6 @@ const restrictedNetworks = [Network.MAINNET, Network.OPTIMISM, Network.GOERLI]
 const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
   [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
-  // [Network.OPTIMISM]: 'https://rpc.tenderly.co/fork/f9ed3d94-d164-40c4-aeae-0f76b777e5cf',
   [Network.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.BASE]: 'https://base-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
@@ -467,8 +466,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           senderAddress: ethers.utils.getAddress(address),
           senderSignature: ownerSignature.data,
         })
-        // Mainnet & Optimism are excluded because Service Registry is managed by multi-sig wallet
-      } else if (this.network !== Network.MAINNET && this.network !== Network.OPTIMISM) {
+        // Mainnet, Arbitrum & Optimism are excluded because Service Registry is managed by multi-sig wallet
+        // TODO: re-enable SAFE logic to avoid this
+      } else if (
+        this.network !== Network.MAINNET &&
+        this.network !== Network.OPTIMISM &&
+        this.network !== Network.ARBITRUM
+      ) {
         await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
       } else {
         this.log('SERVICE REGISTRY', 'SKIPPED', configItem.serviceRegistryName, contract.address)
