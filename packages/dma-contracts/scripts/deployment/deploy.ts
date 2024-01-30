@@ -91,7 +91,6 @@ const restrictedNetworks = [Network.MAINNET, Network.OPTIMISM, Network.GOERLI]
 const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
   [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
-  // [Network.OPTIMISM]: 'https://rpc.tenderly.co/fork/f9ed3d94-d164-40c4-aeae-0f76b777e5cf',
   [Network.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.BASE]: 'https://base-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
@@ -475,8 +474,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     }
 
-    // ETHERSCAN VERIFICATION (only for mainnet and L1 testnets)
-    if (this.network === Network.MAINNET || this.network === Network.GOERLI) {
+    // ETHERSCAN VERIFICATION
+    if (
+      this.network === Network.MAINNET ||
+      this.network === Network.GOERLI ||
+      this.network === Network.OPTIMISM
+    ) {
       await this.verifyContract(contract.address, constructorArguments)
     }
   }
@@ -647,10 +650,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         })
       }
 
-      const contractInstance = await this.deployContract(
-        this.ethers.getContractFactory(configItem.name as string, this.signer),
-        constructorParams,
-      )
+      // const contractInstance = await this.deployContract(
+      //   this.ethers.getContractFactory(configItem.name as string, this.signer),
+      //   constructorParams,
+      // )
+
+      // Note: Useful for verifying contracts retrospectively. Comment out the lines above
+      const contractInstance = await this.ethers.getContractAt(configItem.name, configItem.address)
 
       if (configItem.name === 'ServiceRegistry') {
         this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer)
