@@ -810,11 +810,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async addMorphoBlueEntries() {
     if (!this.config) throw new Error('No config set')
-    const morpho = Object.values(this.config.morphoblue).filter(
-      (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
-    )
-    console.log('MORPHO BLUE ENTRIES', morpho)
-    console.log('CONFIG', this.config.morphoblue)
     await this.addRegistryEntries(
       Object.values(this.config.morphoblue).filter(
         (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,

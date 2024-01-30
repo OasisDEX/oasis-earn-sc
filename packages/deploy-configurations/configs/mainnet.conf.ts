@@ -331,9 +331,9 @@ export const config: SystemConfig = {
       MorphoBluePayback: {
         name: 'MorphoBluePayback',
         deploy: false,
-        address: '0x77f36e80BC366E6C13Cc7e8e1EB5dF8190D2bD8e',
+        address: '0xAA777F9A6a31ad862D688a6789c393014dA59770',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.PAYBACK,
-        history: ['0x0000000000000000000000000000000000000000'],
+        history: ['0x77f36e80BC366E6C13Cc7e8e1EB5dF8190D2bD8e'],
         constructorArgs: ['address:ServiceRegistry'],
       },
     },
