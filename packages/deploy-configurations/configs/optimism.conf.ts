@@ -22,6 +22,7 @@ export const config: SystemConfig = {
         history: [
           '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
           '0x3Dd262181BA245184a903CD8B77E23417f815669',
+          '0x53B1f1B3f34b5B3C7dA8BD60a7E8ee2eFd175603',
         ],
         constructorArgs: [],
       },
@@ -33,6 +34,7 @@ export const config: SystemConfig = {
         history: [
           '0x5AB3e51608cEa26090445CA89bc91628C8bB99f9',
           '0xFDFf46fF5752CE2A4CAbAAf5a2cFF3744E1D09de',
+          '0xa7840fa682506117F4549E918930C80c1FC3A46c',
         ],
         constructorArgs: [
           'address:ServiceRegistry',
@@ -49,6 +51,7 @@ export const config: SystemConfig = {
         history: [
           '0xd4FEaf1023CD6998053a1eb02460000980Cc908f',
           '0x6d3af85e27686FfF7686b2FAe174b0a7d8c95e16',
+          '0x28cd581B0F96BC046f461cAE9BBd7303fA0fF8e6',
         ],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
@@ -118,13 +121,14 @@ export const config: SystemConfig = {
       },
       SwapAction: {
         name: 'SwapAction',
-        deploy: false,
+        deploy: true,
         address: '0x02F55D374d791DfF5614aD2F368145A46343B08A',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
         history: [
           '0xAE39820D9F9F0cE9331eAe6827A9D922CA5287b9',
           '0x398105CD43115b54A0EFE0b210D99c596e4571A7',
           '0x55D4d311Cd9B2dD5693FB51f06DbE50B9Da84D13',
+          '0x02F55D374d791DfF5614aD2F368145A46343B08A',
         ],
         constructorArgs: ['address:ServiceRegistry'],
       },
