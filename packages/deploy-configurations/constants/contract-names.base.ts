@@ -13,16 +13,23 @@ export const SERVICE_REGISTRY_NAMES = {
     POSITION_CREATED: 'PositionCreated',
     ACCOUNT_GUARD: 'AccountGuard',
     ACCOUNT_FACTORY: 'AccountFactory',
-    OPERATION_EXECUTOR: 'OperationExecutor_4',
-    OPERATION_STORAGE: 'OperationStorage_4',
-    OPERATIONS_REGISTRY: 'OperationsRegistry_4',
+    /**
+     * Core contracts service registry names were all bumped _5. However, Base still uses _4 on-chain
+     * But these are identical core contracts and don't affect operation of the system.
+     *
+     * Can correct for this when redeploying core contracts on all networks to _6 when a change
+     * occurs in the future.
+     */
+    OPERATION_EXECUTOR: 'OperationExecutor_5',
+    OPERATION_STORAGE: 'OperationStorage_5',
+    OPERATIONS_REGISTRY: 'OperationsRegistry_5',
     CHAINLOG_VIEWER: 'ChainLogView',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     ONE_INCH_AGGREGATOR5: 'OneInchAggregator5',
     DS_GUARD_FACTORY: 'DSGuardFactory',
     DS_PROXY_REGISTRY: 'DSProxyRegistry',
     DS_PROXY_FACTORY: 'DSProxyFactory',
-    SWAP: 'Swap2',
+    SWAP: 'Swap_2',
     EXCHANGE: 'Exchange',
     UNISWAP_ROUTER: 'UniswapRouter',
     BALANCER_VAULT: 'BalancerVault',
