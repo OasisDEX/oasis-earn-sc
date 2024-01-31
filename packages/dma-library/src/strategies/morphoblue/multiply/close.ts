@@ -47,8 +47,8 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
     const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
     const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
 
-
     const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies, position, collateralTokenSymbol, debtTokenSymbol)
+
 
     // Build operation
     const operation = await buildOperation(
@@ -113,6 +113,7 @@ async function getAjnaSwapDataToCloseToDebt(
     collateralTokenSymbol: string,
     debtTokenSymbol: string,
 ) {
+    
     const swapAmountBeforeFees = amountToWei(
         position.collateralAmount,
         args.collateralTokenPrecision,
@@ -185,7 +186,7 @@ async function buildOperation(
     collateralTokenSymbol: string,
     debtTokenSymbol: string,
 ): Promise<IOperation> {
-    const DEBT_OFFSET = new BigNumber(1.00)
+    const DEBT_OFFSET = new BigNumber(1.01)
     const amountToFlashloan = amountToWei(
         position.debtAmount.times(DEBT_OFFSET),
         args.quoteTokenPrecision,
@@ -214,18 +215,10 @@ async function buildOperation(
       ),
       isIncreasingRisk: false,
     })
-    console.log("shouldCloseToCollateral", args.shouldCloseToCollateral)
 
     const collateralAmountToBeSwapped = args.shouldCloseToCollateral
         ? swapData.fromTokenAmount.plus(preSwapFee)
         : lockedCollateralAmount
-    
-    console.log(`
-    collateralAmountToBeSwapped ${collateralAmountToBeSwapped.toString()}
-    lockedCollateralAmount ${lockedCollateralAmount.toString()}
-    swapData.fromTokenAmount.plus(preSwapFee) ${swapData.fromTokenAmount.plus(preSwapFee).toString()}
-    
-    `)
 
     const closeArgs = {
         collateral: {
@@ -253,7 +246,7 @@ async function buildOperation(
         },
         position: {
             type: positionType,
-            collateral: { amount: collateralAmountToBeSwapped },
+            collateral: { amount: lockedCollateralAmount },
         },
         proxy: {
             address: args.dpmProxyAddress,
@@ -267,7 +260,7 @@ async function buildOperation(
         },
         network: dependencies.network,
         amountDebtToPaybackInBaseUnit: amountToFlashloan,
-        amountCollateralToWithdrawInBaseUnit: collateralAmountToBeSwapped,
+        amountCollateralToWithdrawInBaseUnit: lockedCollateralAmount,
         morphoBlueMarket: {
             loanToken: args.position.marketParams.loanToken,
             collateralToken: args.position.marketParams.collateralToken,

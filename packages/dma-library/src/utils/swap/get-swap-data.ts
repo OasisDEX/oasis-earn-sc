@@ -35,10 +35,7 @@ export async function getSwapDataHelper<Addresses, Tokens>({
     args.fromToken.address || (getTokenAddress ? getTokenAddress(args.fromToken, addresses) : null)
   const toTokenAddress =
     args.toToken.address || (getTokenAddress ? getTokenAddress(args.toToken, addresses) : null)
-    console.log(`
-    fromTokenAddress ${fromTokenAddress}
-    toTokenAddress ${toTokenAddress}
-  `)
+
   if (!fromTokenAddress || !toTokenAddress) {
     throw new Error('Address(es) missing in args or getTokenAddress function missing')
   }

@@ -27,8 +27,8 @@ export const morphoPaybackWithdrawCommand: Command<typeof argsSchema> = {
       {
         quoteAmount: new BigNumber(200),
         collateralAmount: new BigNumber(0),
-        collateralPrice: new BigNumber(2100),
-        quotePrice: new BigNumber(200),
+        collateralPrice: new BigNumber(2687),
+        quotePrice: new BigNumber(2286),
         morphoBlueMarket: morphoBlueMarket,
         proxyAddress: proxyAddress,
         collateralPrecision: 18,

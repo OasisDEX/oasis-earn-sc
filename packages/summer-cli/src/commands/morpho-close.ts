@@ -14,6 +14,7 @@ import { getCumulatives } from '../logic/common/getCumulatives';
 const argsSchema = yup.object().shape({
   collateralPriceUsd: yup.number().required(),
   quotePriceUsd: yup.number().required(),
+  closeToCollateral: yup.boolean().required().default(false),
 });
 
 const morphoBlueMarket =
@@ -49,7 +50,7 @@ export const morphoCloseCommand: Command<typeof argsSchema> = {
         quoteTokenPrecision: 18,
         user: await enviroment.walletSigner.getAddress(),
         slippage: new BigNumber(0.006),
-        shouldCloseToCollateral: false,
+        shouldCloseToCollateral: args.closeToCollateral,
       },
       {
         provider: enviroment.provider,

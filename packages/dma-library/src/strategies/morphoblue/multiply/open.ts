@@ -81,8 +81,6 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     debtTokenSymbol,
   )
 
-  console.log(simulatedAdjustment)
-
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
     mappedArgs,
     position,
@@ -312,8 +310,6 @@ async function buildOperation(
     fromTokenSymbol: simulatedAdjust.position.debt.symbol,
     toTokenSymbol: simulatedAdjust.position.collateral.symbol,
   })
-
-  console.log(collectFeeFrom, 'collectFeeFrom')
 
   const network = await getNetwork(dependencies.provider)
 

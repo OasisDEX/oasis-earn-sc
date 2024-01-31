@@ -41,10 +41,8 @@ export const adjustMultiply: MorphoAdjustRiskStrategy = (
     dependencies: MorphoMultiplyDependencies,
 ) => {
     if (isRiskIncreasing(args.riskRatio.loanToValue, args.position.riskRatio.loanToValue)) {
-        console.log("Risk is increasing")
         return adjustRiskUp(args, dependencies)
     } else {
-        console.log("Risk is decreasing")
         return adjustRiskDown(args, dependencies)
     }
 }
@@ -122,8 +120,6 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
 
 const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
     const oraclePrice = ONE.div(args.position.marketPrice)
-    console.log(oraclePrice.toString(), "oraclePrice")
-    console.log(args.position.price.toString(), "price")
 
     const collateralTokenSymbol = await getTokenSymbol(args.position.marketParams.collateralToken, dependencies.provider)
     const debtTokenSymbol = await getTokenSymbol(args.position.marketParams.loanToken, dependencies.provider)
