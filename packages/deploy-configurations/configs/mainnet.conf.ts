@@ -17,24 +17,26 @@ export const config: SystemConfig = {
       OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: false,
-        address: '0xe76d0308be45fc54dcfb06aff778785f884e3736',
+        address: '0xE4A4a862c758095644D19985F48C159B200Ca608',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
         history: [
           '0x5fF55bB17Aad315f82B7F45649995dE563e3395e',
           '0x01871C3cCfeDE29d2b998E7D1BF0eEEBD26d9c49',
-          '0x563d2689fE89c78259dD7F694146BB93f6388A55'
+          '0x563d2689fE89c78259dD7F694146BB93f6388A55',
+          '0xe76d0308be45fc54dcfb06aff778785f884e3736'
         ],
         constructorArgs: []
       },
       OperationExecutor: {
         name: 'OperationExecutor',
         deploy: false,
-        address: '0x7d81740b28ea699ee84031d3562a93f481b3f1a7',
+        address: '0xfff30C67EEa809123596252e132d30e1EB75BC83',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: [
           '0xD4554D1c818a99D23f29aA6dabB02FE810972b12',
           '0xc1cd3654ab3b37e0bc26bafb5ae4c096892d0b0c',
-          '0xcA71C36D26f515AD0cce1D806B231CBC1185CdfC'
+          '0xcA71C36D26f515AD0cce1D806B231CBC1185CdfC',
+          '0x7d81740b28ea699ee84031d3562a93f481b3f1a7'
         ],
         constructorArgs: [
           'address:ServiceRegistry',
@@ -46,12 +48,13 @@ export const config: SystemConfig = {
       OperationStorage: {
         name: 'OperationStorage',
         deploy: false,
-        address: '0x4E883C730B9CF973aBC47726eA52e107DC70fa68',
+        address: '0xED4b4f5b641D7AeF1480373a8eFeB1C831e3F094',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
         history: [
           '0x1D77919C04f31312105995984B92e878A6213a39',
           '0x66081bcDb3760f1Bf765B4D9800d0a059BBec73F',
-          '0xa67c8ED81562085894172746E9CC28b7c21F2277'
+          '0xa67c8ED81562085894172746E9CC28b7c21F2277',
+          '0x4E883C730B9CF973aBC47726eA52e107DC70fa68'
         ],
         constructorArgs: [ 'address:ServiceRegistry', 'address:OperationExecutor' ]
       },
