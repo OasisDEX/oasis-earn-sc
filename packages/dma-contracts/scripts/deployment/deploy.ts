@@ -178,6 +178,7 @@ abstract class DeployedSystemHelpers {
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
+    this.log('RPC URL', this.rpcUrl)
     this.log(
       'NETWORK / FORKED NETWORK / ChainID',
       `${this.network} / ${this.forkedNetwork} / ${this.chainId}`,
@@ -465,14 +466,20 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           senderAddress: ethers.utils.getAddress(address),
           senderSignature: ownerSignature.data,
         })
-        // Mainnet is excluded because Service Registry is managed by multi-sig wallet
-      } else if (this.network !== Network.MAINNET) {
+        // Mainnet & Optimism are excluded because Service Registry is managed by multi-sig wallet
+      } else if (this.network !== Network.MAINNET && this.network !== Network.OPTIMISM) {
         await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
+      } else {
+        this.log('SERVICE REGISTRY', 'SKIPPED', configItem.serviceRegistryName, contract.address)
       }
     }
 
-    // ETHERSCAN VERIFICATION (only for mainnet and L1 testnets)
-    if (this.network === Network.MAINNET || this.network === Network.GOERLI) {
+    // ETHERSCAN VERIFICATION
+    if (
+      this.network === Network.MAINNET ||
+      this.network === Network.GOERLI ||
+      this.network === Network.OPTIMISM
+    ) {
       await this.verifyContract(contract.address, constructorArguments)
     }
   }
@@ -647,6 +654,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         this.ethers.getContractFactory(configItem.name as string, this.signer),
         constructorParams,
       )
+
+      // Note: Useful for verifying contracts retrospectively. Comment out the lines above
+      // const contractInstance = await this.ethers.getContractAt(configItem.name, configItem.address)
 
       if (configItem.name === 'ServiceRegistry') {
         this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer)
