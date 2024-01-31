@@ -13,6 +13,13 @@ export const SERVICE_REGISTRY_NAMES = {
     POSITION_CREATED: 'PositionCreated',
     ACCOUNT_GUARD: 'AccountGuard',
     ACCOUNT_FACTORY: 'AccountFactory',
+    /**
+     * Core contracts service registry names were all bumped _5. However, Base still uses _4 on-chain
+     * But these are identical core contracts and don't affect operation of the system.
+     *
+     * Can correct for this when redeploying core contracts on all networks to _6 when a change
+     * occurs in the future.
+     */
     OPERATION_EXECUTOR: 'OperationExecutor_5',
     OPERATION_STORAGE: 'OperationStorage_5',
     OPERATIONS_REGISTRY: 'OperationsRegistry_5',
