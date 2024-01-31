@@ -185,7 +185,7 @@ async function buildOperation(
     collateralTokenSymbol: string,
     debtTokenSymbol: string,
 ): Promise<IOperation> {
-    const DEBT_OFFSET = new BigNumber(1.01)
+    const DEBT_OFFSET = new BigNumber(1.00)
     const amountToFlashloan = amountToWei(
         position.debtAmount.times(DEBT_OFFSET),
         args.quoteTokenPrecision,
@@ -214,9 +214,18 @@ async function buildOperation(
       ),
       isIncreasingRisk: false,
     })
+    console.log("shouldCloseToCollateral", args.shouldCloseToCollateral)
+
     const collateralAmountToBeSwapped = args.shouldCloseToCollateral
         ? swapData.fromTokenAmount.plus(preSwapFee)
         : lockedCollateralAmount
+    
+    console.log(`
+    collateralAmountToBeSwapped ${collateralAmountToBeSwapped.toString()}
+    lockedCollateralAmount ${lockedCollateralAmount.toString()}
+    swapData.fromTokenAmount.plus(preSwapFee) ${swapData.fromTokenAmount.plus(preSwapFee).toString()}
+    
+    `)
 
     const closeArgs = {
         collateral: {

@@ -65,10 +65,12 @@ export const close: MorphoBlueCloseOperation = async ({
     amount: flashloan.token.amount,
     sumAmounts: false,
   })
-
+  console.log("amountDebtToPaybackInBaseUnit", amountDebtToPaybackInBaseUnit.toString())
   const paybackDebt = actions.morphoblue.payback(network, {
     morphoBlueMarket: morphoBlueMarket,
-    amount: amountDebtToPaybackInBaseUnit
+    amount: amountDebtToPaybackInBaseUnit,
+    onBehalf: proxy.address,
+    paybackAll: true,
   })
 
   const withdrawCollateral = actions.morphoblue.withdraw(network, {
