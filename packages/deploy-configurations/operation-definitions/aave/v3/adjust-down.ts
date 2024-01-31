@@ -2,6 +2,12 @@ import { loadContractNames, OPERATION_NAMES } from '@deploy-configurations/const
 import { Network } from '@deploy-configurations/types/network'
 import { getActionHash } from '@deploy-configurations/utils/action-hash'
 
+/**
+ * This operation definition has:
+ * - no wrapping/unwrapping of WETH/ETHs
+ * - uses balancer so flashloan's the precise amount of debt required to achieve the desired risk level
+ * - does not support withdrawals in conjunction with reducing the risk level
+ */
 export function getAaveAdjustDownV3OperationDefinition(network: Network) {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
@@ -40,10 +46,6 @@ export function getAaveAdjustDownV3OperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO),
         optional: false,
       },
-      // {
-      //   hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
-      //   optional: true,
-      // },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
         optional: false,
