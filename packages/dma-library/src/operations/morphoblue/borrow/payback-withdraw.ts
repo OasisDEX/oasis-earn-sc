@@ -11,6 +11,7 @@ export type MorphoBluePaybackWithdrawArgs = {
   morphoBlueMarket: MorphoBlueMarket
   amountCollateralToWithdrawInBaseUnit: BigNumber
   amountDebtToPaybackInBaseUnit: BigNumber
+  isPaybackAll: boolean
   proxy: string
   user: string
 }
@@ -46,6 +47,7 @@ export const paybackWithdraw: MorphoBluePaybackWithdrawOperation = async (
   const paybackDebt = actions.morphoblue.payback(network, {
     morphoBlueMarket: args.morphoBlueMarket,
     amount: args.amountDebtToPaybackInBaseUnit,
+    paybackAll: args.isPaybackAll,
   })
   const unwrapEthDebt = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),

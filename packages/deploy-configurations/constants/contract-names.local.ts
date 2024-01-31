@@ -85,7 +85,7 @@ export const SERVICE_REGISTRY_NAMES = {
     DEPOSIT: 'MorphoBlueDeposit',
     WITHDRAW: 'MorphoBlueWithdraw',
     BORROW: 'MorphoBlueBorrow',
-    PAYBACK: 'MorphoBluePayback',
+    PAYBACK: 'MorphoBluePayback_2',
   },
 } as const
 

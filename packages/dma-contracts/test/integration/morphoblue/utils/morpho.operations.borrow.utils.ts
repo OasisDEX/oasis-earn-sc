@@ -334,6 +334,7 @@ export async function opMorphoBluePaybackWithdraw(
   user: SignerWithAddress,
   repayAmount: BigNumber,
   withdrawAmount: BigNumber,
+  isPaybackAll: boolean,
 ): Promise<{
   success: boolean
   receipt: ContractReceipt
@@ -358,6 +359,7 @@ export async function opMorphoBluePaybackWithdraw(
     market,
     repayAmount,
     withdrawAmount,
+    isPaybackAll,
     user,
     userDPMProxy.address,
   )

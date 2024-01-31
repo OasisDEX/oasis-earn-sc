@@ -61,9 +61,11 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
     position.marketParams.loanToken.toLowerCase() ===
     dependencies.addresses.tokens.WETH.toLowerCase()
 
+  const amountDebtToPaybackInBaseUnit = amountToWei(args.quoteAmount, args.quotePrecision)
+
   const operation = await operations.morphoblue.borrow.paybackWithdraw(
     {
-      amountDebtToPaybackInBaseUnit: amountToWei(args.quoteAmount, args.quotePrecision),
+      amountDebtToPaybackInBaseUnit: amountDebtToPaybackInBaseUnit,
       proxy: args.proxyAddress,
       amountCollateralToWithdrawInBaseUnit: amountToWei(
         args.collateralAmount,
@@ -77,6 +79,7 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
         irm: position.marketParams.irm,
         lltv: position.marketParams.lltv.times(TEN.pow(18)),
       },
+      isPaybackAll: amountDebtToPaybackInBaseUnit.gte(position.debtAmount),
     },
     dependencies.addresses,
     dependencies.network,

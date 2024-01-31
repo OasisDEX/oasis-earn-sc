@@ -367,6 +367,10 @@ export const config: SystemConfig = {
     },
     ADAI: { name: 'ADAI', address: ADDRESS_ZERO },
     AAVE: { name: 'AAVE', address: '0x251661BB7C6869165eF35810E5e1D25Ed57be2Fe' },
+    AJNA: {
+      name: 'AJNA',
+      address: ADDRESS_ZERO,
+    },
     BAL: { name: 'BAL', address: '0x8c6e73CA229AB3933426aDb5cc829c1E4928551d' },
     BAT: { name: 'BAT', address: '0x75645f86e90a1169e697707C813419977ea26779' },
     BWAJNA: {
@@ -411,6 +415,10 @@ export const config: SystemConfig = {
     PAXUSD: { name: 'PAXUSD', address: '0x4547863912Fe2d17D3827704138957a8317E8dCD' },
     RENBTC: { name: 'RENBTC', address: '0x30d0A215aef6DadA4771a2b30a59B842f969EfD4' },
     RETH: { name: 'RETH', address: '0x62bc478ffc429161115a6e4090f819ce5c50a5d9' },
+    RBN: {
+      name: 'RBN',
+      address: ADDRESS_ZERO,
+    },
     RWA001: { name: 'RWA001', address: '0xeb7C7DE82c3b05BD4059f11aE8f43dD7f1595bce' },
     RWA002: { name: 'RWA002', address: '0x09fE0aE289553010D6EcBdFF98cc9C08030dE3b8' },
     RWA003: { name: 'RWA003', address: '0x5cf15Cc2710aFc0EaBBD7e045f84F9556B204331' },
@@ -1107,6 +1115,14 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_STYETHDAI: {
       name: 'AjnaPoolPairs_STYETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RBNETH: {
+      name: 'AjnaPoolPairs_RBNETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_AJNADAI: {
+      name: 'AjnaPoolPairs_AJNADAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

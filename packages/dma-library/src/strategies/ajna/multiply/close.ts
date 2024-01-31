@@ -20,6 +20,7 @@ import {
   AjnaCommonDMADependencies,
 } from '@dma-library/types/ajna/ajna-dependencies'
 import { encodeOperation } from '@dma-library/utils/operation'
+import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
 import { FLASHLOAN_SAFETY_MARGIN } from '@domain/constants'
 import BigNumber from 'bignumber.js'
@@ -56,15 +57,13 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
 
   const targetPosition = args.position.close()
 
-  // TODO: remove this
-  const fee = ZERO
-  // const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
-  //   isEarnPosition: SwapUtils.isCorrelatedPosition(
-  //     args.collateralTokenSymbol,
-  //     args.quoteTokenSymbol,
-  //   ),
-  //   isIncreasingRisk: false,
-  // })
+  const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+    isEarnPosition: SwapUtils.isCorrelatedPosition(
+      args.collateralTokenSymbol,
+      args.quoteTokenSymbol,
+    ),
+    isIncreasingRisk: false,
+  })
 
   const postSwapFee =
     collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
@@ -123,8 +122,6 @@ async function getAjnaSwapDataToCloseToDebt(
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
-    // TODO: remove this
-    __feeOverride: ZERO,
   })
 }
 
@@ -160,8 +157,6 @@ async function getAjnaSwapDataToCloseToCollateral(
     outstandingDebt,
     ETHAddress: dependencies.WETH,
     getSwapData: dependencies.getSwapData,
-    // TODO: remove this
-    __feeOverride: ZERO,
   })
 }
 
@@ -194,15 +189,14 @@ async function buildOperation(
     address: position.pool.quoteToken,
   }
 
-  // TODO: remove this
-  const fee = ZERO
-  // const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
-  //   isEarnPosition: SwapUtils.isCorrelatedPosition(
-  //     args.collateralTokenSymbol,
-  //     args.quoteTokenSymbol,
-  //   ),
-  //   isIncreasingRisk: false,
-  // })
+  const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+    isEarnPosition: SwapUtils.isCorrelatedPosition(
+      args.collateralTokenSymbol,
+      args.quoteTokenSymbol,
+    ),
+    isIncreasingRisk: false,
+  })
+
   const collateralAmountToBeSwapped = args.shouldCloseToCollateral
     ? swapData.fromTokenAmount.plus(preSwapFee)
     : lockedCollateralAmount

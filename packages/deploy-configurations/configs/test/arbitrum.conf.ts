@@ -284,6 +284,10 @@ export const config: SystemConfig = {
       name: 'AAVE',
       address: ADDRESS_ZERO,
     },
+    AJNA: {
+      name: 'AJNA',
+      address: ADDRESS_ZERO,
+    },
     BAL: {
       name: 'BAL',
       address: ADDRESS_ZERO,
@@ -365,6 +369,10 @@ export const config: SystemConfig = {
     },
     RETH: {
       name: 'RETH',
+      address: ADDRESS_ZERO,
+    },
+    RBN: {
+      name: 'RBN',
       address: ADDRESS_ZERO,
     },
     RWA001: {
@@ -781,6 +789,14 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_STYETHDAI: {
       name: 'AjnaPoolPairs_STYETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RBNETH: {
+      name: 'AjnaPoolPairs_RBNETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_AJNADAI: {
+      name: 'AjnaPoolPairs_AJNADAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

@@ -14,12 +14,19 @@ async function main() {
   await ds.deployCore()
   await ds.deployActions()
   await ds.saveConfig()
-  // await ds.addOperationEntries()
+  //await ds.addOperationEntries()
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
-main().catch(error => {
-  console.error(error)
-  process.exitCode = 1
-})
+main()
+  .then(() => {
+    // success message or other processing
+    process.exitCode = 0
+    process.exit()
+  })
+  .catch(error => {
+    console.error(error)
+    process.exitCode = 1
+    process.exit()
+  })

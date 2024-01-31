@@ -94,6 +94,7 @@ export function morphoBluePayback(
     morphoBlueMarket: MorphoBlueMarket
     amount: BigNumber
     onBehalf?: Address
+    paybackAll?: boolean
   },
   paramsMapping: [amount: number] = [0],
 ): ActionCall {
@@ -113,6 +114,7 @@ export function morphoBluePayback(
         },
         amount: args.amount.toFixed(0),
         onBehalf: args.onBehalf ?? ADDRESS_ZERO,
+        paybackAll: args.paybackAll ?? false,
       },
       paramsMapping,
     ],
