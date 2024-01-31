@@ -466,8 +466,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           senderAddress: ethers.utils.getAddress(address),
           senderSignature: ownerSignature.data,
         })
-        // Mainnet & Optimism are excluded because Service Registry is managed by multi-sig wallet
-      } else if (this.network !== Network.MAINNET && this.network !== Network.OPTIMISM) {
+        // Mainnet, Arbitrum & Optimism are excluded because Service Registry is managed by multi-sig wallet
+        // TODO: re-enable SAFE logic to avoid this
+      } else if (
+        this.network !== Network.MAINNET &&
+        this.network !== Network.OPTIMISM &&
+        this.network !== Network.ARBITRUM
+      ) {
         await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
       } else {
         this.log('SERVICE REGISTRY', 'SKIPPED', configItem.serviceRegistryName, contract.address)
@@ -477,6 +482,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     // ETHERSCAN VERIFICATION
     if (
       this.network === Network.MAINNET ||
+      this.network === Network.ARBITRUM ||
       this.network === Network.GOERLI ||
       this.network === Network.OPTIMISM
     ) {
