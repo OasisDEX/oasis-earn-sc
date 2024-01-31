@@ -41,10 +41,7 @@ export class OperationsDatabase {
       return undefined
     }
 
-    return JSON.stringify([
-      this.calculateActionsHash(op.actions),
-      op.name,
-    ])
+    return JSON.stringify([this.calculateActionsHash(op.actions), op.name])
   }
 
   public getCalldataTuple(opName: string): any[] | undefined {
@@ -53,10 +50,7 @@ export class OperationsDatabase {
       return undefined
     }
 
-    return [
-        op.name,
-        this.calculateActionsHash(op.actions),
-    ]
+    return [op.name, this.calculateActionsHash(op.actions)]
   }
 
   public calculateActionsHash(actions: Action[]): string {
@@ -93,8 +87,6 @@ export class OperationsDatabase {
     operationDefinitions.forEach(operationDefinition => {
       const parameters = this.getCalldataTuple(operationDefinition.name)
 
-      console.log('PARAMS', parameters );
-      
       const calldata = operationsRegistryIface.encodeFunctionData('addOperation', parameters)
 
       this.opNameToCalldata[operationDefinition.name] = calldata
