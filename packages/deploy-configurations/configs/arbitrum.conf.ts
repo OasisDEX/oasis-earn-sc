@@ -416,6 +416,10 @@ export const config: SystemConfig = {
       name: 'SdaiOracle',
       address: ADDRESS_ZERO,
     },
+    WSTETHOracle: {
+      name: 'WSTETHOracle',
+      address: ADDRESS_ZERO,
+    },
     SDAI: { name: 'SDAI', address: ADDRESS_ZERO },
     STETH: { name: 'STETH', address: ADDRESS_ZERO },
     STYETH: {
