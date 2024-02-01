@@ -365,6 +365,10 @@ export const config: SystemConfig = {
       name: 'SdaiOracle',
       address: ADDRESS_ZERO,
     },
+    WSTETHOracle: {
+      name: 'WSTETHOracle',
+      address: ADDRESS_ZERO,
+    },
     ADAI: { name: 'ADAI', address: ADDRESS_ZERO },
     AJNA: {
       name: 'AJNA',
