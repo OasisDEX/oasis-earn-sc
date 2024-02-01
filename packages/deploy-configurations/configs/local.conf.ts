@@ -392,7 +392,7 @@ export const config: SystemConfig = {
     },
     WSTETHOracle: {
       name: 'WSTETHOracle',
-      address: ADDRESS_ZERO,
+      address: '0x8B6851156023f4f5A66F68BEA80851c3D905Ac93',
     },
     AAVE: {
       name: 'AAVE',
