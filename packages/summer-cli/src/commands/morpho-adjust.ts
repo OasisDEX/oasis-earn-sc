@@ -1,15 +1,14 @@
 import { ADDRESSES } from '@oasisdex/addresses';
 import { RiskRatio, strategies, views } from '@oasisdex/dma-library';
-
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
 import * as yup from 'yup';
 
 import type { Command } from '../cli/command';
-import { sendTxThroughProxy } from '../logic/common/sendTxThroughProxy';
-import { throwOnRevertedTx } from '../utils/tx';
-import { getOneInchCall } from '../logic/common/swap';
 import { getCumulatives } from '../logic/common/getCumulatives';
+import { sendTxThroughProxy } from '../logic/common/sendTxThroughProxy';
+import { getOneInchCall } from '../logic/common/swap';
+import { throwOnRevertedTx } from '../utils/tx';
 
 const argsSchema = yup.object().shape({
   amount: yup.number().required(),
@@ -30,18 +29,21 @@ export const morphoAdjustMultiplyCommand: Command<typeof argsSchema> = {
   description: ``,
   args: argsSchema,
   async run(args, enviroment) {
-    const position = await views.morpho.getPosition({
-      proxyAddress,
-      collateralPriceUSD: new BigNumber(args.collateralPriceUsd),
-      quotePriceUSD: new BigNumber(args.quotePriceUsd),
-      marketId: morphoBlueMarket,
-      collateralPrecision: 18,
-      quotePrecision: 18,
-    }, {
-      morphoAddress: morphoAddress,
-      provider: enviroment.provider,
-      getCumulatives,
-    })
+    const position = await views.morpho.getPosition(
+      {
+        proxyAddress,
+        collateralPriceUSD: new BigNumber(args.collateralPriceUsd),
+        quotePriceUSD: new BigNumber(args.quotePriceUsd),
+        marketId: morphoBlueMarket,
+        collateralPrecision: 18,
+        quotePrecision: 18,
+      },
+      {
+        morphoAddress: morphoAddress,
+        provider: enviroment.provider,
+        getCumulatives,
+      },
+    );
 
     const strategy = await strategies.morphoblue.multiply.adjust(
       {
@@ -58,18 +60,24 @@ export const morphoAdjustMultiplyCommand: Command<typeof argsSchema> = {
         provider: enviroment.provider,
         network: enviroment.network,
         morphoAddress: morphoAddress,
-        operationExecutor: operationExecutor ||
-        ADDRESSES[enviroment.network].mpa.core.OperationExecutor,
+        operationExecutor:
+          operationExecutor ||
+          ADDRESSES[enviroment.network].mpa.core.OperationExecutor,
         addresses: {
-            WETH: ADDRESSES[enviroment.network].common.WETH,
-            DAI: ADDRESSES[enviroment.network].common.DAI,
-            ETH: ADDRESSES[enviroment.network].common.ETH,
-            USDC: ADDRESSES[enviroment.network].common.USDC,
-            USDT: ADDRESSES[enviroment.network].common.USDT,
-            WBTC: ADDRESSES[enviroment.network].common.WBTC,
-            WSTETH: ADDRESSES[enviroment.network].common.WSTETH,
+          WETH: ADDRESSES[enviroment.network].common.WETH,
+          DAI: ADDRESSES[enviroment.network].common.DAI,
+          ETH: ADDRESSES[enviroment.network].common.ETH,
+          USDC: ADDRESSES[enviroment.network].common.USDC,
+          USDT: ADDRESSES[enviroment.network].common.USDT,
+          WBTC: ADDRESSES[enviroment.network].common.WBTC,
+          WSTETH: ADDRESSES[enviroment.network].common.WSTETH,
         },
-        getSwapData: getOneInchCall(ADDRESSES[enviroment.network].mpa.core.Swap, 1, 'v4.0', true),
+        getSwapData: getOneInchCall(
+          ADDRESSES[enviroment.network].mpa.core.Swap,
+          1,
+          'v4.0',
+          true,
+        ),
         getCumulatives,
       },
     );
@@ -83,4 +91,3 @@ export const morphoAdjustMultiplyCommand: Command<typeof argsSchema> = {
     throwOnRevertedTx(reciept);
   },
 };
-
