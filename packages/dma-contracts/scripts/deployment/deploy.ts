@@ -475,7 +475,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       ) {
         await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
       } else {
-        this.log('SERVICE REGISTRY', 'SKIPPED', configItem.serviceRegistryName, contract.address)
+        this.log(
+          'SERVICE REGISTRY',
+          'SKIPPED',
+          this.serviceRegistryHelper.getEntryHash(configItem.serviceRegistryName),
+          configItem.serviceRegistryName,
+          contract.address,
+        )
       }
     }
 
