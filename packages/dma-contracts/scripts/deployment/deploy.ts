@@ -792,6 +792,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       ),
     )
   }
+  async addSparkEntries() {
+    if (!this.config) throw new Error('No config set')
+    await this.addRegistryEntries(
+      Object.values(this.config.spark || {}).filter(
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+  }
 
   async addMakerEntries() {
     if (!this.config) throw new Error('No config set')
@@ -1095,6 +1103,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await this.addMakerEntries()
     await this.addAjnaEntries()
     await this.addMorphoBlueEntries()
+    await this.addSparkEntries()
     await this.addOperationEntries()
   }
 
