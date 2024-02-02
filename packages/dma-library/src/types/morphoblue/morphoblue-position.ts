@@ -125,10 +125,12 @@ export class MorphoBluePosition implements LendingPosition {
   }
 
   get buyingPower() {
-    return this.collateralAmount
-      .times(this.collateralPrice)
-      .times(this.maxRiskRatio.loanToValue)
-      .minus(this.debtAmount.times(this.debtPrice))
+    return negativeToZero(
+      this.collateralAmount
+        .times(this.collateralPrice)
+        .times(this.maxRiskRatio.loanToValue)
+        .minus(this.debtAmount.times(this.debtPrice)),
+    )
   }
 
   debtAvailable(collateralAmount?: BigNumber, debtAmount?: BigNumber) {
