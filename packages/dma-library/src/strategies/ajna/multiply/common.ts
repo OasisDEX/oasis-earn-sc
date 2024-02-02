@@ -4,11 +4,7 @@ import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
-import {
-  getNeutralPrice,
-  prepareAjnaDMAPayload,
-  resolveTxValue,
-} from '@dma-library/protocols/ajna'
+import { getNeutralPrice, prepareAjnaDMAPayload, resolveTxValue } from '@dma-library/protocols/ajna'
 import {
   validateBorrowUndercollateralized,
   validateLiquidity,

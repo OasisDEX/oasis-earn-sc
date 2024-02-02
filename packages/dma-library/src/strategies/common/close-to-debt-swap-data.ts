@@ -39,11 +39,11 @@ export async function getSwapDataForCloseToDebt({
 
   const preSwapFee =
     collectFeeFrom === 'sourceToken' ? calculateFee(swapAmountBeforeFees, fee.toNumber()) : ZERO
-    
+
   const swapAmountAfterFees = swapAmountBeforeFees
     .minus(preSwapFee)
     .integerValue(BigNumber.ROUND_DOWN)
-  
+
   const swapData = await getSwapData(
     fromToken.address,
     toToken.address,

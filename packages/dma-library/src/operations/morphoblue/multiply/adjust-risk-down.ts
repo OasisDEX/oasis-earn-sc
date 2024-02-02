@@ -22,7 +22,7 @@ export type MorphoBlueAdjustRiskDownArgs = WithMorphoBlueMarket &
   WithFlashloan &
   WithProxy &
   WithMorphpBlueStrategyAddresses &
-  WithNetwork 
+  WithNetwork
 
 export type MorphoBlueAdjustDownOperation = ({
   morphoBlueMarket,
@@ -65,7 +65,7 @@ export const adjustRiskDown: MorphoBlueAdjustDownOperation = async ({
     amount: flashloan.token.amount,
     sumAmounts: false,
   })
-  
+
   const paybackDebt = actions.morphoblue.payback(network, {
     morphoBlueMarket: morphoBlueMarket,
     // Payback the max amount we can get from the swap

@@ -8,7 +8,6 @@ import {
   IOperation,
   Protocol,
   WithAjnaBucketPrice,
-  WithSummerStrategyAddresses,
   WithCollateral,
   WithDebtAndBorrow,
   WithFlashloan,
@@ -16,6 +15,7 @@ import {
   WithOptionalDeposit,
   WithPosition,
   WithProxy,
+  WithSummerStrategyAddresses,
   WithSwap,
 } from '@dma-library/types'
 import BigNumber from 'bignumber.js'

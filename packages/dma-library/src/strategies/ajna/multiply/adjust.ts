@@ -11,9 +11,9 @@ import {
 import {
   AjnaMultiplyPayload,
   AjnaPosition,
-  SummerStrategy,
   FlashloanProvider,
   PositionType,
+  SummerStrategy,
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies } from '@dma-library/types/ajna'

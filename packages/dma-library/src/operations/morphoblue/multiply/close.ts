@@ -1,5 +1,5 @@
 import { getMorphoBlueCloseOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { FEE_BASE, MAX_UINT, ZERO } from '@dma-common/constants'
+import { FEE_BASE, MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
@@ -14,7 +14,10 @@ import {
   WithSwap,
   WithWithdrawCollateral,
 } from '@dma-library/types'
-import { WithMorphoBlueMarket, WithMorphpBlueStrategyAddresses } from '@dma-library/types/operations'
+import {
+  WithMorphoBlueMarket,
+  WithMorphpBlueStrategyAddresses,
+} from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 
 export type MorphoBlueCloseArgs = WithMorphoBlueMarket &
@@ -25,7 +28,7 @@ export type MorphoBlueCloseArgs = WithMorphoBlueMarket &
   WithProxy &
   WithPositionAndLockedCollateral &
   WithMorphpBlueStrategyAddresses &
-  WithNetwork & 
+  WithNetwork &
   WithPaybackDebt &
   WithWithdrawCollateral
 
@@ -50,7 +53,7 @@ export const close: MorphoBlueCloseOperation = async ({
   addresses,
   network,
   amountDebtToPaybackInBaseUnit,
-  amountCollateralToWithdrawInBaseUnit
+  amountCollateralToWithdrawInBaseUnit,
 }) => {
   if (collateral.address !== morphoBlueMarket.collateralToken) {
     throw new Error('Collateral token must be the same as MorphoBlue market collateral token')
@@ -65,20 +68,20 @@ export const close: MorphoBlueCloseOperation = async ({
     amount: flashloan.token.amount,
     sumAmounts: false,
   })
-  
+
   const paybackDebt = actions.morphoblue.payback(network, {
     morphoBlueMarket: morphoBlueMarket,
     amount: amountDebtToPaybackInBaseUnit,
     onBehalf: proxy.address,
     paybackAll: true,
   })
-  
+
   const withdrawCollateral = actions.morphoblue.withdraw(network, {
     morphoBlueMarket: morphoBlueMarket,
     amount: amountCollateralToWithdrawInBaseUnit,
     to: proxy.address,
   })
-  
+
   const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: collateral.address,
     toAsset: debt.address,
