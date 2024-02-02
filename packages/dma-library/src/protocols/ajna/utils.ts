@@ -11,7 +11,7 @@ import {
   getPoolLiquidity,
   getTotalPoolLiquidity,
 } from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
-import { SwapData } from '@dma-library/types'
+import { AjnaPosition, SwapData } from '@dma-library/types'
 import {
   AjnaCommonDependencies,
   AjnaCommonDMADependencies,
@@ -521,4 +521,12 @@ export function getAjnaEarnDepositFee({
   return simulationPrice?.lt(positionPrice) || simulationQuoteAmount?.gt(positionQuoteAmount)
     ? simulationQuoteAmount?.times(depositFeeRate)
     : undefined
+}
+
+export function shouldDisplayAjnaDustLimitValidation(position: AjnaPosition) {
+  return (
+    position.pool.loansCount.gt(10) &&
+    position.debtAmount.lt(position.pool.poolMinDebtAmount) &&
+    position.debtAmount.gt(0)
+  )
 }
