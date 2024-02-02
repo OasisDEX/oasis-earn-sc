@@ -114,9 +114,9 @@ export class AjnaPosition implements LendingPosition {
   }
 
   get minRiskRatio() {
-    const loanToValue = this.pool.poolMinDebtAmount.div(
-      this.collateralAmount.times(this.collateralPrice),
-    )
+    const loanToValue = this.pool.loansCount.gt(10)
+      ? this.pool.poolMinDebtAmount.div(this.collateralAmount.times(this.collateralPrice))
+      : ZERO
 
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
   }
