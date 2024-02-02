@@ -12,7 +12,7 @@ export const config: SystemConfig = {
         deploy: false,
         address: '0xf22f17b1d2354b4f4f52e4d164e4eb5e1f0a6ba6',
         history: [],
-        constructorArgs: [0],
+        constructorArgs: [ 0 ]
       },
       OperationsRegistry: {
         name: 'OperationsRegistry',
@@ -21,9 +21,9 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
         history: [
           '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
-          '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
+          '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E'
         ],
-        constructorArgs: [],
+        constructorArgs: []
       },
       OperationExecutor: {
         name: 'OperationExecutor',
@@ -32,14 +32,14 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: [
           '0x90feaf7727a6ce75f518728d296877830fd39a49',
-          '0xa7840fa682506117F4549E918930C80c1FC3A46c',
+          '0xa7840fa682506117F4549E918930C80c1FC3A46c'
         ],
         constructorArgs: [
           'address:ServiceRegistry',
           'address:OperationsRegistry',
           '0x0000000000000000000000000000000000000000',
-          '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-        ],
+          '0xBA12222222228d8Ba445958a75a0704d566BF2C8'
+        ]
       },
       OperationStorage: {
         name: 'OperationStorage',
@@ -48,9 +48,9 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
         history: [
           '0xd4FEaf1023CD6998053a1eb02460000980Cc908f',
-          '0x28cd581B0F96BC046f461cAE9BBd7303fA0fF8e6',
+          '0x28cd581B0F96BC046f461cAE9BBd7303fA0fF8e6'
         ],
-        constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
+        constructorArgs: [ 'address:ServiceRegistry', 'address:OperationExecutor' ]
       },
       DSProxyFactory: {
         name: 'DSProxyFactory',
@@ -58,7 +58,7 @@ export const config: SystemConfig = {
         address: '0x63059cC2533344B65372983D4B6258b2cbbBF0Da',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_FACTORY,
         history: [],
-        constructorArgs: [],
+        constructorArgs: []
       },
       DSProxyRegistry: {
         name: 'DSProxyRegistry',
@@ -66,7 +66,7 @@ export const config: SystemConfig = {
         address: '0x9319710C25cdaDDD1766F0bDE40F1A4034C17c7e',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
-        constructorArgs: ['address:DSProxyFactory'],
+        constructorArgs: [ 'address:DSProxyFactory' ]
       },
       DSGuardFactory: {
         name: 'DSGuardFactory',
@@ -74,7 +74,7 @@ export const config: SystemConfig = {
         address: '0x98C7C60924170B709D1a8aA6Fbb443190E3296CD',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_GUARD_FACTORY,
         history: [],
-        constructorArgs: [],
+        constructorArgs: []
       },
       AccountGuard: {
         name: 'AccountGuard',
@@ -82,7 +82,7 @@ export const config: SystemConfig = {
         address: '0x746a6f9Acb42bcB43C08C829A035DBa7Db9E7385',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ACCOUNT_GUARD,
         history: [],
-        constructorArgs: [],
+        constructorArgs: []
       },
       AccountFactory: {
         name: 'AccountFactory',
@@ -90,7 +90,7 @@ export const config: SystemConfig = {
         address: '0xCcB155E5B2A3201d5e10EdAa6e9F908871d1722B',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ACCOUNT_FACTORY,
         history: [],
-        constructorArgs: ['address:AccountGuard'],
+        constructorArgs: [ 'address:AccountGuard' ]
       },
       Swap: {
         name: 'Swap',
@@ -102,9 +102,9 @@ export const config: SystemConfig = {
           '0x0B5a3C04D1199283938fbe887A2C82C808aa89Fb',
           '0x67e30ba093148e835f47Fd5dcf1AF7D0c58E0f6b',
           20,
-          'address:ServiceRegistry',
-        ],
-      },
+          'address:ServiceRegistry'
+        ]
+      }
     },
     actions: {
       PositionCreated: {
@@ -113,32 +113,32 @@ export const config: SystemConfig = {
         address: '0xeB54C366512c4d59A222A251ea7316568859E08C',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.POSITION_CREATED,
         history: [],
-        constructorArgs: [],
+        constructorArgs: []
       },
       SwapAction: {
         name: 'SwapAction',
         deploy: true,
-        address: '0x43C9a445fCf3bc3d1483c0b90DC0346249c0D84C',
+        address: '0x31d767f6556CE3fC55d6245C9aEF3575aa64BABf',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0x43C9a445fCf3bc3d1483c0b90DC0346249c0D84C' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       TakeFlashloan: {
         name: 'TakeFlashloan',
         deploy: true,
-        address: '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85',
+        address: '0xf309EE5603bF05E5614dB930E4EAB661662aCeE6',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN,
-        history: [],
+        history: [ '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85' ],
         constructorArgs: [
           'address:ServiceRegistry',
           '0x0000000000000000000000000000000000000000',
-          'address:DSGuardFactory',
-        ],
+          'address:DSGuardFactory'
+        ]
       },
       TakeFlashloanBalancer: {
         name: 'TakeFlashloanBalancer',
         deploy: true,
-        address: '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
+        address: '0xF48e55b1c2D0080E89F12c34452A6298BB397A4C',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER,
         history: [
           '',
@@ -146,108 +146,113 @@ export const config: SystemConfig = {
           '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
           '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
           '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
+          '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3'
         ],
         constructorArgs: [
           'address:ServiceRegistry',
           '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
-          'address:DSGuardFactory',
-        ],
+          'address:DSGuardFactory'
+        ]
       },
       SetApproval: {
         name: 'SetApproval',
         deploy: true,
-        address: '0xAC0B1652388Ea425884e6b60e2eD30155f43D50b',
+        address: '0x1c98d87b245aA442791Ffb8a7e57380Ed49112FF',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SET_APPROVAL,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0xAC0B1652388Ea425884e6b60e2eD30155f43D50b' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       PullToken: {
         name: 'PullToken',
         deploy: true,
-        address: '0x645325494A37d35cf6baFc82C3e6bcE4473F2685',
+        address: '0x039F7784C5A6f187fcAc027262aA912974A7515D',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
-        history: [],
-        constructorArgs: [],
+        history: [ '0x645325494A37d35cf6baFc82C3e6bcE4473F2685' ],
+        constructorArgs: []
       },
       SendToken: {
         name: 'SendToken',
         deploy: true,
-        address: '0xb3f0C5E4012aF22359c9Ab233DABd80cD81F5ec5',
+        address: '0x508E30f983d8a2F75154f7515f1163a7dE94C5A5',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SEND_TOKEN,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0xb3f0C5E4012aF22359c9Ab233DABd80cD81F5ec5' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       WrapEth: {
         name: 'WrapEth',
         deploy: true,
-        address: '0x2006d4e76A398c78964F7e311BFd7Ccb149EaFE2',
+        address: '0x099708408aDb18F6D49013c88F3b1Bb514cC616F',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WRAP_ETH,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0x2006d4e76A398c78964F7e311BFd7Ccb149EaFE2' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       UnwrapEth: {
         name: 'UnwrapEth',
         deploy: true,
-        address: '0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A',
+        address: '0x74d4B9e8350c5aFC6c01bb725dA28053D2420FB1',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       ReturnFunds: {
         name: 'ReturnFunds',
         deploy: true,
-        address: '0x063E4242CD7C2421f67e21D7297c74bbDFEF7b0E',
+        address: '0xFb5896f0485877cC0cc4eBF74d98D064f9A46462',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS,
-        history: [],
-        constructorArgs: [],
+        history: [ '0x063E4242CD7C2421f67e21D7297c74bbDFEF7b0E' ],
+        constructorArgs: []
       },
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
         deploy: true,
-        address: '0xe1D974cAB854a65b2005A1cbF9D627D90DAb70c2',
+        address: '0x28c52DA0482776e2e4427Ca55818522E7033592e',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0xe1D974cAB854a65b2005A1cbF9D627D90DAb70c2' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3Withdraw: {
         name: 'AaveV3Withdraw',
         deploy: true,
-        address: '0xCe91349d2A4577BBd0fC91Fe6019600e047f2847',
+        address: '0x4C020189Ed0556bD934F6d459003c95706b2D71d',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0xCe91349d2A4577BBd0fC91Fe6019600e047f2847' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3WithdrawAuto: {
         name: 'AaveV3WithdrawAuto',
         deploy: true,
-        address: '0x601a8F7EA34168D912fB3C214a377CB544F18c0d',
+        address: '0x7a4963548794247FeECC8cf766eC8AA3f169F452',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO,
-        history: ['', '0x601a8F7EA34168D912fB3C214a377CB544F18c0d'],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [
+          '',
+          '0x601a8F7EA34168D912fB3C214a377CB544F18c0d',
+          '0x601a8F7EA34168D912fB3C214a377CB544F18c0d'
+        ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3Deposit: {
         name: 'AaveV3Deposit',
         deploy: true,
-        address: '0xbCC3813520bCCd64d55CEA370948198EDFB03ee3',
+        address: '0x595e9375bF40f2B9112c21b3Ded4e06cF3641982',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.DEPOSIT,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0xbCC3813520bCCd64d55CEA370948198EDFB03ee3' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3Payback: {
         name: 'AaveV3Payback',
         deploy: true,
-        address: '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
+        address: '0x3C407ea1ceDA073adF1b8472648FCD8b5400132a',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0xF7B75183A2829843dB06266c114297dfbFaeE2b6' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3SetEMode: {
         name: 'AaveV3SetEMode',
         deploy: true,
-        address: '0x71B16bF494a868a632189324e219470d2cD46863',
+        address: '0x211131b23d07115030b51dFd8922bE5A23fd09E2',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.SET_EMODE,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        history: [ '0x71B16bF494a868a632189324e219470d2cD46863' ],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
@@ -255,7 +260,7 @@ export const config: SystemConfig = {
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
@@ -263,28 +268,28 @@ export const config: SystemConfig = {
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
-        constructorArgs: ['address:ServiceRegistry'],
-      },
-    },
+        constructorArgs: [ 'address:ServiceRegistry' ]
+      }
+    }
   },
   common: {
     GnosisSafe: { name: 'GnosisSafe', address: '' },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xe592427a0aece92de3edee1f18e0157c05861564',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.UNISWAP_ROUTER,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.UNISWAP_ROUTER
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.BALANCER_VAULT,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.BALANCER_VAULT
     },
     FeeRecipient: { name: 'FeeRecipient', address: '' },
     AuthorizedCaller: { name: 'AuthorizedCaller', address: '' },
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254EEB25477B68fb85Ed929f73A960582',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR
     },
     MerkleRedeemer: { name: 'MerkleRedeemer', address: '' },
     DssCharter: { name: 'DssCharter', address: '' },
@@ -307,274 +312,274 @@ export const config: SystemConfig = {
     LidoCrvLiquidityFarmingReward: { name: 'LidoCrvLiquidityFarmingReward', address: '' },
     ChainlinkPriceOracle_USDCUSD: {
       name: 'ChainlinkPriceOracle_USDCUSD',
-      address: '0x50834f3163758fcc1df9973b6e91f0f0f0434ad3',
+      address: '0x50834f3163758fcc1df9973b6e91f0f0f0434ad3'
     },
     ChainlinkPriceOracle_ETHUSD: {
       name: 'ChainlinkPriceOracle_ETHUSD',
-      address: '0x639fe6ab55c921f74e7fac1ee960c0b6293ba612',
+      address: '0x639fe6ab55c921f74e7fac1ee960c0b6293ba612'
     },
     ADAI: {
       name: 'ADAI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AAVE: {
       name: 'AAVE',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     BAL: {
       name: 'BAL',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     BAT: {
       name: 'BAT',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     CBETH: {
       name: 'CBETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     COMP: {
       name: 'COMP',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     CRVV1ETHSTETH: {
       name: 'CRVV1ETHSTETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     DAI: {
       name: 'DAI',
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI
     },
     ETH: {
       name: 'ETH',
-      address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+      address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
     },
     FRAX: {
       name: 'FRAX',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     GNO: {
       name: 'GNO',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     GUNIV3DAIUSDC1: { name: 'GUNIV3DAIUSDC1', address: '' },
     GUNIV3DAIUSDC2: { name: 'GUNIV3DAIUSDC2', address: '' },
     GUSD: {
       name: 'GUSD',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     KNC: {
       name: 'KNC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     LDO: {
       name: 'LDO',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     LINK: {
       name: 'LINK',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     LRC: {
       name: 'LRC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     LUSD: {
       name: 'LUSD',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     MANA: {
       name: 'MANA',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     MATIC: {
       name: 'MATIC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     PAX: {
       name: 'PAX',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     PAXUSD: {
       name: 'PAXUSD',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     RENBTC: {
       name: 'RENBTC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     RETH: {
       name: 'RETH',
-      address: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
+      address: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8'
     },
     RWA001: {
       name: 'RWA001',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     RWA002: {
       name: 'RWA002',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     RWA003: {
       name: 'RWA003',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     RWA004: {
       name: 'RWA004',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     RWA005: {
       name: 'RWA005',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     RWA006: {
       name: 'RWA006',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     GHO: {
       name: 'GHO',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     TUSD: {
       name: 'TUSD',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     SdaiOracle: {
       name: 'SdaiOracle',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     SDAI: {
       name: 'SDAI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     STETH: {
       name: 'STETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     TBTC: {
       name: 'TBTC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNI: {
       name: 'UNI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2AAVEETH: {
       name: 'UNIV2AAVEETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2DAIETH: {
       name: 'UNIV2DAIETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2DAIUSDC: {
       name: 'UNIV2DAIUSDC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2DAIUSDT: {
       name: 'UNIV2DAIUSDT',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2ETHUSDT: {
       name: 'UNIV2ETHUSDT',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2LINKETH: {
       name: 'UNIV2LINKETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2UNIETH: {
       name: 'UNIV2UNIETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2USDCETH: {
       name: 'UNIV2USDCETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2WBTCDAI: {
       name: 'UNIV2WBTCDAI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     UNIV2WBTCETH: {
       name: 'UNIV2WBTCETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     USDC: {
       name: 'USDC',
       address: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC
     },
     USDBC: {
       name: 'USDBC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     USDT: {
       name: 'USDT',
-      address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'
     },
     WBTC: {
       name: 'WBTC',
       address: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WBTC,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WBTC
     },
     WETH: {
       name: 'WETH',
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH
     },
     WLD: {
       name: 'WLD',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     WSTETH: {
       name: 'WSTETH',
       address: '0x5979D7b546E38E414F7E9822514be443A4800529',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH
     },
     YIELDBTC: {
       name: 'YIELDBTC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     YIELDETH: {
       name: 'YIELDETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     YFI: {
       name: 'YFI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     ZRX: {
       name: 'ZRX',
-      address: '0x0000000000000000000000000000000000000000',
-    },
+      address: '0x0000000000000000000000000000000000000000'
+    }
   },
   aave: {
     v2: {
       Oracle: { name: 'Oracle', address: '' },
       LendingPool: { name: 'LendingPool', address: '' },
       PoolDataProvider: { name: 'PoolDataProvider', address: '' },
-      WETHGateway: { name: 'WETHGateway', address: '' },
+      WETHGateway: { name: 'WETHGateway', address: '' }
     },
     v3: {
       Oracle: {
         name: 'Oracle',
-        address: '0xb56c2F0B653B2e0b10C9b928C8580Ac5Df02C7C7',
+        address: '0xb56c2F0B653B2e0b10C9b928C8580Ac5Df02C7C7'
       },
       LendingPool: {
         name: 'LendingPool',
         address: '0x794a61358D6845594F94dc1DB02A252b5b4814aD',
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL
       },
       PoolDataProvider: {
         name: 'PoolDataProvider',
-        address: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
+        address: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654'
       },
       L2Encoder: {
         name: 'L2Encoder',
-        address: '0x9abADECD08572e0eA5aF4d47A9C7984a5AA503dC',
-      },
-    },
+        address: '0x9abADECD08572e0eA5aF4d47A9C7984a5AA503dC'
+      }
+    }
   },
   spark: {},
   maker: {
@@ -589,7 +594,7 @@ export const config: SystemConfig = {
       Spot: { name: 'Spot', address: '' },
       Dog: { name: 'Dog', address: '' },
       Vat: { name: 'Vat', address: '' },
-      McdGov: { name: 'McdGov', address: '' },
+      McdGov: { name: 'McdGov', address: '' }
     },
     joins: {
       MCD_JOIN_DAI: { name: 'MCD_JOIN_DAI', address: '' },
@@ -644,7 +649,7 @@ export const config: SystemConfig = {
       MCD_JOIN_DIRECT_AAVEV2_DAI: { name: 'MCD_JOIN_DIRECT_AAVEV2_DAI', address: '' },
       MCD_JOIN_GUNIV3DAIUSDC1_A: { name: 'MCD_JOIN_GUNIV3DAIUSDC1_A', address: '' },
       MCD_JOIN_GUNIV3DAIUSDC2_A: { name: 'MCD_JOIN_GUNIV3DAIUSDC2_A', address: '' },
-      MCD_JOIN_CRVV1ETHSTETH_A: { name: 'MCD_JOIN_CRVV1ETHSTETH_A', address: '' },
+      MCD_JOIN_CRVV1ETHSTETH_A: { name: 'MCD_JOIN_CRVV1ETHSTETH_A', address: '' }
     },
     pips: {
       PIP_ETH: { name: 'PIP_ETH', address: '' },
@@ -691,155 +696,155 @@ export const config: SystemConfig = {
       PIP_RWA006: { name: 'PIP_RWA006', address: '' },
       PIP_RETH: { name: 'PIP_RETH', address: '' },
       PIP_GNO: { name: 'PIP_GNO', address: '' },
-      PIP_WETH: { name: 'PIP_WETH', address: '' },
-    },
+      PIP_WETH: { name: 'PIP_WETH', address: '' }
+    }
   },
   automation: {
     AutomationBot: { name: 'AutomationBot', address: '' },
     AutomationBotV2: {
       name: 'AutomationBotV2',
-      address: '0xEece0010A715bA9c46E0F4fc53b3DA5988e5F043',
+      address: '0xEece0010A715bA9c46E0F4fc53b3DA5988e5F043'
     },
-    AutomationBotAggregator: { name: 'AutomationBotAggregator', address: '' },
+    AutomationBotAggregator: { name: 'AutomationBotAggregator', address: '' }
   },
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
       address: '0x0000000000000000000000000000000000000000',
-      serviceRegistryName: undefined,
+      serviceRegistryName: undefined
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_RETHETH: {
       name: 'AjnaPoolPairs_RETHETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_RETHUSDC: {
       name: 'AjnaPoolPairs_RETHUSDC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_USDCETH: {
       name: 'AjnaPoolPairs_USDCETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_USDCWBTC: {
       name: 'AjnaPoolPairs_USDCWBTC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: '' },
     AjnaPoolPairs_WBTCDAI: {
       name: 'AjnaPoolPairs_WBTCDAI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_WSTETHDAI: {
       name: 'AjnaPoolPairs_WSTETHDAI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_WSTETHETH: {
       name: 'AjnaPoolPairs_WSTETHETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_WSTETHUSDC: {
       name: 'AjnaPoolPairs_WSTETHUSDC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_TBTCWBTC: {
       name: 'AjnaPoolPairs_TBTCWBTC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_TBTCUSDC: {
       name: 'AjnaPoolPairs_TBTCUSDC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_ETHGHO: {
       name: 'AjnaPoolPairs_ETHGHO',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_WSTETHGHO: {
       name: 'AjnaPoolPairs_WSTETHGHO',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_GHODAI: {
       name: 'AjnaPoolPairs_GHODAI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_RETHGHO: {
       name: 'AjnaPoolPairs_RETHGHO',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_WBTCGHO: {
       name: 'AjnaPoolPairs_WBTCGHO',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_CBETHGHO: {
       name: 'AjnaPoolPairs_CBETHGHO',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_WLDUSDC: {
       name: 'AjnaPoolPairs_WLDUSDC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_USDCWLD: {
       name: 'AjnaPoolPairs_USDCWLD',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_SDAIUSDC: {
       name: 'AjnaPoolPairs_SDAIUSDC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_YFIDAI: {
       name: 'AjnaPoolPairs_YFIDAI',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_YIELDETHETH: {
       name: 'AjnaPoolPairs_YIELDETHETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaPoolPairs_YIELDBTCWBTC: {
       name: 'AjnaPoolPairs_YIELDBTCWBTC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000'
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
       address: '0x0000000000000000000000000000000000000000',
-      serviceRegistryName: undefined,
-    },
+      serviceRegistryName: undefined
+    }
   },
   morphoblue: {
     MorphoBlue: {
       name: 'MorphoBlue',
       address: '0x0000000000000000000000000000000000000000',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
-    },
-  },
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE
+    }
+  }
 }

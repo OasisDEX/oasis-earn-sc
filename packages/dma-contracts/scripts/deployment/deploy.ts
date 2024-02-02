@@ -478,7 +478,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         this.log(
           'SERVICE REGISTRY',
           'SKIPPED',
-          this.serviceRegistryHelper.getEntryHash(configItem.serviceRegistryName),
+          await this.serviceRegistryHelper.getEntryHash(configItem.serviceRegistryName),
           configItem.serviceRegistryName,
           contract.address,
         )
