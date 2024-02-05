@@ -10,7 +10,10 @@ import { operations } from '@dma-library/operations'
 import { TokenAddresses } from '@dma-library/operations/morphoblue/addresses'
 import { MorphoBlueOpenOperationArgs } from '@dma-library/operations/morphoblue/multiply/open'
 import { resolveTxValue } from '@dma-library/protocols/ajna'
-import { validateBorrowUndercollateralized } from '@dma-library/strategies/morphoblue/validation'
+import {
+  validateBorrowUndercollateralized,
+  validateWithdrawUndercollateralized,
+} from '@dma-library/strategies/morphoblue/validation'
 import { validateLiquidity } from '@dma-library/strategies/morphoblue/validation/validateLiquidity'
 import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 import {
@@ -537,8 +540,14 @@ export function prepareMorphoMultiplyDMAPayload(
     collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
   const tokenFee = preSwapFee.plus(postSwapFee)
 
-  // Validation
-  // const borrowAmount = simulatedAdjustment.delta.debt.shiftedBy(-args.quoteTokenPrecision)
+  const withdrawUndercollateralized = !riskIsIncreasing
+    ? validateWithdrawUndercollateralized(
+        targetPosition,
+        position,
+        args.collateralTokenPrecision,
+        position.collateralAmount.minus(collateralAmount).abs(),
+      )
+    : []
 
   const errors = [
     ...validateLiquidity(position, position.debtAmount.minus(debtAmount).abs()),
@@ -547,6 +556,7 @@ export function prepareMorphoMultiplyDMAPayload(
       position,
       position.debtAmount.minus(debtAmount).abs(),
     ),
+    ...withdrawUndercollateralized,
   ]
 
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, position)]

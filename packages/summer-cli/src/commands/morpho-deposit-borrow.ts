@@ -5,9 +5,9 @@ import { ethers } from 'ethers';
 import * as yup from 'yup';
 
 import type { Command } from '../cli/command';
+import { getCumulatives } from '../logic/common/getCumulatives';
 import { sendTxThroughProxy } from '../logic/common/sendTxThroughProxy';
 import { throwOnRevertedTx } from '../utils/tx';
-import { getCumulatives } from '../logic/common/getCumulatives';
 
 const argsSchema = yup.object().shape({});
 
@@ -57,7 +57,7 @@ export const morphoDepositBorrowCommand: Command<typeof argsSchema> = {
           operationExecutor ||
           ADDRESSES[enviroment.network].mpa.core.OperationExecutor,
         getCumulatives,
-      }
+      },
     );
 
     if (strategy.simulation.errors.length > 0) {

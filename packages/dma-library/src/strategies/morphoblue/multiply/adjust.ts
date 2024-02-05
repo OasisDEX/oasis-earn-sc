@@ -1,5 +1,5 @@
 import { getNetwork } from '@deploy-configurations/utils/network/index'
-import { ONE, TEN, ZERO } from '@dma-common/constants'
+import { TEN, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { operations } from '@dma-library/operations'
 import { MorphoBlueAdjustRiskDownArgs } from '@dma-library/operations/morphoblue/multiply/adjust-risk-down'
@@ -133,7 +133,7 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
 }
 
 const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
-  const oraclePrice = ONE.div(args.position.marketPrice)
+  const oraclePrice = args.position.marketPrice
 
   const collateralTokenSymbol = await getTokenSymbol(
     args.position.marketParams.collateralToken,

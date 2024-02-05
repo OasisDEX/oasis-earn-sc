@@ -9,17 +9,26 @@ function formatOneInchSwapUrl(
   recepient: string,
   chainId: number,
   oneInchVersion: 'v4.0' | 'v5.0',
-  protocols: string[] = []
+  protocols: string[] = [],
 ) {
-  const protocolsParam = !protocols?.length ? '' : `&protocols=${protocols.join(',')}`;
+  const protocolsParam = !protocols?.length
+    ? ''
+    : `&protocols=${protocols.join(',')}`;
   return `${`https://api-oasis.1inch.io`}/${oneInchVersion}/${chainId}/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recepient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`;
 }
 
 async function exchangeTokens(url: string): Promise<any> {
-  const response = await fetch(url, {headers: { 'auth-key': "jx7tWgwbCF9NmYhy93fwjfhgdeNE0Mjp8ShAmEiDVriWTcphJslDAkkQ9AaV" }});
+  const response = await fetch(url, {
+    headers: {
+      'auth-key':
+        'jx7tWgwbCF9NmYhy93fwjfhgdeNE0Mjp8ShAmEiDVriWTcphJslDAkkQ9AaV',
+    },
+  });
 
   if (!response.ok) {
-    throw new Error(`Error performing 1inch swap request ${url}: ${await response.text()}`);
+    throw new Error(
+      `Error performing 1inch swap request ${url}: ${await response.text()}`,
+    );
   }
 
   return (await response.json()) as Promise<any>;
@@ -33,7 +42,7 @@ async function swapOneInchTokens(
   slippage: string,
   chainId: number,
   oneInchVersion: 'v4.0' | 'v5.0',
-  protocols: string[] = []
+  protocols: string[] = [],
 ): Promise<any> {
   const url = formatOneInchSwapUrl(
     fromTokenAddress,
@@ -43,10 +52,10 @@ async function swapOneInchTokens(
     recipient,
     chainId,
     oneInchVersion,
-    protocols
+    protocols,
   );
 
-  console.log(`url ${url}`)
+  console.log(`url ${url}`);
 
   return exchangeTokens(url);
 }
@@ -169,14 +178,14 @@ export function getOneInchCall(
   swapAddress: string,
   networkId: number,
   oneInchVersion: 'v4.0' | 'v5.0' = 'v4.0',
-  debug?: true
+  debug?: true,
 ) {
   return async (
     from: string,
     to: string,
     amount: BigNumber,
     slippage: BigNumber,
-    protocols: string[] = []
+    protocols: string[] = [],
   ): Promise<SwapData> => {
     const response = await swapOneInchTokens(
       from,
@@ -186,7 +195,7 @@ export function getOneInchCall(
       slippage.times('100').toString(), // 1inch expects slippage in percentage format
       networkId,
       oneInchVersion,
-      ETHEREUM_MAINNET_DEFAULT_PROTOCOLS
+      ETHEREUM_MAINNET_DEFAULT_PROTOCOLS,
     );
 
     if (debug) {

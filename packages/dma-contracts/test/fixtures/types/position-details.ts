@@ -1,5 +1,5 @@
 import { AavePosition, AAVETokens, AjnaPosition, PositionTransition, SwapData } from '@dma-library'
-import { SummerStrategy, PositionType } from '@dma-library/types'
+import { PositionType, SummerStrategy } from '@dma-library/types'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import BigNumber from 'bignumber.js'
 
