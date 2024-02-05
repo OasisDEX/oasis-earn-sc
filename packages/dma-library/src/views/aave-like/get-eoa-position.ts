@@ -16,6 +16,7 @@ interface Args {
   addresses: AaveLikeStrategyAddresses
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getAaveLikeEoaPosition = async (args: Args): Promise<AaveLikeEOWPosition> => {
   return {
     collaterals: [],

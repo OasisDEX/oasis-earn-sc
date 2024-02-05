@@ -25,7 +25,9 @@ export const spark: {
     close: SparkClose
     adjust: SparkAdjust
   }
-  migrateFromEOA: MigrationFromEOAStrategy
+  migrate: {
+    fromEOA: MigrationFromEOAStrategy
+  }
 } = {
   borrow: {
     depositBorrow: sparkDepositBorrow,
@@ -37,5 +39,7 @@ export const spark: {
     close: sparkClose,
     adjust: sparkAdjust,
   },
-  migrateFromEOA: migrateSparkFromEOA,
+  migrate: {
+    fromEOA: migrateSparkFromEOA,
+  },
 }

@@ -47,7 +47,9 @@ export const aave: {
       adjust: AaveV3Adjust
     }
   }
-  migrateFromEOA: MigrationFromEOAStrategy
+  migrate: {
+    fromEOA: MigrationFromEOAStrategy
+  }
 } = {
   borrow: {
     v2: {
@@ -76,7 +78,9 @@ export const aave: {
       adjust: (args, dependencies) => withV3Protocol(adjust, args, dependencies),
     },
   },
-  migrateFromEOA: migrateAaveFromEOA,
+  migrate: {
+    fromEOA: migrateAaveFromEOA,
+  },
 }
 
 type DepsWithV2Protocol<T> = T & WithV2Protocol
