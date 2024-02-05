@@ -4,11 +4,11 @@ import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { IOperation } from '@dma-library/types'
 import {
-  WithAaveLikeStrategyAddresses,
   WithCollateralAndWithdrawal,
   WithDebt,
   WithFlashloan,
   WithMorphoBlueMarket,
+  WithMorphpBlueStrategyAddresses,
   WithNetwork,
   WithProxy,
   WithSwap,
@@ -21,7 +21,7 @@ export type MorphoBlueAdjustRiskDownArgs = WithMorphoBlueMarket &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithAaveLikeStrategyAddresses &
+  WithMorphpBlueStrategyAddresses &
   WithNetwork
 
 export type MorphoBlueAdjustDownOperation = ({
@@ -61,7 +61,7 @@ export const adjustRiskDown: MorphoBlueAdjustDownOperation = async ({
   // Resulting risk will be same as simulation given that dust amount is transferred to user
   const setDebtTokenApprovalOnPool = actions.common.setApproval(network, {
     asset: debt.address,
-    delegate: addresses.lendingPool,
+    delegate: addresses.morphoblue,
     amount: flashloan.token.amount,
     sumAmounts: false,
   })

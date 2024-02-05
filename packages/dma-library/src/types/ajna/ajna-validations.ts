@@ -52,7 +52,7 @@ export type AjnaErrorOverWithdraw = {
   }
 }
 
-export type AjnaError =
+export type StrategyError =
   | AjnaErrorWithdrawUndercollateralized
   | AjnaErrorBorrowUndercollateralized
   | AjnaErrorWithdrawMoreThanAvailable
@@ -81,7 +81,7 @@ type AjnaWarningLiquidationPriceCloseToMarketPrice = {
   name: 'liquidation-price-close-to-market-price'
 }
 
-export type AjnaWarning =
+export type StrategyWarning =
   | AjnaWarningGenerateCloseToMaxLtv
   | AjnaWarningWithdrawCloseToMaxLtv
   | AjnaWarningLiquidationPriceCloseToMarketPrice

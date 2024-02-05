@@ -5,17 +5,18 @@ import { ethers } from 'ethers';
 import * as yup from 'yup';
 
 import type { Command } from '../cli/command';
+import { getCumulatives } from '../logic/common/getCumulatives';
 import { sendTxThroughProxy } from '../logic/common/sendTxThroughProxy';
 import { throwOnRevertedTx } from '../utils/tx';
 
 const argsSchema = yup.object().shape({});
 
 const morphoBlueMarket =
-  '0xc20ac032046932de07497da27f9c2a3bd8ecaf3fdcab6b4f70b7088ac0404dc9';
-const morphoAddress = '0x3ecc1901aa1e6ba58a9c2209b0a6d6ac3f88a6c9';
-const proxyAddress = '0xc160a4d20f9e1f66b916cc1df1ee818e95f30890';
+  '0xc54d7acf14de29e0e5527cabd7a576506870346a78a11a6762e2cca66322ec41';
+const morphoAddress = '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb';
+const proxyAddress = '0x8451C582AB882fb534175B5465E91DfbDE97917e';
 
-const operationExecutor = '0x07f62a821fc9d588129780fa9ce5787058729966';
+const operationExecutor = '0xcA71C36D26f515AD0cce1D806B231CBC1185CdfC';
 
 export const morphoDepositBorrowCommand: Command<typeof argsSchema> = {
   name: 'morpho-deposit-borrow' as const,
@@ -24,10 +25,10 @@ export const morphoDepositBorrowCommand: Command<typeof argsSchema> = {
   async run(_args, enviroment) {
     const strategy = await strategies.morphoblue.borrow.depositBorrow(
       {
-        quoteAmount: new BigNumber(300),
-        collateralAmount: new BigNumber(0),
-        collateralPrice: new BigNumber(2100),
-        quotePrice: new BigNumber(50),
+        quoteAmount: new BigNumber(10),
+        collateralAmount: new BigNumber(10),
+        collateralPrice: new BigNumber(2656),
+        quotePrice: new BigNumber(2323),
         morphoBlueMarket: morphoBlueMarket,
         proxyAddress: proxyAddress,
         collateralPrecision: 18,
@@ -55,13 +56,7 @@ export const morphoDepositBorrowCommand: Command<typeof argsSchema> = {
         operationExecutor:
           operationExecutor ||
           ADDRESSES[enviroment.network].mpa.core.OperationExecutor,
-        getCumulatives: () => {
-          return Promise.resolve({
-            borrowCumulativeDepositUSD: new BigNumber('0'),
-            borrowCumulativeFeesUSD: new BigNumber('0'),
-            borrowCumulativeWithdrawUSD: new BigNumber('0'),
-          });
-        },
+        getCumulatives,
       },
     );
 

@@ -5,7 +5,7 @@ import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
 import { BigNumber } from 'bignumber.js'
 
-import { AjnaStrategyAddresses } from '../operations/ajna'
+import { SummerStrategyAddresses } from '../operations/ajna'
 import { ActionCall } from './action-call'
 import { FlashloanProvider } from './common'
 import { MorphoBlueMarket } from './morphoblue'
@@ -145,8 +145,8 @@ export type WithAaveLikeStrategyAddresses = {
   addresses: AaveLikeStrategyAddresses
 }
 
-export type WithAjnaStrategyAddresses = {
-  addresses: AjnaStrategyAddresses
+export type WithSummerStrategyAddresses = {
+  addresses: SummerStrategyAddresses
 }
 
 export type WithEMode = {

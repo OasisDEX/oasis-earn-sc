@@ -2,6 +2,7 @@ import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
+import { EarnCumulativesData, LendingCumulativesData } from '@dma-library/types'
 import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import { BigNumber } from 'bignumber.js'
@@ -30,34 +31,17 @@ export interface GetPoolData {
   (poolAddress: Address): Promise<AjnaPool>
 }
 
-export interface AjnaCumulativesData {
-  borrowCumulativeDepositUSD: BigNumber
-  borrowCumulativeDepositInQuoteToken: BigNumber
-  borrowCumulativeDepositInCollateralToken: BigNumber
-  borrowCumulativeWithdrawUSD: BigNumber
-  borrowCumulativeWithdrawInQuoteToken: BigNumber
-  borrowCumulativeWithdrawInCollateralToken: BigNumber
-  borrowCumulativeCollateralDeposit: BigNumber
-  borrowCumulativeCollateralWithdraw: BigNumber
-  borrowCumulativeDebtDeposit: BigNumber
-  borrowCumulativeDebtWithdraw: BigNumber
-  borrowCumulativeFeesUSD: BigNumber
-  borrowCumulativeFeesInQuoteToken: BigNumber
-  borrowCumulativeFeesInCollateralToken: BigNumber
-  earnCumulativeFeesInQuoteToken: BigNumber
-  earnCumulativeQuoteTokenDeposit: BigNumber
-  earnCumulativeQuoteTokenWithdraw: BigNumber
-}
+export type AjnaCumulativesData = LendingCumulativesData & EarnCumulativesData
 
-export interface GetCumulativesData {
-  (proxyAddress: Address, poolAddress: Address): Promise<AjnaCumulativesData>
+export interface GetCumulativesData<T> {
+  (proxyAddress: Address, poolAddress: Address): Promise<T>
 }
 
 interface Dependencies {
   poolInfoAddress: Address
   provider: ethers.providers.Provider
   getPoolData: GetPoolData
-  getCumulatives: GetCumulativesData
+  getCumulatives: GetCumulativesData<AjnaCumulativesData>
 }
 
 interface EarnDependencies {
@@ -75,32 +59,14 @@ export async function getPosition(
 ): Promise<AjnaPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
-  const [
-    pool,
-    borrowerInfo,
-    {
-      borrowCumulativeFeesUSD,
-      borrowCumulativeDepositUSD,
-      borrowCumulativeWithdrawUSD,
-      borrowCumulativeDepositInQuoteToken,
-      borrowCumulativeDepositInCollateralToken,
-      borrowCumulativeWithdrawInQuoteToken,
-      borrowCumulativeWithdrawInCollateralToken,
-      borrowCumulativeCollateralDeposit,
-      borrowCumulativeCollateralWithdraw,
-      borrowCumulativeDebtDeposit,
-      borrowCumulativeDebtWithdraw,
-      borrowCumulativeFeesInQuoteToken,
-      borrowCumulativeFeesInCollateralToken,
-      earnCumulativeFeesInQuoteToken,
-      earnCumulativeQuoteTokenDeposit,
-      earnCumulativeQuoteTokenWithdraw,
-    },
-  ] = await Promise.all([
+  const [pool, borrowerInfo, cumulatives] = await Promise.all([
     getPoolData(poolAddress),
     poolInfo.borrowerInfo(poolAddress, proxyAddress),
     getCumulatives(proxyAddress, poolAddress),
   ])
+
+  const { borrowCumulativeFeesUSD, borrowCumulativeDepositUSD, borrowCumulativeWithdrawUSD } =
+    cumulatives
 
   const collateralAmount = new BigNumber(borrowerInfo.collateral_.toString()).div(WAD)
   const debtAmount = new BigNumber(borrowerInfo.debt_.toString()).div(WAD)
@@ -117,24 +83,7 @@ export async function getPosition(
       .plus(netValue)
       .minus(borrowCumulativeDepositUSD)
       .div(borrowCumulativeDepositUSD),
-    cumulatives: {
-      borrowCumulativeFeesUSD,
-      borrowCumulativeDepositUSD,
-      borrowCumulativeWithdrawUSD,
-      borrowCumulativeDepositInQuoteToken,
-      borrowCumulativeDepositInCollateralToken,
-      borrowCumulativeWithdrawInQuoteToken,
-      borrowCumulativeWithdrawInCollateralToken,
-      borrowCumulativeCollateralDeposit,
-      borrowCumulativeCollateralWithdraw,
-      borrowCumulativeDebtDeposit,
-      borrowCumulativeDebtWithdraw,
-      borrowCumulativeFeesInQuoteToken,
-      borrowCumulativeFeesInCollateralToken,
-      earnCumulativeFeesInQuoteToken,
-      earnCumulativeQuoteTokenDeposit,
-      earnCumulativeQuoteTokenWithdraw,
-    },
+    cumulatives,
   }
 
   return new AjnaPosition(

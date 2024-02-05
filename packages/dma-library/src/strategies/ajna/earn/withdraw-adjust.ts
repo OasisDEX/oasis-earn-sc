@@ -3,7 +3,7 @@ import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
 import { ZERO } from '@dma-common/constants'
 import { getAjnaEarnActionOutput } from '@dma-library/protocols/ajna'
-import { AjnaCommonDependencies, AjnaEarnPosition, AjnaStrategy } from '@dma-library/types/ajna'
+import { AjnaCommonDependencies, AjnaEarnPosition, SummerStrategy } from '@dma-library/types/ajna'
 import { AjnaEarnPayload } from '@dma-library/types/ajna/ajna-dependencies'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -13,7 +13,7 @@ import bucketPrices from './buckets.json'
 export type AjnaWithdrawAndAdjustStrategy = (
   args: AjnaEarnPayload,
   dependencies: AjnaCommonDependencies,
-) => Promise<AjnaStrategy<AjnaEarnPosition>>
+) => Promise<SummerStrategy<AjnaEarnPosition>>
 
 export const withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy = async (args, dependencies) => {
   const action = 'withdraw-earn'

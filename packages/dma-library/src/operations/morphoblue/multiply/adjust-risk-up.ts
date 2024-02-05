@@ -3,11 +3,11 @@ import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import {
-  WithAaveLikeStrategyAddresses,
   WithCollateral,
   WithDebtAndBorrow,
   WithFlashloan,
   WithMorphoBlueMarket,
+  WithMorphpBlueStrategyAddresses,
   WithNetwork,
   WithOptionalDeposit,
   WithProxy,
@@ -23,7 +23,7 @@ export type MorphoBlueAdjustRiskUpArgs = WithMorphoBlueMarket &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithAaveLikeStrategyAddresses &
+  WithMorphpBlueStrategyAddresses &
   WithNetwork
 
 export type MorphoBlueAdjustUpOperation = ({
@@ -88,7 +88,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
     network,
     {
       asset: collateral.address,
-      delegate: addresses.lendingPool,
+      delegate: addresses.morphoblue,
       amount: depositAmount,
       sumAmounts: true,
     },
@@ -102,7 +102,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
       amount: depositAmount,
       sumAmounts: true,
     },
-    [swapActionStorageIndex, 0],
+    [0, swapActionStorageIndex],
   )
 
   const borrowDebtToRepayFL = actions.morphoblue.borrow(network, {
