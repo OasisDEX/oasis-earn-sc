@@ -1,7 +1,7 @@
 // Service Registry Entry Names
 export const SERVICE_REGISTRY_NAMES = {
   common: {
-    PULL_TOKEN: 'PullToken_6',
+    PULL_TOKEN: 'PullToken_7',
     SEND_TOKEN: 'SendToken_7',
     SET_APPROVAL: 'SetApproval_6',
     TAKE_A_FLASHLOAN: 'TakeFlashloan_6',
@@ -51,13 +51,13 @@ export const SERVICE_REGISTRY_NAMES = {
       WETH_GATEWAY: 'AaveWethGateway',
     },
     v3: {
-      DEPOSIT: 'AaveV3Deposit_4',
-      WITHDRAW: 'AaveV3Withdraw_4',
-      WITHDRAW_AUTO: 'AaveV3WithdrawAuto_4',
-      BORROW: 'AaveV3Borrow_4',
-      PAYBACK: 'AaveV3Payback_4',
+      DEPOSIT: 'AaveV3Deposit_5',
+      WITHDRAW: 'AaveV3Withdraw_5',
+      WITHDRAW_AUTO: 'AaveV3WithdrawAuto_5',
+      BORROW: 'AaveV3Borrow_5',
+      PAYBACK: 'AaveV3Payback_5',
       AAVE_POOL: 'AavePool',
-      SET_EMODE: 'AaveV3SetEMode_4',
+      SET_EMODE: 'AaveV3SetEMode_5',
     },
     L2_ENCODER: 'AaveL2Encoder',
   },

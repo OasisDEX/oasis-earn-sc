@@ -16,8 +16,8 @@ export const OPERATION_NAMES = {
     v3: {
       OPEN_POSITION: 'OpenAAVEV3Position',
       CLOSE_POSITION: 'CloseAAVEV3Position_4',
-      ADJUST_RISK_UP: 'AdjustRiskUpAAVEV3Position_4',
-      ADJUST_RISK_DOWN: 'AdjustRiskDownAAVEV3Position_4',
+      ADJUST_RISK_UP: 'AdjustRiskUpAAVEV3Position_5',
+      ADJUST_RISK_DOWN: 'AdjustRiskDownAAVEV3Position_5',
       DEPOSIT_BORROW: 'AAVEV3DepositBorrow',
       OPEN_DEPOSIT_BORROW: 'AAVEV3OpenDepositBorrow',
       DEPOSIT: 'AAVEV3Deposit',
