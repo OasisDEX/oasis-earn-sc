@@ -974,7 +974,7 @@ export const config: SystemConfig = {
     },
     AutomationBotV2: {
       name: 'AutomationBotV2',
-      address: ADDRESS_ZERO,
+      address: '0xb2e2a088d9705cd412CE6BF94e765743Ec26b1e4',
     },
     AutomationBotAggregator: {
       name: 'AutomationBotAggregator',
