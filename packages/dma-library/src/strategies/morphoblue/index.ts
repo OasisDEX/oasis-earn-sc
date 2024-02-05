@@ -8,8 +8,8 @@ import {
   paybackWithdraw as morphoPaybackWithdraw,
 } from './borrow/payback-withdraw'
 import { adjustMultiply, MorphoAdjustRiskStrategy } from './multiply/adjust'
+import { closeMultiply, MorphoCloseStrategy } from './multiply/close'
 import { MorphoOpenMultiplyStrategy, openMultiply } from './multiply/open'
-import { MorphoCloseStrategy, closeMultiply } from './multiply/close'
 
 export const morphoblue: {
   borrow: {
@@ -31,6 +31,6 @@ export const morphoblue: {
   multiply: {
     open: openMultiply,
     adjust: adjustMultiply,
-    close: closeMultiply
-  }
+    close: closeMultiply,
+  },
 }

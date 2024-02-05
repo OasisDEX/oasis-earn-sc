@@ -1,1 +1,1 @@
-export { openMultiply, MorphoOpenMultiplyStrategy } from './open'
+export { MorphoOpenMultiplyStrategy, openMultiply } from './open'

@@ -9,10 +9,10 @@ import { ajnaBuckets } from '@dma-library/strategies'
 import * as StrategiesCommon from '@dma-library/strategies/common'
 import {
   AjnaPosition,
-  SummerStrategy,
   FlashloanProvider,
   IOperation,
   PositionType,
+  SummerStrategy,
   SwapData,
 } from '@dma-library/types'
 import {

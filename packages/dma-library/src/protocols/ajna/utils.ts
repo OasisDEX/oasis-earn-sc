@@ -14,16 +14,15 @@ import {
 import { CommonDMADependencies, SwapData } from '@dma-library/types'
 import {
   AjnaCommonDependencies,
-  AjnaCommonDMADependencies,
   AjnaEarnActions,
   AjnaEarnPayload,
   AjnaEarnPosition,
   AjnaError,
   AjnaNotice,
   AjnaPool,
-  SummerStrategy,
   AjnaSuccess,
   AjnaWarning,
+  SummerStrategy,
 } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
