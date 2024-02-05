@@ -237,25 +237,57 @@ async function buildOperation(
 
   const network = await getNetwork(dependencies.provider)
 
+  const morphoBlueMarket = {
+    loanToken: args.position.marketParams.loanToken,
+    collateralToken: args.position.marketParams.collateralToken,
+    oracle: args.position.marketParams.oracle,
+    irm: args.position.marketParams.irm,
+    lltv: args.position.marketParams.lltv.times(TEN.pow(18)),
+  }
+
+  const collateral = {
+    address: args.position.marketParams.collateralToken,
+    isEth: areAddressesEqual(
+      args.position.marketParams.collateralToken,
+      dependencies.addresses.WETH,
+    ),
+  }
+
+  const debt = {
+    address: args.position.marketParams.loanToken,
+    isEth: areAddressesEqual(args.position.marketParams.loanToken, dependencies.addresses.WETH),
+  }
+
+  const swap = {
+    fee: fee.toNumber(),
+    data: swapData.exchangeCalldata,
+    amount: swapAmountBeforeFees,
+    collectFeeFrom,
+    receiveAtLeast: swapData.minToTokenAmount,
+  }
+
+  const addresses = {
+    morphoblue: dependencies.morphoAddress,
+    operationExecutor: dependencies.operationExecutor,
+    tokens: dependencies.addresses,
+  }
+
+  const proxy = {
+    address: args.dpmProxyAddress,
+    isDPMProxy: true,
+    owner: args.user,
+  }
+
   if (riskIsIncreasing) {
     const riskUpMultiplyArgs: MorphoBlueAdjustRiskUpArgs = {
-      morphoBlueMarket: {
-        loanToken: args.position.marketParams.loanToken,
-        collateralToken: args.position.marketParams.collateralToken,
-        oracle: args.position.marketParams.oracle,
-        irm: args.position.marketParams.irm,
-        lltv: args.position.marketParams.lltv.times(TEN.pow(18)),
-      },
-      collateral: {
-        address: args.position.marketParams.collateralToken,
-        isEth: areAddressesEqual(
-          args.position.marketParams.collateralToken,
-          dependencies.addresses.WETH,
-        ),
-      },
+      morphoBlueMarket,
+      collateral,
+      addresses,
+      proxy,
+      network,
+      swap,
       debt: {
-        address: args.position.marketParams.loanToken,
-        isEth: areAddressesEqual(args.position.marketParams.loanToken, dependencies.addresses.WETH),
+        ...debt,
         borrow: {
           amount: borrowAmount,
         },
@@ -263,13 +295,6 @@ async function buildOperation(
       deposit: {
         address: args.position.marketParams.collateralToken,
         amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)).integerValue(),
-      },
-      swap: {
-        fee: fee.toNumber(),
-        data: swapData.exchangeCalldata,
-        amount: swapAmountBeforeFees,
-        collectFeeFrom,
-        receiveAtLeast: swapData.minToTokenAmount,
       },
       flashloan: {
         token: {
@@ -279,49 +304,22 @@ async function buildOperation(
         amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
         provider: FlashloanProvider.Balancer,
       },
-      addresses: {
-        morphoblue: dependencies.morphoAddress,
-        operationExecutor: dependencies.operationExecutor,
-        tokens: dependencies.addresses,
-      },
-      proxy: {
-        address: args.dpmProxyAddress,
-        isDPMProxy: true,
-        owner: args.user,
-      },
-      network,
     }
 
     return await operations.morphoblue.multiply.adjustRiskUp(riskUpMultiplyArgs)
   }
   const riskDownMultiplyArgs: MorphoBlueAdjustRiskDownArgs = {
-    morphoBlueMarket: {
-      loanToken: args.position.marketParams.loanToken,
-      collateralToken: args.position.marketParams.collateralToken,
-      oracle: args.position.marketParams.oracle,
-      irm: args.position.marketParams.irm,
-      lltv: args.position.marketParams.lltv.times(TEN.pow(18)),
-    },
+    morphoBlueMarket,
+    debt,
+    swap,
+    addresses,
+    proxy,
+    network,
     collateral: {
-      address: args.position.marketParams.collateralToken,
-      isEth: areAddressesEqual(
-        args.position.marketParams.collateralToken,
-        dependencies.addresses.WETH,
-      ),
+      ...collateral,
       withdrawal: {
         amount: simulatedAdjust.delta.collateral.abs(),
       },
-    },
-    debt: {
-      address: args.position.marketParams.loanToken,
-      isEth: areAddressesEqual(args.position.marketParams.loanToken, dependencies.addresses.WETH),
-    },
-    swap: {
-      fee: fee.toNumber(),
-      data: swapData.exchangeCalldata,
-      amount: swapAmountBeforeFees,
-      collectFeeFrom,
-      receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
       token: {
@@ -331,17 +329,6 @@ async function buildOperation(
       amount: Domain.collateralToDebtSwapFlashloan(swapData.minToTokenAmount),
       provider: FlashloanProvider.Balancer,
     },
-    addresses: {
-      morphoblue: dependencies.morphoAddress,
-      operationExecutor: dependencies.operationExecutor,
-      tokens: dependencies.addresses,
-    },
-    proxy: {
-      address: args.dpmProxyAddress,
-      isDPMProxy: true,
-      owner: args.user,
-    },
-    network,
   }
 
   return await operations.morphoblue.multiply.adjustRiskDown(riskDownMultiplyArgs)

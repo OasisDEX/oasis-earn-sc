@@ -252,17 +252,6 @@ function buildSwapSimulation(
   const fromToken = isIncreasingRisk ? position.debt : position.collateral
   const toToken = isIncreasingRisk ? position.collateral : position.debt
 
-  // console.log(`
-  // buildSwapSimulation
-  //   fromToken: ${JSON.stringify(fromToken)}
-  //   toToken: ${JSON.stringify(toToken)}
-  //   fromTokenAmount: ${fromTokenAmount.toString()}
-  //   minToTokenAmount: ${minToTokenAmount.toString()}
-  //   debtDelta: ${debtDelta.toString()}
-  //   collateralDelta: ${collateralDelta.toString()}
-  //   options: ${JSON.stringify(options)}
-  // `)
-
   return {
     fromTokenAmount,
     minToTokenAmount,
