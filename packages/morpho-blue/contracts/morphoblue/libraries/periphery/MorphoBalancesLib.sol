@@ -10,10 +10,6 @@ import { MorphoLib } from "./MorphoLib.sol";
 import { SharesMathLib } from "../SharesMathLib.sol";
 import { MarketParamsLib } from "../MarketParamsLib.sol";
 
-interface IMorphoMarketStruct {
-  function market(Id id) external view returns (Market memory);
-}
-
 /// @title MorphoBalancesLib
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
@@ -39,12 +35,12 @@ library MorphoBalancesLib {
     MarketParams memory marketParams
   ) internal view returns (uint256, uint256, uint256, uint256) {
     Id id = marketParams.id();
-
-    Market memory market = IMorphoMarketStruct(address(morpho)).market(id);
+    Market memory market = morpho.market(id);
 
     uint256 elapsed = block.timestamp - market.lastUpdate;
 
-    if (elapsed != 0 && market.totalBorrowAssets != 0) {
+    // Skipped if elapsed == 0 or totalBorrowAssets == 0 because interest would be null, or if irm == address(0).
+    if (elapsed != 0 && market.totalBorrowAssets != 0 && marketParams.irm != address(0)) {
       uint256 borrowRate = IIrm(marketParams.irm).borrowRateView(marketParams, market);
       uint256 interest = market.totalBorrowAssets.wMulDown(borrowRate.wTaylorCompounded(elapsed));
       market.totalBorrowAssets += interest.toUint128();
@@ -71,7 +67,7 @@ library MorphoBalancesLib {
   }
 
   /// @notice Returns the expected total supply assets of a market after having accrued interest.
-  function expectedTotalSupply(
+  function expectedTotalSupplyAssets(
     IMorpho morpho,
     MarketParams memory marketParams
   ) internal view returns (uint256 totalSupplyAssets) {
@@ -79,7 +75,7 @@ library MorphoBalancesLib {
   }
 
   /// @notice Returns the expected total borrow assets of a market after having accrued interest.
-  function expectedTotalBorrow(
+  function expectedTotalBorrowAssets(
     IMorpho morpho,
     MarketParams memory marketParams
   ) internal view returns (uint256 totalBorrowAssets) {
@@ -94,9 +90,11 @@ library MorphoBalancesLib {
     (, totalSupplyShares, , ) = expectedMarketBalances(morpho, marketParams);
   }
 
-  /// @notice Returns the expected supply balance of a user on a market after having accrued interest.
+  /// @notice Returns the expected supply assets balance of `user` on a market after having accrued interest.
   /// @dev Warning: Wrong for `feeRecipient` because their supply shares increase is not taken into account.
-  function expectedSupplyBalance(
+  /// @dev Warning: Withdrawing using the expected supply assets can lead to a revert due to conversion roundings from
+  /// assets to shares.
+  function expectedSupplyAssets(
     IMorpho morpho,
     MarketParams memory marketParams,
     address user
@@ -111,8 +109,10 @@ library MorphoBalancesLib {
     return supplyShares.toAssetsDown(totalSupplyAssets, totalSupplyShares);
   }
 
-  /// @notice Returns the expected borrow balance of a user on a market after having accrued interest.
-  function expectedBorrowBalance(
+  /// @notice Returns the expected borrow assets balance of `user` on a market after having accrued interest.
+  /// @dev Warning: The expected balance is rounded up, so it may be greater than the market's expected total borrow
+  /// assets.
+  function expectedBorrowAssets(
     IMorpho morpho,
     MarketParams memory marketParams,
     address user

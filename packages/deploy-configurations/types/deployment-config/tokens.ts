@@ -1,6 +1,7 @@
 export type Tokens =
   | 'AAVE'
   | 'ADAI'
+  | 'AJNA'
   | 'ARB'
   | 'BAL'
   | 'BAT'
@@ -31,6 +32,7 @@ export type Tokens =
   | 'PAXUSD'
   | 'RENBTC'
   | 'RETH'
+  | 'RBN'
   | 'RPL'
   | 'RWA001'
   | 'RWA002'
@@ -40,6 +42,7 @@ export type Tokens =
   | 'RWA006'
   | 'SDAI'
   | 'STETH'
+  | 'STYETH'
   | 'SUSD'
   | 'TBTC'
   | 'TUSD'

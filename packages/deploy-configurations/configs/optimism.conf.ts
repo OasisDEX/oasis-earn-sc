@@ -359,7 +359,15 @@ export const config: SystemConfig = {
       name: 'SdaiOracle',
       address: ADDRESS_ZERO,
     },
+    WSTETHOracle: {
+      name: 'WSTETHOracle',
+      address: ADDRESS_ZERO,
+    },
     ADAI: { name: 'ADAI', address: ADDRESS_ZERO },
+    AJNA: {
+      name: 'AJNA',
+      address: ADDRESS_ZERO,
+    },
     AAVE: { name: 'AAVE', address: ADDRESS_ZERO },
     BAL: { name: 'BAL', address: ADDRESS_ZERO },
     BAT: { name: 'BAT', address: ADDRESS_ZERO },
@@ -409,6 +417,10 @@ export const config: SystemConfig = {
     },
     RENBTC: { name: 'RENBTC', address: ADDRESS_ZERO },
     RETH: { name: 'RETH', address: '0x9bcef72be871e61ed4fbbc7630889bee758eb81d' },
+    RBN: {
+      name: 'RBN',
+      address: ADDRESS_ZERO,
+    },
     RWA001: { name: 'RWA001', address: ADDRESS_ZERO },
     RWA002: { name: 'RWA002', address: ADDRESS_ZERO },
     RWA003: { name: 'RWA003', address: ADDRESS_ZERO },
@@ -417,6 +429,10 @@ export const config: SystemConfig = {
     RWA006: { name: 'RWA006', address: ADDRESS_ZERO },
     SDAI: { name: 'SDAI', address: ADDRESS_ZERO },
     STETH: { name: 'STETH', address: ADDRESS_ZERO },
+    STYETH: {
+      name: 'STYETH',
+      address: ADDRESS_ZERO,
+    },
     SUSD: {
       name: 'SUSD',
       address: '0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9',
@@ -1098,6 +1114,18 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RBNETH: {
+      name: 'AjnaPoolPairs_RBNETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_AJNADAI: {
+      name: 'AjnaPoolPairs_AJNADAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

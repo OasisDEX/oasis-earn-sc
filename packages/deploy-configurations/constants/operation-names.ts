@@ -61,14 +61,14 @@ export const OPERATION_NAMES = {
   },
   morphoblue: {
     OPEN_POSITION: 'MorphoBlueOpenPosition',
-    CLOSE_POSITION: 'MorphoBlueClosePosition',
+    CLOSE_POSITION: 'MorphoBlueClosePosition_2',
     ADJUST_RISK_UP: 'MorphoBlueAdjustRiskUp',
-    ADJUST_RISK_DOWN: 'MorphoBlueAdjustRiskDown',
+    ADJUST_RISK_DOWN: 'MorphoBlueAdjustRiskDown_2',
     DEPOSIT_BORROW: 'MorphoBlueDepositBorrow',
     OPEN_DEPOSIT_BORROW: 'MorphoBlueOpenDepositBorrow',
     DEPOSIT: 'MorphoBlueDeposit',
     BORROW: 'MorphoBlueBorrow',
-    PAYBACK_WITHDRAW: 'MorphoBluePaybackWithdraw',
+    PAYBACK_WITHDRAW: 'MorphoBluePaybackWithdraw_2',
   },
   common: {
     CUSTOM_OPERATION: 'CustomOperation',

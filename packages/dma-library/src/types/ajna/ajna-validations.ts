@@ -21,9 +21,6 @@ export type AjnaErrorDustLimit = {
 
 export type AjnaErrorDustLimitMultiply = {
   name: 'debt-less-then-dust-limit-multiply'
-  data: {
-    minDebtAmount: string
-  }
 }
 
 export type AjnaErrorWithdrawMoreThanAvailable = {

@@ -65,6 +65,7 @@ export function toMorphoBluePaybackWithdrawArgs(
   market: MorphoMarketInfo,
   repayAmount: BigNumberish,
   withdrawAmount: BigNumberish,
+  isPaybackAll: boolean,
   user: SignerWithAddress,
   userProxyAddress: string,
 ): MorphoBluePaybackWithdrawArgs {
@@ -72,6 +73,7 @@ export function toMorphoBluePaybackWithdrawArgs(
     morphoBlueMarket: toMorphoBlueMarket(morphoSystem, market),
     amountDebtToPaybackInBaseUnit: new BN(repayAmount.toString()),
     amountCollateralToWithdrawInBaseUnit: new BN(withdrawAmount.toString()),
+    isPaybackAll: isPaybackAll,
     proxy: userProxyAddress,
     user: user.address,
   }

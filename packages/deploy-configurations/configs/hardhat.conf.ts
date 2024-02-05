@@ -427,6 +427,10 @@ export const config: SystemConfig = {
       name: 'SdaiOracle',
       address: '0xb9E6DBFa4De19CCed908BcbFe1d015190678AB5f',
     },
+    WSTETHOracle: {
+      name: 'WSTETHOracle',
+      address: ADDRESS_ZERO,
+    },
     AAVE: {
       name: 'AAVE',
       address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
@@ -434,6 +438,10 @@ export const config: SystemConfig = {
     ADAI: {
       name: 'ADAI',
       address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3',
+    },
+    AJNA: {
+      name: 'AJNA',
+      address: '0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079',
     },
     BAL: {
       name: 'BAL',
@@ -536,6 +544,10 @@ export const config: SystemConfig = {
       name: 'RETH',
       address: '0xae78736cd615f374d3085123a210448e74fc6393',
     },
+    RBN: {
+      name: 'RBN',
+      address: '0x6123b0049f904d730db3c36a31167d9d4121fa6b',
+    },
     RWA001: {
       name: 'RWA001',
       address: '0x10b2aA5D77Aa6484886d8e244f0686aB319a270d',
@@ -568,6 +580,10 @@ export const config: SystemConfig = {
       name: 'STETH',
       address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.STETH,
+    },
+    STYETH: {
+      name: 'STYETH',
+      address: ADDRESS_ZERO,
     },
     TBTC: {
       name: 'TBTC',
@@ -1315,6 +1331,18 @@ export const config: SystemConfig = {
     AjnaPoolPairs_CBETHUSDBC: {
       name: 'AjnaPoolPairs_CBETHUSDBC',
       address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_STYETHDAI: {
+      name: 'AjnaPoolPairs_STYETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RBNETH: {
+      name: 'AjnaPoolPairs_RBNETH',
+      address: '0xc2a03288c046c7447faa598a515e494cbc7187c3',
+    },
+    AjnaPoolPairs_AJNADAI: {
+      name: 'AjnaPoolPairs_AJNADAI',
+      address: '0x2feef99a711d684e00a017c4ac587bea31f12875',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
