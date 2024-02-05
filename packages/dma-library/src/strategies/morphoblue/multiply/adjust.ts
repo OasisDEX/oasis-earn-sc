@@ -302,10 +302,6 @@ async function buildOperation(
       irm: args.position.marketParams.irm,
       lltv: args.position.marketParams.lltv.times(TEN.pow(18)),
     },
-    // deposit: {
-    //     address: args.position.marketParams.collateralToken,
-    //     amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)).integerValue()),
-    // },
     collateral: {
       address: args.position.marketParams.collateralToken,
       isEth: areAddressesEqual(

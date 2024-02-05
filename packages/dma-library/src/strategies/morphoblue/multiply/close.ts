@@ -44,7 +44,7 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
 
   const getSwapData = args.shouldCloseToCollateral
     ? getMorphoSwapDataToCloseToCollateral
-    : getAjnaSwapDataToCloseToDebt
+    : getMorphoSwapDataToCloseToDebt
   const collateralTokenSymbol = await getTokenSymbol(
     args.position.marketParams.collateralToken,
     dependencies.provider,
@@ -115,7 +115,7 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
   })
 }
 
-async function getAjnaSwapDataToCloseToDebt(
+async function getMorphoSwapDataToCloseToDebt(
   args: MorphoCloseMultiplyPayload,
   dependencies: MorphoMultiplyDependencies,
   position: MorphoBluePosition,
