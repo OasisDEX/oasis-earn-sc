@@ -667,7 +667,10 @@ export const config: SystemConfig = {
   },
   automation: {
     AutomationBot: { name: 'AutomationBot', address: '' },
-    AutomationBotV2: { name: 'AutomationBotV2', address: '' },
+    AutomationBotV2: {
+      name: 'AutomationBotV2',
+      address: '0xEece0010A715bA9c46E0F4fc53b3DA5988e5F043',
+    },
     AutomationBotAggregator: { name: 'AutomationBotAggregator', address: '' },
   },
   ajna: {
