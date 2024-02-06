@@ -401,6 +401,10 @@ export const config: SystemConfig = {
     },
     MANA: { name: 'MANA', address: ADDRESS_ZERO },
     MATIC: { name: 'MATIC', address: ADDRESS_ZERO },
+    OSETH: {
+      name: 'OSETH',
+      address: ADDRESS_ZERO,
+    },
     PAX: { name: 'PAX', address: ADDRESS_ZERO },
     PAXUSD: { name: 'PAXUSD', address: ADDRESS_ZERO },
     OP: {

@@ -423,6 +423,10 @@ export const config: SystemConfig = {
     LRC: { name: 'LRC', address: '0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD' },
     MANA: { name: 'MANA', address: '0x0F5D2fB29fb7d3CFeE444a200298f468908cC942' },
     MATIC: { name: 'MATIC', address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0' },
+    OSETH: {
+      name: 'OSETH',
+      address: '0xf1c9acdc66974dfb6decb12aa385b9cd01190e38',
+    },
     PAX: { name: 'PAX', address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1' },
     PAXUSD: { name: 'PAXUSD', address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1' },
     RENBTC: { name: 'RENBTC', address: '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D' },
