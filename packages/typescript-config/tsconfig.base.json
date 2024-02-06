@@ -1,0 +1,36 @@
+{
+  "tsBuildInfoFile": ".tsbuildinfo",
+  "compilerOptions": {
+    "lib": ["es2022"],
+    "target": "es2022",
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "types": ["node"],
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "incremental": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true
+  },
+  "references": [
+    {
+      "path": "../abis"
+    },
+    {
+      "path": "../dma-common"
+    },
+    {
+      "path": "../deploy-configurations"
+    },
+    {
+      "path": "../addresses"
+    }
+  ]
+}
