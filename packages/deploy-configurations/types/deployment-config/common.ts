@@ -6,6 +6,7 @@ export type Common =
   | 'UniswapRouterV3'
   | 'BalancerVault'
   | 'OneInchAggregator'
+  | 'OneInchAggregator5'
   | 'AuthorizedCaller'
   | 'FeeRecipient'
   | 'GnosisSafe'
