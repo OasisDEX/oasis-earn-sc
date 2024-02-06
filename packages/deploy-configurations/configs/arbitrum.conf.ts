@@ -363,6 +363,10 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: ADDRESS_ZERO,
     },
+    OSETH: {
+      name: 'OSETH',
+      address: ADDRESS_ZERO,
+    },
     PAX: {
       name: 'PAX',
       address: ADDRESS_ZERO,

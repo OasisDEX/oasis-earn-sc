@@ -537,6 +537,10 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
     },
+    OSETH: {
+      name: 'OSETH',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     PAX: {
       name: 'PAX',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
