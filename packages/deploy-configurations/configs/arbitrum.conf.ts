@@ -9,28 +9,29 @@ export const config: SystemConfig = {
     core: {
       ServiceRegistry: {
         name: 'ServiceRegistry',
-        deploy: false,
-        address: '0xf22f17b1d2354b4f4f52e4d164e4eb5e1f0a6ba6',
+        deploy: true,
+        address: '',
         history: [],
         constructorArgs: [0],
       },
       OperationsRegistry: {
         name: 'OperationsRegistry',
-        deploy: false,
-        address: '0x53B1f1B3f34b5B3C7dA8BD60a7E8ee2eFd175603',
+        deploy: true,
+        address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
         history: [
-          '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
+          '0x53B1f1B3f34b5B3C7dA8BD60a7E8ee2eFd175603',
           '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
         ],
         constructorArgs: [],
       },
       OperationExecutor: {
         name: 'OperationExecutor',
-        deploy: false,
-        address: '0xa7840fa682506117F4549E918930C80c1FC3A46c',
+        deploy: true,
+        address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: [
+          '0xa7840fa682506117F4549E918930C80c1FC3A46c',
           '0x90feaf7727a6ce75f518728d296877830fd39a49',
           '0xa7840fa682506117F4549E918930C80c1FC3A46c',
         ],
@@ -43,10 +44,11 @@ export const config: SystemConfig = {
       },
       OperationStorage: {
         name: 'OperationStorage',
-        deploy: false,
-        address: '0x28cd581B0F96BC046f461cAE9BBd7303fA0fF8e6',
+        deploy: true,
+        address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
         history: [
+          '0x28cd581B0F96BC046f461cAE9BBd7303fA0fF8e6',
           '0xd4FEaf1023CD6998053a1eb02460000980Cc908f',
           '0x28cd581B0F96BC046f461cAE9BBd7303fA0fF8e6',
         ],
@@ -94,10 +96,10 @@ export const config: SystemConfig = {
       },
       Swap: {
         name: 'Swap',
-        deploy: false,
-        address: '0x6166B1587be6B954e660A71e4B083A5e0a5bF1b6',
+        deploy: true,
+        address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
-        history: [],
+        history: ['0x6166B1587be6B954e660A71e4B083A5e0a5bF1b6'],
         constructorArgs: [
           '0x0B5a3C04D1199283938fbe887A2C82C808aa89Fb',
           '0x67e30ba093148e835f47Fd5dcf1AF7D0c58E0f6b',
@@ -117,18 +119,24 @@ export const config: SystemConfig = {
       },
       SwapAction: {
         name: 'SwapAction',
-        deploy: false,
-        address: '0x31d767f6556CE3fC55d6245C9aEF3575aa64BABf',
+        deploy: true,
+        address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
-        history: ['0x43C9a445fCf3bc3d1483c0b90DC0346249c0D84C'],
+        history: [
+          '0x31d767f6556CE3fC55d6245C9aEF3575aa64BABf',
+          '0x43C9a445fCf3bc3d1483c0b90DC0346249c0D84C',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       TakeFlashloan: {
         name: 'TakeFlashloan',
-        deploy: false,
-        address: '0xf309EE5603bF05E5614dB930E4EAB661662aCeE6',
+        deploy: true,
+        address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN,
-        history: ['0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85'],
+        history: [
+          '0xf309EE5603bF05E5614dB930E4EAB661662aCeE6',
+          '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85',
+        ],
         constructorArgs: [
           'address:ServiceRegistry',
           '0x0000000000000000000000000000000000000000',
@@ -137,15 +145,11 @@ export const config: SystemConfig = {
       },
       TakeFlashloanBalancer: {
         name: 'TakeFlashloanBalancer',
-        deploy: false,
-        address: '0xF48e55b1c2D0080E89F12c34452A6298BB397A4C',
+        deploy: true,
+        address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER,
         history: [
-          '',
-          '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
-          '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
-          '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
-          '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
+          '0xF48e55b1c2D0080E89F12c34452A6298BB397A4C',
           '0x2a35D123111ea15cabD125A0e2Faf42bC58e76D3',
         ],
         constructorArgs: [
@@ -157,14 +161,17 @@ export const config: SystemConfig = {
       SetApproval: {
         name: 'SetApproval',
         deploy: true,
-        address: '0x1c98d87b245aA442791Ffb8a7e57380Ed49112FF',
+        address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SET_APPROVAL,
-        history: ['0xAC0B1652388Ea425884e6b60e2eD30155f43D50b'],
+        history: [
+          '0x1c98d87b245aA442791Ffb8a7e57380Ed49112FF',
+          '0xAC0B1652388Ea425884e6b60e2eD30155f43D50b',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       PullToken: {
         name: 'PullToken',
-        deploy: false,
+        deploy: true,
         address: '0x039F7784C5A6f187fcAc027262aA912974A7515D',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
         history: ['0x645325494A37d35cf6baFc82C3e6bcE4473F2685'],
