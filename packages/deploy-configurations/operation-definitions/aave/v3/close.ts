@@ -9,7 +9,7 @@ export function getAaveCloseV3OperationDefinition(network: Network) {
     name: OPERATION_NAMES.aave.v3.CLOSE_POSITION,
     actions: [
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN_BALANCER),
         optional: false,
       },
       {
@@ -37,7 +37,7 @@ export function getAaveCloseV3OperationDefinition(network: Network) {
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW_AUTO),
         optional: false,
       },
       {

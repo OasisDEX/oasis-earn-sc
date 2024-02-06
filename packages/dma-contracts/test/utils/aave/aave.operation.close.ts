@@ -20,7 +20,6 @@ export async function closeAAVEv3(
   debtToken: ERC20,
   aaveLikeAddresses: AaveLikeStrategyAddresses,
   depositEthAmount: BigNumber,
-  maxLTV: BigNumber,
   signer?: SignerWithAddress,
 ) {
   const config = snapshot.config

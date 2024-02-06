@@ -20,7 +20,7 @@ import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
 
-describe.only('AAVE V3 | Close | E2E', async () => {
+describe('AAVE V3 | Close | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let signer: SignerWithAddress
@@ -104,7 +104,6 @@ describe.only('AAVE V3 | Close | E2E', async () => {
 
   it('should close ETH/USDC position', async () => {
     const depositEthAmount = ethers.utils.parseEther('1')
-    const maxLTV = toSolidityPercentage(50.0)
 
     const { success } = await closeAAVEv3(
       snapshot,
@@ -112,7 +111,6 @@ describe.only('AAVE V3 | Close | E2E', async () => {
       DAI,
       aaveLikeAddresses,
       depositEthAmount,
-      maxLTV,
       user,
     )
 
