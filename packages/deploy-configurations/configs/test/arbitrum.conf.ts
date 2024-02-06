@@ -803,8 +803,8 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_AJNADAI',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_CURVEUSDMSDAIDAI: {
-      name: 'AjnaPoolPairs_CURVEUSDMSDAIDAI',
+    AjnaPoolPairs_YVCURVEUSDMSDAIFDAI: {
+      name: 'AjnaPoolPairs_YVCURVEUSDMSDAIFDAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

@@ -1336,8 +1336,8 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_AJNADAI',
       address: '0x2feef99a711d684e00a017c4ac587bea31f12875',
     },
-    AjnaPoolPairs_CURVEUSDMSDAIDAI: {
-      name: 'AjnaPoolPairs_CURVEUSDMSDAIDAI',
+    AjnaPoolPairs_YVCURVEUSDMSDAIFDAI: {
+      name: 'AjnaPoolPairs_YVCURVEUSDMSDAIFDAI',
       address: '0x64aa997236996823a53b8b30ead599aa2f0382fa',
     },
     AjnaRewardsManager: {
