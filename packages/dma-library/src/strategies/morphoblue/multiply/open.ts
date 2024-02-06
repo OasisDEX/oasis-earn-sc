@@ -550,7 +550,7 @@ export function prepareMorphoMultiplyDMAPayload(
     : []
 
   const errors = [
-    ...validateLiquidity(position, position.debtAmount.minus(debtAmount).abs()),
+    ...validateLiquidity(position, targetPosition, position.debtAmount.minus(debtAmount).abs()),
     ...validateBorrowUndercollateralized(
       targetPosition,
       position,

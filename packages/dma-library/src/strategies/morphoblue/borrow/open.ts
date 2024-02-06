@@ -113,7 +113,7 @@ export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, position)]
 
   const errors = [
-    ...validateLiquidity(position, args.quoteAmount),
+    ...validateLiquidity(position, targetPosition, args.quoteAmount),
     ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 

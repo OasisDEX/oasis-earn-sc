@@ -104,7 +104,7 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, position)]
 
   const errors = [
-    ...validateLiquidity(position, args.quoteAmount),
+    ...validateLiquidity(position, targetPosition, args.quoteAmount),
     ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 
