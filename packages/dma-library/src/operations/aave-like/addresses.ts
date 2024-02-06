@@ -1,5 +1,4 @@
-import { Address } from '@deploy-configurations/types/address'
-import { Tokens } from '@deploy-configurations/types/deployment-config'
+import { Address, Tokens } from '@oasisdex/deploy-configurations/types'
 
 type RequiredTokens = 'WETH' | 'DAI' | 'ETH' | 'USDC'
 type OptionalTokens = Exclude<Tokens, RequiredTokens>

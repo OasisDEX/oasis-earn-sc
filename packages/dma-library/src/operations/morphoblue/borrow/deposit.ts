@@ -1,14 +1,14 @@
-import { getMorphoBlueDepositOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Address } from '@deploy-configurations/types/address'
-import { Network } from '@deploy-configurations/types/network'
-import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import { DepositSwapArgs } from '@dma-library/operations/aave-like'
-import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
-import { ActionCall, IOperation, MorphoBlueMarket } from '@dma-library/types'
-import { isDefined } from '@dma-library/utils/is-defined'
-import { getIsSwapNeeded, getSwapInputToken } from '@dma-library/utils/swap'
+import { getMorphoBlueDepositOperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { Address, Network } from '@oasisdex/deploy-configurations/types'
+import { NULL_ADDRESS, ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
+
+import { actions } from '../../../actions'
+import { ActionCall, IOperation, MorphoBlueMarket } from '../../../types'
+import { isDefined } from '../../../utils/is-defined'
+import { getIsSwapNeeded, getSwapInputToken } from '../../../utils/swap'
+import { DepositSwapArgs } from '../../aave-like'
+import { MorphoBlueStrategyAddresses } from '../addresses'
 
 export type MorphoBlueDepositArgs = {
   morphoBlueMarket: MorphoBlueMarket

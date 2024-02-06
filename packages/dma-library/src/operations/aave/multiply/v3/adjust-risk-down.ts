@@ -1,7 +1,7 @@
-import { getAaveAdjustDownV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { MAX_UINT } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import { IOperation } from '@dma-library/types'
+import { getAaveAdjustDownV3OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { MAX_UINT } from '@oasisdex/dma-common/constants'
+import { actions } from '../../../../actions'
+import { IOperation } from '../../../../types'
 import {
   WithAaveLikeStrategyAddresses,
   WithCollateralAndWithdrawal,
@@ -10,7 +10,7 @@ import {
   WithNetwork,
   WithProxy,
   WithSwap,
-} from '@dma-library/types/operations'
+} from '../../../../types/operations'
 import BigNumber from 'bignumber.js'
 
 export type AdjustRiskDownArgs = WithCollateralAndWithdrawal &

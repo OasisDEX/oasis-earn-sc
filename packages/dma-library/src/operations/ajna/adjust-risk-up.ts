@@ -1,7 +1,7 @@
-import { getAjnaAdjustUpOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { FEE_BASE, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
+import { getAjnaAdjustUpOperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { FEE_BASE, ZERO } from '@oasisdex/dma-common/constants'
+import { actions } from '../../actions'
+import { BALANCER_FEE } from '../../config/flashloan-fees'
 import {
   IOperation,
   WithAjnaBucketPrice,
@@ -13,8 +13,8 @@ import {
   WithOptionalDeposit,
   WithProxy,
   WithSwap,
-} from '@dma-library/types'
-import { FlashloanProvider } from '@dma-library/types/common'
+  FlashloanProvider,
+} from '../../types'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 

@@ -1,16 +1,12 @@
-import { getAaveDepositV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Address } from '@deploy-configurations/types/address'
-import { Network } from '@deploy-configurations/types/network'
-import { ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import {
-  AaveLikeStrategyAddresses,
-  DepositArgs,
-  DepositSwapArgs,
-} from '@dma-library/operations/aave-like'
-import { ActionCall, IOperation } from '@dma-library/types'
-import { isDefined } from '@dma-library/utils/is-defined'
+import { getAaveDepositV3OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { Address, Network } from '@oasisdex/deploy-configurations/types'
+import { ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
+
+import { actions } from '../../../../actions'
+import { ActionCall, IOperation } from '../../../../types'
+import { isDefined } from '../../../../utils/is-defined'
+import { AaveLikeStrategyAddresses, DepositArgs, DepositSwapArgs } from '../../../aave-like'
 
 export type AaveV3DepositOperation = (
   args: DepositArgs,

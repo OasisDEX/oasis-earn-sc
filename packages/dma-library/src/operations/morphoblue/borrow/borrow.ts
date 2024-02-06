@@ -1,9 +1,9 @@
-import { getMorphoBlueBorrowOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Network } from '@deploy-configurations/types/network'
-import { actions } from '@dma-library/actions'
-import { ActionCall, IOperation, MorphoBlueMarket } from '@dma-library/types'
+import { getMorphoBlueBorrowOperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { Network } from '@oasisdex/deploy-configurations/types'
 import BigNumber from 'bignumber.js'
 
+import { actions } from '../../../actions'
+import { ActionCall, IOperation, MorphoBlueMarket } from '../../../types'
 import { MorphoBlueStrategyAddresses } from '../addresses'
 
 export type MorphoBlueBorrowArgs = {

@@ -1,8 +1,11 @@
-import { getAjnaOpenOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Network } from '@deploy-configurations/types/network'
-import { FEE_BASE, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
+import { getAjnaOpenOperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { Network } from '@oasisdex/deploy-configurations/types'
+import { FEE_BASE, ZERO } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+
+import { actions } from '../../actions'
+import { BALANCER_FEE } from '../../config/flashloan-fees'
 import {
   FlashloanProvider,
   IOperation,
@@ -17,9 +20,7 @@ import {
   WithPosition,
   WithProxy,
   WithSwap,
-} from '@dma-library/types'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
+} from '../../types'
 
 type OpenArgs = WithCollateral &
   WithDebtAndBorrow &

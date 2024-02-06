@@ -1,11 +1,14 @@
-import { FEE_BASE, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { calculateFee } from '@dma-common/utils/swap'
-import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
-import { isRiskIncreasing } from '@domain/utils/risk-direction'
+import { FEE_BASE, ONE, TYPICAL_PRECISION, ZERO } from '@oasisdex/dma-common/constants'
+import { calculateFee } from '@oasisdex/dma-common/utils/swap'
 import BigNumber from 'bignumber.js'
 
 import { createRiskRatio, Delta, IPositionV2, Swap } from './position'
 import { IRiskRatio } from './risk-ratio'
+import {
+  isRiskIncreasing,
+  revertToTokenSpecificPrecision,
+  standardiseAmountTo18Decimals,
+} from './utils'
 
 interface AdjustToParams {
   toDeposit: {

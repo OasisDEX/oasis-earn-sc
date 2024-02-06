@@ -1,8 +1,11 @@
-import { getAaveOpenV2OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Protocol } from '@deploy-configurations/types/protocol'
-import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import { FlashloanProvider } from '@dma-library/types/common'
+import { getAaveOpenV2OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { Protocol } from '@oasisdex/deploy-configurations/types'
+import { NULL_ADDRESS, ZERO } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+
+import { actions } from '../../../../actions'
+import { FlashloanProvider } from '../../../../types'
 import {
   IOperation,
   WithAaveLikeStrategyAddresses,
@@ -14,9 +17,7 @@ import {
   WithPosition,
   WithProxy,
   WithSwap,
-} from '@dma-library/types/operations'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
+} from '../../../../types/operations'
 
 export type OpenV2OperationArgs = WithCollateral &
   WithDebtAndBorrow &

@@ -1,4 +1,4 @@
-import { Address } from '@deploy-configurations/types/address'
+import { Address } from '@oasisdex/deploy-configurations/types'
 import BigNumber from 'bignumber.js'
 
 export type DepositSwapArgs = {

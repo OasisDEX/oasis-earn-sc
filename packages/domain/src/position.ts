@@ -1,13 +1,16 @@
-import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { Optional } from '@dma-common/types/optional'
-import { amountFromWei } from '@dma-common/utils/common'
-import { adjustToTargetRiskRatio, WithFlags } from '@domain/adjust-position'
-import { transientCollateralFlashloan } from '@domain/flashloans'
-import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
-import { isRiskIncreasing } from '@domain/utils/risk-direction'
+import { ONE, TYPICAL_PRECISION, ZERO } from '@oasisdex/dma-common/constants'
+import { Optional } from '@oasisdex/dma-common/types'
+import { amountFromWei } from '@oasisdex/dma-common/utils/common'
 import BigNumber from 'bignumber.js'
 
+import { adjustToTargetRiskRatio, WithFlags } from './adjust-position'
+import { transientCollateralFlashloan } from './flashloans'
 import { IRiskRatio, RiskRatio } from './risk-ratio'
+import {
+  isRiskIncreasing,
+  revertToTokenSpecificPrecision,
+  standardiseAmountTo18Decimals,
+} from './utils'
 
 interface IPositionBalance {
   amount: BigNumber

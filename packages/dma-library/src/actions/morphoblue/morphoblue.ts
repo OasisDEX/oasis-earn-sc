@@ -1,10 +1,11 @@
-import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
-import { Network } from '@deploy-configurations/types/network'
-import { getActionHash } from '@deploy-configurations/utils/action-hash'
-import { Address } from '@dma-common/types'
-import { ActionFactory } from '@dma-library/actions/action-factory'
-import { ActionCall, calldataTypes, MorphoBlueMarket } from '@dma-library/types'
+import { ADDRESS_ZERO, loadContractNames } from '@oasisdex/deploy-configurations/constants'
+import { Network } from '@oasisdex/deploy-configurations/types'
+import { getActionHash } from '@oasisdex/deploy-configurations/utils'
+import { Address } from '@oasisdex/dma-common/types'
 import BigNumber from 'bignumber.js'
+
+import { ActionCall, calldataTypes, MorphoBlueMarket } from '../../types'
+import { ActionFactory } from '../action-factory'
 
 const createAction = ActionFactory.create
 

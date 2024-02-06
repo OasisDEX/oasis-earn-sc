@@ -1,8 +1,8 @@
-import { loadContractNames } from '@deploy-configurations/constants'
-import { Network } from '@deploy-configurations/types/network'
-import { getActionHash } from '@deploy-configurations/utils/action-hash'
-import { ActionFactory } from '@dma-library/actions/action-factory'
-import { ActionCall, calldataTypes } from '@dma-library/types'
+import { loadContractNames } from '@oasisdex/deploy-configurations/constants'
+import { Network } from '@oasisdex/deploy-configurations/types'
+import { getActionHash } from '@oasisdex/deploy-configurations/utils'
+import { ActionFactory } from '../../action-factory'
+import { ActionCall, calldataTypes } from '../../../types'
 import BigNumber from 'bignumber.js'
 
 const createAction = ActionFactory.create

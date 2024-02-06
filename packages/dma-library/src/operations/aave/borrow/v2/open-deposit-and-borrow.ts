@@ -1,13 +1,9 @@
-import { Network } from '@deploy-configurations/types/network'
-import { OPERATION_NAMES } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import {
-  AaveLikeStrategyAddresses,
-  BorrowArgs,
-  DepositArgs,
-} from '@dma-library/operations/aave-like'
-import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/types'
+import { Network } from '@oasisdex/deploy-configurations/types'
+import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 
+import { actions } from '../../../../actions'
+import { ActionCall, IOperation, PositionType, Protocol } from '../../../../types'
+import { AaveLikeStrategyAddresses, BorrowArgs, DepositArgs } from '../../../aave-like'
 import { borrow } from './borrow'
 import { deposit } from './deposit'
 

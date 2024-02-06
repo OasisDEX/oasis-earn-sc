@@ -1,28 +1,30 @@
 {
   "name": "@oasisdex/domain",
-  "packageManager": "yarn@1.22.1",
   "version": "1.0.0",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "type": "module",
   "private": true,
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf lib && rm -f tsconfig.tsbuildinfo",
-    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
-    "lint:fix": "yarn eslint . --fix --ext .ts",
-    "test": "yarn run test:unit",
-    "test:unit": "npx hardhat test ./test/position.test.ts"
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts",
+    "test": "pnpm run test:unit",
+    "test:unit": "npx hardhat test ./test/position.test.ts",
+    "tsc": "tsc",
+    "watch": "tsc -w",
+    "build": "tsc -b -v"
   },
   "dependencies": {
-    "bignumber.js": "9.0.1"
+    "bignumber.js": "9.0.1",
+    "@oasisdex/dma-common": "workspace:*"
   },
   "devDependencies": {
     "@google-cloud/local-auth": "2.1.1",
-    "googleapis": "107"
-  },
-  "nx": {
-    "implicitDependencies": [
-      "@oasisdex/dma-common"
-    ]
+    "googleapis": "107",
+    "@oasisdex/typescript-config": "workspace:*",
+    "@oasisdex/eslint-config": "workspace:*",
+    "eslint": "^8.56.0"
   }
 }

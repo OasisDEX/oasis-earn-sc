@@ -1,15 +1,45 @@
 {
   "name": "@oasisdex/deploy-configurations",
-  "packageManager": "yarn@1.22.1",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "private": true,
-  "main": "./addresses/index.ts",
-  "types": "./addresses/index.ts",
+  "type": "module",
   "scripts": {
-    "clean": "rm -f tsconfig.tsbuildinfo && find ./ -name \"*.d.ts\" -delete && find ./ -name \"*.d.ts.map\" -delete",
-    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.json",
-    "lint:fix": "yarn eslint . --fix --ext .ts"
+    "lint:fix": "eslint . --fix",
+    "lint": "eslint . --max-warnings=0",
+    "tsc": "tsc",
+    "watch": "tsc -w",
+    "build": "tsc -b -v && tsc-alias -p tsconfig.json"
+  },
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./addresses": {
+        "import": "./lib/addresses/index.js",
+        "types": "./lib/addresses/index.d.ts"
+    },
+    "./configs": {
+        "import": "./lib/configs/index.js",
+        "types": "./lib/configs/index.d.ts"
+    },
+    "./constants": {
+        "import": "./lib/constants/index.js",
+        "types": "./lib/constants/index.d.ts"
+    },
+    "./operation-definitions": {
+        "import": "./lib/operation-definitions/index.js",
+        "types": "./lib/operation-definitions/index.d.ts"
+    },
+    "./types": {
+        "import": "./lib/types/index.js",
+        "types": "./lib/types/index.d.ts"
+    },
+    "./utils": {
+        "import": "./lib/utils/index.js",
+        "types": "./lib/utils/index.d.ts"
+    }
   },
   "dependencies": {
     "@safe-global/safe-core-sdk": "^3.3.2",
@@ -20,5 +50,11 @@
     "ethers": "^5.7.2",
     "node-cache": "^5.1.2",
     "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@oasisdex/typescript-config": "workspace:*",
+    "@oasisdex/eslint-config": "workspace:*",
+    "eslint": "^8.56.0",
+    "tsc-alias": "^1.8.8"
   }
 }

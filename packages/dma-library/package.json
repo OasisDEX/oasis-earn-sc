@@ -27,11 +27,6 @@
     "bignumber.js": "9.0.1",
     "ethers": "^5.7.2"
   },
-  "nx": {
-    "implicitDependencies": [
-      "@oasisdex/domain"
-    ]
-  },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.4.1",
@@ -39,6 +34,12 @@
     "mocha": "^10.2.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "@oasisdex/domain": "workspace:*",
+    "@oasisdex/abis": "workspace:*",
+    "@oasisdex/typescript-config": "workspace:*",
+    "@oasisdex/eslint-config": "workspace:*",
+    "@oasisdex/deploy-configurations": "workspace:*",
+    "@oasisdex/dma-common": "workspace:*"
   }
 }

@@ -1,32 +1,10 @@
 {
-  "extends": "../../tsconfig.options.json",
+  "extends": "@oasisdex/typescript-config/tsconfig.base.json",
   "compilerOptions": {
-    "typeRoots": ["../../node_modules/@types"],
-    "paths": {
-      "@abis/external/*": ["../abis/external/*"],
-      "@abis/system/*": ["../abis/system/*"],
-      "@dma-common/constants": ["./constants/index.ts"],
-      "@dma-common/utils/*": ["./utils/*"],
-      "@dma-common/test-utils": ["./test-utils/index.ts"],
-      "@dma-common/test-utils/*": ["./test-utils/*"],
-      "@dma-common/types/*": ["./types/*"],
-      "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
-      "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
-      "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
-      "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
-      "@deploy-configurations/configs": ["../deploy-configurations/configs/index.ts"],
-      "@deploy-configurations/operation-definitions": [
-        "../deploy-configurations/operation-definitions/index.ts"
-      ]
-    }
+    "outDir": "lib",
+    "rootDir": "src",
+    "types": ["@nomiclabs/hardhat-ethers"]
   },
-  "references": [
-    {
-      "path": "../abis"
-    },
-    {
-      "path": "../deploy-configurations"
-    }
-  ],
-  "include": ["./constants", "./utils", "./test-utils", "./types", "./hardhat.config.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

@@ -1,20 +1,15 @@
-import { getAaveMigrateEOAV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { MAX_UINT } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import {
-  IOperation,
-  WithFlashloan,
-  WithNetwork,
-  WithPositionType,
-  WithProxy,
-} from '@dma-library/types'
+import { getAaveMigrateEOAV3OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { MAX_UINT } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
+
+import { actions } from '../../../actions'
+import { IOperation, WithFlashloan, WithNetwork, WithPositionType, WithProxy } from '../../../types'
 import {
   WithAaveLikeStrategyAddresses,
   WithAToken,
   WithDebt,
   WithVDToken,
-} from '@dma-library/types/operations'
-import BigNumber from 'bignumber.js'
+} from '../../../types/operations'
 
 export type MigrateEOAV3OperationArgs = WithDebt &
   WithAToken &

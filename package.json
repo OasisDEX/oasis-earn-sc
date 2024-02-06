@@ -1,6 +1,5 @@
 {
   "name": "oasis-mono",
-  "packageManager": "yarn@1.22.17",
   "license": "ISC",
   "engines": {
     "node": ">=16"
@@ -51,6 +50,7 @@
     "@types/mocha": "^10.0.1",
     "@types/prompts": "^2.4.2",
     "@types/ramda": "^0.29.2",
+    "@types/node": "^18.15.3",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "bignumber.js": "9.0.1",
@@ -129,7 +129,7 @@
     "@domain/risk-ratio": "./packages/domain/src/risk-ratio.ts"
   },
   "resolutions": {
-    "hardhat/**/@ethereumjs/tx": "3.5.0",
     "ethers": "^5.7.2"
-  }
+  },
+  "packageManager": "pnpm@8.14.1"
 }

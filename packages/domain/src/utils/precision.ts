@@ -1,4 +1,4 @@
-import { TYPICAL_PRECISION } from '@dma-common/constants'
+import { TYPICAL_PRECISION } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 
 /**

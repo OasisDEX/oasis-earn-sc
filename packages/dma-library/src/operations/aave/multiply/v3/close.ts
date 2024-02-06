@@ -1,6 +1,8 @@
-import { getAaveCloseV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
+import { getAaveCloseV3OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { MAX_UINT, ZERO } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
+
+import { actions } from '../../../../actions'
 import {
   IOperation,
   WithCollateral,
@@ -10,9 +12,8 @@ import {
   WithPositionAndLockedCollateral,
   WithProxy,
   WithSwap,
-} from '@dma-library/types'
-import { WithAaveLikeStrategyAddresses } from '@dma-library/types/operations'
-import BigNumber from 'bignumber.js'
+} from '../../../../types'
+import { WithAaveLikeStrategyAddresses } from '../../../../types/operations'
 
 export type CloseArgs = WithCollateral &
   WithDebt &

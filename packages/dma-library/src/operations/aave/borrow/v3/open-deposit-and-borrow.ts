@@ -1,14 +1,10 @@
-import { OperationNames } from '@deploy-configurations/constants'
-import { getAaveOpenDepositBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Network } from '@deploy-configurations/types/network'
-import { actions } from '@dma-library/actions'
-import {
-  AaveLikeStrategyAddresses,
-  BorrowArgs,
-  DepositArgs,
-} from '@dma-library/operations/aave-like'
-import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/types'
+import { OperationNames } from '@oasisdex/deploy-configurations/constants'
+import { getAaveOpenDepositBorrowV3OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { Network } from '@oasisdex/deploy-configurations/types'
 
+import { actions } from '../../../../actions'
+import { ActionCall, IOperation, PositionType, Protocol } from '../../../../types'
+import { AaveLikeStrategyAddresses, BorrowArgs, DepositArgs } from '../../../aave-like'
 import { borrow } from './borrow'
 import { deposit } from './deposit'
 

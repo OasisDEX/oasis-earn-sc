@@ -1,20 +1,18 @@
-import { getAaveAdjustUpV2OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import { IOperation } from '@dma-library/types'
-import { FlashloanProvider } from '@dma-library/types/common'
+import { getAaveAdjustUpV2OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { NULL_ADDRESS, ZERO } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+
+import { actions } from '../../../../actions'
+import { FlashloanProvider, IOperation, WithCollateral, WithDebtAndBorrow } from '../../../../types'
 import {
   WithAaveLikeStrategyAddresses,
-  WithCollateral,
-  WithDebtAndBorrow,
   WithFlashloan,
   WithNetwork,
   WithOptionalDeposit,
   WithProxy,
   WithSwap,
-} from '@dma-library/types/operations'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
+} from '../../../../types/operations'
 
 export type AdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &

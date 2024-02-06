@@ -1,7 +1,7 @@
-import { AaveBorrowOperations, AaveMultiplyOperations, operations } from '@dma-library/operations'
-import { SparkBorrowOperations, SparkMultiplyOperations } from '@dma-library/operations/spark'
-import { PositionType } from '@dma-library/types'
-import { AaveLikeProtocol } from '@dma-library/types/protocol'
+import { AaveBorrowOperations, AaveMultiplyOperations, operations } from '../../operations'
+import { PositionType } from '../../types'
+import { AaveLikeProtocol } from '../../types/protocol'
+import { SparkBorrowOperations, SparkMultiplyOperations } from '../spark'
 
 type AaveProductTypes = PositionType
 
@@ -35,6 +35,7 @@ const resolveProtocolKeyConfig = (
         type: aaveLikeProductType,
       }
   }
+  throw new Error(`Invalid protocol ${protocol}`)
 }
 
 export function isAaveOperation(op: any): op is AaveBorrowOperations | AaveMultiplyOperations {

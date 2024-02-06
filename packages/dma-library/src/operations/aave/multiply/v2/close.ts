@@ -1,10 +1,14 @@
-import { ADDRESSES } from '@deploy-configurations/addresses'
-import { getAaveCloseV2OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Network } from '@deploy-configurations/types/network'
-import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
+import { ADDRESSES } from '@oasisdex/deploy-configurations/addresses'
+import { getAaveCloseV2OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { Network } from '@oasisdex/deploy-configurations/types'
+import { MAX_UINT, ZERO } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
+
+import { actions } from '../../../../actions'
+import { FlashloanProvider } from '../../../../types'
 import {
   IOperation,
+  WithAaveLikeStrategyAddresses,
   WithCollateral,
   WithDebt,
   WithFlashloan,
@@ -12,10 +16,7 @@ import {
   WithPositionAndLockedCollateral,
   WithProxy,
   WithSwap,
-} from '@dma-library/types'
-import { FlashloanProvider } from '@dma-library/types/common'
-import { WithAaveLikeStrategyAddresses } from '@dma-library/types/operations'
-import BigNumber from 'bignumber.js'
+} from '../../../../types/operations'
 
 export type CloseArgs = WithCollateral &
   WithDebt &

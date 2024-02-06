@@ -1,8 +1,9 @@
-import { getAaveBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Network } from '@deploy-configurations/types/network'
-import { actions } from '@dma-library/actions'
-import { AaveLikeStrategyAddresses, BorrowArgs } from '@dma-library/operations/aave-like'
-import { ActionCall, IOperation } from '@dma-library/types'
+import { getAaveBorrowV3OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { Network } from '@oasisdex/deploy-configurations/types'
+
+import { actions } from '../../../../actions'
+import { ActionCall, IOperation } from '../../../../types'
+import { AaveLikeStrategyAddresses, BorrowArgs } from '../../../aave-like'
 
 export type AaveV3BorrowOperation = (
   args: BorrowArgs,

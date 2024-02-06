@@ -1,4 +1,4 @@
-import { ONE } from '@dma-common/constants'
+import { ONE } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 
 export interface IRiskRatio {

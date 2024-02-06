@@ -1,12 +1,7 @@
 {
-  "extends": "../../tsconfig.options.json",
+  "extends": "@oasisdex/typescript-config/tsconfig.base.json",
   "compilerOptions": {
-    "typeRoots": [
-      "../../node_modules/@types"
-    ],
+    "rootDir": "./types/ethers-contracts",
+    "outDir": "lib"
   },
-  "include": [
-    "./external/**/*.json",
-    "./system/**/*.json"
-  ]
 }

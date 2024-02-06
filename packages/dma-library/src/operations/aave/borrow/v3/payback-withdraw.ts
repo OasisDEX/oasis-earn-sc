@@ -1,10 +1,11 @@
-import { getAavePaybackWithdrawV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Network } from '@deploy-configurations/types/network'
-import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import { IOperation } from '@dma-library/types'
+import { getAavePaybackWithdrawV3OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { Network } from '@oasisdex/deploy-configurations/types'
+import { MAX_UINT, ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
+
+import { actions } from '../../../../actions'
+import { IOperation } from '../../../../types'
+import { AaveLikeStrategyAddresses } from '../../../aave-like'
 
 type PaybackWithdrawArgs = {
   amountCollateralToWithdrawInBaseUnit: BigNumber

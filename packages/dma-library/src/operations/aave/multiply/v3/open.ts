@@ -1,6 +1,6 @@
-import { getAaveOpenV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
+import { getAaveOpenV3OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { NULL_ADDRESS, ZERO } from '@oasisdex/dma-common/constants'
+import { actions } from '../../../../actions'
 import {
   IOperation,
   Protocol,
@@ -13,8 +13,8 @@ import {
   WithPosition,
   WithProxy,
   WithSwap,
-} from '@dma-library/types'
-import { WithAaveLikeStrategyAddresses } from '@dma-library/types/operations'
+} from '../../../../types'
+import { WithAaveLikeStrategyAddresses } from '../../../../types/operations'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 

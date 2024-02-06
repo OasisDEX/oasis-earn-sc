@@ -1,17 +1,26 @@
 {
   "name": "@oasisdex/abis",
-  "packageManager": "yarn@1.22.1",
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "prebuild": "yarn typechain",
-    "prelint": "yarn typechain",
+    "tsc": "tsc",
+    "watch": "tsc -w",
+    "build": "tsc -b -v",
+    "prebuild": "pnpm run typechain",
+    "prelint": "pnpm run typechain",
     "typechain": "typechain --target=ethers-v5 \"./external/**/**.json\" \"./system/**/**.json\"",
-    "postinstall": "yarn typechain"
+    "postinstall": "pnpm run typechain"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@oasisdex/typescript-config": "workspace:*",
+    "@typechain/ethers-v5": "^10.2.0"
+  },
   "dependencies": {
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "@ethersproject/providers": "^5.7.2",
+    "@ethersproject/abi": "^5.7.0"
   }
 }

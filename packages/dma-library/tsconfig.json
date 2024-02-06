@@ -1,56 +1,11 @@
 {
-  "extends": "../../tsconfig.options.json",
+  "extends": "@oasisdex/typescript-config/tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./lib",
-    "types": ["node", "mocha"],
-    "typeRoots": [
-      "../../node_modules/@types"
-    ],
-    "paths": {
-      "@abis/external/*": ["../abis/external/*"],
-      "@abis/system/*": ["../abis/system/*"],
-      "@abis/types/*": ["../abis/types/ethers-contracts/*"],
-      "@typechain/*": ["../dma-contracts/typechain/*"],
-      "@typechain": ["../dma-contracts/typechain/index.ts"],
-      "@dma-library/strategies": ["./src/strategies/index.ts"],
-      "@dma-library/types": ["./src/types/index.ts"],
-      "@dma-library/actions/action-factory": ["./src/actions/action-factory.ts"],
-      "@dma-library/*": ["./src/*"],
-      "@dma-common/constants": ["../dma-common/constants"],
-      "@dma-common/utils/*": ["../dma-common/utils/*"],
-      "@dma-common/types": ["../dma-common/types/index.ts"],
-      "@dma-common/types/*": ["../dma-common/types/*"],
-      "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
-      "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
-      "@domain/*": ["../domain/src/*"],
-      "@domain": ["../domain/src/index.ts"],
-      "@deploy-configurations/*": ["../deploy-configurations/*"],
-      "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
-      "@deploy-configurations/operation-definitions": ["../deploy-configurations/operation-definitions/index.ts"],
-    },
+    "rootDir": "./src",
   },
-  "references": [
-    {
-      "path": "../abis"
-    },
-    {
-      "path": "../dma-common"
-    },
-    {
-      "path": "../dma-contracts"
-    },
-    {
-      "path": "../deploy-configurations"
-    },
-    {
-      "path": "../domain"
-    }
-  ],
   "include": [
     "./src",
     "./src/strategies/ajna/earn/buckets.json",
-    "test",
-    "../abis/types",
-    "../dma-contracts/typechain",
   ]
 }

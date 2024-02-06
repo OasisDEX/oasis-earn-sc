@@ -1,8 +1,8 @@
-import { ONE } from '@dma-common/constants'
-import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
+import { ONE } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 
 import { FLASHLOAN_SAFETY_MARGIN } from './constants'
+import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from './utils'
 
 interface TransientCollateralFlashloan {
   (

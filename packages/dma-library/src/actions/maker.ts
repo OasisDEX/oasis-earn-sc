@@ -1,6 +1,6 @@
-import { getActionHash } from '@deploy-configurations/utils/action-hash'
-import { ActionCall, calldataTypes } from '@dma-library/types'
+import { getActionHash } from '@oasisdex/deploy-configurations/utils'
 
+import { ActionCall, calldataTypes } from '../types'
 import { ActionFactory } from './action-factory'
 
 const createAction = ActionFactory.create

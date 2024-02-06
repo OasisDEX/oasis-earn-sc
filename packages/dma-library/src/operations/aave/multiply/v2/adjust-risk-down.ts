@@ -1,7 +1,13 @@
-import { getAaveAdjustDownV2OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { actions } from '@dma-library/actions'
-import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '@dma-library/types'
-import { FlashloanProvider } from '@dma-library/types/common'
+import { getAaveAdjustDownV2OperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import BigNumber from 'bignumber.js'
+
+import { actions } from '../../../../actions'
+import {
+  FlashloanProvider,
+  IOperation,
+  WithCollateralAndWithdrawal,
+  WithDebt,
+} from '../../../../types'
 import {
   WithAaveLikeStrategyAddresses,
   WithFlashloan,
@@ -9,8 +15,7 @@ import {
   WithOptionalDeposit,
   WithProxy,
   WithSwap,
-} from '@dma-library/types/operations'
-import BigNumber from 'bignumber.js'
+} from '../../../../types/operations'
 
 export type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithDebt &

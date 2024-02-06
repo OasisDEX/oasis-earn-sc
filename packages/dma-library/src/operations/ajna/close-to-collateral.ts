@@ -1,8 +1,11 @@
-import { getAjnaCloseToCollateralOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { FEE_BASE, MAX_UINT, ZERO } from '@dma-common/constants'
-import { actions } from '@dma-library/actions'
-import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
+import { getAjnaCloseToCollateralOperationDefinition } from '@oasisdex/deploy-configurations/operation-definitions'
+import { FEE_BASE, MAX_UINT, ZERO } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
+
+import { actions } from '../../actions'
+import { BALANCER_FEE } from '../../config/flashloan-fees'
 import {
+  FlashloanProvider,
   IOperation,
   WithAjnaBucketPrice,
   WithAjnaStrategyAddresses,
@@ -12,9 +15,7 @@ import {
   WithNetwork,
   WithProxy,
   WithSwap,
-} from '@dma-library/types'
-import { FlashloanProvider } from '@dma-library/types/common'
-import BigNumber from 'bignumber.js'
+} from '../../types'
 
 type AjnaCloseArgs = WithCollateral &
   WithDebt &

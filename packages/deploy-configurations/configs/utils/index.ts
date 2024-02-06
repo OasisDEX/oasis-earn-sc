@@ -1,1 +1,0 @@
-export { getConfigByNetwork } from './utils'
