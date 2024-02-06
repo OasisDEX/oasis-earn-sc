@@ -1272,6 +1272,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_AJNADAI',
       address: ADDRESS_ZERO,
     },
+    AjnaPoolPairs_CURVEUSDMSDAIDAI: {
+      name: 'AjnaPoolPairs_CURVEUSDMSDAIDAI',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0x0000000000000000000000000000000000000000',
