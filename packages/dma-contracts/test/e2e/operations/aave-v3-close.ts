@@ -20,7 +20,7 @@ import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
 
-describe('AAVE V3 | Close | E2E', async () => {
+describe.only('AAVE V3 | Close | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let signer: SignerWithAddress
