@@ -154,3 +154,7 @@ export type WithCollateralTokenAddress = {
 export type WithDebtTokenAddress = {
   debtTokenAddress: string
 }
+
+export type WithDebtCoverage = {
+  debtCoverage: BigNumber
+}

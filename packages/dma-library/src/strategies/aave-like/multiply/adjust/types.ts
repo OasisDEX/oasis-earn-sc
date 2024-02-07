@@ -8,6 +8,7 @@ import BigNumber from 'bignumber.js'
 export type AaveLikeAdjustArgs = StrategyParams.WithAaveLikeMultiplyStrategyArgs &
   StrategyParams.WithMultiple &
   StrategyParams.WithDeposit &
+  StrategyParams.WithDebtCoverage &
   Partial<StrategyParams.WithFlashLoanArgs>
 
 export type ExtendedAaveLikeAdjustArgs = AaveLikeAdjustArgs & StrategyParams.WithFlashLoanArgs
