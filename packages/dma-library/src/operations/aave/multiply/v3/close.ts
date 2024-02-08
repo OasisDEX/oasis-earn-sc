@@ -49,6 +49,7 @@ export const close: AaveV3CloseOperation = async ({
   const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode(network, {
     categoryId: 0,
   })
+  
   const setFlashLoanApproval = actions.common.setApproval(network, {
     amount: flashloan.token.amount,
     asset: flashloan.token.address,
@@ -60,12 +61,8 @@ export const close: AaveV3CloseOperation = async ({
     amount: flashloan.token.amount,
     asset: flashloan.token.address,
     sumAmounts: false,
+    // setAsCollateral: true
   })
-
-  // const collateralToWithdraw =
-  //   collateral.address === flashloan.token.address
-  //     ? collateralAmountToBeSwapped
-  //     : new BigNumber(MAX_UINT)
 
   const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
     asset: collateral.address,
@@ -83,7 +80,8 @@ export const close: AaveV3CloseOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const swapActionStorageIndex = 3
+
+  const swapActionStorageIndex = 4
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
     network,
     {
@@ -101,11 +99,12 @@ export const close: AaveV3CloseOperation = async ({
     paybackAll: true,
   })
 
-  const withdrawFlashLoan = actions.aave.v3.aaveV3Withdraw(network, {
+  const withdrawFlashLoan = actions.aave.v3.aaveV3WithdrawAuto(network, {
     asset: flashloan.token.address,
     amount: flashloan.token.amount,
     to: addresses.operationExecutor,
-  })
+  },
+  [1])
 
   const withdrawCollateral = actions.aave.v3.aaveV3Withdraw(network, {
     asset: collateral.address,
@@ -127,7 +126,7 @@ export const close: AaveV3CloseOperation = async ({
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
+  const takeAFlashLoan = actions.common.takeAFlashLoanBalancer(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: flashloan.token.address,
     flashloanAmount: flashloan.token.amount,
@@ -142,7 +141,6 @@ export const close: AaveV3CloseOperation = async ({
       paybackInAAVE,
       withdrawFlashLoan,
       withdrawCollateral,
-      unwrapEth,
       returnDebtFunds,
       returnCollateralFunds,
     ],

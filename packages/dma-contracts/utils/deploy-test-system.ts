@@ -295,5 +295,15 @@ async function postDeploymentSystemOverrides(
         },
       },
     })
+    
+    ds.addConfigOverrides({
+      common: {
+        OneInchAggregator: {
+          name: 'OneInchAggregator5',
+          address: mockExchangeAddress,
+          serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR5,
+        },
+      },
+    })
   }
 }
