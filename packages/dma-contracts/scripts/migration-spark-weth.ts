@@ -1,3 +1,4 @@
+/* eslint-disable */
 import aaveProtocolDataProviderAbi from '@abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
 import poolAbi from '@abis/external/protocols/aave/v3/pool.json'
 import erc20abi from '@abis/external/tokens/IERC20.json'

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import aaveProtocolDataProviderAbi from '@abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
 import poolAbi from '@abis/external/protocols/aave/v3/pool.json'
 import erc20abi from '@abis/external/tokens/IERC20.json'
@@ -40,7 +41,7 @@ async function main() {
   await ds.addAllEntries()
 
   const dsSystem = ds.getSystem()
-  const { system, registry, config: systemConfig } = dsSystem
+  const { system, config: systemConfig } = dsSystem
 
   await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
@@ -60,7 +61,7 @@ async function main() {
   ).connect(signer)
   const wethContract = new hre.ethers.Contract(WETHAddress, wethAbi, provider).connect(signer)
 
-  const usdcContract = new hre.ethers.Contract(USDCaddress, erc20abi, provider).connect(signer)
+  // const usdcContract = new hre.ethers.Contract(USDCaddress, erc20abi, provider).connect(signer)
   const aWETHContract = new hre.ethers.Contract(aWETHaddress, erc20abi, provider).connect(signer)
 
   const slot = 3 //for WETH slot 3, for dai slot 2
