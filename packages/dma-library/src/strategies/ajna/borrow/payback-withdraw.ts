@@ -1,11 +1,11 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
-import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { prepareAjnaPayload, resolveTxValue } from '@dma-library/protocols/ajna'
 import { validateLiquidationPriceCloseToMarketPrice } from '@dma-library/strategies/ajna/validation/borrowish/liquidationPriceCloseToMarket'
 import {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
   AjnaPosition,
-  AjnaStrategy,
+  SummerStrategy,
 } from '@dma-library/types/ajna'
 import { ethers } from 'ethers'
 
@@ -19,7 +19,7 @@ import {
 export type AjnaPaybackWithdrawStrategy = (
   args: AjnaBorrowPayload,
   dependencies: AjnaCommonDependencies,
-) => Promise<AjnaStrategy<AjnaPosition>>
+) => Promise<SummerStrategy<AjnaPosition>>
 
 export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, dependencies) => {
   const apa = new ethers.Contract(
@@ -61,6 +61,6 @@ export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, depende
     notices: [],
     successes: [],
     data,
-    txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),
+    txValue: resolveTxValue(isPayingBackEth, args.quoteAmount),
   })
 }

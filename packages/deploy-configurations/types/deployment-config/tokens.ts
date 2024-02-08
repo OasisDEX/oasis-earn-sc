@@ -25,6 +25,7 @@ export type Tokens =
   | 'LUSD'
   | 'MANA'
   | 'MATIC'
+  | 'OSETH'
   // For MKR use McdGov instead
   // | 'MKR'
   | 'OP'
@@ -65,6 +66,7 @@ export type Tokens =
   | 'WETH'
   | 'WLD'
   | 'WSTETH'
+  | 'WEETH'
   | 'YIELDBTC'
   | 'YIELDETH'
   | 'YFI'

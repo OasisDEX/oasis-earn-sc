@@ -423,6 +423,10 @@ export const config: SystemConfig = {
     },
     MANA: { name: 'MANA', address: '0x347fceA8b4fD1a46e2c0DB8F79e22d293c2F8513' },
     MATIC: { name: 'MATIC', address: '0x5B3b6CF665Cc7B4552F4347623a2A9E00600CBB5' },
+    OSETH: {
+      name: 'OSETH',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     PAX: { name: 'PAX', address: '0x4547863912Fe2d17D3827704138957a8317E8dCD' },
     PAXUSD: { name: 'PAXUSD', address: '0x4547863912Fe2d17D3827704138957a8317E8dCD' },
     RENBTC: { name: 'RENBTC', address: '0x30d0A215aef6DadA4771a2b30a59B842f969EfD4' },
@@ -479,6 +483,10 @@ export const config: SystemConfig = {
       name: 'WETH',
       address: '0xCCB14936C2E000ED8393A571D15A2672537838Ad',
       serviceRegistryName: 'WETH',
+    },
+    WEETH: {
+      name: 'WEETH',
+      address: ADDRESS_ZERO,
     },
     WLD: { name: 'WLD', address: ADDRESS_ZERO },
     WSTETH: {
@@ -1135,6 +1143,10 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_AJNADAI: {
       name: 'AjnaPoolPairs_AJNADAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_YVCURVEUSDMSDAIFDAI: {
+      name: 'AjnaPoolPairs_YVCURVEUSDMSDAIFDAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

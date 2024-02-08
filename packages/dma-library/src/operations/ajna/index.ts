@@ -1,4 +1,4 @@
-export { AjnaStrategyAddresses } from './addresses'
+export { SummerStrategyAddresses } from './addresses'
 import { adjustRiskDown, AjnaAdjustRiskDownOperation } from './adjust-risk-down'
 import { adjustRiskUp, AjnaAdjustRiskUpOperation } from './adjust-risk-up'
 import { AjnaCloseToCollateralOperation, closeToCollateral } from './close-to-collateral'

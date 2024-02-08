@@ -586,6 +586,15 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
     },
+    // For MKR use McdGov instead
+    // MKR: {
+    //   name: 'MKR',
+    //   address: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
+    // },
+    OSETH: {
+      name: 'OSETH',
+      address: '0xf1c9acdc66974dfb6decb12aa385b9cd01190e38',
+    },
     PAX: {
       name: 'PAX',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
@@ -730,6 +739,10 @@ export const config: SystemConfig = {
       name: 'WSTETH',
       address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
+    },
+    WEETH: {
+      name: 'WEETH',
+      address: '0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee',
     },
     YIELDBTC: {
       name: 'YIELDBTC',
@@ -1404,6 +1417,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_AJNADAI: {
       name: 'AjnaPoolPairs_AJNADAI',
       address: '0x2feef99a711d684e00a017c4ac587bea31f12875',
+    },
+    AjnaPoolPairs_YVCURVEUSDMSDAIFDAI: {
+      name: 'AjnaPoolPairs_YVCURVEUSDMSDAIFDAI',
+      address: '0x64aa997236996823a53b8b30ead599aa2f0382fa',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',

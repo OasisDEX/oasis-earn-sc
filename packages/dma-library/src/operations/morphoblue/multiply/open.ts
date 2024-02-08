@@ -113,7 +113,7 @@ export const open: MorphoBlueOpenOperation = async ({
       amount: depositAmount,
       sumAmounts: true,
     },
-    [swapActionStorageIndex, 0],
+    [0, swapActionStorageIndex],
   )
 
   const borrowDebtTokens = actions.morphoblue.borrow(network, {

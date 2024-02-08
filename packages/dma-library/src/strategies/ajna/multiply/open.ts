@@ -17,7 +17,7 @@ import {
   PositionType,
   SwapData,
 } from '@dma-library/types'
-import { AjnaCommonDMADependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
+import { AjnaCommonDMADependencies, AjnaPosition, SummerStrategy } from '@dma-library/types/ajna'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import * as Domain from '@domain'
@@ -27,7 +27,7 @@ import BigNumber from 'bignumber.js'
 export type AjnaOpenMultiplyStrategy = (
   args: AjnaOpenMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
-) => Promise<AjnaStrategy<AjnaPosition>>
+) => Promise<SummerStrategy<AjnaPosition>>
 
 const positionType: PositionType = 'Multiply'
 

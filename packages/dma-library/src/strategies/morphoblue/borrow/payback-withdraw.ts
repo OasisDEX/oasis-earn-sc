@@ -4,10 +4,10 @@ import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
 import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
 import { validateWithdrawCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
-import { AjnaStrategy, MorphoBluePosition } from '@dma-library/types'
+import { MorphoBluePosition, SummerStrategy } from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { views } from '@dma-library/views'
-import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
+import { GetCumulativesData, views } from '@dma-library/views'
+import { MorphoCumulativesData } from '@dma-library/views/morpho'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -28,7 +28,7 @@ export interface MorphobluePaybackWithdrawPayload {
 
 export interface MorphoBlueCommonDependencies {
   provider: ethers.providers.Provider
-  getCumulatives: GetMorphoCumulativesData
+  getCumulatives: GetCumulativesData<MorphoCumulativesData>
   network: Network
   addresses: MorphoBlueStrategyAddresses
   operationExecutor: Address
@@ -37,7 +37,7 @@ export interface MorphoBlueCommonDependencies {
 export type MorphoPaybackWithdrawStrategy = (
   args: MorphobluePaybackWithdrawPayload,
   dependencies: MorphoBlueCommonDependencies,
-) => Promise<AjnaStrategy<MorphoBluePosition>>
+) => Promise<SummerStrategy<MorphoBluePosition>>
 
 export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, dependencies) => {
   const getPosition = views.morpho.getPosition
@@ -65,7 +65,7 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
 
   const operation = await operations.morphoblue.borrow.paybackWithdraw(
     {
-      amountDebtToPaybackInBaseUnit: amountDebtToPaybackInBaseUnit,
+      amountDebtToPaybackInBaseUnit,
       proxy: args.proxyAddress,
       amountCollateralToWithdrawInBaseUnit: amountToWei(
         args.collateralAmount,
@@ -79,7 +79,7 @@ export const paybackWithdraw: MorphoPaybackWithdrawStrategy = async (args, depen
         irm: position.marketParams.irm,
         lltv: position.marketParams.lltv.times(TEN.pow(18)),
       },
-      isPaybackAll: amountDebtToPaybackInBaseUnit.gte(position.debtAmount),
+      isPaybackAll: args.quoteAmount.gte(position.debtAmount),
     },
     dependencies.addresses,
     dependencies.network,

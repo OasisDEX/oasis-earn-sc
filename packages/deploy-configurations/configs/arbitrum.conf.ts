@@ -371,6 +371,10 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: ADDRESS_ZERO,
     },
+    OSETH: {
+      name: 'OSETH',
+      address: ADDRESS_ZERO,
+    },
     PAX: {
       name: 'PAX',
       address: ADDRESS_ZERO,
@@ -510,6 +514,10 @@ export const config: SystemConfig = {
       name: 'WSTETH',
       address: '0x5979D7b546E38E414F7E9822514be443A4800529',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
+    },
+    WEETH: {
+      name: 'WEETH',
+      address: ADDRESS_ZERO,
     },
     YIELDBTC: {
       name: 'YIELDBTC',
@@ -675,7 +683,10 @@ export const config: SystemConfig = {
   },
   automation: {
     AutomationBot: { name: 'AutomationBot', address: '' },
-    AutomationBotV2: { name: 'AutomationBotV2', address: '' },
+    AutomationBotV2: {
+      name: 'AutomationBotV2',
+      address: '0xEece0010A715bA9c46E0F4fc53b3DA5988e5F043',
+    },
     AutomationBotAggregator: { name: 'AutomationBotAggregator', address: '' },
   },
   ajna: {
@@ -815,6 +826,10 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_AJNADAI: {
       name: 'AjnaPoolPairs_AJNADAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_YVCURVEUSDMSDAIFDAI: {
+      name: 'AjnaPoolPairs_YVCURVEUSDMSDAIFDAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

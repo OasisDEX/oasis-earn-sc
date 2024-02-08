@@ -3,13 +3,14 @@ import { BigNumber } from 'bignumber.js';
 import * as yup from 'yup';
 
 import type { Command } from '../cli/command';
+import { getCumulatives } from '../logic/common/getCumulatives';
 
 const argsSchema = yup.object().shape({});
 
 const morphoBlueMarket =
-  '0xc20ac032046932de07497da27f9c2a3bd8ecaf3fdcab6b4f70b7088ac0404dc9';
-const morphoAddress = '0x3ecc1901aa1e6ba58a9c2209b0a6d6ac3f88a6c9';
-const proxyAddress = '0xc160a4d20f9e1f66b916cc1df1ee818e95f30890';
+  '0xb323495f7e4148be5643a4ea4a8221eef163e4bccfdedc2a6f4696baacbc86cc';
+const morphoAddress = '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb';
+const proxyAddress = '0x8451C582AB882fb534175B5465E91DfbDE97917e';
 
 export const morphoViewCommand: Command<typeof argsSchema> = {
   name: 'morpho-view' as const,
@@ -23,16 +24,10 @@ export const morphoViewCommand: Command<typeof argsSchema> = {
         collateralPriceUSD: new BigNumber(2100),
         quotePriceUSD: new BigNumber(200),
         collateralPrecision: 18,
-        quotePrecision: 18,
+        quotePrecision: 6,
       },
       {
-        getCumulatives: () => {
-          return Promise.resolve({
-            borrowCumulativeDepositUSD: new BigNumber('0'),
-            borrowCumulativeFeesUSD: new BigNumber('0'),
-            borrowCumulativeWithdrawUSD: new BigNumber('0'),
-          });
-        },
+        getCumulatives,
         provider: enviroment.provider,
         morphoAddress: morphoAddress,
       },
@@ -44,6 +39,7 @@ export const morphoViewCommand: Command<typeof argsSchema> = {
         debtToken ${position.marketParams.loanToken}
         debt ${position.debtAmount.toString()}
         liquidationPrice ${position.liquidationPrice.toString()}
+        ltv ${position.riskRatio.loanToValue.toString()}
 
       Market:
         totalSupplyAssets ${position.market.totalSupplyAssets.toString()}

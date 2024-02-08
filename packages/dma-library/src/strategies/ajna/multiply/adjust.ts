@@ -11,9 +11,9 @@ import {
 import {
   AjnaMultiplyPayload,
   AjnaPosition,
-  AjnaStrategy,
   FlashloanProvider,
   PositionType,
+  SummerStrategy,
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies } from '@dma-library/types/ajna'
@@ -25,7 +25,7 @@ import BigNumber from 'bignumber.js'
 export type AjnaAdjustRiskStrategy = (
   args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
-) => Promise<AjnaStrategy<AjnaPosition>>
+) => Promise<SummerStrategy<AjnaPosition>>
 
 const positionType: PositionType = 'Multiply'
 

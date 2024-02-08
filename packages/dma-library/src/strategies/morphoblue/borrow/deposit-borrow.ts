@@ -4,10 +4,10 @@ import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
 import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
 import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
-import { AjnaStrategy, MorphoBluePosition } from '@dma-library/types'
+import { MorphoBluePosition, SummerStrategy } from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { views } from '@dma-library/views'
-import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
+import { GetCumulativesData, views } from '@dma-library/views'
+import { MorphoCumulativesData } from '@dma-library/views/morpho'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -29,7 +29,7 @@ export interface MorphoblueDepositBorrowPayload {
 
 export interface MorphoBlueCommonDependencies {
   provider: ethers.providers.Provider
-  getCumulatives: GetMorphoCumulativesData
+  getCumulatives: GetCumulativesData<MorphoCumulativesData>
   network: Network
   addresses: MorphoBlueStrategyAddresses
   operationExecutor: Address
@@ -38,7 +38,7 @@ export interface MorphoBlueCommonDependencies {
 export type MorphoDepositBorrowStrategy = (
   args: MorphoblueDepositBorrowPayload,
   dependencies: MorphoBlueCommonDependencies,
-) => Promise<AjnaStrategy<MorphoBluePosition>>
+) => Promise<SummerStrategy<MorphoBluePosition>>
 
 export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependencies) => {
   const getPosition = views.morpho.getPosition
@@ -104,7 +104,7 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, position)]
 
   const errors = [
-    ...validateLiquidity(position, args.quoteAmount),
+    ...validateLiquidity(position, targetPosition, args.quoteAmount),
     ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 

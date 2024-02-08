@@ -11,19 +11,18 @@ import {
   getPoolLiquidity,
   getTotalPoolLiquidity,
 } from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
-import { AjnaPosition, SwapData } from '@dma-library/types'
+import { AjnaPosition, CommonDMADependencies, SwapData } from '@dma-library/types'
 import {
   AjnaCommonDependencies,
-  AjnaCommonDMADependencies,
   AjnaEarnActions,
   AjnaEarnPayload,
   AjnaEarnPosition,
   AjnaError,
   AjnaNotice,
   AjnaPool,
-  AjnaStrategy,
   AjnaSuccess,
   AjnaWarning,
+  SummerStrategy,
 } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -37,7 +36,7 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
   txValue,
   swaps,
 }: {
-  dependencies: AjnaCommonDMADependencies
+  dependencies: CommonDMADependencies
   targetPosition: T
   errors: AjnaError[]
   warnings: AjnaWarning[]
@@ -46,7 +45,7 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
   data: string
   txValue: string
   swaps: (SwapData & { collectFeeFrom: 'sourceToken' | 'targetToken'; tokenFee: BigNumber })[]
-}): AjnaStrategy<T> => {
+}): SummerStrategy<T> => {
   return {
     simulation: {
       swaps: swaps.map(swap => ({
@@ -92,7 +91,7 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   successes: AjnaSuccess[]
   data: string
   txValue: string
-}): AjnaStrategy<T> => {
+}): SummerStrategy<T> => {
   return {
     simulation: {
       swaps: [],
@@ -152,7 +151,7 @@ export const getAjnaEarnActionOutput = async ({
   })
 }
 
-export const resolveAjnaEthAction = (isUsingEth: boolean, amount: BigNumber) =>
+export const resolveTxValue = (isUsingEth: boolean, amount: BigNumber) =>
   isUsingEth ? ethers.utils.parseEther(amount.toString()).toString() : '0'
 
 export const calculateAjnaApyPerDays = (amount: BigNumber, apy: BigNumber, days: number) =>

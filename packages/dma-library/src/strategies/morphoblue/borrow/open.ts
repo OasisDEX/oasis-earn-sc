@@ -9,10 +9,10 @@ import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validatio
 //   validateDustLimit,
 //   validateLiquidity,
 // } from '../../validation'
-import { AjnaStrategy, MorphoBluePosition } from '@dma-library/types'
+import { MorphoBluePosition, SummerStrategy } from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { views } from '@dma-library/views'
-import { GetMorphoCumulativesData } from '@dma-library/views/morpho'
+import { GetCumulativesData, views } from '@dma-library/views'
+import { MorphoCumulativesData } from '@dma-library/views/morpho'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -34,7 +34,7 @@ export interface MorphoblueOpenBorrowPayload {
 
 export interface MorphoBlueCommonDependencies {
   provider: ethers.providers.Provider
-  getCumulatives: GetMorphoCumulativesData
+  getCumulatives: GetCumulativesData<MorphoCumulativesData>
   network: Network
   addresses: MorphoBlueStrategyAddresses
   operationExecutor: Address
@@ -43,7 +43,7 @@ export interface MorphoBlueCommonDependencies {
 export type MorphoOpenBorrowStrategy = (
   args: MorphoblueOpenBorrowPayload,
   dependencies: MorphoBlueCommonDependencies,
-) => Promise<AjnaStrategy<MorphoBluePosition>>
+) => Promise<SummerStrategy<MorphoBluePosition>>
 
 export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
   const getPosition = views.morpho.getPosition
@@ -113,7 +113,7 @@ export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, position)]
 
   const errors = [
-    ...validateLiquidity(position, args.quoteAmount),
+    ...validateLiquidity(position, targetPosition, args.quoteAmount),
     ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 

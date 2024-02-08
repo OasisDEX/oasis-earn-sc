@@ -1,4 +1,4 @@
-import { DEFAULT_FEE, NO_FEE, REDUCED_FEE } from '@dma-common/constants'
+import { DEFAULT_FEE, NO_FEE } from '@dma-common/constants'
 import BigNumber from 'bignumber.js'
 
 export const feeResolver = <T extends string = string>(
@@ -27,7 +27,7 @@ export const feeResolver = <T extends string = string>(
     },
     earnMultiply: {
       onIncrease: new BigNumber(NO_FEE),
-      onDecrease: new BigNumber(REDUCED_FEE),
+      onDecrease: new BigNumber(NO_FEE),
     },
     defaultMultiply: {
       onIncrease: new BigNumber(DEFAULT_FEE),
@@ -45,16 +45,19 @@ export const feeResolver = <T extends string = string>(
 
 export function isCorrelatedPosition(symbolA: string, symbolB: string) {
   const correlatedAssetMatrix = [
-    ['ETH', 'WSTETH', 'CBETH', 'RETH', 'STETH'], // ETH correlated assets
+    ['WETH', 'ETH', 'WSTETH', 'CBETH', 'RETH', 'STETH', 'OSETH'], // ETH correlated assets
     ['WBTC', 'TBTC'], // BTC correlated assets
-    ['USDC', 'DAI', 'GHO', 'SDAI'], // USDC correlated assets
+    ['USDC', 'DAI', 'GHO', 'SDAI', 'USDT'], // USDC correlated assets
     // Add more arrays here to expand the matrix in the future
   ]
 
   // Iterate over each row in the matrix
   for (let i = 0; i < correlatedAssetMatrix.length; i++) {
     // Check if both symbols are in the same row
-    if (correlatedAssetMatrix[i].includes(symbolA) && correlatedAssetMatrix[i].includes(symbolB)) {
+    if (
+      correlatedAssetMatrix[i].includes(symbolA.toUpperCase()) &&
+      correlatedAssetMatrix[i].includes(symbolB.toUpperCase())
+    ) {
       return true
     }
   }
