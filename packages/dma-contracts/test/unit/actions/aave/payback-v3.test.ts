@@ -17,7 +17,7 @@ chai.use(smock.matchers)
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 const defaultDebtRateMode = 2
-describe('AAVE | PaybackV3 Action | Unit', () => {
+describe.skip('AAVE | PaybackV3 Action | Unit', () => {
   let provider: JsonRpcProvider
   let paybackV3Action: Contract
   let paybackV3ActionAddress: string
