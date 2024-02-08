@@ -66,7 +66,7 @@ describe('AAVE | PaybackV3 Action | Unit', () => {
 
     await paybackV3Action.execute(
       utils.defaultAbiCoder.encode([calldataTypes.aaveV3.Payback], [expectedValues]),
-      [0, 0],
+      [0, 0, 0],
     )
   })
 
