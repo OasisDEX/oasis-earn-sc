@@ -47,7 +47,7 @@ export function isCorrelatedPosition(symbolA: string, symbolB: string) {
   const correlatedAssetMatrix = [
     ['WETH', 'ETH', 'WSTETH', 'CBETH', 'RETH', 'STETH', 'OSETH'], // ETH correlated assets
     ['WBTC', 'TBTC'], // BTC correlated assets
-    ['USDC', 'DAI', 'GHO', 'SDAI'], // USDC correlated assets
+    ['USDC', 'DAI', 'GHO', 'SDAI', 'USDT'], // USDC correlated assets
     // Add more arrays here to expand the matrix in the future
   ]
 

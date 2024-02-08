@@ -686,6 +686,10 @@ export const config: SystemConfig = {
       address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
     },
+    WEETH: {
+      name: 'WEETH',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     YIELDBTC: {
       name: 'YIELDBTC',
       address: '0x0274a704a6d9129f90a62ddc6f6024b33ecdad36',

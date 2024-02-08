@@ -66,6 +66,7 @@ export type Tokens =
   | 'WETH'
   | 'WLD'
   | 'WSTETH'
+  | 'WEETH'
   | 'YIELDBTC'
   | 'YIELDETH'
   | 'YFI'
