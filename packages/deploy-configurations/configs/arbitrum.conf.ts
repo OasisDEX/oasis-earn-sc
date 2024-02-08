@@ -98,7 +98,7 @@ export const config: SystemConfig = {
       TokenBalance: {
         name: 'TokenBalance',
         deploy: false,
-        address: '',
+        address: '0x0000000000000000000000000000000000000000',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],

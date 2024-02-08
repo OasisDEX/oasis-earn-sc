@@ -95,6 +95,14 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      TokenBalance: {
+        name: 'TokenBalance',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
+        history: [],
+        constructorArgs: [],
+      },
       PositionCreated: {
         name: 'PositionCreated',
         deploy: true,
