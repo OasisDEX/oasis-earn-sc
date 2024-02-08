@@ -476,6 +476,10 @@ export const config: SystemConfig = {
       address: '0xCCB14936C2E000ED8393A571D15A2672537838Ad',
       serviceRegistryName: 'WETH',
     },
+    WEETH: {
+      name: 'WEETH',
+      address: ADDRESS_ZERO,
+    },
     WLD: { name: 'WLD', address: ADDRESS_ZERO },
     WSTETH: {
       name: 'WSTETH',
