@@ -70,6 +70,7 @@ export async function deployRewardsContracts(
   positionNFTSVGInstance: PositionNFTSVG,
   erc20PoolFactory: ERC20PoolFactory,
   erc721PoolFactory: ERC721PoolFactory,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ajna: Token
 ) {
   const positionManagerContract = await utils.deployContract<PositionManager>(

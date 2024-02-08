@@ -1,3 +1,4 @@
+import { HardhatUtils, logGasUsage } from "@ajna-contracts/scripts";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   deployApa,
@@ -22,7 +23,6 @@ import hre, { ethers } from "hardhat";
 import { getEvents } from "utils/common";
 
 import { bn } from "../scripts/common";
-import { HardhatUtils, logGasUsage } from "../scripts/common/hardhat.utils";
 import { createDPMProxy } from "../scripts/prepare-env";
 import { Token, WETH as WETHContract } from "../typechain-types/contracts/ajna";
 
@@ -30,6 +30,7 @@ const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
 
 describe("AjnaProxyActions", function () {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function deploy(initializeStaking = true) {
     const [deployer, lender, borrower, bidder] = await hre.ethers.getSigners();
 
@@ -967,7 +968,7 @@ describe("AjnaProxyActions", function () {
       };
 
       const price = bn.eighteen.TEST_PRICE_3;
-      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
+      // const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
       await supplyQuote(
         ajnaProxyActionsContract,
         poolContract,
@@ -983,8 +984,8 @@ describe("AjnaProxyActions", function () {
         lender: await usdc.balanceOf(lender.address),
         pool: await usdc.balanceOf(poolContract.address),
       };
-      const { lpBalance_ } = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(poolContract.address, lpBalance_, index);
+      // const { lpBalance_ } = await poolContract.lenderInfo(index, lenderProxy.address);
+      // const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(poolContract.address, lpBalance_, index);
       // expect(depositedQuoteAmount).to.be.equal(bn.eighteen.THOUSAND);
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.THOUSAND));
     });
@@ -1012,17 +1013,16 @@ describe("AjnaProxyActions", function () {
         poolInfoContract
       );
 
-      const { quoteTokensOldIndex: amountDepositedToOldBucket, quoteTokensNewIndex: newDepositedQuoteAmount } =
-        await moveQuote(
-          ajnaProxyActionsContract,
-          poolContract,
-          usdc,
-          lender,
-          lenderProxy,
-          price,
-          price.add(bn.eighteen.THOUSAND),
-          poolInfoContract
-        );
+      const { quoteTokensOldIndex: amountDepositedToOldBucket } = await moveQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        price,
+        price.add(bn.eighteen.THOUSAND),
+        poolInfoContract
+      );
 
       expect(amountDepositedToOldBucket).to.be.equal(0);
 
