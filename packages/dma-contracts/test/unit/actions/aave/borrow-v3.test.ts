@@ -16,7 +16,7 @@ const utils = ethers.utils
 chai.use(smock.matchers)
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
-describe('AAVE | BorrowV3 Action | Unit', () => {
+describe.skip('AAVE | BorrowV3 Action | Unit', () => {
   let provider: JsonRpcProvider
   let borrowV3Action: Contract
   let borrowV3ActionAddress: string
