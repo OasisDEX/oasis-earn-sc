@@ -12,7 +12,6 @@ import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 
 import { AAVE_POOL } from "../../../core/constants/Aave.sol";
 
-
 /**
  * @title Payback | AAVE V3 Action contract
  * @notice Pays back a specified amount to AAVE's lending pool
@@ -37,13 +36,13 @@ contract AaveV3Payback is Executable, UseStore {
     if (payback.onBehalf == address(0)) {
       payback.onBehalf = address(this);
     }
-    
+
     IPoolV3(registry.getRegisteredService(AAVE_POOL)).repay(
       payback.asset,
       payback.paybackAll ? type(uint256).max : payback.amount,
       2,
       payback.onBehalf
-    );    
+    );
 
     store().write(bytes32(payback.amount));
   }

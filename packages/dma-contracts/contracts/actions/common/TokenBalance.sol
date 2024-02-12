@@ -20,7 +20,7 @@ contract TokenBalance is Executable, UseStore {
    * @dev Is intended to read token balance for a given address
    * @param data Encoded calldata that conforms to the TokenBalanceData struct
    */
-   
+
   function execute(bytes calldata data, uint8[] memory) external payable override {
     TokenBalanceData memory read = parseInputs(data);
 
@@ -29,7 +29,9 @@ contract TokenBalance is Executable, UseStore {
     store().write(bytes32(balance));
   }
 
-  function parseInputs(bytes memory _callData) public pure returns (TokenBalanceData memory params) {
+  function parseInputs(
+    bytes memory _callData
+  ) public pure returns (TokenBalanceData memory params) {
     return abi.decode(_callData, (TokenBalanceData));
   }
 }

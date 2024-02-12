@@ -24,14 +24,14 @@ contract AaveV3Borrow is Executable, UseStore {
   /**
    * @param data Encoded calldata that conforms to the BorrowData struct
    */
-  function execute(bytes calldata data,  uint8[] memory paramsMap) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     BorrowData memory borrow = parseInputs(data);
 
     uint256 mappedBorrowAmount = store().readUint(
       bytes32(borrow.amount),
       paramsMap[1],
       address(this)
-    );    
+    );
 
     IPoolV3(registry.getRegisteredService(AAVE_POOL)).borrow(
       borrow.asset,
@@ -40,7 +40,7 @@ contract AaveV3Borrow is Executable, UseStore {
       0,
       address(this)
     );
-  
+
     store().write(bytes32(mappedBorrowAmount));
   }
 
