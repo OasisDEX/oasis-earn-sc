@@ -92,6 +92,7 @@ const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
   [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+  // [Network.ARBITRUM]: 'https://rpc.tenderly.co/fork/6c093119-48df-4c2b-ab74-c51da8885ce5',
   [Network.BASE]: 'https://base-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
 }
@@ -470,12 +471,25 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         // TODO: re-enable SAFE logic to avoid this
       } else if (
         this.network !== Network.MAINNET &&
-        this.network !== Network.OPTIMISM &&
-        this.network !== Network.ARBITRUM
+        this.network !== Network.OPTIMISM /*&&
+        this.network !== Network.ARBITRUM*/
       ) {
         await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
+        this.log(
+          'SERVICE REGISTRY',
+          'ADDED',
+          await this.serviceRegistryHelper.getEntryHash(configItem.serviceRegistryName),
+          configItem.serviceRegistryName,
+          contract.address,
+        )
       } else {
-        this.log('SERVICE REGISTRY', 'SKIPPED', configItem.serviceRegistryName, contract.address)
+        this.log(
+          'SERVICE REGISTRY',
+          'SKIPPED',
+          await this.serviceRegistryHelper.getEntryHash(configItem.serviceRegistryName),
+          configItem.serviceRegistryName,
+          contract.address,
+        )
       }
     }
 

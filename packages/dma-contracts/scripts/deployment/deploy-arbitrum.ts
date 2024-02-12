@@ -14,8 +14,9 @@ async function main() {
   await ds.deployAll()
   await ds.saveConfig()
   // await ds.addAllEntries()
-  // await ds.addCommonEntries()
-  await ds.addOperationEntries()
+  await ds.addCommonEntries()
+  await ds.addAaveEntries()
+  // await ds.addOperationEntries()
 }
 
 // We recommend this pattern to be able to use async/await everywhere
