@@ -4,6 +4,7 @@ import { getActionHash } from '@deploy-configurations/utils/action-hash'
 import { ActionFactory } from '@dma-library/actions/action-factory'
 import { ActionCall, calldataTypes } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
+import { constants } from 'ethers'
 
 const createAction = ActionFactory.create
 
@@ -88,6 +89,7 @@ export function sparkPayback(
         asset: args.asset,
         amount: args.amount.toFixed(0),
         paybackAll: args.paybackAll,
+        onBehalf: constants.AddressZero,
       },
       paramsMapping,
     ],
