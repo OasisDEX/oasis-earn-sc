@@ -38,9 +38,8 @@ contract DummySwap {
     uint256 _initialFee,
     address _registry
   ) {
+    console.log("DUMMY SWAPP CREATION");
 
-    console.log('DUMMY SWAPP CREATION' );
-    
     authorizedAddresses[authorisedCaller] = true;
     authorizedAddresses[feeBeneficiary] = true;
     _addFeeTier(_initialFee);
@@ -178,9 +177,7 @@ contract DummySwap {
     emit SlippageSaved(amount, amount);
   }
 
-
   function swapTokens(SwapData calldata swapData) public returns (uint256) {
-
     console.log("swapTokens", swapData.fromAsset);
 
     return 0;
