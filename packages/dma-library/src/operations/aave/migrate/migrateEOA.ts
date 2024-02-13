@@ -48,12 +48,12 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
   const depositToken = flashloan.token.address
   const borrowToken = debt.address
 
-  const tokenBalance = actions.common.tokenBalance(network, {
+  const variableDebtTokenBalanceOnEOA = actions.common.tokenBalance(network, {
     asset: vdToken.address,
     owner: proxy.owner,
   })
 
-  const approvalAction = actions.common.setApproval(
+  const approveFlashloan = actions.common.setApproval(
     network,
     {
       asset: depositToken,
@@ -64,7 +64,7 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
     [0, 0, 0, 0],
   )
 
-  const depositAction = actions.aave.v3.aaveV3Deposit(
+  const depositFlashLoan = actions.aave.v3.aaveV3Deposit(
     network,
     {
       asset: depositToken,
@@ -127,13 +127,13 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
   })
 
   const calls = [
-    tokenBalance,
-    approvalAction,
-    depositAction,
-    borrowAction,
-    approval2Action,
-    paybackAction,
-    pullTokenAction2,
+    variableDebtTokenBalanceOnEOA, // 0
+    approveFlashloan, // 1
+    depositFlashLoan, // 2
+    borrowAction, // 3
+    approval2Action, // 4
+    paybackAction, // 5
+    pullTokenAction2, // 6
     withdrawAction,
     positionCreated,
   ]

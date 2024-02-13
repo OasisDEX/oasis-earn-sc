@@ -25,11 +25,11 @@ export const createMigrateFromEOA: (protocol: 'aave' | 'spark') => MigrationFrom
     const flashloan = {
       provider: FlashloanProvider.Balancer,
       token: {
-        address: dependencies.addresses.tokens[dependencies.currentPosition.debt.symbol],
-        amount: dependencies.currentPosition.debt.amount,
+        address: dependencies.addresses.tokens[dependencies.currentPosition.collateral.symbol],
+        amount: dependencies.currentPosition.collateral.amount,
       },
       // amount is depricated
-      amount: dependencies.currentPosition.debt.amount,
+      amount: dependencies.currentPosition.collateral.amount,
     }
 
     const operation = await migrateEOA({

@@ -129,7 +129,7 @@ export const config: SystemConfig = {
     actions: {
       TokenBalance: {
         name: 'TokenBalance',
-        deploy: false,
+        deploy: true,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
         history: [],
