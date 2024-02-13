@@ -33,6 +33,7 @@ export type MakerActions =
   | `MakerWithdraw`
   | `MakerPayback`
   | `MakerGenerate`
+  | `MakerGive`
 
 
 export type Actions = CommonActions | AaveV3Actions | AjnaActions | MakerActions

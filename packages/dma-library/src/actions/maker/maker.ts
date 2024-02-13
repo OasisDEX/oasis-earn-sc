@@ -127,3 +127,27 @@ export function makerWithdraw(
     ],
   )
 }
+
+
+// Import ActionCall as it assists type generation
+export function makerGive(
+  network: Network,
+  args: { to: string; vaultId: number },
+  paramsMapping: [to: number, vaultId: number] = [
+    0, 0,
+  ],
+): ActionCall {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+  
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.maker.GIVE),
+    [calldataTypes.maker.Give],
+    [
+      {
+        to: args.to,
+        vaultId: args.vaultId,
+      },
+      paramsMapping,
+    ],
+  )
+}

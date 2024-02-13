@@ -38,3 +38,8 @@ struct CdpAllowData {
   uint256 vaultId;
   address userAddress;
 }
+
+struct GiveData {
+  uint256 vaultId;
+  address to;
+}

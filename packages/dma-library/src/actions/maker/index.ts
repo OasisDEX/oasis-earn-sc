@@ -1,1 +1,1 @@
-export { makerOpen, makerDeposit, makerGenerate, makerPayback, makerWithdraw } from './maker'
+export { makerOpen, makerDeposit, makerGenerate, makerPayback, makerWithdraw, makerGive } from './maker'

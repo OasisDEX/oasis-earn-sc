@@ -65,6 +65,7 @@ export const SERVICE_REGISTRY_NAMES = {
     WITHDRAW: 'MakerWithdraw',
     GENERATE: 'MakerGenerate',
     OPEN_VAULT: 'MakerOpenVault',
+    GIVE: 'MakerGive',
 
     MCD_VIEW: 'McdView',
     FLASH_MINT_MODULE: 'McdFlashMintModule',

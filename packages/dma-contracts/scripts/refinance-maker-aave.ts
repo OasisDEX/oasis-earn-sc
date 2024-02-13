@@ -90,61 +90,10 @@ async function main() {
 
   console.log('USER DAI BALANCE', bal.toString());
 
-  // const aBal = await aDaiContract.balanceOf(address)
-
-  // console.log('aBal', aBal.toString());
-
-  // const poolContract = new ethers.Contract(poolAddress, poolAbi, provider).connect(signer);
-
-  // const supplyAmount = BN.from("1000000000000000000").mul(1000)
-  // await daiContract.approve(poolAddress, supplyAmount)
-  // await poolContract.supply(DAIaddress, supplyAmount, address, 0)
-  // await poolContract.setUserUseReserveAsCollateral(DAIaddress, true)
-
-  // await poolContract.borrow(USDCaddress, usdcBorrowAmount, 2, 0, address)
-
-  // const usdcBal = await usdcContract.balanceOf(address)
-
-  // console.log('usdcBal', usdcBal.toString());
-
-  // const aBal2 = await aDaiContract.balanceOf(address)
-
-  // console.log('aBal2', aBal2.toString());
-
-  // const aaveCollInfo = await aaveProtocolDataProviderContract.getUserReserveData(DAIaddress, address)
-  // const aaveDebtInfo = await aaveProtocolDataProviderContract.getUserReserveData(USDCaddress, address)
-
-  // console.log('aaveCollInfo', aaveCollInfo);
-  // console.log('aaveDebtInfo', aaveDebtInfo);
-
-
-  // const calldata = ethers.utils.defaultAbiCoder.encode(
-  //   ["address", "address", "uint256", "uint256", "uint256", "bytes", "bool"],
-  //   [DAIaddress, USDCaddress, 0, 0, 0, [], false]);
-
-  // await system.DummySwap.contract.swapTokens({
-  //   fromAsset: DAIaddress,
-  //   toAsset: USDCaddress,
-  //   amount: 0,
-  //   receiveAtLeast: 0,
-  //   fee: 0,
-  //   withData: "0x",
-  //   collectFeeInFromToken: false,
-  // },);
-
-  // console.log('POST SWAP',);
-
   const [dpmProxy] = await createDPMAccount(system.AccountFactory.contract)
+  const [dpmProxy2] = await createDPMAccount(system.AccountFactory.contract)
 
   console.log('DPM', dpmProxy);
-
-  // await aDaiContract.approve(dpmProxy, aBal2) //aave aToken approval
-
-  // const depositToken = DAIaddress
-  // const borrowToken = USDCaddress
-  // const amountInBaseUnit = new BigNumber(supplyAmount.toString())
-
-  // await daiContract.approve(dpmProxy, depositToken)
 
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
@@ -202,11 +151,24 @@ async function main() {
     [0, 1, 0],
   )
 
+
+  const giveAction = actions.maker.give(
+    network,
+    {
+      to: dpmProxy2!,
+      vaultId: 0,
+    },
+    [0, 1],
+  )
+
+
+
   const calls = [
     pullCollateralIntoProxyAction,
     openVaultAction,
     depositAction,
     generateAction,
+    giveAction
   ]
 
   // adding custom operation to the registry, so there is no need to add others, just use custom one
@@ -230,10 +192,10 @@ async function main() {
   console.log('daiBalanceAfter', daiBalanceAfter.toString());
 
 
-  let vault = await getLastVault(provider, signer, dpmProxy!)
+  let vault = await getLastVault(provider, signer, dpmProxy2!)
   let info = await getVaultInfo(system.McdView.contract, vault.id, vault.ilk)
-  
-  console.log('VAULT INFO', info );
+
+  console.log('VAULT INFO', info);
 
 
   // ------------------------------- REFINANCE MAKER ETH-A - Aave ETH-DAI  -------------------------------
@@ -241,28 +203,13 @@ async function main() {
   const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
   const paybackAll = true
 
-  // const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
-  // await daiContract.approve(dpmProxy, ensureWeiFormat(ALLOWANCE))
-
   const daiJoinAddress = '0x9759A6Ac90977b93B58547b4A71c78317f391A28'
-
-  
-  // const daiApprovalAction =  actions.common.setApproval(
-  //   network,
-  //   {
-  //     asset: DAIaddress,
-  //     delegate: addresses.lendingPool,
-  //     amount: amountToWei(initialDebt),
-  //     sumAmounts: false,
-  //   },
-  //   [0, 0, 0, 0],
-  // ),
 
   const paybackAction = actions.maker.payback(
     network,
     {
       vaultId: vault.id,
-      userAddress: dpmProxy!,
+      userAddress: dpmProxy2!,
       daiJoin: daiJoinAddress,
       amount: amountToWei(paybackDai),
       paybackAll,
@@ -274,7 +221,7 @@ async function main() {
     network,
     {
       vaultId: vault.id,
-      userAddress: dpmProxy!,
+      userAddress: dpmProxy2!,
       joinAddr: ethAJoinAddress,
       amount: amountToWei(initialColl),
     },
@@ -283,7 +230,7 @@ async function main() {
 
   const aaveV3LendingPool = '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2'
 
-    const setAaveApproval = actions.common.setApproval(
+  const setAaveApproval = actions.common.setApproval(
     network,
     {
       asset: WETH.address,
@@ -296,7 +243,7 @@ async function main() {
     [0, 0, 0, 0],
   )
 
-   const aaveDepositAction = actions.aave.v3.aaveV3Deposit(
+  const aaveDepositAction = actions.aave.v3.aaveV3Deposit(
     network,
     {
       asset: WETH.address,
@@ -305,26 +252,20 @@ async function main() {
       setAsCollateral: true,
     },
     [0, 0, 0, 0],
-  ),
+  )
 
 
+  const aaveV3BorrowAction = actions.aave.v3.aaveV3Borrow(network, {
+    amount: amountToWei(initialDebt),
+    asset: DAIaddress,
+    to: system.OperationExecutor.contract.address,
+  })
 
-//   [...depositCalls, ...borrowCalls, positionCreatedEvent],
-
-
-
-
-const aaveV3BorrowAction = actions.aave.v3.aaveV3Borrow(network, {
-  amount: amountToWei(initialDebt),
-  asset: DAIaddress,
-  to: system.OperationExecutor.contract.address,
-})
-
-const sendTokenAction = actions.common.sendToken(network, {
-  amount: amountToWei(initialDebt),
-  asset: DAIaddress,
-  to: system.OperationExecutor.contract.address,
-})
+  const sendTokenAction = actions.common.sendToken(network, {
+    amount: amountToWei(initialDebt),
+    asset: DAIaddress,
+    to: system.OperationExecutor.contract.address,
+  })
 
   const callsRefinance = [
     paybackAction,
@@ -348,8 +289,8 @@ const sendTokenAction = actions.common.sendToken(network, {
     }
   )
 
-  const exec2 = await executeThroughDPMProxy(
-    dpmProxy!,
+  await executeThroughDPMProxy(
+    dpmProxy2!,
     {
       address: system.OperationExecutor.contract.address,
       calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
@@ -362,6 +303,22 @@ const sendTokenAction = actions.common.sendToken(network, {
     hre,
   )
 
+
+  // const userStEthReserveDataProxy = await aaveProtocolDataProviderContract.getUserReserveData(
+  //   WETH.address,
+  //   dpmProxy2!,
+  // )
+  // console.log('userStEthReserveDataProxy:', userStEthReserveDataProxy)
+
+
+
+  const aaveCollInfo2 = await aaveProtocolDataProviderContract.getUserReserveData(WETH.address, dpmProxy2!)
+  const aaveDebtInfo2 = await aaveProtocolDataProviderContract.getUserReserveData(DAIaddress, dpmProxy2!)
+
+
+  console.log('AAVE COLL INFO', aaveCollInfo2 );
+  console.log('AAVE DEBT INFO', aaveDebtInfo2 );
+  
   // const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
   // const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
@@ -369,83 +326,12 @@ const sendTokenAction = actions.common.sendToken(network, {
   // console.log('daiBalanceAfter2', daiBalanceAfter2.toString());
 
 
-  // vault = await getLastVault(provider, signer, dpmProxy!)
-  // info = await getVaultInfo(system.McdView.contract, vault.id, vault.ilk)
-  
-  // console.log('VAULT INFO POST PAYBACK', info );
-  
+  vault = await getLastVault(provider, signer, dpmProxy2!)
+  info = await getVaultInfo(system.McdView.contract, vault.id, vault.ilk)
 
+  console.log('VAULT INFO POST PAYBACK', info);
 
-
-
-
-
-
-  
-  // ------------------------------- PAYBACK -------------------------------
-
-  // const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
-  // const paybackAll = true
-
-  // const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
-  // await daiContract.approve(dpmProxy, ensureWeiFormat(ALLOWANCE))
-
-  // const daiJoinAddress = '0x9759A6Ac90977b93B58547b4A71c78317f391A28'
-
-  // const paybackAction = actions.maker.payback(
-  //   network,
-  //   {
-  //     vaultId: vault.id,
-  //     userAddress: address,
-  //     daiJoin: daiJoinAddress,
-  //     amount: amountToWei(paybackDai),
-  //     paybackAll,
-  //   },
-  //   [0, 0, 0, 0, 0],
-  // )
-
-  // const withdrawAction = actions.maker.withdraw(
-  //   network,
-  //   {
-  //     vaultId: vault.id,
-  //     userAddress: address,
-  //     joinAddr: ethAJoinAddress,
-  //     amount: amountToWei(new BigNumber(initialColl)),
-  //   },
-  //   [0, 0, 0, 0],
-  // )
-
-  // const calls2 = [
-  //   paybackAction,
-  //   withdrawAction,
-  // ]
-
-  // const exec2 = await executeThroughDPMProxy(
-  //   dpmProxy!,
-  //   {
-  //     address: system.OperationExecutor.contract.address,
-  //     calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
-  //       calls2,
-  //       'CustomOperation',
-  //     ]),
-  //   },
-  //   signer,
-  //   '0',
-  //   hre,
-  // )
-
-  // // const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
-  // // const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
-
-  // const daiBalanceAfter2 = await daiContract.balanceOf(address)
-  // console.log('daiBalanceAfter2', daiBalanceAfter2.toString());
-
-
-  // vault = await getLastVault(provider, signer, dpmProxy!)
-  // info = await getVaultInfo(system.McdView.contract, vault.id, vault.ilk)
-  
-  // console.log('VAULT INFO POST PAYBACK', info );
-  
+  process.exit(0)
 
 
 }

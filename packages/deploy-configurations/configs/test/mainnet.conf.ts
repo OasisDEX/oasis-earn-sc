@@ -305,6 +305,14 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.WITHDRAW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
+      },
+      MakerGive: {
+        name: 'MakerGive',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.GIVE,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
       }
     },
   },
