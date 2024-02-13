@@ -492,13 +492,29 @@ export function getNeutralPrice(
   positionDebt: BigNumber,
   positionCollateral: BigNumber,
   interestRate: BigNumber,
+  t0NeutralPrice: BigNumber,
+  thresholdPrice: BigNumber,
+  generatedDebt: boolean,
+  withdrawnCollateral: boolean,
 ) {
   if (positionCollateral.isZero()) {
     return ZERO
   }
+
+  const oldNpTpRatio = t0NeutralPrice.div(thresholdPrice.times(ajnaCollateralizationFactor))
+  const oldInterestRate = oldNpTpRatio.times(2).minus(2).pow(2)
+
   const npToTpRatio = ONE.plus(interestRate.sqrt().div(2))
 
-  return positionDebt.times(ajnaCollateralizationFactor).div(positionCollateral).times(npToTpRatio)
+  const shouldRestamp = interestRate.lt(oldInterestRate)
+
+  const resolvedNpToTpRatio =
+    generatedDebt || withdrawnCollateral || shouldRestamp ? npToTpRatio : oldNpTpRatio
+
+  return positionDebt
+    .times(ajnaCollateralizationFactor)
+    .div(positionCollateral)
+    .times(resolvedNpToTpRatio)
 }
 
 export function getAjnaEarnDepositFee({
