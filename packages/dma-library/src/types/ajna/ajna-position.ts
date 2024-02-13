@@ -152,7 +152,15 @@ export class AjnaPosition implements LendingPosition {
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.debtAmount, newCollateralAmount, this.pool.interestRate),
+      getNeutralPrice(
+        this.debtAmount,
+        newCollateralAmount,
+        this.pool.interestRate,
+        this.t0NeutralPrice,
+        this.thresholdPrice,
+        false,
+        false,
+      ),
       this.pnl,
     )
   }
@@ -166,7 +174,15 @@ export class AjnaPosition implements LendingPosition {
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.debtAmount, newCollateralAmount, this.pool.interestRate),
+      getNeutralPrice(
+        this.debtAmount,
+        newCollateralAmount,
+        this.pool.interestRate,
+        this.t0NeutralPrice,
+        this.thresholdPrice,
+        false,
+        this.collateralAmount.gt(newCollateralAmount),
+      ),
       this.pnl,
     )
   }
@@ -180,7 +196,15 @@ export class AjnaPosition implements LendingPosition {
       newDebt,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(newDebt, this.collateralAmount, this.pool.interestRate),
+      getNeutralPrice(
+        newDebt,
+        this.collateralAmount,
+        this.pool.interestRate,
+        this.t0NeutralPrice,
+        this.thresholdPrice,
+        this.debtAmount.lt(newDebt),
+        false,
+      ),
       this.pnl,
     )
   }
@@ -194,7 +218,15 @@ export class AjnaPosition implements LendingPosition {
       newDebt,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(newDebt, this.collateralAmount, this.pool.interestRate),
+      getNeutralPrice(
+        newDebt,
+        this.collateralAmount,
+        this.pool.interestRate,
+        this.t0NeutralPrice,
+        this.thresholdPrice,
+        false,
+        false,
+      ),
       this.pnl,
     )
   }
@@ -207,7 +239,15 @@ export class AjnaPosition implements LendingPosition {
       ZERO,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(ZERO, ZERO, this.pool.interestRate),
+      getNeutralPrice(
+        ZERO,
+        ZERO,
+        this.pool.interestRate,
+        this.t0NeutralPrice,
+        this.thresholdPrice,
+        false,
+        true,
+      ),
       this.pnl,
     )
   }

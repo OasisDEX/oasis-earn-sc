@@ -193,7 +193,17 @@ export function prepareAjnaMultiplyDMAPayload(
     debtAmount,
     args.collateralPrice,
     args.quotePrice,
-    getNeutralPrice(debtAmount, collateralAmount, args.position.pool.interestRate),
+    getNeutralPrice(
+      debtAmount,
+      collateralAmount,
+      args.position.pool.interestRate,
+      args.position.t0NeutralPrice,
+      args.position.thresholdPrice,
+      // this doesn't matter for multiply since we always
+      // either generate or withdraw, so re-stamp will happen
+      true,
+      true,
+    ),
     args.position.pnl,
   )
 
