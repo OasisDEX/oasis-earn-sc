@@ -23,7 +23,6 @@ import { migrateAaveFromEOA } from '@dma-library/strategies/aave/migrate/migrate
 import { getCurrentPositionAaveV3 } from '@dma-library/views/aave'
 import { BigNumber as BN } from '@ethersproject/bignumber/lib/bignumber'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { OperationsRegistry__factory, ServiceRegistry__factory } from '@typechain'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { ethers } from 'ethers'
