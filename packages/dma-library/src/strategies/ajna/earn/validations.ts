@@ -4,6 +4,7 @@ import {
   validatePriceBelowHtp,
   validatePriceBetweenHtpAndLup,
   validateWithdrawMoreThanAvailable,
+  validateWithdrawNotAvailable,
 } from '@dma-library/strategies/ajna/validation'
 import {
   AjnaEarnActions,
@@ -20,6 +21,7 @@ export const getAjnaEarnValidations = ({
   quoteAmount,
   quoteTokenPrecision,
   position,
+  simulation,
   action,
   afterLupIndex,
 }: {
@@ -56,7 +58,13 @@ export const getAjnaEarnValidations = ({
     case 'withdraw-earn': {
       errors.push(
         ...validateLupBelowHtp(position, action, afterLupIndex),
-        ...validateWithdrawMoreThanAvailable(position, quoteAmount, quoteTokenPrecision),
+        ...validateWithdrawMoreThanAvailable(
+          position,
+          simulation,
+          quoteAmount,
+          quoteTokenPrecision,
+        ),
+        ...validateWithdrawNotAvailable(position, simulation, quoteTokenPrecision),
       )
       break
     }

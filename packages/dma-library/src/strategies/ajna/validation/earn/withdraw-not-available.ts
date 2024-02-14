@@ -1,14 +1,11 @@
-import { ZERO } from '@dma-common/constants'
-import { formatCryptoBalance, negativeToZero } from '@dma-common/utils/common'
+import { negativeToZero } from '@dma-common/utils/common'
 import { protocols } from '@dma-library/protocols'
 import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation'
 import { AjnaEarnPosition, AjnaError } from '@dma-library/types'
-import BigNumber from 'bignumber.js'
 
-export const validateWithdrawMoreThanAvailable = (
+export const validateWithdrawNotAvailable = (
   position: AjnaEarnPosition,
   simulation: AjnaEarnPosition,
-  quoteAmount: BigNumber,
   quoteTokenPrecision: number,
 ): AjnaError[] => {
   const availableToWithdraw = negativeToZero(
@@ -22,15 +19,10 @@ export const validateWithdrawMoreThanAvailable = (
       .decimalPlaces(quoteTokenPrecision),
   )
 
-  if (availableToWithdraw.lt(quoteAmount) && availableToWithdraw.gt(ZERO)) {
+  if (availableToWithdraw.isZero()) {
     return [
       {
-        name: 'withdraw-more-than-available',
-        data: {
-          amount: formatCryptoBalance(
-            BigNumber.min(position.quoteTokenAmount, availableToWithdraw),
-          ),
-        },
+        name: 'withdraw-not-available',
       },
     ]
   } else {

@@ -30,6 +30,10 @@ export type AjnaErrorWithdrawMoreThanAvailable = {
   }
 }
 
+export type AjnaErrorWithdrawNotAvailable = {
+  name: 'withdraw-not-available'
+}
+
 export type AjnaErrorNotEnoughLiquidity = {
   name: 'not-enough-liquidity'
   data: {
@@ -56,6 +60,7 @@ export type StrategyError =
   | AjnaErrorWithdrawUndercollateralized
   | AjnaErrorBorrowUndercollateralized
   | AjnaErrorWithdrawMoreThanAvailable
+  | AjnaErrorWithdrawNotAvailable
   | AjnaErrorAfterLupIndexBiggerThanHtpIndexDeposit
   | AjnaErrorAfterLupIndexBiggerThanHtpIndexWithdraw
   | AjnaErrorDustLimit
