@@ -1,11 +1,14 @@
 import {
-  AaveOracle,
   AccountImplementation,
   AccountImplementation__factory,
+  ERC20,
   ERC20__factory,
-  Pool,
-  Pool__factory,
-  PoolDataProvider,
+  SparkLendingPool,
+  SparkLendingPool__factory,
+  SparkOracle,
+  SparkPoolDataProvider,
+  SparkPoolDataProvider__factory,
+  WETH,
   WETH__factory,
 } from '@abis/types/ethers-contracts'
 import { ADDRESSES } from '@deploy-configurations/addresses'
@@ -16,18 +19,17 @@ import { addressesByNetwork, createDPMAccount } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumberForMigrations } from '@dma-contracts/test/config'
 import { restoreSnapshot, Snapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
-import { AaveVersion } from '@dma-library'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import { getAaveLikeSystemContracts } from '@dma-library/protocols/aave-like/utils'
-import { migrateAaveFromEOA } from '@dma-library/strategies/aave/migrate/migrate-from-eoa'
-import { getCurrentPositionAaveV3 } from '@dma-library/views/aave'
+import { migrateSparkFromEOA } from '@dma-library/strategies/spark/migrate/migrate-from-eoa'
+import { getCurrentSparkPosition } from '@dma-library/views/spark'
 import { BigNumber as BN } from '@ethersproject/bignumber/lib/bignumber'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
-describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
+
+describe.only('Migrate | Spark -> DPM | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider
@@ -35,18 +37,18 @@ describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
   let address: string
   let WETH: WETH
   let USDC: ERC20
-  let AWETH: ERC20
+  let SPWETH: ERC20
   let VDUSDC: ERC20
-  let aaveOracle: AaveOracle
-  let aavePoolDataProvider: PoolDataProvider
+  let sparkOracle: SparkOracle
+  let sparkPoolDataProvider: SparkPoolDataProvider
   let dpmAccount: AccountImplementation
-  let aavePool: Pool
+  let sparkPool: SparkLendingPool
   let config: RuntimeConfig
   let system: DeployedSystem
   let testSystem: TestDeploymentSystem
   let helpers: TestHelpers
   let network: Network
-  let addresses: ReturnType<typeof addressesByNetwork>
+  let addresses: NetworkAddressesForNetwork<Network.MAINNET>
   let aaveLikeAddresses: AaveLikeStrategyAddresses
   const oneEther = BN.from('1000000000000000000')
   const oneUSDC = BN.from('1000000')
@@ -91,23 +93,26 @@ describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
       },
       operationExecutor: system.OperationExecutor.contract.address,
       chainlinkEthUsdPriceFeed: addresses.chainlinkEthUsdPriceFeed,
-      oracle: addresses.aaveOracle,
-      lendingPool: addresses.pool,
-      poolDataProvider: addresses.poolDataProvider,
+      oracle: addresses.sparkOracle,
+      lendingPool: addresses.sparkPool,
+      poolDataProvider: addresses.sparkPoolDataProvider,
     }
-    ;({ oracle: aaveOracle, poolDataProvider: aavePoolDataProvider } =
-      await getAaveLikeSystemContracts(aaveLikeAddresses, config.provider, 'AAVE_V3'))
 
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
-    aavePool = Pool__factory.connect(addresses.pool, config.signer)
 
-    const wethReserveAaveData = await aavePoolDataProvider.getReserveTokensAddresses(WETH.address)
-    const usdcReserveAaveData = await aavePoolDataProvider.getReserveTokensAddresses(USDC.address)
+    sparkPool = SparkLendingPool__factory.connect(addresses.sparkPool, config.signer)
+    sparkPoolDataProvider = SparkPoolDataProvider__factory.connect(
+      addresses.sparkPoolDataProvider,
+      config.signer,
+    )
 
-    const aWETHaddress = wethReserveAaveData.aTokenAddress
-    const vdUsdc = usdcReserveAaveData.variableDebtTokenAddress
+    const wethReserveSparkData = await sparkPoolDataProvider.getReserveTokensAddresses(WETH.address)
+    const usdcReserveSparkData = await sparkPoolDataProvider.getReserveTokensAddresses(USDC.address)
 
-    AWETH = ERC20__factory.connect(aWETHaddress, signer)
+    const spWETHaddress = wethReserveSparkData.spTokenAddress
+    const vdUsdc = usdcReserveSparkData.variableDebtTokenAddress
+
+    SPWETH = ERC20__factory.connect(spWETHaddress, signer)
     VDUSDC = ERC20__factory.connect(vdUsdc, signer)
 
     const [dpmProxy] = await createDPMAccount(system.AccountFactory.contract)
@@ -119,16 +124,16 @@ describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
     dpmAccount = AccountImplementation__factory.connect(dpmProxy, signer)
   })
 
-  it('should migrate EOA AAVE V3 (WETH/USDC) -> DPM AAVE V3 (WETH/USDC)', async () => {
+  it('should migrate EOA Spark (WETH/USDC) -> DPM Spark (WETH/USDC)', async () => {
     await WETH.deposit({ value: oneEther.mul(10) })
-    await WETH.approve(aavePool.address, oneEther.mul(10))
-    await aavePool['supply(address,uint256,address,uint16)'](
+    await WETH.approve(sparkPool.address, oneEther.mul(10))
+    await sparkPool['supply(address,uint256,address,uint16)'](
       WETH.address,
       oneEther.mul(10),
       address,
       0,
     )
-    await aavePool['borrow(address,uint256,uint256,uint16,address)'](
+    await sparkPool['borrow(address,uint256,uint256,uint16,address)'](
       USDC.address,
       oneUSDC.mul(1000),
       2,
@@ -136,33 +141,35 @@ describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
       address,
     )
 
-    const aaveCollateralOnWalletBeforeTransaction = await aavePoolDataProvider.getUserReserveData(
+    const sparkCollateralOnWalletBeforeTransaction = await sparkPoolDataProvider.getUserReserveData(
       WETH.address,
       address,
     )
-    const aaveDebtOnWalletBeforeTransaction = await aavePoolDataProvider.getUserReserveData(
+    const sparkDebtOnWalletBeforeTransaction = await sparkPoolDataProvider.getUserReserveData(
       USDC.address,
       address,
     )
 
     console.log(
-      '[EOA] WETH Balance on AAVE before transaction: ',
-      aaveCollateralOnWalletBeforeTransaction.currentATokenBalance.toString(),
+      '[EOA] WETH Balance on Spark before transaction: ',
+      sparkCollateralOnWalletBeforeTransaction.currentSpTokenBalance.toString(),
     )
     console.log(
-      '[EOA] USDC Debt on AAVE before transaction: ',
-      aaveDebtOnWalletBeforeTransaction.currentVariableDebt.toString(),
+      '[EOA] USDC Debt on Spark before transaction: ',
+      sparkDebtOnWalletBeforeTransaction.currentVariableDebt.toString(),
     )
 
-    const aWETHBalance = await AWETH.balanceOf(address)
+    const spWETHBalance = await SPWETH.balanceOf(address)
 
-    // approve aWETH to DPM
-    await AWETH.approve(
+    console.log('[EOA] SPWETH Balance: ', spWETHBalance.toString())
+
+    // approve spWETH to DPM
+    await SPWETH.approve(
       dpmAccount.address,
-      new BigNumber(aWETHBalance.toString()).times(1.01).toFixed(0),
+      new BigNumber(spWETHBalance.toString()).times(1.01).toFixed(0),
     ) // we need to approve slightly more than the balance
 
-    const currentPosition = await getCurrentPositionAaveV3(
+    const currentPosition = await getCurrentSparkPosition(
       {
         collateralToken: { symbol: 'WETH', precision: 18 },
         proxy: address,
@@ -171,22 +178,21 @@ describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
       {
         addresses: aaveLikeAddresses,
         provider: provider,
-        protocolVersion: AaveVersion.v3,
       },
     )
 
     const migrationArgs = {
       aToken: {
-        address: AWETH.address,
-        amount: new BigNumber(aWETHBalance.toString()),
+        address: SPWETH.address,
+        amount: new BigNumber(spWETHBalance.toString()),
       },
       vdToken: {
         address: VDUSDC.address,
       },
     }
 
-    const result = await migrateAaveFromEOA(migrationArgs, {
-      protocolType: 'AAVE_V3' as const,
+    const result = await migrateSparkFromEOA(migrationArgs, {
+      protocolType: 'Spark' as const,
       proxy: dpmAccount.address,
       provider: provider,
       user: address,
@@ -201,46 +207,46 @@ describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
 
     await tx.wait()
 
-    const aaveCollateralOnWalletAfterTransaction = await aavePoolDataProvider.getUserReserveData(
+    const sparkCollateralOnWalletAfterTransaction = await sparkPoolDataProvider.getUserReserveData(
       WETH.address,
       address,
     )
-    const aaveDebtOnWalletAfterTransaction = await aavePoolDataProvider.getUserReserveData(
+    const sparkDebtOnWalletAfterTransaction = await sparkPoolDataProvider.getUserReserveData(
       USDC.address,
       address,
     )
 
     console.log(
-      '[EOA] WETH Balance on AAVE after transaction: ',
-      aaveCollateralOnWalletAfterTransaction.currentATokenBalance.toString(),
+      '[EOA] WETH Balance on Spark after transaction: ',
+      sparkCollateralOnWalletAfterTransaction.currentSpTokenBalance.toString(),
     )
     console.log(
-      '[EOA] USDC Debt on AAVE after transaction: ',
-      aaveDebtOnWalletAfterTransaction.currentVariableDebt.toString(),
+      '[EOA] USDC Debt on Spark after transaction: ',
+      sparkDebtOnWalletAfterTransaction.currentVariableDebt.toString(),
     )
 
-    const aaveCollateralOnProxyAfterTransaction = await aavePoolDataProvider.getUserReserveData(
+    const sparkCollateralOnProxyAfterTransaction = await sparkPoolDataProvider.getUserReserveData(
       WETH.address,
       dpmAccount.address,
     )
-    const aaveDebtOnProxyAfterTransaction = await aavePoolDataProvider.getUserReserveData(
+    const sparkDebtOnProxyAfterTransaction = await sparkPoolDataProvider.getUserReserveData(
       USDC.address,
       dpmAccount.address,
     )
 
     console.log(
-      '[Proxy] WETH Balance on AAVE after transaction: ',
-      aaveCollateralOnProxyAfterTransaction.currentATokenBalance.toString(),
+      '[Proxy] WETH Balance on Spark after transaction: ',
+      sparkCollateralOnProxyAfterTransaction.currentSpTokenBalance.toString(),
     )
     console.log(
-      '[Proxy] USDC Debt on AAVE after transaction',
-      aaveDebtOnProxyAfterTransaction.currentVariableDebt.toString(),
+      '[Proxy] USDC Debt on Spark after transaction',
+      sparkDebtOnProxyAfterTransaction.currentVariableDebt.toString(),
     )
 
-    expect(aaveCollateralOnWalletAfterTransaction.currentATokenBalance).to.be.equal(0)
-    expect(aaveDebtOnWalletAfterTransaction.currentVariableDebt).to.be.equal(0)
-    expect(aaveCollateralOnProxyAfterTransaction.currentATokenBalance).to.be.gte(
-      aaveCollateralOnWalletBeforeTransaction.currentATokenBalance,
+    expect(sparkCollateralOnWalletAfterTransaction.currentSpTokenBalance).to.be.equal(0)
+    expect(sparkDebtOnWalletAfterTransaction.currentVariableDebt).to.be.equal(0)
+    expect(sparkCollateralOnProxyAfterTransaction.currentSpTokenBalance).to.be.gte(
+      sparkCollateralOnWalletBeforeTransaction.currentSpTokenBalance,
     )
   })
 })

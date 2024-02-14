@@ -43,6 +43,9 @@ const testAddresses = {
     poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
     CBETH: ADDRESSES[Network.MAINNET].common.CBETH,
     RETH: ADDRESSES[Network.MAINNET].common.RETH,
+    sparkPool: ADDRESSES[Network.MAINNET].spark.LendingPool,
+    sparkOracle: ADDRESSES[Network.MAINNET].spark.Oracle,
+    sparkPoolDataProvider: ADDRESSES[Network.MAINNET].spark.PoolDataProvider,
   },
   [Network.OPTIMISM]: {
     DAI: ADDRESSES[Network.OPTIMISM].common.DAI,

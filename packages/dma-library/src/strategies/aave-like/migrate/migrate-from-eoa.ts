@@ -22,10 +22,17 @@ export const createMigrateFromEOA: (protocol: 'aave' | 'spark') => MigrationFrom
     args: MigrationFromEOAArgs,
     dependencies: WithAaveLikeStrategyDependencies,
   ): Promise<Strategy<IPosition>> => {
+    const collateralAddress =
+      dependencies.addresses.tokens[dependencies.currentPosition.collateral.symbol]
+    const flashloanTokenAddress =
+      collateralAddress === dependencies.addresses.tokens.ETH
+        ? dependencies.addresses.tokens.WETH
+        : collateralAddress
+
     const flashloan = {
       provider: FlashloanProvider.Balancer,
       token: {
-        address: dependencies.addresses.tokens[dependencies.currentPosition.collateral.symbol],
+        address: flashloanTokenAddress,
         amount: dependencies.currentPosition.collateral.amount,
       },
       // amount is depricated

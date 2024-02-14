@@ -331,6 +331,46 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
+      SparkBorrow: {
+        name: 'SparkBorrow',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.BORROW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkWithdraw: {
+        name: 'SparkWithdraw',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkDeposit: {
+        name: 'SparkDeposit',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.DEPOSIT,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkPayback: {
+        name: 'SparkPayback',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.PAYBACK,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkSetEMode: {
+        name: 'SparkSetEMode',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.SET_EMODE,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
     },
   },
   common: {
@@ -753,7 +793,21 @@ export const config: SystemConfig = {
       },
     },
   },
-  spark: {},
+  spark: {
+    Oracle: {
+      name: 'Oracle',
+      address: '0x8105f69D9C41644c6A0803fDA7D03Aa70996cFD9',
+    },
+    LendingPool: {
+      name: 'LendingPool',
+      address: '0xC13e21B648A5Ee794902342038FF3aDAB66BE987',
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.LENDING_POOL,
+    },
+    PoolDataProvider: {
+      name: 'PoolDataProvider',
+      address: '0xFc21d6d146E6086B8359705C8b28512a983db0cb',
+    },
+  },
   maker: {
     common: {
       FlashMintModule: {
