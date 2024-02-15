@@ -448,6 +448,10 @@ export const config: SystemConfig = {
       name: 'AJNA',
       address: '0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079',
     },
+    APXETH: {
+      name: 'APXETH',
+      address: ADDRESS_ZERO,
+    },
     ADAI: {
       name: 'ADAI',
       address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3',
@@ -1345,6 +1349,22 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_YVCURVEUSDMSDAIFDAI: {
       name: 'AjnaPoolPairs_YVCURVEUSDMSDAIFDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_MKRDAI: {
+      name: 'AjnaPoolPairs_MKRDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_MWSTETHWPUNKS20WSTETH: {
+      name: 'AjnaPoolPairs_MWSTETHWPUNKS20WSTETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_MWSTETHWPUNKS40WSTETH: {
+      name: 'AjnaPoolPairs_MWSTETHWPUNKS40WSTETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_APXETHETH: {
+      name: 'AjnaPoolPairs_APXETHETH',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {
