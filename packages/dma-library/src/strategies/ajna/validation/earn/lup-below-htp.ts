@@ -4,13 +4,19 @@ import BigNumber from 'bignumber.js'
 
 export const validateLupBelowHtp = (
   position: AjnaEarnPosition,
+  simulation: AjnaEarnPosition,
   action: AjnaEarnActions,
   afterLupIndex?: BigNumber,
 ): AjnaError[] => {
   if (
-    afterLupIndex &&
-    new BigNumber(afterLupIndex.toString()).gt(position.pool.highestThresholdPriceIndex)
+    action === 'deposit-earn' &&
+    position.pool.lowestUtilizedPriceIndex.gt(position.pool.highestThresholdPriceIndex) &&
+    simulation.price.gte(position.price)
   ) {
+    return []
+  }
+
+  if (afterLupIndex?.gt(position.pool.highestThresholdPriceIndex)) {
     return [
       {
         name:
