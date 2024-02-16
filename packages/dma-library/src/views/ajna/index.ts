@@ -65,24 +65,26 @@ export async function getPosition(
     getCumulatives(proxyAddress, poolAddress),
   ])
 
-  const { borrowCumulativeFeesUSD, borrowCumulativeDepositUSD, borrowCumulativeWithdrawUSD } =
-    cumulatives
-
+  const {
+    borrowCumulativeWithdrawInCollateralToken,
+    borrowCumulativeDepositInCollateralToken,
+    borrowCumulativeFeesInCollateralToken,
+  } = cumulatives
   const collateralAmount = new BigNumber(borrowerInfo.collateral_.toString()).div(WAD)
   const debtAmount = new BigNumber(borrowerInfo.debt_.toString()).div(WAD)
 
   const netValue = collateralAmount.times(collateralPrice).minus(debtAmount.times(quotePrice))
 
   const pnl = {
-    withFees: borrowCumulativeWithdrawUSD
-      .plus(netValue)
-      .minus(borrowCumulativeFeesUSD)
-      .minus(borrowCumulativeDepositUSD)
-      .div(borrowCumulativeDepositUSD),
-    withoutFees: borrowCumulativeWithdrawUSD
-      .plus(netValue)
-      .minus(borrowCumulativeDepositUSD)
-      .div(borrowCumulativeDepositUSD),
+    withFees: borrowCumulativeWithdrawInCollateralToken
+      .plus(netValue.div(collateralPrice))
+      .minus(borrowCumulativeDepositInCollateralToken)
+      .minus(borrowCumulativeFeesInCollateralToken)
+      .div(borrowCumulativeDepositInCollateralToken),
+    withoutFees: borrowCumulativeWithdrawInCollateralToken
+      .plus(netValue.div(collateralPrice))
+      .minus(borrowCumulativeDepositInCollateralToken)
+      .div(borrowCumulativeDepositInCollateralToken),
     cumulatives,
   }
 
