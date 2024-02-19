@@ -501,6 +501,10 @@ export const config: SystemConfig = {
       name: 'AJNA',
       address: '0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079',
     },
+    APXETH: {
+      name: 'APXETH',
+      address: '0x9ba021b0a9b958b5e75ce9f6dff97c7ee52cb3e6',
+    },
     BAL: {
       name: 'BAL',
       address: '0xba100000625a3754423978a60c9317c58a424e3D',
@@ -1421,6 +1425,22 @@ export const config: SystemConfig = {
     AjnaPoolPairs_YVCURVEUSDMSDAIFDAI: {
       name: 'AjnaPoolPairs_YVCURVEUSDMSDAIFDAI',
       address: '0x64aa997236996823a53b8b30ead599aa2f0382fa',
+    },
+    AjnaPoolPairs_MKRDAI: {
+      name: 'AjnaPoolPairs_MKRDAI',
+      address: '0x0598c1feda47535ff5248e2bd08703ace4e740c4',
+    },
+    AjnaPoolPairs_MWSTETHWPUNKS20WSTETH: {
+      name: 'AjnaPoolPairs_MWSTETHWPUNKS20WSTETH',
+      address: '0x1b3ca2a7b12859fe34cefd7072d770fb6a1e7679',
+    },
+    AjnaPoolPairs_MWSTETHWPUNKS40WSTETH: {
+      name: 'AjnaPoolPairs_MWSTETHWPUNKS40WSTETH',
+      address: '0x7a2f9d2610ab99952dfb44f8aa3707584baacb8d',
+    },
+    AjnaPoolPairs_APXETHETH: {
+      name: 'AjnaPoolPairs_APXETHETH',
+      address: '0x1eea11c09eb446261739bbd1315992c3632960df',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',

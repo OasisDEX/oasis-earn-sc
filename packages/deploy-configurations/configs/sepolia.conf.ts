@@ -383,6 +383,10 @@ export const config: SystemConfig = {
       name: 'AJNA',
       address: ADDRESS_ZERO,
     },
+    APXETH: {
+      name: 'APXETH',
+      address: ADDRESS_ZERO,
+    },
     BAL: { name: 'BAL', address: '0x8c6e73CA229AB3933426aDb5cc829c1E4928551d' },
     BAT: { name: 'BAT', address: '0x75645f86e90a1169e697707C813419977ea26779' },
     BWAJNA: {
@@ -1147,6 +1151,22 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_YVCURVEUSDMSDAIFDAI: {
       name: 'AjnaPoolPairs_YVCURVEUSDMSDAIFDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_MKRDAI: {
+      name: 'AjnaPoolPairs_MKRDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_MWSTETHWPUNKS20WSTETH: {
+      name: 'AjnaPoolPairs_MWSTETHWPUNKS20WSTETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_MWSTETHWPUNKS40WSTETH: {
+      name: 'AjnaPoolPairs_MWSTETHWPUNKS40WSTETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_APXETHETH: {
+      name: 'AjnaPoolPairs_APXETHETH',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

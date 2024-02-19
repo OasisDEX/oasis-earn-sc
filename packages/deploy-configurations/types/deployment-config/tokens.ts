@@ -2,6 +2,7 @@ export type Tokens =
   | 'AAVE'
   | 'ADAI'
   | 'AJNA'
+  | 'APXETH'
   | 'ARB'
   | 'BAL'
   | 'BAT'
