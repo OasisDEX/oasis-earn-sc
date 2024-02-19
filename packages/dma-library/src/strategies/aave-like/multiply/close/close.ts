@@ -128,7 +128,7 @@ async function getAaveSwapDataToCloseToDebt(
     addresses,
   )
 
-  const swapAmountBeforeFees = dependencies.currentPosition.collateral.amount
+  const swapAmountBeforeFees = dependencies.currentPosition.collateral.amount.minus(1)
   const fromToken = {
     ...collateralToken,
     precision: collateralToken.precision || TYPICAL_PRECISION,
