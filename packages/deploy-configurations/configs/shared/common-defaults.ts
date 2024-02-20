@@ -29,4 +29,8 @@ export const commonDefaults = {
     name: 'RPL',
     address: ADDRESS_ZERO,
   },
+  SUSDE: {
+    name: 'SUSDE',
+    address: ADDRESS_ZERO,
+  },
 } as const

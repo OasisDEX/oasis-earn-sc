@@ -3,6 +3,7 @@ import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
 import { commonDefaults } from '../shared/common-defaults'
+import { emptyAjnaPools } from '../shared/empty-ajna-pools'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.ARBITRUM)
 
@@ -674,6 +675,7 @@ export const config: SystemConfig = {
     AutomationBotAggregator: { name: 'AutomationBotAggregator', address: '' },
   },
   ajna: {
+    ...emptyAjnaPools,
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
       address: ADDRESS_ZERO,
