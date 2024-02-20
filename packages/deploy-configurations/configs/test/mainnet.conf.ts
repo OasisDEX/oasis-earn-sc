@@ -3,6 +3,7 @@ import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
 import { commonDefaults } from '../shared/common-defaults'
+import { emptyAjnaPools } from '../shared/empty-ajna-pools'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
@@ -1021,6 +1022,7 @@ export const config: SystemConfig = {
     },
   },
   ajna: {
+    ...emptyAjnaPools,
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
       address: '0x30c5eF2997d6a882DE52c4ec01B6D0a5e5B4fAAE',

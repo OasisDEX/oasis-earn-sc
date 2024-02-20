@@ -3,6 +3,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { ADDRESS_ZERO, loadContractNames } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
 import { commonDefaults } from './shared/common-defaults'
+import { emptyAjnaPools } from './shared/empty-ajna-pools'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.GOERLI)
 
@@ -1003,6 +1004,7 @@ export const config: SystemConfig = {
     },
   },
   ajna: {
+    ...emptyAjnaPools,
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
       address: '0xdE8D83e069F552fbf3EE5bF04E8C4fa53a097ee5',

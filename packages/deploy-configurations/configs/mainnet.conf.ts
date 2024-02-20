@@ -355,6 +355,10 @@ export const config: SystemConfig = {
       name: 'SUSD',
       address: '0x0000000000000000000000000000000000000000',
     },
+    SUSDE: {
+      name: 'SUSDE',
+      address: '0x9d39a5de30e57443bff2a8307a4256c8797a3497',
+    },
     RPL: {
       name: 'RPL',
       address: '0xd33526068d116ce69f19a9ee46f0bd304f21a51f',
@@ -1424,6 +1428,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_APXETHETH: {
       name: 'AjnaPoolPairs_APXETHETH',
       address: '0x1eea11c09eb446261739bbd1315992c3632960df',
+    },
+    AjnaPoolPairs_SUSDEDAI: {
+      name: 'AjnaPoolPairs_SUSDEDAI',
+      address: '0x34bc3d3d274a355f3404c5dee2a96335540234de',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
