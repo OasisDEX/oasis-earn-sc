@@ -68,7 +68,13 @@ async function deployAjnaPools(
       const deployedPool = await deployPool(erc20PoolFactory, collateralToken, quoteToken, pool.deploy, pool.rate);
       deployedPool.address === hre.ethers.constants.AddressZero
         ? console.info(chalk.red(`Pool ${pool.pair} not yet deployed`))
-        : console.info(chalk.green(`Pool ${pool.pair} deployed at ${deployedPool.address}`));
+        : console.info(
+            chalk.green(`AjnaPoolPairs_${pool.pair}: {
+          name: 'AjnaPoolPairs_${pool.pair}',
+          address: '${deployedPool.address}',
+        }`)
+          );
+
       if (pool.deposit) {
         await depositQuoteToken(network, quote, signer, pool, apa, deployedPool);
       }
