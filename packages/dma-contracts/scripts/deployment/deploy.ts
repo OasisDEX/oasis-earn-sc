@@ -98,6 +98,7 @@ const rpcUrls: any = {
 
 const gnosisSafeServiceUrl: Record<Network, string> = {
   [Network.MAINNET]: '',
+  [Network.SEPOLIA]: '',
   [Network.HARDHAT]: '',
   [Network.LOCAL]: '',
   [Network.OPTIMISM]: '',
@@ -454,6 +455,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           nonce: safeInfo.nonce,
         }
         const safeTransaction = await safeSdk.createTransaction({
+          // @ts-expect-error - TODO: fix types
           safeTransactionData: safeTransactionData as unknown as SafeTransactionDataPartial,
         })
         const safeTransactionHash = await safeSdk.getTransactionHash(safeTransaction)
@@ -470,14 +472,25 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         })
         // Mainnet is excluded because Service Registry is managed by multi-sig wallet
       } else if (this.network !== Network.MAINNET) {
-        await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
+        console.log(
+          `Adding entry to ServiceRegistry: ${
+            configItem.serviceRegistryName
+          } hash: ${utils.keccak256(
+            utils.toUtf8Bytes(configItem.serviceRegistryName),
+          )} for address : ${contract.address}`,
+        )
+        try {
+          await this.serviceRegistryHelper.addEntry(
+            configItem.serviceRegistryName,
+            contract.address,
+          )
+        } catch (error) {
+          console.log('Error adding entry to ServiceRegistry, add manually')
+        }
       }
     }
 
-    // ETHERSCAN VERIFICATION (only for mainnet and L1 testnets)
-    if (this.network === Network.MAINNET || this.network === Network.GOERLI) {
-      await this.verifyContract(contract.address, constructorArguments)
-    }
+    await this.verifyContract(contract.address, constructorArguments)
   }
 
   getRegistryEntryHash(name: string) {
