@@ -1,15 +1,17 @@
-import { ZERO } from '@dma-common/constants'
 import { getAaveProtocolData } from '@dma-library/protocols/aave'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AaveLikePosition, AaveLikePositionV2 } from '@dma-library/types/aave-like'
 import {
   AaveGetCurrentPositionArgs,
+  AaveLikeCumulativeData,
   AaveV2GetCurrentPositionDependencies,
   AaveV3GetCurrentPositionDependencies,
+  ReserveDataReply,
 } from '@dma-library/views/aave/types'
 import {
   calculateViewValuesForPosition,
   ensureOraclePricesDefined,
+  mapAaveLikeCumulatives,
 } from '@dma-library/views/aave-like'
 import BigNumber from 'bignumber.js'
 
@@ -19,11 +21,10 @@ export {
   AaveV3GetCurrentPositionDependencies,
 }
 
-// TODO update ts
 export type OmniCommonArgs = {
-  primaryTokenReserveData: any
-  secondaryTokenReserveData: any
-  aggregatedData: any
+  primaryTokenReserveData: ReserveDataReply
+  secondaryTokenReserveData: ReserveDataReply
+  cumulatives?: AaveLikeCumulativeData
   collateralPrice: BigNumber
   debtPrice: BigNumber
 }
@@ -196,31 +197,7 @@ export const getCurrentPositionAaveV2Omni: AaveV2GetCurrentPositionOmni = async 
     category,
   })
 
-  const pnl = {
-    cumulatives: args.aggregatedData?.positionCumulatives
-      ? {
-          ...defaultLendingCumulatives,
-          borrowCumulativeDepositInCollateralToken:
-            args.aggregatedData.positionCumulatives.cumulativeDepositInCollateralToken,
-          borrowCumulativeWithdrawInCollateralToken:
-            args.aggregatedData.positionCumulatives.cumulativeWithdrawInCollateralToken,
-          borrowCumulativeDepositInQuoteToken:
-            args.aggregatedData.positionCumulatives.cumulativeDepositInQuoteToken,
-          borrowCumulativeWithdrawInQuoteToken:
-            args.aggregatedData.positionCumulatives.cumulativeWithdrawInQuoteToken,
-          borrowCumulativeFeesInCollateralToken:
-            args.aggregatedData.positionCumulatives.cumulativeFeesInCollateralToken,
-          borrowCumulativeFeesInQuoteToken:
-            args.aggregatedData.positionCumulatives.cumulativeFeesInQuoteToken,
-          borrowCumulativeFeesUSD: args.aggregatedData.positionCumulatives.cumulativeFeesUSD,
-          borrowCumulativeDepositUSD: args.aggregatedData.positionCumulatives.cumulativeDepositUSD,
-          borrowCumulativeWithdrawUSD:
-            args.aggregatedData.positionCumulatives.cumulativeWithdrawUSD,
-        }
-      : defaultLendingCumulatives,
-    withFees: ZERO,
-    withoutFees: ZERO,
-  }
+  const pnl = mapAaveLikeCumulatives(args.cumulatives)
 
   return new AaveLikePositionV2(
     args.proxy,
@@ -312,23 +289,6 @@ export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, d
   )
 }
 
-// TODO move it somewhere
-export const defaultLendingCumulatives = {
-  borrowCumulativeDepositUSD: ZERO,
-  borrowCumulativeDepositInQuoteToken: ZERO,
-  borrowCumulativeDepositInCollateralToken: ZERO,
-  borrowCumulativeWithdrawUSD: ZERO,
-  borrowCumulativeWithdrawInQuoteToken: ZERO,
-  borrowCumulativeWithdrawInCollateralToken: ZERO,
-  borrowCumulativeCollateralDeposit: ZERO,
-  borrowCumulativeCollateralWithdraw: ZERO,
-  borrowCumulativeDebtDeposit: ZERO,
-  borrowCumulativeDebtWithdraw: ZERO,
-  borrowCumulativeFeesUSD: ZERO,
-  borrowCumulativeFeesInQuoteToken: ZERO,
-  borrowCumulativeFeesInCollateralToken: ZERO,
-}
-
 export type AaveV3GetCurrentPositionOmni = (
   args: AaveGetCurrentPositionArgs & OmniCommonArgs,
   dependencies: AaveV3GetCurrentPositionDependencies,
@@ -405,31 +365,7 @@ export const getCurrentPositionAaveV3Omni: AaveV3GetCurrentPositionOmni = async 
     category,
   })
 
-  const pnl = {
-    cumulatives: args.aggregatedData?.positionCumulatives
-      ? {
-          ...defaultLendingCumulatives,
-          borrowCumulativeDepositInCollateralToken:
-            args.aggregatedData.positionCumulatives.cumulativeDepositInCollateralToken,
-          borrowCumulativeWithdrawInCollateralToken:
-            args.aggregatedData.positionCumulatives.cumulativeWithdrawInCollateralToken,
-          borrowCumulativeDepositInQuoteToken:
-            args.aggregatedData.positionCumulatives.cumulativeDepositInQuoteToken,
-          borrowCumulativeWithdrawInQuoteToken:
-            args.aggregatedData.positionCumulatives.cumulativeWithdrawInQuoteToken,
-          borrowCumulativeFeesInCollateralToken:
-            args.aggregatedData.positionCumulatives.cumulativeFeesInCollateralToken,
-          borrowCumulativeFeesInQuoteToken:
-            args.aggregatedData.positionCumulatives.cumulativeFeesInQuoteToken,
-          borrowCumulativeFeesUSD: args.aggregatedData.positionCumulatives.cumulativeFeesUSD,
-          borrowCumulativeDepositUSD: args.aggregatedData.positionCumulatives.cumulativeDepositUSD,
-          borrowCumulativeWithdrawUSD:
-            args.aggregatedData.positionCumulatives.cumulativeWithdrawUSD,
-        }
-      : defaultLendingCumulatives,
-    withFees: ZERO,
-    withoutFees: ZERO,
-  }
+  const pnl = mapAaveLikeCumulatives(args.cumulatives)
 
   return new AaveLikePositionV2(
     args.proxy,

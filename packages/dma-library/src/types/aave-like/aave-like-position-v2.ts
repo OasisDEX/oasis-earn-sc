@@ -1,8 +1,8 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
+import { LendingCumulativesData } from '@dma-library/types'
 import { LendingPosition } from '@dma-library/types/morphoblue/morphoblue-position'
-import { MorphoCumulativesData } from '@dma-library/views/morpho'
 import { IPositionCategory, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
@@ -17,7 +17,7 @@ export class AaveLikePositionV2 implements LendingPosition {
     public pnl: {
       withFees: BigNumber
       withoutFees: BigNumber
-      cumulatives: MorphoCumulativesData
+      cumulatives: LendingCumulativesData
     },
     public category: IPositionCategory,
     public oraclePrice: BigNumber,

@@ -1,11 +1,11 @@
-import { ZERO } from '@dma-common/constants'
 import { getSparkProtocolData } from '@dma-library/protocols/spark'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AaveLikePosition, AaveLikePositionV2 } from '@dma-library/types/aave-like'
-import { defaultLendingCumulatives, OmniCommonArgs } from '@dma-library/views/aave'
+import { OmniCommonArgs } from '@dma-library/views/aave'
 import {
   calculateViewValuesForPosition,
   ensureOraclePricesDefined,
+  mapAaveLikeCumulatives,
 } from '@dma-library/views/aave-like'
 import {
   SparkGetCurrentPositionArgs,
@@ -165,31 +165,7 @@ export const getCurrentSparkPositionOmni: SparkGetCurrentPositionOmni = async (
     category,
   })
 
-  const pnl = {
-    cumulatives: args.aggregatedData?.positionCumulatives
-      ? {
-          ...defaultLendingCumulatives,
-          borrowCumulativeDepositInCollateralToken:
-            args.aggregatedData.positionCumulatives.cumulativeDepositInCollateralToken,
-          borrowCumulativeWithdrawInCollateralToken:
-            args.aggregatedData.positionCumulatives.cumulativeWithdrawInCollateralToken,
-          borrowCumulativeDepositInQuoteToken:
-            args.aggregatedData.positionCumulatives.cumulativeDepositInQuoteToken,
-          borrowCumulativeWithdrawInQuoteToken:
-            args.aggregatedData.positionCumulatives.cumulativeWithdrawInQuoteToken,
-          borrowCumulativeFeesInCollateralToken:
-            args.aggregatedData.positionCumulatives.cumulativeFeesInCollateralToken,
-          borrowCumulativeFeesInQuoteToken:
-            args.aggregatedData.positionCumulatives.cumulativeFeesInQuoteToken,
-          borrowCumulativeFeesUSD: args.aggregatedData.positionCumulatives.cumulativeFeesUSD,
-          borrowCumulativeDepositUSD: args.aggregatedData.positionCumulatives.cumulativeDepositUSD,
-          borrowCumulativeWithdrawUSD:
-            args.aggregatedData.positionCumulatives.cumulativeWithdrawUSD,
-        }
-      : defaultLendingCumulatives,
-    withFees: ZERO,
-    withoutFees: ZERO,
-  }
+  const pnl = mapAaveLikeCumulatives(args.cumulatives)
 
   return new AaveLikePositionV2(
     args.proxy,
