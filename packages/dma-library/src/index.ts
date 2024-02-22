@@ -41,7 +41,7 @@ export type { IMultiplyStrategy, IStrategy } from './types'
 export type { Swap, SwapData } from './types'
 export { AaveVersion } from './types/aave'
 export type { AaveLikeTokens } from './types/aave-like'
-export { AaveLikePosition } from './types/aave-like'
+export { AaveLikePosition, AaveLikePositionV2, AaveLikeProtocolEnum } from './types/aave-like'
 export type { ActionCall } from './types/action-call'
 export { calldataTypes } from './types/actions'
 export type {

@@ -1,4 +1,11 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import { AaveDepositBorrowActionOmni } from '@dma-library/strategies/aave/borrow/deposit-borrow/types'
+import { depositBorrowOmni } from '@dma-library/strategies/aave/omni/borrow/deposit-borrow'
+import { openDepositBorrowOmni } from '@dma-library/strategies/aave/omni/borrow/open-deposit-borrow'
+import { paybackWithdrawOmni } from '@dma-library/strategies/aave/omni/borrow/payback-withdraw'
+import { adjustOmni } from '@dma-library/strategies/aave/omni/multiply/adjust'
+import { closeOmni } from '@dma-library/strategies/aave/omni/multiply/close'
+import { openOmni } from '@dma-library/strategies/aave/omni/multiply/open'
 import { AaveVersion } from '@dma-library/types/aave'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { views } from '@dma-library/views'
@@ -6,18 +13,20 @@ import { views } from '@dma-library/views'
 import { AaveV2ChangeDebt, changeDebt } from './borrow/change-debt'
 import { AaveV2DepositBorrow, AaveV3DepositBorrow, depositBorrow } from './borrow/deposit-borrow'
 import {
+  AaveOpenDepositBorrowActionOmni,
   AaveV2OpenDepositBorrow,
   AaveV3OpenDepositBorrow,
   openDepositBorrow,
 } from './borrow/open-deposit-borrow'
 import {
+  AavePaybackWithdrawActionOmni,
   AaveV2PaybackWithdraw,
   AaveV3PaybackWithdraw,
   paybackWithdraw,
 } from './borrow/payback-withdraw'
-import { AaveV2Adjust, AaveV3Adjust, adjust } from './multiply/adjust'
-import { AaveV2Close, AaveV3Close, close } from './multiply/close'
-import { AaveV2Open, AaveV3Open, open } from './multiply/open'
+import { AaveAdjustActionOmni, AaveV2Adjust, AaveV3Adjust, adjust } from './multiply/adjust'
+import { AaveCloseActionOmni, AaveV2Close, AaveV3Close, close } from './multiply/close'
+import { AaveOpenActionOmni, AaveV2Open, AaveV3Open, open } from './multiply/open'
 
 export const aave: {
   borrow: {
@@ -32,6 +41,18 @@ export const aave: {
       openDepositBorrow: AaveV3OpenDepositBorrow
       paybackWithdraw: AaveV3PaybackWithdraw
     }
+    omni: {
+      v2: {
+        depositBorrow: AaveDepositBorrowActionOmni
+        openDepositBorrow: AaveOpenDepositBorrowActionOmni
+        paybackWithdraw: AavePaybackWithdrawActionOmni
+      }
+      v3: {
+        depositBorrow: AaveDepositBorrowActionOmni
+        openDepositBorrow: AaveOpenDepositBorrowActionOmni
+        paybackWithdraw: AavePaybackWithdrawActionOmni
+      }
+    }
   }
   multiply: {
     v2: {
@@ -43,6 +64,18 @@ export const aave: {
       open: AaveV3Open
       close: AaveV3Close
       adjust: AaveV3Adjust
+    }
+    omni: {
+      v2: {
+        open: AaveOpenActionOmni
+        close: AaveCloseActionOmni
+        adjust: AaveAdjustActionOmni
+      }
+      v3: {
+        open: AaveOpenActionOmni
+        adjust: AaveAdjustActionOmni
+        close: AaveCloseActionOmni
+      }
     }
   }
 } = {
@@ -60,6 +93,24 @@ export const aave: {
         withV3Protocol(openDepositBorrow, args, dependencies),
       paybackWithdraw: (args, dependencies) => withV3Protocol(paybackWithdraw, args, dependencies),
     },
+    omni: {
+      v2: {
+        depositBorrow: (args, dependencies) =>
+          withV2Protocol(depositBorrowOmni, args, dependencies),
+        openDepositBorrow: (args, dependencies) =>
+          withV2Protocol(openDepositBorrowOmni, args, dependencies),
+        paybackWithdraw: (args, dependencies) =>
+          withV2Protocol(paybackWithdrawOmni, args, dependencies),
+      },
+      v3: {
+        depositBorrow: (args, dependencies) =>
+          withV3Protocol(depositBorrowOmni, args, dependencies),
+        openDepositBorrow: (args, dependencies) =>
+          withV3Protocol(openDepositBorrowOmni, args, dependencies),
+        paybackWithdraw: (args, dependencies) =>
+          withV3Protocol(paybackWithdrawOmni, args, dependencies),
+      },
+    },
   },
   multiply: {
     v2: {
@@ -71,6 +122,18 @@ export const aave: {
       open: (args, dependencies) => withV3Protocol(open, args, dependencies),
       close: (args, dependencies) => withV3Protocol(close, args, dependencies),
       adjust: (args, dependencies) => withV3Protocol(adjust, args, dependencies),
+    },
+    omni: {
+      v2: {
+        open: (args, dependencies) => withV2Protocol(openOmni, args, dependencies),
+        close: (args, dependencies) => withV2Protocol(closeOmni, args, dependencies),
+        adjust: (args, dependencies) => withV2Protocol(adjustOmni, args, dependencies),
+      },
+      v3: {
+        open: (args, dependencies) => withV3Protocol(openOmni, args, dependencies),
+        close: (args, dependencies) => withV3Protocol(closeOmni, args, dependencies),
+        adjust: (args, dependencies) => withV3Protocol(adjustOmni, args, dependencies),
+      },
     },
   },
 }
@@ -93,7 +156,7 @@ function withV2Protocol<ArgsType, DependenciesType, ReturnType>(
   })
 }
 
-function withV3Protocol<ArgsType, DependenciesType, ReturnType>(
+export function withV3Protocol<ArgsType, DependenciesType, ReturnType>(
   fn: (args: ArgsType, dependencies: DepsWithV3Protocol<DependenciesType>) => ReturnType,
   args: ArgsType,
   dependencies: DependenciesType,

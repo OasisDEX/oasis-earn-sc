@@ -1,2 +1,2 @@
 export { openDepositBorrow } from './open-deposit-borrow'
-export { SparkOpenDepositBorrow } from './types'
+export { SparkOpenDepositBorrow, SparkOpenDepositBorrowOmni } from './types'

@@ -1,3 +1,4 @@
+import { AaveLikePositionV2, SummerStrategy } from '@dma-library/types'
 import { IStrategy } from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
@@ -16,3 +17,16 @@ export type SparkPaybackWithdraw = (
   args: SparkPaybackWithdrawArgs,
   dependencies: SparkPaybackWithdrawDependencies,
 ) => Promise<IPaybackWithdrawStrategy>
+
+export type SparkPaybackWithdrawArgsOmni = SparkPaybackWithdrawArgs & {
+  position: AaveLikePositionV2
+}
+
+export type SparkPaybackWithdrawDependenciesOmni = SparkPaybackWithdrawDependencies & {
+  operationExecutor: string
+}
+
+export type SparkPaybackWithdrawOmni = (
+  args: SparkPaybackWithdrawArgsOmni,
+  dependencies: SparkPaybackWithdrawDependenciesOmni,
+) => Promise<SummerStrategy<AaveLikePositionV2>>

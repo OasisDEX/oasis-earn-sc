@@ -1,9 +1,10 @@
 import { Network } from '@deploy-configurations/types/network'
-import { IOperation, SwapData } from '@dma-library/types'
+import { AaveLikePositionV2, IOperation, SummerStrategy, SwapData } from '@dma-library/types'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 import { IBaseSimulatedTransition } from '@domain'
 import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 
 export type AaveLikeAdjustArgs = StrategyParams.WithAaveLikeMultiplyStrategyArgs &
   StrategyParams.WithMultiple &
@@ -56,3 +57,15 @@ export type GenerateArgs = {
   dependencies: AaveLikeAdjustDependencies
   quoteSwapData: SwapData
 }
+
+export type AaveLikeAdjustArgsOmni = AaveLikeAdjustArgs & { position: AaveLikePositionV2 }
+
+export type AaveLikeAdjustDependenciesOmni = AaveLikeAdjustDependencies & {
+  provider: ethers.providers.Provider
+  operationExecutor: string
+}
+
+export type AaveLikeAdjustOmni = (
+  args: AaveLikeAdjustArgsOmni,
+  dependencies: AaveLikeAdjustDependenciesOmni,
+) => Promise<SummerStrategy<AaveLikePositionV2>>

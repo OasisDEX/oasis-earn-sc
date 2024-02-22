@@ -1,2 +1,2 @@
 export { adjust } from './adjust'
-export { SparkAdjust } from './types'
+export { SparkAdjust, SparkAdjustOmni } from './types'
