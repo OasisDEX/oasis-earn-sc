@@ -341,6 +341,34 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    CSETH: {
+      name: 'CSETH',
+      address: '0x5d74468b69073f809d4fae90afec439e69bf6263',
+    },
+    DETH: {
+      name: 'DETH',
+      address: '0x3d1e5cf16077f349e999d6b21a4f646e83cd90c5',
+    },
+    EZETH: {
+      name: 'EZETH',
+      address: '0xbf5495efe5db9ce00f80364c8b423567e58d2110',
+    },
+    MEVETH: {
+      name: 'MEVETH',
+      address: '0x24ae2da0f361aa4be46b48eb19c91e02c5e4f27e',
+    },
+    MPETH: {
+      name: 'MPETH',
+      address: '0x48afbbd342f64ef8a9ab1c143719b63c2ad81710',
+    },
+    UNIETH: {
+      name: 'UNIETH',
+      address: '0xf1376bcef0f78459c0ed0ba5ddce976f1ddf51f4',
+    },
+    XETH: {
+      name: 'XETH',
+      address: '0xe063f04f280c60aeca68b38341c2eecbec703ae2',
+    },
     ARB: {
       name: 'ARB',
       address: '0x0000000000000000000000000000000000000000',
@@ -1363,6 +1391,38 @@ export const config: SystemConfig = {
     AjnaPoolPairs_SUSDEDAI: {
       name: 'AjnaPoolPairs_SUSDEDAI',
       address: '0x34bc3d3d274a355f3404c5dee2a96335540234de',
+    },
+    AjnaPoolPairs_MEVETHWETH: {
+      name: 'AjnaPoolPairs_MEVETHWETH',
+      address: '0x6a511d452423537da52bc18b61305966473b8711',
+    },
+    AjnaPoolPairs_XETHWETH: {
+      name: 'AjnaPoolPairs_XETHWETH',
+      address: '0x6c9d12a97abc79410e49a3d50f233ad428a81f8c',
+    },
+    AjnaPoolPairs_CSETHWETH: {
+      name: 'AjnaPoolPairs_CSETHWETH',
+      address: '0xe3fbb8ca68401e08556746e5656937f4f2a89e7d',
+    },
+    AjnaPoolPairs_APXETHWETH: {
+      name: 'AjnaPoolPairs_APXETHWETH',
+      address: '0x1eea11c09eb446261739bbd1315992c3632960df',
+    },
+    AjnaPoolPairs_DETHWETH: {
+      name: 'AjnaPoolPairs_DETHWETH',
+      address: '0xcff6231d6dcd52d98f1ec1afec7063962fc3092f',
+    },
+    AjnaPoolPairs_UNIETHWETH: {
+      name: 'AjnaPoolPairs_UNIETHWETH',
+      address: '0x320ea0fe27b06f94bd464997530a4a9ec49d2472',
+    },
+    AjnaPoolPairs_MPETHWETH: {
+      name: 'AjnaPoolPairs_MPETHWETH',
+      address: '0x580d779cd5c5667357647104e1898b17f1550c52',
+    },
+    AjnaPoolPairs_EZETHWETH: {
+      name: 'AjnaPoolPairs_EZETHWETH',
+      address: '0x95af0f183cee1d797c921f53090c73f310610e73',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
