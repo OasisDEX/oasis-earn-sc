@@ -41,11 +41,16 @@ contract AaveV3L2Payback is Executable, UseStore {
 
     payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
 
+    if (payback.onBehalf == address(0)) {
+      payback.onBehalf = address(this);
+    }
+
     IL2Pool(registry.getRegisteredService(AAVE_POOL)).repay(
       IL2Encoder(registry.getRegisteredService(AAVE_L2_ENCODER)).encodeRepayParams(
         payback.asset,
         payback.paybackAll ? type(uint256).max : payback.amount,
-        2
+        2,
+        payback.onBehalf
       )
     );
 
