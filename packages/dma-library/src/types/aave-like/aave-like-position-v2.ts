@@ -95,7 +95,9 @@ export class AaveLikePositionV2 implements LendingPosition {
     const maxLoanToValue = this.category.maxLoanToValue
 
     return negativeToZero(
-      normalizeValue(this.collateralAmount.times(this.oraclePrice).times(maxLoanToValue)),
+      normalizeValue(
+        this.collateralAmount.times(this.oraclePrice).times(maxLoanToValue).minus(this.debtAmount),
+      ),
     )
   }
 
