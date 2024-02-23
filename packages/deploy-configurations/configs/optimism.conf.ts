@@ -1,8 +1,9 @@
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
+import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
-import { ADDRESS_ZERO, loadContractNames } from '../constants'
-import { SystemConfig } from '../types/deployment-config'
 import { commonDefaults } from './shared/common-defaults'
+import { emptyAjnaPools } from './shared/empty-ajna-pools'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.OPTIMISM)
 
@@ -226,16 +227,16 @@ export const config: SystemConfig = {
       },
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
-        deploy: true,
-        address: '',
+        deploy: false,
+        address: '0x1c98d87b245aA442791Ffb8a7e57380Ed49112FF',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
-        deploy: true,
-        address: '',
+        deploy: false,
+        address: '0x039F7784C5A6f187fcAc027262aA912974A7515D',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -244,6 +245,15 @@ export const config: SystemConfig = {
   },
   common: {
     ...commonDefaults,
+
+    OP: {
+      name: 'OP',
+      address: '0x4200000000000000000000000000000000000042',
+    },
+    SUSD: {
+      name: 'SUSD',
+      address: '0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9',
+    },
     GnosisSafe: {
       name: 'GnosisSafe',
       address: ADDRESS_ZERO,
@@ -363,7 +373,10 @@ export const config: SystemConfig = {
       name: 'WSTETHOracle',
       address: ADDRESS_ZERO,
     },
-    ADAI: { name: 'ADAI', address: ADDRESS_ZERO },
+    ADAI: {
+      name: 'ADAI',
+      address: ADDRESS_ZERO,
+    },
     AJNA: {
       name: 'AJNA',
       address: ADDRESS_ZERO,
@@ -372,28 +385,55 @@ export const config: SystemConfig = {
       name: 'APXETH',
       address: ADDRESS_ZERO,
     },
-    AAVE: { name: 'AAVE', address: ADDRESS_ZERO },
-    BAL: { name: 'BAL', address: ADDRESS_ZERO },
-    BAT: { name: 'BAT', address: ADDRESS_ZERO },
+    AAVE: {
+      name: 'AAVE',
+      address: ADDRESS_ZERO,
+    },
+    BAL: {
+      name: 'BAL',
+      address: ADDRESS_ZERO,
+    },
+    BAT: {
+      name: 'BAT',
+      address: ADDRESS_ZERO,
+    },
     BWAJNA: {
       name: 'BWAJNA',
       address: ADDRESS_ZERO,
     },
-    COMP: { name: 'COMP', address: ADDRESS_ZERO },
-    CBETH: { name: 'CBETH', address: '0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2' },
-    CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
+    COMP: {
+      name: 'COMP',
+      address: ADDRESS_ZERO,
+    },
+    CBETH: {
+      name: 'CBETH',
+      address: '0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2',
+    },
+    CRVV1ETHSTETH: {
+      name: 'CRVV1ETHSTETH',
+      address: ADDRESS_ZERO,
+    },
     DAI: {
       name: 'DAI',
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
-    ETH: { name: 'ETH', address: '0x4200000000000000000000000000000000000006' },
+    ETH: {
+      name: 'ETH',
+      address: '0x4200000000000000000000000000000000000006',
+    },
     FRAX: {
       name: 'FRAX',
       address: ADDRESS_ZERO,
     },
-    GHO: { name: 'GHO', address: ADDRESS_ZERO },
-    GNO: { name: 'GNO', address: ADDRESS_ZERO },
+    GHO: {
+      name: 'GHO',
+      address: ADDRESS_ZERO,
+    },
+    GNO: {
+      name: 'GNO',
+      address: ADDRESS_ZERO,
+    },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
       address: ADDRESS_ZERO,
@@ -402,62 +442,150 @@ export const config: SystemConfig = {
       name: 'GUNIV3DAIUSDC2',
       address: ADDRESS_ZERO,
     },
-    GUSD: { name: 'GUSD', address: ADDRESS_ZERO },
-    KNC: { name: 'KNC', address: ADDRESS_ZERO },
-    LDO: { name: 'LDO', address: ADDRESS_ZERO },
-    LINK: { name: 'LINK', address: '0x350a791bfc2c21f9ed5d10980dad2e2638ffa7f6' },
-    LRC: { name: 'LRC', address: ADDRESS_ZERO },
+    GUSD: {
+      name: 'GUSD',
+      address: ADDRESS_ZERO,
+    },
+    KNC: {
+      name: 'KNC',
+      address: ADDRESS_ZERO,
+    },
+    LDO: {
+      name: 'LDO',
+      address: ADDRESS_ZERO,
+    },
+    LINK: {
+      name: 'LINK',
+      address: '0x350a791bfc2c21f9ed5d10980dad2e2638ffa7f6',
+    },
+    LRC: {
+      name: 'LRC',
+      address: ADDRESS_ZERO,
+    },
     LUSD: {
       name: 'LUSD',
       address: '0xc40f949f8a4e094d1b49a23ea9241d289b7b2819',
     },
-    MANA: { name: 'MANA', address: ADDRESS_ZERO },
-    MATIC: { name: 'MATIC', address: ADDRESS_ZERO },
+    MANA: {
+      name: 'MANA',
+      address: ADDRESS_ZERO,
+    },
+    MATIC: {
+      name: 'MATIC',
+      address: ADDRESS_ZERO,
+    },
     OSETH: {
       name: 'OSETH',
       address: ADDRESS_ZERO,
     },
-    PAX: { name: 'PAX', address: ADDRESS_ZERO },
-    PAXUSD: { name: 'PAXUSD', address: ADDRESS_ZERO },
-    OP: {
-      name: 'OP',
-      address: '0x4200000000000000000000000000000000000042',
+    PAX: {
+      name: 'PAX',
+      address: ADDRESS_ZERO,
     },
-    RENBTC: { name: 'RENBTC', address: ADDRESS_ZERO },
-    RETH: { name: 'RETH', address: '0x9bcef72be871e61ed4fbbc7630889bee758eb81d' },
+    PAXUSD: {
+      name: 'PAXUSD',
+      address: ADDRESS_ZERO,
+    },
+    RENBTC: {
+      name: 'RENBTC',
+      address: ADDRESS_ZERO,
+    },
+    RETH: {
+      name: 'RETH',
+      address: '0x9bcef72be871e61ed4fbbc7630889bee758eb81d',
+    },
     RBN: {
       name: 'RBN',
       address: ADDRESS_ZERO,
     },
-    RWA001: { name: 'RWA001', address: ADDRESS_ZERO },
-    RWA002: { name: 'RWA002', address: ADDRESS_ZERO },
-    RWA003: { name: 'RWA003', address: ADDRESS_ZERO },
-    RWA004: { name: 'RWA004', address: ADDRESS_ZERO },
-    RWA005: { name: 'RWA005', address: ADDRESS_ZERO },
-    RWA006: { name: 'RWA006', address: ADDRESS_ZERO },
-    SDAI: { name: 'SDAI', address: ADDRESS_ZERO },
-    STETH: { name: 'STETH', address: ADDRESS_ZERO },
+    RWA001: {
+      name: 'RWA001',
+      address: ADDRESS_ZERO,
+    },
+    RWA002: {
+      name: 'RWA002',
+      address: ADDRESS_ZERO,
+    },
+    RWA003: {
+      name: 'RWA003',
+      address: ADDRESS_ZERO,
+    },
+    RWA004: {
+      name: 'RWA004',
+      address: ADDRESS_ZERO,
+    },
+    RWA005: {
+      name: 'RWA005',
+      address: ADDRESS_ZERO,
+    },
+    RWA006: {
+      name: 'RWA006',
+      address: ADDRESS_ZERO,
+    },
+    SDAI: {
+      name: 'SDAI',
+      address: ADDRESS_ZERO,
+    },
+    STETH: {
+      name: 'STETH',
+      address: ADDRESS_ZERO,
+    },
     STYETH: {
       name: 'STYETH',
       address: ADDRESS_ZERO,
     },
-    SUSD: {
-      name: 'SUSD',
-      address: '0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9',
+    TBTC: {
+      name: 'TBTC',
+      address: ADDRESS_ZERO,
     },
-    TBTC: { name: 'TBTC', address: ADDRESS_ZERO },
-    TUSD: { name: 'TUSD', address: ADDRESS_ZERO },
-    UNI: { name: 'UNI', address: ADDRESS_ZERO },
-    UNIV2AAVEETH: { name: 'UNIV2AAVEETH', address: ADDRESS_ZERO },
-    UNIV2DAIETH: { name: 'UNIV2DAIETH', address: ADDRESS_ZERO },
-    UNIV2DAIUSDC: { name: 'UNIV2DAIUSDC', address: ADDRESS_ZERO },
-    UNIV2DAIUSDT: { name: 'UNIV2DAIUSDT', address: ADDRESS_ZERO },
-    UNIV2ETHUSDT: { name: 'UNIV2ETHUSDT', address: ADDRESS_ZERO },
-    UNIV2LINKETH: { name: 'UNIV2LINKETH', address: ADDRESS_ZERO },
-    UNIV2UNIETH: { name: 'UNIV2UNIETH', address: ADDRESS_ZERO },
-    UNIV2USDCETH: { name: 'UNIV2USDCETH', address: ADDRESS_ZERO },
-    UNIV2WBTCDAI: { name: 'UNIV2WBTCDAI', address: ADDRESS_ZERO },
-    UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: ADDRESS_ZERO },
+    TUSD: {
+      name: 'TUSD',
+      address: ADDRESS_ZERO,
+    },
+    UNI: {
+      name: 'UNI',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2AAVEETH: {
+      name: 'UNIV2AAVEETH',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2DAIETH: {
+      name: 'UNIV2DAIETH',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2DAIUSDC: {
+      name: 'UNIV2DAIUSDC',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2DAIUSDT: {
+      name: 'UNIV2DAIUSDT',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2ETHUSDT: {
+      name: 'UNIV2ETHUSDT',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2LINKETH: {
+      name: 'UNIV2LINKETH',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2UNIETH: {
+      name: 'UNIV2UNIETH',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2USDCETH: {
+      name: 'UNIV2USDCETH',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2WBTCDAI: {
+      name: 'UNIV2WBTCDAI',
+      address: ADDRESS_ZERO,
+    },
+    UNIV2WBTCETH: {
+      name: 'UNIV2WBTCETH',
+      address: ADDRESS_ZERO,
+    },
     'USDC.E': {
       name: 'USDC.E',
       address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
@@ -469,9 +597,12 @@ export const config: SystemConfig = {
     },
     USDBC: {
       name: 'USDBC',
-      address: '0x0000000000000000000000000000000000000000',
+      address: ADDRESS_ZERO,
     },
-    USDT: { name: 'USDT', address: '0x94b008aa00579c1307b0ef2c499ad98a8ce58e58' },
+    USDT: {
+      name: 'USDT',
+      address: '0x94b008aa00579c1307b0ef2c499ad98a8ce58e58',
+    },
     WBTC: {
       name: 'WBTC',
       address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
@@ -482,7 +613,10 @@ export const config: SystemConfig = {
       address: '0x4200000000000000000000000000000000000006',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
     },
-    WLD: { name: 'WLD', address: ADDRESS_ZERO },
+    WLD: {
+      name: 'WLD',
+      address: ADDRESS_ZERO,
+    },
     WSTETH: {
       name: 'WSTETH',
       address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
@@ -500,8 +634,14 @@ export const config: SystemConfig = {
       name: 'YIELDETH',
       address: ADDRESS_ZERO,
     },
-    YFI: { name: 'YFI', address: ADDRESS_ZERO },
-    ZRX: { name: 'ZRX', address: ADDRESS_ZERO },
+    YFI: {
+      name: 'YFI',
+      address: ADDRESS_ZERO,
+    },
+    ZRX: {
+      name: 'ZRX',
+      address: ADDRESS_ZERO,
+    },
   },
   aave: {
     v2: {
@@ -1002,163 +1142,66 @@ export const config: SystemConfig = {
     },
   },
   ajna: {
+    ...emptyAjnaPools,
+
+    AjnaPoolPairs_ETHUSDC: {
+      name: 'AjnaPoolPairs_ETHUSDC',
+      address: '0x5f62D5F0bE36Ba1a3AA350450655A0d0593D27f9',
+    },
+
+    AjnaPoolPairs_RETHDAI: {
+      name: 'AjnaPoolPairs_RETHDAI',
+      address: '0x9585B11488eB064b2d381dC4A0C4F84FAf142C8e',
+    },
+    AjnaPoolPairs_RETHETH: {
+      name: 'AjnaPoolPairs_RETHETH',
+      address: '0xB201cda67fE754ff1066016b5f80294bba1bf43B',
+    },
+    AjnaPoolPairs_USDCETH: {
+      name: 'AjnaPoolPairs_USDCETH',
+      address: '0xBd63eEAA1f47935cA35aa0C026Cf58A50e589006',
+    },
+    AjnaPoolPairs_USDCWBTC: {
+      name: 'AjnaPoolPairs_USDCWBTC',
+      address: '0xb2c82E569c7B7B3a95Ea19674d8FE9068F165C59',
+    },
+    AjnaPoolPairs_WBTCDAI: {
+      name: 'AjnaPoolPairs_WBTCDAI',
+      address: '0x0463691777c68E9c54260A628c9f8C38F8E57eF8',
+    },
+    AjnaPoolPairs_WBTCUSDC: {
+      name: 'AjnaPoolPairs_WBTCUSDC',
+      address: '0xb4925d017612C9a4a8300EA1c7224eb5b66d1A62',
+    },
+    AjnaPoolPairs_WSTETHDAI: {
+      name: 'AjnaPoolPairs_WSTETHDAI',
+      address: '0x696E611A1B7f42F420e981329b81aB9131B5A6c9',
+    },
+    AjnaPoolPairs_WSTETHETH: {
+      name: 'AjnaPoolPairs_WSTETHETH',
+      address: '0x06495904Ae0c9162d01C88d7540354d40B9bD178',
+    },
+    AjnaPoolPairs_WSTETHUSDC: {
+      name: 'AjnaPoolPairs_WSTETHUSDC',
+      address: '0x5087CBfc3071355Af8CD8867492D96a77CDbDa9C',
+    },
+
+    AjnaPoolPairs_OPETH: {
+      name: 'AjnaPoolPairs_OPETH',
+      address: '0x5e01438A7995505048FC03713d9aC46B7B285241',
+    },
+    AjnaPoolPairs_OPUSDC: {
+      name: 'AjnaPoolPairs_OPUSDC',
+      address: '0x6fAEE35963829F4828FbFE2Fc99dd90d7C38aC51',
+    },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: ADDRESS_ZERO,
+      address: '0xdE6C8171b5b971F71C405631f4e0568ed8491aaC',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_ETHDAI: {
-      name: 'AjnaPoolPairs_ETHDAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_ETHUSDC: {
-      name: 'AjnaPoolPairs_ETHUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_RETHDAI: {
-      name: 'AjnaPoolPairs_RETHDAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_RETHETH: {
-      name: 'AjnaPoolPairs_RETHETH',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_RETHUSDC: {
-      name: 'AjnaPoolPairs_RETHUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_USDCETH: {
-      name: 'AjnaPoolPairs_USDCETH',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: '' },
-    AjnaPoolPairs_USDCWBTC: {
-      name: 'AjnaPoolPairs_USDCWBTC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WBTCDAI: {
-      name: 'AjnaPoolPairs_WBTCDAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WBTCUSDC: {
-      name: 'AjnaPoolPairs_WBTCUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WSTETHDAI: {
-      name: 'AjnaPoolPairs_WSTETHDAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WSTETHETH: {
-      name: 'AjnaPoolPairs_WSTETHETH',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WSTETHUSDC: {
-      name: 'AjnaPoolPairs_WSTETHUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_CBETHETH: {
-      name: 'AjnaPoolPairs_CBETHETH',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_TBTCWBTC: {
-      name: 'AjnaPoolPairs_TBTCWBTC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_TBTCUSDC: {
-      name: 'AjnaPoolPairs_TBTCUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_ETHGHO: {
-      name: 'AjnaPoolPairs_ETHGHO',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WSTETHGHO: {
-      name: 'AjnaPoolPairs_WSTETHGHO',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_GHODAI: {
-      name: 'AjnaPoolPairs_GHODAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_RETHGHO: {
-      name: 'AjnaPoolPairs_RETHGHO',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WBTCGHO: {
-      name: 'AjnaPoolPairs_WBTCGHO',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_CBETHGHO: {
-      name: 'AjnaPoolPairs_CBETHGHO',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WLDUSDC: {
-      name: 'AjnaPoolPairs_WLDUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_USDCWLD: {
-      name: 'AjnaPoolPairs_USDCWLD',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_SDAIUSDC: {
-      name: 'AjnaPoolPairs_SDAIUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_YFIDAI: {
-      name: 'AjnaPoolPairs_YFIDAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_YIELDETHETH: {
-      name: 'AjnaPoolPairs_YIELDETHETH',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_YIELDBTCWBTC: {
-      name: 'AjnaPoolPairs_YIELDBTCWBTC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_TBTCGHO: {
-      name: 'AjnaPoolPairs_TBTCGHO',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_CBETHUSDBC: {
-      name: 'AjnaPoolPairs_CBETHUSDBC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_STYETHDAI: {
-      name: 'AjnaPoolPairs_STYETHDAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_RBNETH: {
-      name: 'AjnaPoolPairs_RBNETH',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_AJNADAI: {
-      name: 'AjnaPoolPairs_AJNADAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_YVCURVEUSDMSDAIFDAI: {
-      name: 'AjnaPoolPairs_YVCURVEUSDMSDAIFDAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_MKRDAI: {
-      name: 'AjnaPoolPairs_MKRDAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_MWSTETHWPUNKS20WSTETH: {
-      name: 'AjnaPoolPairs_MWSTETHWPUNKS20WSTETH',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_MWSTETHWPUNKS40WSTETH: {
-      name: 'AjnaPoolPairs_MWSTETHWPUNKS40WSTETH',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_APXETHETH: {
-      name: 'AjnaPoolPairs_APXETHETH',
-      address: ADDRESS_ZERO,
+      address: '0xb6E6e38ad9840b7ACAB968abBED5eEf7289BfB19',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
@@ -1178,7 +1221,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x609C4e8804fafC07c96bE81A8a98d0AdCf2b7Dfa',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },

@@ -29,4 +29,36 @@ export const commonDefaults = {
     name: 'RPL',
     address: ADDRESS_ZERO,
   },
+  SUSDE: {
+    name: 'SUSDE',
+    address: ADDRESS_ZERO,
+  },
+  CSETH: {
+    name: 'CSETH',
+    address: ADDRESS_ZERO,
+  },
+  DETH: {
+    name: 'DETH',
+    address: ADDRESS_ZERO,
+  },
+  EZETH: {
+    name: 'EZETH',
+    address: ADDRESS_ZERO,
+  },
+  MEVETH: {
+    name: 'MEVETH',
+    address: ADDRESS_ZERO,
+  },
+  MPETH: {
+    name: 'MPETH',
+    address: ADDRESS_ZERO,
+  },
+  UNIETH: {
+    name: 'UNIETH',
+    address: ADDRESS_ZERO,
+  },
+  XETH: {
+    name: 'XETH',
+    address: ADDRESS_ZERO,
+  },
 } as const

@@ -35,6 +35,20 @@ const config: HardhatUserConfig = {
       // FIXME: uncomment when we have the env variable properly set up in gh actions
       // accounts: [process.env.PRIV_KEY_BASE || ""],
     },
+    optimism: {
+      url: process.env.OPTIMISM_URL || "",
+      // initialBaseFeePerGas: 1000000000,
+      // gasPrice: 45000000000, // 45 gwei
+      // FIXME: uncomment when we have the env variable properly set up in gh actions
+      // accounts: [process.env.PRIV_KEY_OPTIMISM || ""],
+    },
+    arbitrum: {
+      url: process.env.ARBITRUM_URL || "",
+      // initialBaseFeePerGas: 1000000000,
+      // gasPrice: 45000000000, // 45 gwei
+      // FIXME: uncomment when we have the env variable properly set up in gh actions
+      // accounts: [process.env.PRIV_KEY_ARBITRUM || ""],
+    },
     goerli: {
       url: process.env.GOERLI_URL || "",
       // FIXME: uncomment when we have the env variable properly set up in gh actions

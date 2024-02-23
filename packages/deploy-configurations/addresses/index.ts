@@ -80,10 +80,7 @@ export type Addresses = {
 if (!mainnetConfig.aave.v2) throw new Error('Missing aave v2 config on mainnet')
 if (!optimismConfig.aave.v3.L2Encoder) throw new Error('Missing L2Encoder config on optimism')
 
-const createAddressesStructure = (
-  networkConfig: SystemConfig,
-  ajnaConfig?: SystemConfig,
-): DefaultDeployment => ({
+const createAddressesStructure = (networkConfig: SystemConfig): DefaultDeployment => ({
   mpa: {
     core: {
       ...extractAddressesFromConfig<Core>(networkConfig.mpa.core),
@@ -121,7 +118,7 @@ const createAddressesStructure = (
     ...extractAddressesFromConfig(networkConfig.automation),
   },
   ajna: {
-    ...extractAddressesFromConfig(ajnaConfig?.ajna || networkConfig.ajna),
+    ...extractAddressesFromConfig(networkConfig.ajna),
   },
   morphoblue: {
     ...extractAddressesFromConfig(networkConfig.morphoblue),
@@ -154,8 +151,8 @@ function extractAddressesFromConfig<T extends Contracts>(
 export const ADDRESSES: Addresses = {
   [Network.MAINNET]: createAddressesStructure(mainnetConfig),
   [Network.OPTIMISM]: createAddressesStructure(optimismConfig),
-  [Network.GOERLI]: createAddressesStructure(goerliConfig, goerliConfig),
-  [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig, mainnetConfig),
+  [Network.GOERLI]: createAddressesStructure(goerliConfig),
+  [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig),
   [Network.BASE]: createAddressesStructure(baseConfig),
   [Network.TEST]: createAddressesStructure(testConfig),
   [Network.SEPOLIA]: createAddressesStructure(sepoliaConfig),

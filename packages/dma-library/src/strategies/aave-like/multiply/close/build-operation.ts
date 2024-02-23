@@ -28,7 +28,7 @@ export async function buildOperation(
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
   const collateralAmountToBeSwapped = args.shouldCloseToCollateral
     ? swapData.fromTokenAmount.plus(swapData.preSwapFee)
-    : dependencies.currentPosition.collateral.amount
+    : dependencies.currentPosition.collateral.amount.minus(1)
   const collectFeeFrom = swapData.collectFeeFrom
 
   const positionType = dependencies.positionType
