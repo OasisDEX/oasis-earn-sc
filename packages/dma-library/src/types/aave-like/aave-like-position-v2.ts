@@ -43,7 +43,6 @@ export class AaveLikePositionV2 implements LendingPosition {
     const approximatelyMinimumCollateral = this.debtAmount
       .dividedBy(this.oraclePrice)
       .dividedBy(this.category.maxLoanToValue)
-      .integerValue()
 
     return negativeToZero(
       normalizeValue(this.collateralAmount.minus(approximatelyMinimumCollateral)),
