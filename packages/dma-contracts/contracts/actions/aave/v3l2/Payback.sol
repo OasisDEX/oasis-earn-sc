@@ -21,7 +21,7 @@ interface IL2Pool {
 }
 
 interface IL2Encoder {
-  function encodeRepayParams(address, uint256, uint256) external view returns (bytes32);
+  function encodeRepayParams(address, uint256, uint256, address) external view returns (bytes32);
 }
 
 contract AaveV3L2Payback is Executable, UseStore {
