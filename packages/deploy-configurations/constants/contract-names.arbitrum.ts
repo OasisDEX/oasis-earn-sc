@@ -2,6 +2,7 @@
 export const SERVICE_REGISTRY_NAMES = {
   common: {
     PULL_TOKEN: 'PullToken_3',
+    PULL_TOKEN_MAX_AMOUNT: 'PullTokenMaxAmount',
     SEND_TOKEN: 'SendToken_4',
     SET_APPROVAL: 'SetApproval_3',
     TAKE_A_FLASHLOAN: 'TakeFlashloan_3',
@@ -10,6 +11,7 @@ export const SERVICE_REGISTRY_NAMES = {
     UNWRAP_ETH: 'UnwrapEth_3',
     RETURN_FUNDS: 'ReturnFunds_3',
     POSITION_CREATED: 'PositionCreated',
+    TOKEN_BALANCE: 'TokenBalance',
     ACCOUNT_GUARD: 'AccountGuard',
     ACCOUNT_FACTORY: 'AccountFactory',
     OPERATION_EXECUTOR: 'OperationExecutor_2',
@@ -44,8 +46,8 @@ export const SERVICE_REGISTRY_NAMES = {
     v3: {
       DEPOSIT: 'AaveV3Deposit',
       WITHDRAW: 'AaveV3Withdraw',
-      BORROW: 'AaveV3Borrow',
-      PAYBACK: 'AaveV3Payback',
+      BORROW: 'AaveV3Borrow_4',
+      PAYBACK: 'AaveV3Payback_4',
       AAVE_POOL: 'AavePool',
       SET_EMODE: 'AaveV3SetEMode',
     },

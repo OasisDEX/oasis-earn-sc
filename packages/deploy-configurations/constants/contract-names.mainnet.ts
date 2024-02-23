@@ -1,7 +1,8 @@
 // Service Registry Entry Names
 export const SERVICE_REGISTRY_NAMES = {
   common: {
-    PULL_TOKEN: 'PullToken_6',
+    PULL_TOKEN: 'PullToken_3',
+    PULL_TOKEN_MAX_AMOUNT: 'PullTokenMaxAmount',
     SEND_TOKEN: 'SendToken_4',
     SET_APPROVAL: 'SetApproval_3',
     TAKE_A_FLASHLOAN: 'TakeFlashloan_3',
