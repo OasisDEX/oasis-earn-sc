@@ -4,6 +4,7 @@ import { AaveLikePosition, AaveLikePositionV2 } from '@dma-library/types/aave-li
 import {
   AaveGetCurrentPositionArgs,
   AaveLikeCumulativeData,
+  AaveLikeReserveConfigurationData,
   AaveV2GetCurrentPositionDependencies,
   AaveV3GetCurrentPositionDependencies,
   ReserveDataReply,
@@ -24,6 +25,7 @@ export {
 export type OmniCommonArgs = {
   primaryTokenReserveData: ReserveDataReply
   secondaryTokenReserveData: ReserveDataReply
+  reserveConfigurationData: AaveLikeReserveConfigurationData
   cumulatives?: AaveLikeCumulativeData
   collateralPrice: BigNumber
   debtPrice: BigNumber
@@ -211,6 +213,7 @@ export const getCurrentPositionAaveV2Omni: AaveV2GetCurrentPositionOmni = async 
     oracle,
     args.secondaryTokenReserveData.variableBorrowRate,
     args.primaryTokenReserveData.liquidityRate,
+    args.reserveConfigurationData.liquidationBonus,
   )
 }
 
@@ -379,5 +382,6 @@ export const getCurrentPositionAaveV3Omni: AaveV3GetCurrentPositionOmni = async 
     oracle,
     args.secondaryTokenReserveData.variableBorrowRate,
     args.primaryTokenReserveData.liquidityRate,
+    args.reserveConfigurationData.liquidationBonus,
   )
 }

@@ -23,6 +23,7 @@ export class AaveLikePositionV2 implements LendingPosition {
     public oraclePrice: BigNumber,
     public debtVariableBorrowRate: BigNumber,
     public collateralLiquidityRate: BigNumber,
+    public liquidationPenalty: BigNumber,
   ) {}
 
   get liquidationPrice() {
@@ -115,6 +116,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.oraclePrice,
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
+      this.liquidationPenalty,
     )
   }
 
@@ -132,6 +134,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.oraclePrice,
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
+      this.liquidationPenalty,
     )
   }
 
@@ -149,6 +152,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.oraclePrice,
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
+      this.liquidationPenalty,
     )
   }
 
@@ -166,6 +170,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.oraclePrice,
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
+      this.liquidationPenalty,
     )
   }
 
@@ -182,6 +187,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.oraclePrice,
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
+      this.liquidationPenalty,
     )
   }
 }

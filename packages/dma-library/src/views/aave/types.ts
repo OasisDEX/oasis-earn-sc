@@ -62,3 +62,9 @@ export type AaveLikeCumulativeData = {
   cumulativeFeesInQuoteToken: BigNumber
   cumulativeFeesInCollateralToken: BigNumber
 }
+
+export interface AaveLikeReserveConfigurationData {
+  ltv: BigNumber
+  liquidationThreshold: BigNumber
+  liquidationBonus: BigNumber
+}
