@@ -173,4 +173,36 @@ export const emptyAjnaPools = {
     name: 'AjnaPoolPairs_OPUSDC',
     address: ADDRESS_ZERO,
   },
+  AjnaPoolPairs_MEVETHWETH: {
+    name: 'AjnaPoolPairs_MEVETHWETH',
+    address: ADDRESS_ZERO,
+  },
+  AjnaPoolPairs_XETHWETH: {
+    name: 'AjnaPoolPairs_XETHWETH',
+    address: ADDRESS_ZERO,
+  },
+  AjnaPoolPairs_CSETHWETH: {
+    name: 'AjnaPoolPairs_CSETHWETH',
+    address: ADDRESS_ZERO,
+  },
+  AjnaPoolPairs_APXETHWETH: {
+    name: 'AjnaPoolPairs_APXETHWETH',
+    address: ADDRESS_ZERO,
+  },
+  AjnaPoolPairs_DETHWETH: {
+    name: 'AjnaPoolPairs_DETHWETH',
+    address: ADDRESS_ZERO,
+  },
+  AjnaPoolPairs_UNIETHWETH: {
+    name: 'AjnaPoolPairs_UNIETHWETH',
+    address: ADDRESS_ZERO,
+  },
+  AjnaPoolPairs_MPETHWETH: {
+    name: 'AjnaPoolPairs_MPETHWETH',
+    address: ADDRESS_ZERO,
+  },
+  AjnaPoolPairs_EZETHWETH: {
+    name: 'AjnaPoolPairs_EZETHWETH',
+    address: ADDRESS_ZERO,
+  },
 } as const
