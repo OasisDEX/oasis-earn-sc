@@ -133,6 +133,16 @@ export class MorphoBluePosition implements LendingPosition {
     )
   }
 
+  get liquidationPenalty() {
+    const M = new BigNumber(1.15)
+    const BETA = new BigNumber(0.3)
+
+    return BigNumber.min(
+      M,
+      ONE.div(BETA.times(this.maxRiskRatio.loanToValue).plus(ONE.minus(BETA))),
+    ).minus(ONE)
+  }
+
   debtAvailable(collateralAmount?: BigNumber, debtAmount?: BigNumber) {
     // (debt + addDebt) / ((col + addedColl) * price) = lltv
     // lltv*price*(col + addedColl) - debt = addDebt
