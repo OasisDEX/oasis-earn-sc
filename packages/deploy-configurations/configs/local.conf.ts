@@ -152,6 +152,13 @@ export const config: SystemConfig = {
         history: ['0x0bE3B9c118eD4eF2002Fd58d0d8cc8f7c76e168C'],
         constructorArgs: [],
       },
+      PullTokenMaxAmount: {
+        name: 'PullToken',
+        deploy: true,
+        address: '',
+        history: [],
+        constructorArgs: [],
+      },
       SendToken: {
         name: 'SendToken',
         deploy: false,

@@ -180,6 +180,14 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      PullTokenMaxAmount: {
+        name: 'PullToken',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
+        history: [],
+        constructorArgs: [],
+      },
       SendToken: {
         name: 'SendToken',
         deploy: true,

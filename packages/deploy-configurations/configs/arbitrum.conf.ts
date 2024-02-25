@@ -144,6 +144,13 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      PullTokenMaxAmount: {
+        name: 'PullToken',
+        deploy: true,
+        address: '',
+        history: [],
+        constructorArgs: [],
+      },
       SendToken: {
         name: 'SendToken',
         deploy: false,
