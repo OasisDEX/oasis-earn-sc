@@ -2,7 +2,7 @@ import { ADDRESS_ZERO, ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
 import { constants } from 'ethers'
 
-type NetworkAddressesForNetwork<T extends Network> = T extends Network.MAINNET
+export type NetworkAddressesForNetwork<T extends Network> = T extends Network.MAINNET
   ? MainnetAddresses
   : T extends Network.OPTIMISM
   ? OptMainnetAddresses

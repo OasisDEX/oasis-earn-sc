@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   AccountImplementation,
   AccountImplementation__factory,
@@ -15,7 +16,11 @@ import { ADDRESSES } from '@deploy-configurations/addresses'
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
 import { getNetwork } from '@deploy-configurations/utils/network'
-import { addressesByNetwork, createDPMAccount } from '@dma-common/test-utils'
+import {
+  addressesByNetwork,
+  createDPMAccount,
+  NetworkAddressesForNetwork,
+} from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumberForMigrations } from '@dma-contracts/test/config'
 import { restoreSnapshot, Snapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
@@ -84,6 +89,10 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
 
     addresses = addressesByNetwork(Network.MAINNET)
 
+    if (!addresses) {
+      throw new Error('Addresses not found')
+    }
+
     aaveLikeAddresses = {
       tokens: {
         WETH: WETH.address,
@@ -93,16 +102,16 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       },
       operationExecutor: system.OperationExecutor.contract.address,
       chainlinkEthUsdPriceFeed: addresses.chainlinkEthUsdPriceFeed,
-      oracle: addresses.sparkOracle,
-      lendingPool: addresses.sparkPool,
-      poolDataProvider: addresses.sparkPoolDataProvider,
+      oracle: addresses.sparkOracle!,
+      lendingPool: addresses.sparkPool!,
+      poolDataProvider: addresses.sparkPoolDataProvider!,
     }
 
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
-    sparkPool = SparkLendingPool__factory.connect(addresses.sparkPool, config.signer)
+    sparkPool = SparkLendingPool__factory.connect(addresses.sparkPool!, config.signer)
     sparkPoolDataProvider = SparkPoolDataProvider__factory.connect(
-      addresses.sparkPoolDataProvider,
+      addresses.sparkPoolDataProvider!,
       config.signer,
     )
 
