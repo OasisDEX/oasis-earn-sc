@@ -46,8 +46,8 @@ export const SERVICE_REGISTRY_NAMES = {
     v3: {
       DEPOSIT: 'AaveV3Deposit',
       WITHDRAW: 'AaveV3Withdraw',
-      BORROW: 'AaveV3Borrow_4',
-      PAYBACK: 'AaveV3Payback_4',
+      BORROW: 'AaveV3Borrow_6',
+      PAYBACK: 'AaveV3Payback_6',
       AAVE_POOL: 'AavePool',
       SET_EMODE: 'AaveV3SetEMode',
     },

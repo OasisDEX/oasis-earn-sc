@@ -1,5 +1,17 @@
 import { Protocol } from '@deploy-configurations/types/protocol'
 
+export type AaveV3OperationNames =
+  | 'OpenAAVEV3Position_v2'
+  | 'CloseAAVEV3Position_v4'
+  | 'AdjustRiskUpAAVEV3Position_v2'
+  | 'AdjustRiskDownAAVEV3Position_v2'
+  | 'AAVEV3DepositBorrow_v2'
+  | 'AAVEV3OpenDepositBorrow_v2'
+  | 'AAVEV3Deposit'
+  | 'AAVEV3Borrow_v2'
+  | 'AAVEV3PaybackWithdraw_v2'
+  | 'MigrateAaveV3EOA_v2'
+
 export const OPERATION_NAMES = {
   aave: {
     v2: {

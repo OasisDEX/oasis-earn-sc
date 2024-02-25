@@ -10,6 +10,7 @@ export type AaveV3Actions =
 export type CommonActions =
   | 'SwapAction'
   | 'PullToken'
+  | 'PullTokenMaxAmount'
   | 'SendToken'
   | 'SetApproval'
   | 'WrapEth'

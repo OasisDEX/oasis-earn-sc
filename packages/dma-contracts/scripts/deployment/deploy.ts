@@ -63,8 +63,12 @@ import { EtherscanGasPrice } from '@deploy-configurations/types/etherscan'
 import { Network } from '@deploy-configurations/types/network'
 import { NetworkByChainId } from '@deploy-configurations/utils/network/index'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers/index'
-import { loadContractNames } from '@dma-contracts/../deploy-configurations/constants'
+import {
+  loadContractNames,
+  OPERATION_NAMES,
+} from '@dma-contracts/../deploy-configurations/constants'
 import { RecursivePartial } from '@dma-contracts/utils/recursive-partial'
+import { AaveV3OperationNames } from '@oasisdex/deploy-configurations/constants/operation-names'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -487,8 +491,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
             configItem.serviceRegistryName,
             contract.address,
           )
-        } catch (error) {
-          console.log('Error adding entry to ServiceRegistry, add manually')
+        } catch (error: any) {
+          console.log(
+            `Error adding entry to ServiceRegistry, add manually, error message: ${error.message}`,
+          )
         }
       }
     }
@@ -897,49 +903,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       getAaveDepositBorrowV2OperationDefinition(network).actions,
     )
 
-    // AAVE V3
-    await operationsRegistry.addOp(
-      getAaveOpenV3OperationDefinition(network).name,
-      getAaveOpenV3OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveCloseV3OperationDefinition(network).name,
-      getAaveCloseV3OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveAdjustDownV3OperationDefinition(network).name,
-      getAaveAdjustDownV3OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveAdjustUpV3OperationDefinition(network).name,
-      getAaveAdjustUpV3OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAavePaybackWithdrawV3OperationDefinition(network).name,
-      getAavePaybackWithdrawV3OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveDepositBorrowV3OperationDefinition(network).name,
-      getAaveDepositBorrowV3OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveOpenDepositBorrowV3OperationDefinition(network).name,
-      getAaveOpenDepositBorrowV3OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveDepositV3OperationDefinition(network).name,
-      getAaveDepositV3OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveBorrowV3OperationDefinition(network).name,
-      getAaveBorrowV3OperationDefinition(network).actions,
-    )
-
-    await operationsRegistry.addOp(
-      getAaveMigrateEOAV3OperationDefinition(network).name,
-      getAaveMigrateEOAV3OperationDefinition(network).actions,
-    )
-
     // AJNA
     await operationsRegistry.addOp(
       getAjnaOpenOperationDefinition(network).name,
@@ -1102,6 +1065,93 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       sparkMigrateEOAOperationDefinition.actions,
     )
     this.logOp(sparkMigrateEOAOperationDefinition)
+  }
+
+  async addAaveV3Entries(...args: AaveV3OperationNames[]) {
+    if (!this.signer) throw new Error('No signer set')
+    if (!this.deployedSystem.OperationsRegistry) {
+      console.warn('No OperationsRegistry deployed, using existing one')
+    }
+    const address =
+      this.deployedSystem.OperationsRegistry?.contract.address ??
+      this.config?.mpa.core.OperationsRegistry.address
+    if (!address) {
+      throw new Error('No OperationsRegistry address found')
+    }
+    const operationsRegistry = new OperationsRegistry(address, this.signer)
+
+    let network = this.network
+    if (this.forkedNetwork) {
+      network = this.forkedNetwork
+    }
+
+    let names = args
+    if (!args || args.length === 0) {
+      names = Object.values(OPERATION_NAMES.aave.v3)
+    }
+
+    const allOperations: [string, { hash: string; optional: boolean }[]][] = [
+      [
+        getAaveOpenV3OperationDefinition(network).name,
+        getAaveOpenV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveCloseV3OperationDefinition(network).name,
+        getAaveCloseV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveAdjustDownV3OperationDefinition(network).name,
+        getAaveAdjustDownV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveAdjustUpV3OperationDefinition(network).name,
+        getAaveAdjustUpV3OperationDefinition(network).actions,
+      ],
+      [
+        getAavePaybackWithdrawV3OperationDefinition(network).name,
+        getAavePaybackWithdrawV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveDepositBorrowV3OperationDefinition(network).name,
+        getAaveDepositBorrowV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveOpenDepositBorrowV3OperationDefinition(network).name,
+        getAaveOpenDepositBorrowV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveDepositV3OperationDefinition(network).name,
+        getAaveDepositV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveBorrowV3OperationDefinition(network).name,
+        getAaveBorrowV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveMigrateEOAV3OperationDefinition(network).name,
+        getAaveMigrateEOAV3OperationDefinition(network).actions,
+      ],
+    ]
+
+    const operationInRecord: Record<string, [string, { hash: string; optional: boolean }[]]> =
+      allOperations.reduce((acc, [name, actions]) => {
+        return {
+          ...acc,
+          [name]: [name, actions],
+        }
+      }, {})
+
+    console.log('Adding Aave V3 operations to OperationsRegistry')
+    for (const name of names) {
+      if (!operationInRecord[name]) {
+        console.warn(`WARN: Operation ${name} not found in operation definitions`)
+        continue
+      }
+      console.info(`INFO: Adding operation ${name} to OperationsRegistry`)
+      const [operationName, actions] = operationInRecord[name]
+      await operationsRegistry.addOp(operationName, actions)
+      this.logOp({ name: operationName, actions, log: true })
+    }
   }
 
   async addAllEntries() {
