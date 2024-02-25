@@ -1,11 +1,13 @@
 import {
   AaveOracle,
+  AaveProtocolDataProvider,
   AccountImplementation,
   AccountImplementation__factory,
+  ERC20,
   ERC20__factory,
   Pool,
   Pool__factory,
-  PoolDataProvider,
+  WETH,
   WETH__factory,
 } from '@abis/types/ethers-contracts'
 import { ADDRESSES } from '@deploy-configurations/addresses'
@@ -38,7 +40,7 @@ describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
   let AWETH: ERC20
   let VDUSDC: ERC20
   let aaveOracle: AaveOracle
-  let aavePoolDataProvider: PoolDataProvider
+  let aavePoolDataProvider: AaveProtocolDataProvider
   let dpmAccount: AccountImplementation
   let aavePool: Pool
   let config: RuntimeConfig
@@ -95,6 +97,8 @@ describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
       lendingPool: addresses.pool,
       poolDataProvider: addresses.poolDataProvider,
     }
+
+    // @ts-ignore
     ;({ oracle: aaveOracle, poolDataProvider: aavePoolDataProvider } =
       await getAaveLikeSystemContracts(aaveLikeAddresses, config.provider, 'AAVE_V3'))
 
