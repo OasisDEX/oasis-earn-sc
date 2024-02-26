@@ -99,8 +99,8 @@ export const config: SystemConfig = {
     actions: {
       TokenBalance: {
         name: 'TokenBalance',
-        deploy: true,
-        address: '0x0000000000000000000000000000000000000000',
+        deploy: false,
+        address: '0x099708408aDb18F6D49013c88F3b1Bb514cC616F',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -155,9 +155,9 @@ export const config: SystemConfig = {
       },
       PullTokenMaxAmount: {
         name: 'PullTokenMaxAmount',
-        deploy: true,
+        deploy: false,
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN_MAX_AMOUNT,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x74d4B9e8350c5aFC6c01bb725dA28053D2420FB1',
         history: [],
         constructorArgs: [],
       },
@@ -195,10 +195,13 @@ export const config: SystemConfig = {
       },
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
-        deploy: true,
-        address: '0x330B1b23dbF728841AF12e6478CeBb9d51ab6f90',
+        deploy: false,
+        address: '0xFb5896f0485877cC0cc4eBF74d98D064f9A46462',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
-        history: ['0x645325494A37d35cf6baFc82C3e6bcE4473F2685'],
+        history: [
+          '0x330B1b23dbF728841AF12e6478CeBb9d51ab6f90',
+          '0x645325494A37d35cf6baFc82C3e6bcE4473F2685',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3Withdraw: {
@@ -219,10 +222,13 @@ export const config: SystemConfig = {
       },
       AaveV3Payback: {
         name: 'AaveV3Payback',
-        deploy: true,
-        address: '0x3f91613F0c7f1f5940c324FfeF07632DD5793680',
+        deploy: false,
+        address: '0x28c52DA0482776e2e4427Ca55818522E7033592e',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
-        history: ['0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A'],
+        history: [
+          '0x3f91613F0c7f1f5940c324FfeF07632DD5793680',
+          '0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3SetEMode: {
