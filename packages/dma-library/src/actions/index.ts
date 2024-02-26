@@ -18,6 +18,7 @@ import {
 import {
   positionCreated,
   pullToken,
+  pullTokenMaxAmount,
   returnFunds,
   sendToken,
   setApproval,
@@ -53,6 +54,7 @@ const aave = {
 
 const common = {
   pullToken,
+  pullTokenMaxAmount,
   sendToken,
   setApproval,
   swap,

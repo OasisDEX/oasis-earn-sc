@@ -107,7 +107,7 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
     [0, 1, 0, 0],
   )
 
-  const pullTokenAction2 = actions.common.pullToken(network, {
+  const pullTokenAction2 = actions.common.pullTokenMaxAmount(network, {
     asset: aToken.address,
     amount: new BigNumber(MAX_UINT),
     from: proxy.owner,
