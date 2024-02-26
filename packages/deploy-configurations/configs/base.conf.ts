@@ -95,8 +95,8 @@ export const config: SystemConfig = {
     actions: {
       TokenBalance: {
         name: 'TokenBalance',
-        deploy: true,
-        address: '0x0000000000000000000000000000000000000000',
+        deploy: false,
+        address: '0xDB99087a8e1B5Db99c0221C72F066e64C0b4d75E',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -147,9 +147,9 @@ export const config: SystemConfig = {
       },
       PullTokenMaxAmount: {
         name: 'PullTokenMaxAmount',
-        deploy: true,
+        deploy: false,
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN_MAX_AMOUNT,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0xfAc966cc77Ec5A69d1fD8018992C1e7e3a8b3a21',
         history: [],
         constructorArgs: [],
       },
@@ -187,10 +187,10 @@ export const config: SystemConfig = {
       },
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
-        deploy: true,
-        address: '0x79d428e563D946DaBe43C681f92c8D714F5157cE',
+        deploy: false,
+        address: '0xAf70ff11e339C3DC79f315e05BbD6015B7bDFEf5',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
-        history: [],
+        history: ['0x79d428e563D946DaBe43C681f92c8D714F5157cE'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3Withdraw: {
@@ -211,10 +211,10 @@ export const config: SystemConfig = {
       },
       AaveV3Payback: {
         name: 'AaveV3Payback',
-        deploy: true,
-        address: '0x0835703172ad872561Ea667073A71561C5910Cca',
+        deploy: false,
+        address: '0x35909F6e5C36224fb44C4B448F051Fd474feDA89',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
-        history: [],
+        history: ['0x0835703172ad872561Ea667073A71561C5910Cca'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3SetEMode: {
