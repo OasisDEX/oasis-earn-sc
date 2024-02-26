@@ -778,7 +778,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async deployAll() {
     await this.deployCore()
     await this.deployActions()
-    await this.deployTest()
+    // await this.deployTest()
   }
 
   async deployTest() {
