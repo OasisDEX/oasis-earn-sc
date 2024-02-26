@@ -99,7 +99,7 @@ export const config: SystemConfig = {
     actions: {
       TokenBalance: {
         name: 'TokenBalance',
-        deploy: false,
+        deploy: true,
         address: '0x0000000000000000000000000000000000000000',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
         history: [],
@@ -195,7 +195,7 @@ export const config: SystemConfig = {
       },
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
-        deploy: false,
+        deploy: true,
         address: '0x330B1b23dbF728841AF12e6478CeBb9d51ab6f90',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
         history: ['0x645325494A37d35cf6baFc82C3e6bcE4473F2685'],
@@ -219,7 +219,7 @@ export const config: SystemConfig = {
       },
       AaveV3Payback: {
         name: 'AaveV3Payback',
-        deploy: false,
+        deploy: true,
         address: '0x3f91613F0c7f1f5940c324FfeF07632DD5793680',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
         history: ['0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A'],
