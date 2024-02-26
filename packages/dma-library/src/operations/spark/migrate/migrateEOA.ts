@@ -106,7 +106,7 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
     [0, 1, 0, 0],
   )
 
-  const pullTokenAction2 = actions.common.pullToken(network, {
+  const pullTokenAction2 = actions.common.pullTokenMaxAmount(network, {
     asset: aToken.address,
     amount: aToken.amount,
     from: proxy.owner,
