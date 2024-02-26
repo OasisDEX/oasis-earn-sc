@@ -23,6 +23,7 @@ export const calldataTypes = {
     UnwrapEth: `tuple(uint256 amount)`,
     ReturnFunds: `tuple(address asset)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
+    PullTokenMaxAmount: `tuple(address asset, address from, uint256 amount)`,
     PositionCreated: `tuple(string protocol, string positionType, address collateralToken, address debtToken)`,
     TakeAFlashLoan: `tuple(uint256 amount, address asset, bool isProxyFlashloan, bool isDPMProxy, uint8 provider, (bytes32 targetHash, bytes callData, bool skipped)[] calls)`,
     TokenBalance: `tuple(address asset, address owner)`,
