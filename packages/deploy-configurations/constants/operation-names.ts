@@ -12,6 +12,18 @@ export type AaveV3OperationNames =
   | 'AAVEV3PaybackWithdraw_v2'
   | 'MigrateAaveV3EOA_v2'
 
+export type SparkOperationNames =
+  | 'SparkOpenPosition_v2'
+  | 'SparkClosePosition_v2'
+  | 'SparkAdjustRiskUp_v2'
+  | 'SparkAdjustRiskDown_v2'
+  | 'SparkDepositBorrow_v2'
+  | 'SparkOpenDepositBorrow_v2'
+  | 'SparkDeposit'
+  | 'SparkBorrow_v2'
+  | 'SparkPaybackWithdraw_v2'
+  | 'MigrateSparkEOA_v2'
+
 export const OPERATION_NAMES = {
   aave: {
     v2: {
@@ -39,16 +51,16 @@ export const OPERATION_NAMES = {
     },
   },
   spark: {
-    OPEN_POSITION: 'SparkOpenPosition',
-    CLOSE_POSITION: 'SparkClosePosition',
-    ADJUST_RISK_UP: 'SparkAdjustRiskUp',
-    ADJUST_RISK_DOWN: 'SparkAdjustRiskDown',
-    DEPOSIT_BORROW: 'SparkDepositBorrow',
-    OPEN_DEPOSIT_BORROW: 'SparkOpenDepositBorrow',
+    OPEN_POSITION: 'SparkOpenPosition_v2',
+    CLOSE_POSITION: 'SparkClosePosition_v2',
+    ADJUST_RISK_UP: 'SparkAdjustRiskUp_v2',
+    ADJUST_RISK_DOWN: 'SparkAdjustRiskDown_v2',
+    DEPOSIT_BORROW: 'SparkDepositBorrow_v2',
+    OPEN_DEPOSIT_BORROW: 'SparkOpenDepositBorrow_v2',
     DEPOSIT: 'SparkDeposit',
-    BORROW: 'SparkBorrow',
-    PAYBACK_WITHDRAW: 'SparkPaybackWithdraw',
-    MIGRATE_EOA: 'MigrateSparkEOA',
+    BORROW: 'SparkBorrow_v2',
+    PAYBACK_WITHDRAW: 'SparkPaybackWithdraw_v2',
+    MIGRATE_EOA: 'MigrateSparkEOA_v2',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',

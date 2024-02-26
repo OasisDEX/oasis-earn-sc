@@ -37,7 +37,7 @@ export function getSparkMigrateEOAOperationDefinition(network: Network) {
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN_MAX_AMOUNT),
         optional: false,
       },
       {

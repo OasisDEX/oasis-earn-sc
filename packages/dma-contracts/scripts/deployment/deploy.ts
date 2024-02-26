@@ -68,7 +68,10 @@ import {
   OPERATION_NAMES,
 } from '@dma-contracts/../deploy-configurations/constants'
 import { RecursivePartial } from '@dma-contracts/utils/recursive-partial'
-import { AaveV3OperationNames } from '@oasisdex/deploy-configurations/constants/operation-names'
+import {
+  AaveV3OperationNames,
+  SparkOperationNames,
+} from '@oasisdex/deploy-configurations/constants/operation-names'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -1067,7 +1070,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     this.logOp(sparkMigrateEOAOperationDefinition)
   }
 
-  async addAaveV3Entries(...args: AaveV3OperationNames[]) {
+  async addAaveV3Operations(...args: AaveV3OperationNames[]) {
     if (!this.signer) throw new Error('No signer set')
     if (!this.deployedSystem.OperationsRegistry) {
       console.warn('No OperationsRegistry deployed, using existing one')
@@ -1142,6 +1145,93 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }, {})
 
     console.log('Adding Aave V3 operations to OperationsRegistry')
+    for (const name of names) {
+      if (!operationInRecord[name]) {
+        console.warn(`WARN: Operation ${name} not found in operation definitions`)
+        continue
+      }
+      console.info(`INFO: Adding operation ${name} to OperationsRegistry`)
+      const [operationName, actions] = operationInRecord[name]
+      await operationsRegistry.addOp(operationName, actions)
+      this.logOp({ name: operationName, actions, log: true })
+    }
+  }
+
+  async addSparkOperations(...args: SparkOperationNames[]) {
+    if (!this.signer) throw new Error('No signer set')
+    if (!this.deployedSystem.OperationsRegistry) {
+      console.warn('No OperationsRegistry deployed, using existing one')
+    }
+    const address =
+      this.deployedSystem.OperationsRegistry?.contract.address ??
+      this.config?.mpa.core.OperationsRegistry.address
+    if (!address) {
+      throw new Error('No OperationsRegistry address found')
+    }
+    const operationsRegistry = new OperationsRegistry(address, this.signer)
+
+    let network = this.network
+    if (this.forkedNetwork) {
+      network = this.forkedNetwork
+    }
+
+    let names = args
+    if (!args || args.length === 0) {
+      names = Object.values(OPERATION_NAMES.spark)
+    }
+
+    const allOperations: [string, { hash: string; optional: boolean }[]][] = [
+      [
+        getSparkOpenOperationDefinition(network).name,
+        getSparkOpenOperationDefinition(network).actions,
+      ],
+      [
+        getSparkCloseOperationDefinition(network).name,
+        getSparkCloseOperationDefinition(network).actions,
+      ],
+      [
+        getSparkAdjustDownOperationDefinition(network).name,
+        getSparkAdjustDownOperationDefinition(network).actions,
+      ],
+      [
+        getSparkAdjustUpOperationDefinition(network).name,
+        getSparkAdjustUpOperationDefinition(network).actions,
+      ],
+      [
+        getSparkPaybackWithdrawOperationDefinition(network).name,
+        getSparkPaybackWithdrawOperationDefinition(network).actions,
+      ],
+      [
+        getSparkDepositBorrowOperationDefinition(network).name,
+        getSparkDepositBorrowOperationDefinition(network).actions,
+      ],
+      [
+        getSparkOpenDepositBorrowOperationDefinition(network).name,
+        getSparkOpenDepositBorrowOperationDefinition(network).actions,
+      ],
+      [
+        getSparkDepositOperationDefinition(network).name,
+        getSparkDepositOperationDefinition(network).actions,
+      ],
+      [
+        getSparkBorrowOperationDefinition(network).name,
+        getSparkBorrowOperationDefinition(network).actions,
+      ],
+      [
+        getSparkMigrateEOAOperationDefinition(network).name,
+        getSparkMigrateEOAOperationDefinition(network).actions,
+      ],
+    ]
+
+    const operationInRecord: Record<string, [string, { hash: string; optional: boolean }[]]> =
+      allOperations.reduce((acc, [name, actions]) => {
+        return {
+          ...acc,
+          [name]: [name, actions],
+        }
+      }, {})
+
+    console.log('Adding Spark operations to OperationsRegistry')
     for (const name of names) {
       if (!operationInRecord[name]) {
         console.warn(`WARN: Operation ${name} not found in operation definitions`)

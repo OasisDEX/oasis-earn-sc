@@ -15,7 +15,7 @@ async function main() {
   await ds.saveConfig()
   // await ds.addAllEntries()
   // await ds.addCommonEntries()
-  await ds.addAaveV3Entries(
+  await ds.addAaveV3Operations(
     'OpenAAVEV3Position_v2',
     'CloseAAVEV3Position_v4',
     'AdjustRiskUpAAVEV3Position_v2',
