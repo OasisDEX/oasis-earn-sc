@@ -17,7 +17,7 @@ export const config: SystemConfig = {
       OperationExecutor: {
         name: 'OperationExecutor',
         deploy: false,
-        address: '0x90feaf7727a6ce75f518728d296877830fd39a49',
+        address: '0x90feAF7727A6CE75F518728d296877830FD39a49',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
