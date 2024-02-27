@@ -181,10 +181,10 @@ export const config: SystemConfig = {
         constructorArgs: [],
       },
       PullTokenMaxAmount: {
-        name: 'PullToken',
+        name: 'PullTokenMaxAmount',
         deploy: true,
         address: '',
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN_MAX_AMOUNT,
         history: [],
         constructorArgs: [],
       },
