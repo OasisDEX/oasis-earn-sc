@@ -781,7 +781,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async deployAll() {
     await this.deployCore()
     await this.deployActions()
-    // await this.deployTest()
+    await this.deployTest()
   }
 
   async deployTest() {
@@ -1068,6 +1068,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       sparkMigrateEOAOperationDefinition.actions,
     )
     this.logOp(sparkMigrateEOAOperationDefinition)
+
+    // AAVE V3
+    await operationsRegistry.addOp(
+      getAaveMigrateEOAV3OperationDefinition(network).name,
+      getAaveMigrateEOAV3OperationDefinition(network).actions,
+    )
   }
 
   async addAaveV3Operations(...args: AaveV3OperationNames[]) {
