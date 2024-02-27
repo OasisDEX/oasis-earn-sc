@@ -15,17 +15,17 @@ async function main() {
   await ds.saveConfig()
   // await ds.addAllEntries()
   // await ds.addCommonEntries()
-  await ds.addAaveV3Operations(
-    'OpenAAVEV3Position_v2',
-    'CloseAAVEV3Position_v4',
-    'AdjustRiskUpAAVEV3Position_v2',
-    'AdjustRiskDownAAVEV3Position_v2',
-    'AAVEV3DepositBorrow_v2',
-    'AAVEV3OpenDepositBorrow_v2',
-    'AAVEV3Borrow_v2',
-    'AAVEV3PaybackWithdraw_v2',
-    'MigrateAaveV3EOA_v2',
-  )
+  // await ds.addAaveV3Operations(
+  //   // 'OpenAAVEV3Position_v2',
+  //   // 'CloseAAVEV3Position_v4',
+  //   // 'AdjustRiskUpAAVEV3Position_v2',
+  //   // 'AdjustRiskDownAAVEV3Position_v2',
+  //   // 'AAVEV3DepositBorrow_v2',
+  //   // 'AAVEV3OpenDepositBorrow_v2',
+  //   // 'AAVEV3Borrow_v2',
+  //   // 'AAVEV3PaybackWithdraw_v2',
+  //   'MigrateAaveV3EOA_v2',
+  // )
   process.exit()
 }
 

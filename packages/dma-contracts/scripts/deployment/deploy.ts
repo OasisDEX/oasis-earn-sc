@@ -278,6 +278,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   private readonly _cache = new NodeCache()
   private readonly isLocal: boolean
 
+  private readonly multiSigNetwork = [Network.ARBITRUM, Network.MAINNET, Network.OPTIMISM]
+
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
     super()
     this.hre = hre
@@ -426,7 +428,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
 
     this.log('POST DEPLOYMENT', configItem.name, configItem.address)
-
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
       if (this.useGnosisSafeServiceClient()) {
@@ -481,7 +482,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           senderSignature: ownerSignature.data,
         })
         // Mainnet is excluded because Service Registry is managed by multi-sig wallet
-      } else if (this.network !== Network.MAINNET) {
+      } else if (!this.multiSigNetwork.includes(this.network)) {
         console.log(
           `Adding entry to ServiceRegistry: ${
             configItem.serviceRegistryName
@@ -499,6 +500,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
             `Error adding entry to ServiceRegistry, add manually, error message: ${error.message}`,
           )
         }
+      } else {
+        console.log(
+          `ServiceRegistry entry not added for ${
+            configItem.serviceRegistryName
+          } hash: ${utils.keccak256(
+            utils.toUtf8Bytes(configItem.serviceRegistryName),
+          )} on network ${this.network}. Use GnosisSafeServiceClient to add entry.`,
+        )
       }
     }
 
@@ -1195,8 +1204,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
       console.info(`INFO: Adding operation ${name} to OperationsRegistry`)
       const [operationName, actions] = operationInRecord[name]
-      await operationsRegistry.addOp(operationName, actions)
       this.logOp({ name: operationName, actions, log: true })
+      if (!this.multiSigNetwork.includes(this.network)) {
+        await operationsRegistry.addOp(operationName, actions)
+      } else {
+        console.log(
+          `Skipping operation: ${operationName} Operation registry controlled by multi-sig wallet on ${this.network}`,
+        )
+      }
     }
   }
 
