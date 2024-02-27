@@ -12,7 +12,7 @@ export const openOmni = async (
 ): Promise<SummerStrategy<AaveLikePositionV2>> => {
   const strategy = await aaveLike.multiply.open(args, dependencies)
 
-  const isDepositingEth = args.collateralToken.symbol === 'ETH'
+  const isDepositingEth = args.entryToken?.symbol === 'ETH'
 
   const data = strategy.transaction
 
@@ -36,7 +36,12 @@ export const openOmni = async (
     tx: {
       to: dependencies.operationExecutor,
       data: encodeOperation(data, dependencies),
-      value: isDepositingEth ? args.depositedByUser.collateralInWei.toString() : '0',
+      value:
+        isDepositingEth && args.collateralToken.symbol === args.entryToken?.symbol
+          ? args.depositedByUser.collateralInWei.toString()
+          : isDepositingEth && args.debtToken.symbol === args.entryToken?.symbol
+          ? args.depositedByUser.debtInWei.toString()
+          : '0',
     },
   }
 }
