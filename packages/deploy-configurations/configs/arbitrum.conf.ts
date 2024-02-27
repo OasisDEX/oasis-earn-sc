@@ -147,7 +147,7 @@ export const config: SystemConfig = {
       },
       PullTokenMaxAmount: {
         name: 'PullTokenMaxAmount',
-        deploy: false,
+        deploy: true,
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN_MAX_AMOUNT,
         address: '0xB45BA743328C4A5e9db6dEc4C8FBfecb9aaA39af',
         history: [],
@@ -187,7 +187,7 @@ export const config: SystemConfig = {
       },
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
-        deploy: true,
+        deploy: false,
         address: '0x3d0f99E6008b221F290f36af118e988b720Aec1a',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
         history: ['0xe1D974cAB854a65b2005A1cbF9D627D90DAb70c2'],
@@ -211,7 +211,7 @@ export const config: SystemConfig = {
       },
       AaveV3Payback: {
         name: 'AaveV3Payback',
-        deploy: true,
+        deploy: false,
         address: '0x2314a40B043f19b92207446B7c8161f09cc01d7B',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
         history: ['0xF7B75183A2829843dB06266c114297dfbFaeE2b6'],

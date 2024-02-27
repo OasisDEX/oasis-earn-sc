@@ -146,7 +146,7 @@ export const config: SystemConfig = {
       },
       PullTokenMaxAmount: {
         name: 'PullToken',
-        deploy: true,
+        deploy: false,
         address: '0x0000000000000000000000000000000000000000',
         history: [],
         constructorArgs: [],
@@ -225,7 +225,7 @@ export const config: SystemConfig = {
       },
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
-        deploy: true,
+        deploy: false,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
@@ -233,7 +233,7 @@ export const config: SystemConfig = {
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
-        deploy: true,
+        deploy: false,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
