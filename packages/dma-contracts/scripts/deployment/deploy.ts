@@ -872,6 +872,44 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       network = this.forkedNetwork
     }
 
+    // AAVE V3
+    await operationsRegistry.addOp(
+      getAaveOpenV3OperationDefinition(network).name,
+      getAaveOpenV3OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveCloseV3OperationDefinition(network).name,
+      getAaveCloseV3OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveAdjustDownV3OperationDefinition(network).name,
+      getAaveAdjustDownV3OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveAdjustUpV3OperationDefinition(network).name,
+      getAaveAdjustUpV3OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAavePaybackWithdrawV3OperationDefinition(network).name,
+      getAavePaybackWithdrawV3OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveDepositBorrowV3OperationDefinition(network).name,
+      getAaveDepositBorrowV3OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveOpenDepositBorrowV3OperationDefinition(network).name,
+      getAaveOpenDepositBorrowV3OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveDepositV3OperationDefinition(network).name,
+      getAaveDepositV3OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveBorrowV3OperationDefinition(network).name,
+      getAaveBorrowV3OperationDefinition(network).actions,
+    )
+
     // AAVE V2
     await operationsRegistry.addOp(
       getAaveOpenV2OperationDefinition(network).name,
@@ -904,6 +942,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       getAaveDepositBorrowV2OperationDefinition(network).name,
       getAaveDepositBorrowV2OperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAaveMigrateEOAV3OperationDefinition(network).name,
+      getAaveMigrateEOAV3OperationDefinition(network).actions,
     )
 
     // AJNA
@@ -1068,12 +1111,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       sparkMigrateEOAOperationDefinition.actions,
     )
     this.logOp(sparkMigrateEOAOperationDefinition)
-
-    // AAVE V3
-    await operationsRegistry.addOp(
-      getAaveMigrateEOAV3OperationDefinition(network).name,
-      getAaveMigrateEOAV3OperationDefinition(network).actions,
-    )
   }
 
   async addAaveV3Operations(...args: AaveV3OperationNames[]) {
