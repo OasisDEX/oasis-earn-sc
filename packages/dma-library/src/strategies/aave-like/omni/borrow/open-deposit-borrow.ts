@@ -20,8 +20,8 @@ export const openDepositBorrowOmni = async (
   const isDepositingEth = args.collateralToken.symbol === 'ETH'
 
   const targetPosition = args.position
-    .deposit(strategy.simulation.delta.collateral.shiftedBy(-args.collateralToken.precision!))
-    .borrow(strategy.simulation.delta.debt.shiftedBy(-args.debtToken.precision!))
+    .deposit(strategy.simulation.delta.collateral.shiftedBy(-args.collateralToken.precision))
+    .borrow(strategy.simulation.delta.debt.shiftedBy(-args.debtToken.precision))
 
   return {
     simulation: {

@@ -19,8 +19,8 @@ export const paybackWithdrawOmni = async (
 
   const isPayingBackEth = args.debtToken.symbol.toUpperCase() === 'ETH'
   const targetPosition = args.position
-    .withdraw(strategy.simulation.delta.collateral.shiftedBy(-args.collateralToken.precision!))
-    .payback(strategy.simulation.delta.debt.shiftedBy(-args.debtToken.precision!))
+    .withdraw(strategy.simulation.delta.collateral.shiftedBy(-args.collateralToken.precision))
+    .payback(strategy.simulation.delta.debt.shiftedBy(-args.debtToken.precision))
 
   return {
     simulation: {

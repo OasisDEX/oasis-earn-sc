@@ -23,9 +23,9 @@ export const openOmni = async (
 
   const targetPosition = args.position
     .deposit(
-      strategy.simulation.position.collateral.amount.shiftedBy(-args.collateralToken.precision!),
+      strategy.simulation.position.collateral.amount.shiftedBy(-args.collateralToken.precision),
     )
-    .borrow(strategy.simulation.position.debt.amount.shiftedBy(-args.debtToken.precision!))
+    .borrow(strategy.simulation.position.debt.amount.shiftedBy(-args.debtToken.precision))
 
   return {
     simulation: {

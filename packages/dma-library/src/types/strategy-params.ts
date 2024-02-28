@@ -19,17 +19,17 @@ export interface IBasePositionTransitionArgs<Tokens> {
 }
 
 export type WithAaveEntryToken = {
-  entryToken: { symbol: AaveLikeTokens; precision?: number }
+  entryToken: { symbol: AaveLikeTokens; precision: number }
 }
 
 export type WithAaveLikeEntryToken = {
-  entryToken: { symbol: AaveLikeTokens; precision?: number }
+  entryToken: { symbol: AaveLikeTokens; precision: number }
 }
 
 export type WithAaveStrategyArgs = {
-  collateralToken: { symbol: AaveLikeTokens; precision?: number }
-  debtToken: { symbol: AaveLikeTokens; precision?: number }
-  entryToken?: { symbol: AaveLikeTokens; precision?: number }
+  collateralToken: { symbol: AaveLikeTokens; precision: number }
+  debtToken: { symbol: AaveLikeTokens; precision: number }
+  entryToken?: { symbol: AaveLikeTokens; precision: number }
 } & WithSlippage
 
 type WithAaveLikeProtocolType = {
@@ -37,12 +37,12 @@ type WithAaveLikeProtocolType = {
 }
 
 export type WithAaveLikeStrategyArgs = {
-  collateralToken: { symbol: AaveLikeTokens; precision?: number }
-  debtToken: { symbol: AaveLikeTokens; precision?: number }
+  collateralToken: { symbol: AaveLikeTokens; precision: number }
+  debtToken: { symbol: AaveLikeTokens; precision: number }
 } & WithSlippage
 
 export type WithAaveLikeBorrowStrategyArgs = {
-  entryToken?: { symbol: AaveLikeTokens; precision?: number }
+  entryToken?: { symbol: AaveLikeTokens; precision: number }
 } & WithAaveLikeStrategyArgs
 
 export type WithAaveLikeMultiplyStrategyArgs = WithAaveLikeBorrowStrategyArgs
@@ -92,12 +92,12 @@ export type WithDepositCollateral = {
 
 export interface IViewPositionParams<Tokens> {
   proxy: string
-  collateralToken: { symbol: Tokens; precision?: number }
-  debtToken: { symbol: Tokens; precision?: number }
+  collateralToken: { symbol: Tokens; precision: number }
+  debtToken: { symbol: Tokens; precision: number }
 }
 
 export type WithDebtChange<Tokens> = {
-  newDebtToken: { symbol: Tokens; precision?: number }
+  newDebtToken: { symbol: Tokens; precision: number }
 }
 
 type SharedStrategyDependencies = {
