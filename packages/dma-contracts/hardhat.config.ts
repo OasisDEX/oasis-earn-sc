@@ -40,5 +40,6 @@ import './tasks/ownership-tool'
 import './tasks/validate-multisig-tx'
 import './tasks/refinance/list'
 import './tasks/refinance/get-definition'
+import './tasks/fork'
 
 export { default } from './hardhat.config.base'
