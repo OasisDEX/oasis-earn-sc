@@ -68,3 +68,24 @@ export interface AaveLikeReserveConfigurationData {
   liquidationThreshold: BigNumber
   liquidationBonus: BigNumber
 }
+
+export interface AaveLikeReserveData {
+  tokenAddress: string
+  variableDebtAddress: string
+  availableLiquidity: BigNumber
+  variableBorrowRate: BigNumber
+  liquidityRate: BigNumber
+  caps: {
+    borrow: BigNumber
+    supply: BigNumber
+  }
+  totalDebt: BigNumber
+  totalSupply: BigNumber
+  availableToBorrow: BigNumber
+  availableToSupply: BigNumber
+}
+
+export type ReserveData = {
+  collateral: AaveLikeReserveData
+  debt: AaveLikeReserveData
+}

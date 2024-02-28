@@ -7,6 +7,7 @@ import {
   AaveLikeReserveConfigurationData,
   AaveV2GetCurrentPositionDependencies,
   AaveV3GetCurrentPositionDependencies,
+  ReserveData,
   ReserveDataReply,
 } from '@dma-library/views/aave/types'
 import {
@@ -29,6 +30,7 @@ export type OmniCommonArgs = {
   cumulatives?: AaveLikeCumulativeData
   collateralPrice: BigNumber
   debtPrice: BigNumber
+  reserveData: ReserveData
 }
 
 export type AaveView = {
@@ -214,6 +216,7 @@ export const getCurrentPositionAaveV2Omni: AaveV2GetCurrentPositionOmni = async 
     args.secondaryTokenReserveData.variableBorrowRate,
     args.primaryTokenReserveData.liquidityRate,
     args.reserveConfigurationData.liquidationBonus,
+    args.reserveData,
   )
 }
 
@@ -383,5 +386,6 @@ export const getCurrentPositionAaveV3Omni: AaveV3GetCurrentPositionOmni = async 
     args.secondaryTokenReserveData.variableBorrowRate,
     args.primaryTokenReserveData.liquidityRate,
     args.reserveConfigurationData.liquidationBonus,
+    args.reserveData,
   )
 }

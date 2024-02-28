@@ -3,6 +3,11 @@ import {
   AaveLikeDepositBorrowArgsOmni,
   AaveLikeDepositBorrowDependenciesOmni,
 } from '@dma-library/strategies/aave-like/borrow/deposit-borrow'
+import {
+  validateAmountExceedsCap,
+  validateYieldLoopCloseToLiquidation,
+  validateYieldLoopSafeFromLiquidation,
+} from '@dma-library/strategies/aave-like/omni/validation'
 import { AaveLikePositionV2, SummerStrategy } from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
 
@@ -21,10 +26,10 @@ export const depositBorrowOmni = async (
   return {
     simulation: {
       swaps: [],
-      errors: [],
-      warnings: [],
+      errors: [...validateAmountExceedsCap(args.position, targetPosition)],
+      warnings: [...validateYieldLoopCloseToLiquidation(args.position, targetPosition)],
       notices: [],
-      successes: [],
+      successes: [...validateYieldLoopSafeFromLiquidation(args.position, targetPosition)],
       targetPosition,
       position: targetPosition,
     },

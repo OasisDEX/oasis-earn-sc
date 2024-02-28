@@ -3,6 +3,11 @@ import {
   AaveLikeAdjustArgsOmni,
   AaveLikeAdjustDependenciesOmni,
 } from '@dma-library/strategies/aave-like/multiply/adjust'
+import {
+  validateTargetLtvExceedsCap,
+  validateYieldLoopCloseToLiquidation,
+  validateYieldLoopSafeFromLiquidation,
+} from '@dma-library/strategies/aave-like/omni/validation'
 import { AaveLikePositionV2, SummerStrategy } from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
 
@@ -20,10 +25,10 @@ export const adjustOmni = async (
     simulation: {
       // @ts-ignore
       swaps: [strategy.simulation.swap],
-      errors: [],
-      warnings: [],
+      errors: [...validateTargetLtvExceedsCap(args.position, targetPosition)],
+      warnings: [...validateYieldLoopCloseToLiquidation(args.position, targetPosition)],
       notices: [],
-      successes: [],
+      successes: [...validateYieldLoopSafeFromLiquidation(args.position, targetPosition)],
       targetPosition,
       position: targetPosition,
     },

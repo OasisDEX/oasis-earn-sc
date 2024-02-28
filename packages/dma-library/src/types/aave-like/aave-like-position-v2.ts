@@ -3,6 +3,7 @@ import { ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { LendingCumulativesData } from '@dma-library/types'
 import { LendingPosition } from '@dma-library/types/morphoblue/morphoblue-position'
+import { ReserveData } from '@dma-library/views/aave/types'
 import { IPositionCategory, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
@@ -24,6 +25,7 @@ export class AaveLikePositionV2 implements LendingPosition {
     public debtVariableBorrowRate: BigNumber,
     public collateralLiquidityRate: BigNumber,
     public liquidationPenalty: BigNumber,
+    public reserveData: ReserveData,
   ) {}
 
   get liquidationPrice() {
@@ -117,6 +119,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
       this.liquidationPenalty,
+      this.reserveData,
     )
   }
 
@@ -135,6 +138,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
       this.liquidationPenalty,
+      this.reserveData,
     )
   }
 
@@ -153,6 +157,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
       this.liquidationPenalty,
+      this.reserveData,
     )
   }
 
@@ -171,6 +176,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
       this.liquidationPenalty,
+      this.reserveData,
     )
   }
 
@@ -188,6 +194,7 @@ export class AaveLikePositionV2 implements LendingPosition {
       this.debtVariableBorrowRate,
       this.collateralLiquidityRate,
       this.liquidationPenalty,
+      this.reserveData,
     )
   }
 }

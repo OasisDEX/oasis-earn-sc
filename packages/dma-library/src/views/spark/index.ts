@@ -180,5 +180,6 @@ export const getCurrentSparkPositionOmni: SparkGetCurrentPositionOmni = async (
     args.secondaryTokenReserveData.variableBorrowRate,
     args.primaryTokenReserveData.liquidityRate,
     args.reserveConfigurationData.liquidationBonus,
+    args.reserveData,
   )
 }
