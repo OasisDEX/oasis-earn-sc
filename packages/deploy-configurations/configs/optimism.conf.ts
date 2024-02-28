@@ -195,7 +195,7 @@ export const config: SystemConfig = {
       },
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
-        deploy: false,
+        deploy: true,
         address: '0x4E883C730B9CF973aBC47726eA52e107DC70fa68',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
         history: [
@@ -222,7 +222,7 @@ export const config: SystemConfig = {
       },
       AaveV3Payback: {
         name: 'AaveV3Payback',
-        deploy: false,
+        deploy: true,
         address: '0x5d93bf7B3a1cD4d0e935Db79B0ec616DfAFDD6D4',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
         history: [
