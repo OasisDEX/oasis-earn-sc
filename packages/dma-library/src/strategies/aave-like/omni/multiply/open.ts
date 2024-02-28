@@ -29,7 +29,6 @@ export const openOmni = async (
 
   return {
     simulation: {
-      // @ts-ignore
       swaps: [strategy.simulation.swap],
       errors: [...validateTargetLtvExceedsCap(args.position, targetPosition)],
       warnings: [...validateYieldLoopCloseToLiquidation(args.position, targetPosition)],

@@ -10,5 +10,5 @@ export interface Swap {
   minToTokenAmount: BigNumber
   exchangeCalldata: string | number
   collectFeeFrom: Address
-  fee: BigNumber
+  tokenFee: BigNumber
 }
