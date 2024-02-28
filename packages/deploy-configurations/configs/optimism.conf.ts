@@ -129,7 +129,7 @@ export const config: SystemConfig = {
         name: 'TakeFlashloan',
         deploy: false,
         address: '0x080bB3a23098D71a4e8fc5dE8f1Cbb83553BBc57',
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_FLASHLOAN,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN,
         history: ['0x53958191c3077eDe3Ca90Eb840283df063FC1be3'],
         constructorArgs: [
           'address:ServiceRegistry',
@@ -235,7 +235,7 @@ export const config: SystemConfig = {
         name: 'AaveV3SetEMode',
         deploy: false,
         address: '0x36a9ED9B00ECC380C4e559B80a1857C65353ce7e',
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.SET_E_MODE,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.SET_EMODE,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
