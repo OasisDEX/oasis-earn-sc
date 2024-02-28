@@ -13,7 +13,9 @@ export const closeOmni = async (
   const strategy = await aaveLike.multiply.close(args, dependencies)
 
   const targetPosition = args.position
-    .withdraw(strategy.simulation.delta.collateral.shiftedBy(-args.collateralToken.precision!).negated())
+    .withdraw(
+      strategy.simulation.delta.collateral.shiftedBy(-args.collateralToken.precision!).negated(),
+    )
     .payback(strategy.simulation.delta.debt.shiftedBy(-args.debtToken.precision!).negated())
 
   return {
