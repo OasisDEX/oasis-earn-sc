@@ -41,9 +41,9 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
   let signer: SignerWithAddress
   let address: string
   let WETH: WETH
-  let USDC: ERC20
+  let DAI: ERC20
   let SPWETH: ERC20
-  let VDUSDC: ERC20
+  let VDDAI: ERC20
   let sparkOracle: SparkOracle
   let sparkPoolDataProvider: SparkPoolDataProvider
   let dpmAccount: AccountImplementation
@@ -56,7 +56,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
   let addresses: NetworkAddressesForNetwork<Network.MAINNET>
   let aaveLikeAddresses: AaveLikeStrategyAddresses
   const oneEther = BN.from('1000000000000000000')
-  const oneUSDC = BN.from('1000000')
+  const oneDAI = BN.from('1000000000000000000')
 
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
@@ -85,7 +85,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
     network = await getNetwork(config.provider)
 
     WETH = WETH__factory.connect(ADDRESSES[network].common.WETH, config.signer)
-    USDC = ERC20__factory.connect(ADDRESSES[network].common.USDC, config.signer)
+    DAI = ERC20__factory.connect(ADDRESSES[network].common.DAI, config.signer)
 
     addresses = addressesByNetwork(Network.MAINNET)
 
@@ -97,7 +97,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       tokens: {
         WETH: WETH.address,
         DAI: ADDRESSES[network].common.DAI,
-        USDC: USDC.address,
+        USDC: ADDRESSES[network].common.USDC,
         ETH: ADDRESSES[network].common.ETH,
       },
       operationExecutor: system.OperationExecutor.contract.address,
@@ -116,13 +116,13 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
     )
 
     const wethReserveSparkData = await sparkPoolDataProvider.getReserveTokensAddresses(WETH.address)
-    const usdcReserveSparkData = await sparkPoolDataProvider.getReserveTokensAddresses(USDC.address)
+    const daiReserveSparkData = await sparkPoolDataProvider.getReserveTokensAddresses(DAI.address)
 
     const spWETHaddress = wethReserveSparkData.spTokenAddress
-    const vdUsdc = usdcReserveSparkData.variableDebtTokenAddress
+    const vdDai = daiReserveSparkData.variableDebtTokenAddress
 
     SPWETH = ERC20__factory.connect(spWETHaddress, signer)
-    VDUSDC = ERC20__factory.connect(vdUsdc, signer)
+    VDDAI = ERC20__factory.connect(vdDai, signer)
 
     const [dpmProxy] = await createDPMAccount(system.AccountFactory.contract)
 
@@ -136,15 +136,17 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
   it('should migrate EOA Spark (WETH/USDC) -> DPM Spark (WETH/USDC)', async () => {
     await WETH.deposit({ value: oneEther.mul(10) })
     await WETH.approve(sparkPool.address, oneEther.mul(10))
+
     await sparkPool['supply(address,uint256,address,uint16)'](
       WETH.address,
       oneEther.mul(10),
       address,
       0,
     )
+
     await sparkPool['borrow(address,uint256,uint256,uint16,address)'](
-      USDC.address,
-      oneUSDC.mul(1000),
+      DAI.address,
+      oneDAI.mul(100),
       2,
       0,
       address,
@@ -155,7 +157,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       address,
     )
     const sparkDebtOnWalletBeforeTransaction = await sparkPoolDataProvider.getUserReserveData(
-      USDC.address,
+      DAI.address,
       address,
     )
 
@@ -164,7 +166,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       sparkCollateralOnWalletBeforeTransaction.currentSpTokenBalance.toString(),
     )
     console.log(
-      '[EOA] USDC Debt on Spark before transaction: ',
+      '[EOA] DAI Debt on Spark before transaction: ',
       sparkDebtOnWalletBeforeTransaction.currentVariableDebt.toString(),
     )
 
@@ -182,7 +184,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       {
         collateralToken: { symbol: 'WETH', precision: 18 },
         proxy: address,
-        debtToken: { symbol: 'USDC', precision: 6 },
+        debtToken: { symbol: 'DAI', precision: 18 },
       },
       {
         addresses: aaveLikeAddresses,
@@ -190,13 +192,20 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       },
     )
 
+    console.log(`Current Position using DMA: `, {
+      collateralToken: currentPosition.collateral.symbol,
+      debtToken: currentPosition.debt.symbol,
+      collateralTokenAmount: currentPosition.collateral.amount.toString(),
+      debtTokenAmount: currentPosition.debt.amount.toString(),
+    })
+
     const migrationArgs = {
       aToken: {
         address: SPWETH.address,
         amount: new BigNumber(spWETHBalance.toString()),
       },
       vdToken: {
-        address: VDUSDC.address,
+        address: VDDAI.address,
       },
     }
 
@@ -221,7 +230,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       address,
     )
     const sparkDebtOnWalletAfterTransaction = await sparkPoolDataProvider.getUserReserveData(
-      USDC.address,
+      DAI.address,
       address,
     )
 
@@ -230,7 +239,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       sparkCollateralOnWalletAfterTransaction.currentSpTokenBalance.toString(),
     )
     console.log(
-      '[EOA] USDC Debt on Spark after transaction: ',
+      '[EOA] DAI Debt on Spark after transaction: ',
       sparkDebtOnWalletAfterTransaction.currentVariableDebt.toString(),
     )
 
@@ -239,7 +248,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       dpmAccount.address,
     )
     const sparkDebtOnProxyAfterTransaction = await sparkPoolDataProvider.getUserReserveData(
-      USDC.address,
+      DAI.address,
       dpmAccount.address,
     )
 
@@ -248,7 +257,7 @@ describe('Migrate | Spark -> DPM | E2E', async () => {
       sparkCollateralOnProxyAfterTransaction.currentSpTokenBalance.toString(),
     )
     console.log(
-      '[Proxy] USDC Debt on Spark after transaction',
+      '[Proxy] DAI Debt on Spark after transaction',
       sparkDebtOnProxyAfterTransaction.currentVariableDebt.toString(),
     )
 
