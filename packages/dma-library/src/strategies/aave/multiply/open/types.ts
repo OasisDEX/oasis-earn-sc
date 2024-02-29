@@ -6,7 +6,6 @@ import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
 export type AaveV2OpenDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
