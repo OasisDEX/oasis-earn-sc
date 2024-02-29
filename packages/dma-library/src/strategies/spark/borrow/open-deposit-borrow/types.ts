@@ -20,13 +20,11 @@ export type SparkOpenDepositBorrow = (
   dependencies: SparkOpenDepositBorrowDependencies,
 ) => Promise<IOpenDepositBorrowStrategy>
 
-export type SparkOpenDepositBorrowArgsOmni = SparkOpenDepositBorrowArgs & {
-  position: AaveLikePositionV2
-}
+export type SparkOpenDepositBorrowArgsOmni = SparkOpenDepositBorrowArgs &
+  StrategyParams.WithAaveLikePositionV2
 
-export type SparkOpenDepositBorrowDependenciesOmni = SparkOpenDepositBorrowDependencies & {
-  operationExecutor: string
-}
+export type SparkOpenDepositBorrowDependenciesOmni = SparkOpenDepositBorrowDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor
 
 export type SparkOpenDepositBorrowOmni = (
   args: SparkOpenDepositBorrowArgsOmni,

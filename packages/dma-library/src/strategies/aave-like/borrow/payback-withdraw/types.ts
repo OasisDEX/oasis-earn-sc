@@ -15,13 +15,11 @@ export type AaveLikePaybackWithdraw = (
   dependencies: AaveLikePaybackWithdrawDependencies,
 ) => Promise<IPaybackWithdrawStrategy>
 
-export type AaveLikePaybackWithdrawArgsOmni = AaveLikePaybackWithdrawArgs & {
-  position: AaveLikePositionV2
-}
+export type AaveLikePaybackWithdrawArgsOmni = AaveLikePaybackWithdrawArgs &
+  StrategyParams.WithAaveLikePositionV2
 
-export type AaveLikePaybackWithdrawDependenciesOmni = AaveLikePaybackWithdrawDependencies & {
-  operationExecutor: string
-}
+export type AaveLikePaybackWithdrawDependenciesOmni = AaveLikePaybackWithdrawDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor
 
 export type AaveLikePaybackWithdrawOmni = (
   args: AaveLikePaybackWithdrawArgsOmni,

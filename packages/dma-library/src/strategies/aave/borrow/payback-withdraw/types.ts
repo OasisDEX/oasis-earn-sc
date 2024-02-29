@@ -37,14 +37,11 @@ export type AavePaybackWithdraw = (
   dependencies: AavePaybackWithdrawDependencies,
 ) => Promise<Strategies.IStrategy>
 
-export type AavePaybackWithdrawArgsOmni = AavePaybackWithdrawArgs & {
-  position: AaveLikePositionV2
-}
+export type AavePaybackWithdrawArgsOmni = AavePaybackWithdrawArgs &
+  StrategyParams.WithAaveLikePositionV2
 
 export type AavePaybackWithdrawDependenciesOmni = Omit<
-  AavePaybackWithdrawDependencies & {
-    operationExecutor: string
-  },
+  AavePaybackWithdrawDependencies & StrategyParams.WithAaveLikeWithOperationExecutor,
   'protocol'
 >
 

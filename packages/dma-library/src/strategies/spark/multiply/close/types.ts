@@ -2,7 +2,6 @@ import { AaveLikeCloseArgs } from '@dma-library/strategies/aave-like/multiply/cl
 import { AaveLikePositionV2, SummerStrategy } from '@dma-library/types'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
-import { ethers } from 'ethers'
 
 export type SparkCloseDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
@@ -19,14 +18,11 @@ export type SparkClose = (
   dependencies: SparkCloseDependencies,
 ) => Promise<ICloseStrategy>
 
-export type SparkCloseArgsOmni = SparkCloseArgs & {
-  position: AaveLikePositionV2
-}
+export type SparkCloseArgsOmni = SparkCloseArgs & StrategyParams.WithAaveLikePositionV2
 
-export type SparkCloseDependenciesOmni = SparkCloseDependencies & {
-  provider: ethers.providers.Provider
-  operationExecutor: string
-}
+export type SparkCloseDependenciesOmni = SparkCloseDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor &
+  StrategyParams.WithProvider
 
 export type SparkCloseOmni = (
   args: SparkCloseArgsOmni,

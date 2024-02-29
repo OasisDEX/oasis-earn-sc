@@ -6,7 +6,6 @@ import { AaveLikePositionV2, SummerStrategy } from '@dma-library/types'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import * as AaveProtocol from '@dma-library/types/aave/protocol'
 import * as StrategyParams from '@dma-library/types/strategy-params'
-import { ethers } from 'ethers'
 
 export type SharedAaveAdjustDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
@@ -39,10 +38,9 @@ export type AaveAdjust = (
 export type AaveAdjustArgsOmni = AaveAdjustArgs & { position: AaveLikePositionV2 }
 
 export type AaveAdjustDependenciesOmni = Omit<
-  AaveAdjustDependencies & {
-    provider: ethers.providers.Provider
-    operationExecutor: string
-  },
+  AaveAdjustDependencies &
+    StrategyParams.WithAaveLikeWithOperationExecutor &
+    StrategyParams.WithProvider,
   'protocol'
 >
 

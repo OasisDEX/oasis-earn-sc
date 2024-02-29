@@ -5,7 +5,6 @@ import {
 import { AaveLikePositionV2, SummerStrategy } from '@dma-library/types'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
-import { ethers } from 'ethers'
 
 export type SparkOpenDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
@@ -20,10 +19,9 @@ export type SparkOpen = (
   dependencies: SparkOpenDependencies,
 ) => Promise<IOpenStrategy>
 
-export type SparkOpenDependenciesOmni = SparkOpenDependencies & {
-  provider: ethers.providers.Provider
-  operationExecutor: string
-}
+export type SparkOpenDependenciesOmni = SparkOpenDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor &
+  StrategyParams.WithProvider
 
 export type SparkOpenOmni = (
   args: AaveLikeOpenArgsOmni,

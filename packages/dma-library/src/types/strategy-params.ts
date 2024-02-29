@@ -2,11 +2,11 @@ import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { AaveProtocolData } from '@dma-library/protocols'
-import { AaveLikeTokens } from '@dma-library/types/aave-like'
+import { AaveLikePositionV2, AaveLikeTokens } from '@dma-library/types/aave-like'
 import { AaveLikeProtocol } from '@dma-library/types/protocol'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
-import { providers } from 'ethers'
+import { ethers, providers } from 'ethers'
 
 import { PositionType } from './position-type'
 import { SwapData } from './swap-data'
@@ -46,6 +46,18 @@ export type WithAaveLikeBorrowStrategyArgs = {
 } & WithAaveLikeStrategyArgs
 
 export type WithAaveLikeMultiplyStrategyArgs = WithAaveLikeBorrowStrategyArgs
+
+export type WithAaveLikeWithOperationExecutor = {
+  operationExecutor: string
+}
+
+export type WithAaveLikePositionV2 = {
+  position: AaveLikePositionV2
+}
+
+export type WithProvider = {
+  provider: ethers.providers.Provider
+}
 
 export type WithCloseToCollateralFlag = {
   shouldCloseToCollateral?: boolean

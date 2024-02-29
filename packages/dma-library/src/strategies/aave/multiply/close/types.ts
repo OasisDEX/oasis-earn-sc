@@ -46,10 +46,9 @@ export type AaveClose = (
 export type AaveCloseArgsOmni = AaveCloseArgs & { position: AaveLikePositionV2 }
 
 export type AaveCloseDependenciesOmni = Omit<
-  AaveCloseDependencies & {
-    provider: ethers.providers.Provider
-    operationExecutor: string
-  },
+  AaveCloseDependencies &
+    StrategyParams.WithAaveLikeWithOperationExecutor &
+    StrategyParams.WithProvider,
   'protocol'
 >
 

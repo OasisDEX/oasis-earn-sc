@@ -42,14 +42,11 @@ export type AaveOpenDepositBorrow = (
   dependencies: AaveOpenDepositBorrowDependencies,
 ) => Promise<IOpenDepositBorrowStrategy>
 
-export type AaveOpenDepositBorrowArgsOmni = AaveOpenDepositBorrowArgs & {
-  position: AaveLikePositionV2
-}
+export type AaveOpenDepositBorrowArgsOmni = AaveOpenDepositBorrowArgs &
+  StrategyParams.WithAaveLikePositionV2
 
 export type AaveOpenDepositBorrowDependenciesOmni = Omit<
-  AaveOpenDepositBorrowDependencies & {
-    operationExecutor: string
-  },
+  AaveOpenDepositBorrowDependencies & StrategyParams.WithAaveLikeWithOperationExecutor,
   'protocol'
 >
 

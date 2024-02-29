@@ -18,13 +18,11 @@ export type SparkPaybackWithdraw = (
   dependencies: SparkPaybackWithdrawDependencies,
 ) => Promise<IPaybackWithdrawStrategy>
 
-export type SparkPaybackWithdrawArgsOmni = SparkPaybackWithdrawArgs & {
-  position: AaveLikePositionV2
-}
+export type SparkPaybackWithdrawArgsOmni = SparkPaybackWithdrawArgs &
+  StrategyParams.WithAaveLikePositionV2
 
-export type SparkPaybackWithdrawDependenciesOmni = SparkPaybackWithdrawDependencies & {
-  operationExecutor: string
-}
+export type SparkPaybackWithdrawDependenciesOmni = SparkPaybackWithdrawDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor
 
 export type SparkPaybackWithdrawOmni = (
   args: SparkPaybackWithdrawArgsOmni,

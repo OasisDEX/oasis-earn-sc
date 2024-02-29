@@ -52,10 +52,9 @@ export type AaveOpenArgsOmni = AaveOpenArgs & {
 }
 
 export type AaveOpenDependenciesOmni = Omit<
-  AaveOpenDependencies & {
-    provider: ethers.providers.Provider
-    operationExecutor: string
-  },
+  AaveOpenDependencies &
+    StrategyParams.WithAaveLikeWithOperationExecutor &
+    StrategyParams.WithProvider,
   'protocol'
 >
 

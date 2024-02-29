@@ -3,7 +3,6 @@ import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 import { WithFlashLoanArgs } from '@dma-library/types/strategy-params'
 import { BigNumber } from 'bignumber.js'
-import { ethers } from 'ethers'
 
 export type AaveLikeCloseArgs = StrategyParams.WithAaveLikeMultiplyStrategyArgs &
   StrategyParams.WithCloseToCollateralFlag &
@@ -35,14 +34,11 @@ export type AaveLikeClose = (
   dependencies: AaveLikeCloseDependencies,
 ) => Promise<ICloseStrategy>
 
-export type AaveLikeCloseArgsOmni = AaveLikeCloseArgs & {
-  position: AaveLikePositionV2
-}
+export type AaveLikeCloseArgsOmni = AaveLikeCloseArgs & StrategyParams.WithAaveLikePositionV2
 
-export type AaveLikeCloseDependenciesOmni = AaveLikeCloseDependencies & {
-  provider: ethers.providers.Provider
-  operationExecutor: string
-}
+export type AaveLikeCloseDependenciesOmni = AaveLikeCloseDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor &
+  StrategyParams.WithProvider
 
 export type AaveLikeCloseOmni = (
   args: AaveLikeCloseArgsOmni,
