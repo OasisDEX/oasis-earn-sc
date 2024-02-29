@@ -35,7 +35,7 @@ export type AaveAdjust = (
   dependencies: AaveAdjustDependencies,
 ) => Promise<IAdjustStrategy>
 
-export type AaveAdjustArgsOmni = AaveAdjustArgs & { position: AaveLikePositionV2 }
+export type AaveAdjustArgsOmni = AaveAdjustArgs & StrategyParams.WithAaveLikePositionV2
 
 export type AaveAdjustDependenciesOmni = Omit<
   AaveAdjustDependencies &

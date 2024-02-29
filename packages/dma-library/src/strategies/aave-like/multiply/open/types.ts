@@ -3,7 +3,6 @@ import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
 export type AaveLikeOpenArgs = StrategyParams.WithAaveLikeMultiplyStrategyArgs &
   StrategyParams.WithDeposit &
@@ -33,10 +32,9 @@ export type AaveLikeOpenArgsOmni = AaveLikeOpenArgs & {
   }
 }
 
-export type AaveLikeOpenDependenciesOmni = AaveLikeOpenDependencies & {
-  provider: ethers.providers.Provider
-  operationExecutor: string
-}
+export type AaveLikeOpenDependenciesOmni = AaveLikeOpenDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor &
+  StrategyParams.WithProvider
 
 export type AaveLikeOpenOmni = (
   args: AaveLikeOpenArgsOmni,

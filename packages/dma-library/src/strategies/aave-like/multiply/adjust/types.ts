@@ -4,7 +4,6 @@ import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 import { IBaseSimulatedTransition } from '@domain'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
 export type AaveLikeAdjustArgs = StrategyParams.WithAaveLikeMultiplyStrategyArgs &
   StrategyParams.WithMultiple &
@@ -58,12 +57,11 @@ export type GenerateArgs = {
   quoteSwapData: SwapData
 }
 
-export type AaveLikeAdjustArgsOmni = AaveLikeAdjustArgs & { position: AaveLikePositionV2 }
+export type AaveLikeAdjustArgsOmni = AaveLikeAdjustArgs & StrategyParams.WithAaveLikePositionV2
 
-export type AaveLikeAdjustDependenciesOmni = AaveLikeAdjustDependencies & {
-  provider: ethers.providers.Provider
-  operationExecutor: string
-}
+export type AaveLikeAdjustDependenciesOmni = AaveLikeAdjustDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor &
+  StrategyParams.WithProvider
 
 export type AaveLikeAdjustOmni = (
   args: AaveLikeAdjustArgsOmni,

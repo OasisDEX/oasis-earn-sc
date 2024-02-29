@@ -4,7 +4,6 @@ import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol
 import * as AaveProtocol from '@dma-library/types/aave/protocol'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
-import { ethers } from 'ethers'
 
 export type AaveV2CloseDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
@@ -43,7 +42,7 @@ export type AaveClose = (
   dependencies: AaveCloseDependencies,
 ) => Promise<ICloseStrategy>
 
-export type AaveCloseArgsOmni = AaveCloseArgs & { position: AaveLikePositionV2 }
+export type AaveCloseArgsOmni = AaveCloseArgs & StrategyParams.WithAaveLikePositionV2
 
 export type AaveCloseDependenciesOmni = Omit<
   AaveCloseDependencies &
