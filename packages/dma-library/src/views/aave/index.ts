@@ -1,6 +1,7 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AaveLikePosition, AaveLikePositionV2 } from '@dma-library/types/aave-like'
+import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import {
   AaveGetCurrentPositionArgs,
   AaveLikeCumulativeData,
@@ -189,11 +190,9 @@ export const getCurrentPositionAaveV2Omni: AaveV2GetCurrentPositionOmni = async 
 
   const { collateral, debt } = calculateViewValuesForPosition({
     collateralAmount: new BigNumber(userReserveDataForCollateral.currentATokenBalance.toString()),
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    collateralPrecision: collateralToken.precision!,
+    collateralPrecision: collateralToken.precision,
     debtAmount: new BigNumber(userReserveDataForDebtToken.currentVariableDebt.toString()),
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    debtPrecision: debtToken.precision!,
+    debtPrecision: debtToken.precision,
     collateralTokenPrice: args.collateralPrice,
     debtTokenPrice: args.debtPrice,
     collateralLiquidityRate: args.primaryTokenReserveData.liquidityRate,
@@ -201,7 +200,15 @@ export const getCurrentPositionAaveV2Omni: AaveV2GetCurrentPositionOmni = async 
     category,
   })
 
-  const pnl = mapAaveLikeCumulatives(args.cumulatives)
+  const netValue = collateral.times(args.collateralPrice).minus(debt.times(args.debtPrice))
+
+  const pnl = mapAaveLikeCumulatives({
+    cumulatives: args.cumulatives,
+    netValue,
+    collateralPrice: args.collateralPrice,
+    debtPrice: args.debtPrice,
+    isCorrelated: isCorrelatedPosition(args.collateralToken.symbol, args.debtToken.symbol),
+  })
 
   return new AaveLikePositionV2(
     args.proxy,
@@ -359,11 +366,9 @@ export const getCurrentPositionAaveV3Omni: AaveV3GetCurrentPositionOmni = async 
 
   const { collateral, debt } = calculateViewValuesForPosition({
     collateralAmount: new BigNumber(userReserveDataForCollateral.currentATokenBalance.toString()),
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    collateralPrecision: collateralToken.precision!,
+    collateralPrecision: collateralToken.precision,
     debtAmount: new BigNumber(userReserveDataForDebtToken.currentVariableDebt.toString()),
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    debtPrecision: debtToken.precision!,
+    debtPrecision: debtToken.precision,
     collateralTokenPrice: args.collateralPrice,
     debtTokenPrice: args.debtPrice,
     collateralLiquidityRate: args.primaryTokenReserveData.liquidityRate,
@@ -371,7 +376,15 @@ export const getCurrentPositionAaveV3Omni: AaveV3GetCurrentPositionOmni = async 
     category,
   })
 
-  const pnl = mapAaveLikeCumulatives(args.cumulatives)
+  const netValue = collateral.times(args.collateralPrice).minus(debt.times(args.debtPrice))
+
+  const pnl = mapAaveLikeCumulatives({
+    cumulatives: args.cumulatives,
+    netValue,
+    collateralPrice: args.collateralPrice,
+    debtPrice: args.debtPrice,
+    isCorrelated: isCorrelatedPosition(args.collateralToken.symbol, args.debtToken.symbol),
+  })
 
   return new AaveLikePositionV2(
     args.proxy,
