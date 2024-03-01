@@ -97,6 +97,14 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      TokenBalance: {
+        name: 'TokenBalance',
+        deploy: false,
+        address: '0x099708408aDb18F6D49013c88F3b1Bb514cC616F',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       PositionCreated: {
         name: 'PositionCreated',
         deploy: false,
@@ -121,7 +129,7 @@ export const config: SystemConfig = {
         name: 'TakeFlashloan',
         deploy: false,
         address: '0x080bB3a23098D71a4e8fc5dE8f1Cbb83553BBc57',
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_FLASHLOAN,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN,
         history: ['0x53958191c3077eDe3Ca90Eb840283df063FC1be3'],
         constructorArgs: [
           'address:ServiceRegistry',
@@ -143,6 +151,14 @@ export const config: SystemConfig = {
         address: '0x414958801DC53E840501f507D7A0FEBE55806200',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
         history: ['0xFAf9D0B7B92e8B281CaF10b42970179B45CA6412'],
+        constructorArgs: [],
+      },
+      PullTokenMaxAmount: {
+        name: 'PullTokenMaxAmount',
+        deploy: false,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN_MAX_AMOUNT,
+        address: '0x74d4B9e8350c5aFC6c01bb725dA28053D2420FB1',
+        history: [],
         constructorArgs: [],
       },
       SendToken: {
@@ -180,9 +196,13 @@ export const config: SystemConfig = {
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
         deploy: false,
-        address: '0x330B1b23dbF728841AF12e6478CeBb9d51ab6f90',
+        address: '0x4C020189Ed0556bD934F6d459003c95706b2D71d',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
-        history: ['0x645325494A37d35cf6baFc82C3e6bcE4473F2685'],
+        history: [
+          '0x4E883C730B9CF973aBC47726eA52e107DC70fa68',
+          '0x330B1b23dbF728841AF12e6478CeBb9d51ab6f90',
+          '0x645325494A37d35cf6baFc82C3e6bcE4473F2685',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3Withdraw: {
@@ -204,16 +224,20 @@ export const config: SystemConfig = {
       AaveV3Payback: {
         name: 'AaveV3Payback',
         deploy: false,
-        address: '0x3f91613F0c7f1f5940c324FfeF07632DD5793680',
+        address: '0x7a4963548794247FeECC8cf766eC8AA3f169F452',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
-        history: ['0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A'],
+        history: [
+          '0x5d93bf7B3a1cD4d0e935Db79B0ec616DfAFDD6D4',
+          '0x3f91613F0c7f1f5940c324FfeF07632DD5793680',
+          '0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3SetEMode: {
         name: 'AaveV3SetEMode',
         deploy: false,
         address: '0x36a9ED9B00ECC380C4e559B80a1857C65353ce7e',
-        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.SET_E_MODE,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.SET_EMODE,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },

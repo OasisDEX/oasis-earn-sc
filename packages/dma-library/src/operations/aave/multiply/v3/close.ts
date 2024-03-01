@@ -99,6 +99,7 @@ export const close: AaveV3CloseOperation = async ({
     asset: debt.address,
     amount: ZERO,
     paybackAll: true,
+    onBehalfOf: proxy.address,
   })
 
   const withdrawFlashLoan = actions.aave.v3.aaveV3Withdraw(network, {

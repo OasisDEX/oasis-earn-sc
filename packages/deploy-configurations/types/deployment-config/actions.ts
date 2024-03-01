@@ -10,6 +10,7 @@ export type AaveV3Actions =
 export type CommonActions =
   | 'SwapAction'
   | 'PullToken'
+  | 'PullTokenMaxAmount'
   | 'SendToken'
   | 'SetApproval'
   | 'WrapEth'
@@ -17,6 +18,7 @@ export type CommonActions =
   | 'TakeFlashloan'
   | 'ReturnFunds'
   | 'PositionCreated'
+  | 'TokenBalance'
 
 export type AjnaActions = 'AjnaDepositBorrow' | 'AjnaRepayWithdraw'
 

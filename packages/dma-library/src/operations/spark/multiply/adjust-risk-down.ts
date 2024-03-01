@@ -60,6 +60,7 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
     // Payback the max amount we can get from the swap
     amount: swap.receiveAtLeast,
     paybackAll: false,
+    onBehalfOf: proxy.address,
   })
 
   const withdrawCollateral = actions.spark.withdraw(network, {

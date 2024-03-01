@@ -16,6 +16,7 @@ import {
   getAaveDepositBorrowV3OperationDefinition,
   getAaveDepositV2OperationDefinition,
   getAaveDepositV3OperationDefinition,
+  getAaveMigrateEOAV3OperationDefinition,
   getAaveOpenDepositBorrowV3OperationDefinition,
   getAaveOpenV2OperationDefinition,
   getAaveOpenV3OperationDefinition,
@@ -41,6 +42,7 @@ import {
   getSparkCloseOperationDefinition,
   getSparkDepositBorrowOperationDefinition,
   getSparkDepositOperationDefinition,
+  getSparkMigrateEOAOperationDefinition,
   getSparkOpenDepositBorrowOperationDefinition,
   getSparkOpenOperationDefinition,
   getSparkPaybackWithdrawOperationDefinition,
@@ -61,8 +63,15 @@ import { EtherscanGasPrice } from '@deploy-configurations/types/etherscan'
 import { Network } from '@deploy-configurations/types/network'
 import { NetworkByChainId } from '@deploy-configurations/utils/network/index'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers/index'
-import { loadContractNames } from '@dma-contracts/../deploy-configurations/constants'
+import {
+  loadContractNames,
+  OPERATION_NAMES,
+} from '@dma-contracts/../deploy-configurations/constants'
 import { RecursivePartial } from '@dma-contracts/utils/recursive-partial'
+import {
+  AaveV3OperationNames,
+  SparkOperationNames,
+} from '@oasisdex/deploy-configurations/constants/operation-names'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -269,6 +278,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   private readonly _cache = new NodeCache()
   private readonly isLocal: boolean
 
+  private readonly multiSigNetwork = [Network.ARBITRUM, Network.MAINNET, Network.OPTIMISM]
+
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
     super()
     this.hre = hre
@@ -415,8 +426,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.provider) throw new Error('No provider set')
     if (!this.config) throw new Error('No config set')
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
-    this.log('POST DEPLOYMENT', configItem.name, configItem.address)
 
+    this.log('POST DEPLOYMENT', configItem.name, configItem.address)
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
       if (this.useGnosisSafeServiceClient()) {
@@ -471,7 +482,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           senderSignature: ownerSignature.data,
         })
         // Mainnet is excluded because Service Registry is managed by multi-sig wallet
-      } else if (this.network !== Network.MAINNET) {
+      } else if (!this.multiSigNetwork.includes(this.network)) {
         console.log(
           `Adding entry to ServiceRegistry: ${
             configItem.serviceRegistryName
@@ -484,9 +495,19 @@ export class DeploymentSystem extends DeployedSystemHelpers {
             configItem.serviceRegistryName,
             contract.address,
           )
-        } catch (error) {
-          console.log('Error adding entry to ServiceRegistry, add manually')
+        } catch (error: any) {
+          console.log(
+            `Error adding entry to ServiceRegistry, add manually, error message: ${error.message}`,
+          )
         }
+      } else {
+        console.log(
+          `ServiceRegistry entry not added for ${
+            configItem.serviceRegistryName
+          } hash: ${utils.keccak256(
+            utils.toUtf8Bytes(configItem.serviceRegistryName),
+          )} on network ${this.network}. Use GnosisSafeServiceClient to add entry.`,
+        )
       }
     }
 
@@ -802,6 +823,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       ),
     )
   }
+  async addSparkEntries() {
+    if (!this.config) throw new Error('No config set')
+    await this.addRegistryEntries(
+      Object.values(this.config.spark || {}).filter(
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+  }
 
   async addMakerEntries() {
     if (!this.config) throw new Error('No config set')
@@ -838,6 +867,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
    *
    * Read more at the README at /packages/deploy-configurations/README.md
    */
+
   async addOperationEntries() {
     if (!this.signer) throw new Error('No signer set')
     if (!this.deployedSystem.OperationsRegistry) throw new Error('No OperationsRegistry deployed')
@@ -850,40 +880,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (this.forkedNetwork) {
       network = this.forkedNetwork
     }
-
-    // AAVE V2
-    await operationsRegistry.addOp(
-      getAaveOpenV2OperationDefinition(network).name,
-      getAaveOpenV2OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveCloseV2OperationDefinition(network).name,
-      getAaveCloseV2OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveAdjustDownV2OperationDefinition(network).name,
-      getAaveAdjustDownV2OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveAdjustUpV2OperationDefinition(network).name,
-      getAaveAdjustUpV2OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAavePaybackWithdrawV2OperationDefinition(network).name,
-      getAavePaybackWithdrawV2OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveDepositV2OperationDefinition(network).name,
-      getAaveDepositV2OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveBorrowV2OperationDefinition(network).name,
-      getAaveBorrowV2OperationDefinition(network).actions,
-    )
-    await operationsRegistry.addOp(
-      getAaveDepositBorrowV2OperationDefinition(network).name,
-      getAaveDepositBorrowV2OperationDefinition(network).actions,
-    )
 
     // AAVE V3
     await operationsRegistry.addOp(
@@ -921,6 +917,45 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       getAaveBorrowV3OperationDefinition(network).name,
       getAaveBorrowV3OperationDefinition(network).actions,
+    )
+
+    // AAVE V2
+    await operationsRegistry.addOp(
+      getAaveOpenV2OperationDefinition(network).name,
+      getAaveOpenV2OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveCloseV2OperationDefinition(network).name,
+      getAaveCloseV2OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveAdjustDownV2OperationDefinition(network).name,
+      getAaveAdjustDownV2OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveAdjustUpV2OperationDefinition(network).name,
+      getAaveAdjustUpV2OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAavePaybackWithdrawV2OperationDefinition(network).name,
+      getAavePaybackWithdrawV2OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveDepositV2OperationDefinition(network).name,
+      getAaveDepositV2OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveBorrowV2OperationDefinition(network).name,
+      getAaveBorrowV2OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
+      getAaveDepositBorrowV2OperationDefinition(network).name,
+      getAaveDepositBorrowV2OperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAaveMigrateEOAV3OperationDefinition(network).name,
+      getAaveMigrateEOAV3OperationDefinition(network).actions,
     )
 
     // AJNA
@@ -1078,6 +1113,193 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       morphoblueAdjustDownOperationDefinition.actions,
     )
     this.logOp(morphoblueAdjustDownOperationDefinition)
+
+    const sparkMigrateEOAOperationDefinition = getSparkMigrateEOAOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkMigrateEOAOperationDefinition.name,
+      sparkMigrateEOAOperationDefinition.actions,
+    )
+    this.logOp(sparkMigrateEOAOperationDefinition)
+  }
+
+  async addAaveV3Operations(...args: AaveV3OperationNames[]) {
+    if (!this.signer) throw new Error('No signer set')
+    if (!this.deployedSystem.OperationsRegistry) {
+      console.warn('No OperationsRegistry deployed, using existing one')
+    }
+    const address =
+      this.deployedSystem.OperationsRegistry?.contract.address ??
+      this.config?.mpa.core.OperationsRegistry.address
+    if (!address) {
+      throw new Error('No OperationsRegistry address found')
+    }
+    const operationsRegistry = new OperationsRegistry(address, this.signer)
+
+    let network = this.network
+    if (this.forkedNetwork) {
+      network = this.forkedNetwork
+    }
+
+    let names = args
+    if (!args || args.length === 0) {
+      names = Object.values(OPERATION_NAMES.aave.v3)
+    }
+
+    const allOperations: [string, { hash: string; optional: boolean }[]][] = [
+      [
+        getAaveOpenV3OperationDefinition(network).name,
+        getAaveOpenV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveCloseV3OperationDefinition(network).name,
+        getAaveCloseV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveAdjustDownV3OperationDefinition(network).name,
+        getAaveAdjustDownV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveAdjustUpV3OperationDefinition(network).name,
+        getAaveAdjustUpV3OperationDefinition(network).actions,
+      ],
+      [
+        getAavePaybackWithdrawV3OperationDefinition(network).name,
+        getAavePaybackWithdrawV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveDepositBorrowV3OperationDefinition(network).name,
+        getAaveDepositBorrowV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveOpenDepositBorrowV3OperationDefinition(network).name,
+        getAaveOpenDepositBorrowV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveDepositV3OperationDefinition(network).name,
+        getAaveDepositV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveBorrowV3OperationDefinition(network).name,
+        getAaveBorrowV3OperationDefinition(network).actions,
+      ],
+      [
+        getAaveMigrateEOAV3OperationDefinition(network).name,
+        getAaveMigrateEOAV3OperationDefinition(network).actions,
+      ],
+    ]
+
+    const operationInRecord: Record<string, [string, { hash: string; optional: boolean }[]]> =
+      allOperations.reduce((acc, [name, actions]) => {
+        return {
+          ...acc,
+          [name]: [name, actions],
+        }
+      }, {})
+
+    console.log('Adding Aave V3 operations to OperationsRegistry')
+    for (const name of names) {
+      if (!operationInRecord[name]) {
+        console.warn(`WARN: Operation ${name} not found in operation definitions`)
+        continue
+      }
+      console.info(`INFO: Adding operation ${name} to OperationsRegistry`)
+      const [operationName, actions] = operationInRecord[name]
+      this.logOp({ name: operationName, actions, log: true })
+      if (!this.multiSigNetwork.includes(this.network)) {
+        await operationsRegistry.addOp(operationName, actions)
+      } else {
+        console.log(
+          `Skipping operation: ${operationName} Operation registry controlled by multi-sig wallet on ${this.network}`,
+        )
+      }
+    }
+  }
+
+  async addSparkOperations(...args: SparkOperationNames[]) {
+    if (!this.signer) throw new Error('No signer set')
+    if (!this.deployedSystem.OperationsRegistry) {
+      console.warn('No OperationsRegistry deployed, using existing one')
+    }
+    const address =
+      this.deployedSystem.OperationsRegistry?.contract.address ??
+      this.config?.mpa.core.OperationsRegistry.address
+    if (!address) {
+      throw new Error('No OperationsRegistry address found')
+    }
+    const operationsRegistry = new OperationsRegistry(address, this.signer)
+
+    let network = this.network
+    if (this.forkedNetwork) {
+      network = this.forkedNetwork
+    }
+
+    let names = args
+    if (!args || args.length === 0) {
+      names = Object.values(OPERATION_NAMES.spark)
+    }
+
+    const allOperations: [string, { hash: string; optional: boolean }[]][] = [
+      [
+        getSparkOpenOperationDefinition(network).name,
+        getSparkOpenOperationDefinition(network).actions,
+      ],
+      [
+        getSparkCloseOperationDefinition(network).name,
+        getSparkCloseOperationDefinition(network).actions,
+      ],
+      [
+        getSparkAdjustDownOperationDefinition(network).name,
+        getSparkAdjustDownOperationDefinition(network).actions,
+      ],
+      [
+        getSparkAdjustUpOperationDefinition(network).name,
+        getSparkAdjustUpOperationDefinition(network).actions,
+      ],
+      [
+        getSparkPaybackWithdrawOperationDefinition(network).name,
+        getSparkPaybackWithdrawOperationDefinition(network).actions,
+      ],
+      [
+        getSparkDepositBorrowOperationDefinition(network).name,
+        getSparkDepositBorrowOperationDefinition(network).actions,
+      ],
+      [
+        getSparkOpenDepositBorrowOperationDefinition(network).name,
+        getSparkOpenDepositBorrowOperationDefinition(network).actions,
+      ],
+      [
+        getSparkDepositOperationDefinition(network).name,
+        getSparkDepositOperationDefinition(network).actions,
+      ],
+      [
+        getSparkBorrowOperationDefinition(network).name,
+        getSparkBorrowOperationDefinition(network).actions,
+      ],
+      [
+        getSparkMigrateEOAOperationDefinition(network).name,
+        getSparkMigrateEOAOperationDefinition(network).actions,
+      ],
+    ]
+
+    const operationInRecord: Record<string, [string, { hash: string; optional: boolean }[]]> =
+      allOperations.reduce((acc, [name, actions]) => {
+        return {
+          ...acc,
+          [name]: [name, actions],
+        }
+      }, {})
+
+    console.log('Adding Spark operations to OperationsRegistry')
+    for (const name of names) {
+      if (!operationInRecord[name]) {
+        console.warn(`WARN: Operation ${name} not found in operation definitions`)
+        continue
+      }
+      console.info(`INFO: Adding operation ${name} to OperationsRegistry`)
+      const [operationName, actions] = operationInRecord[name]
+      await operationsRegistry.addOp(operationName, actions)
+      this.logOp({ name: operationName, actions, log: true })
+    }
   }
 
   async addAllEntries() {
@@ -1086,6 +1308,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await this.addMakerEntries()
     await this.addAjnaEntries()
     await this.addMorphoBlueEntries()
+    await this.addSparkEntries()
     await this.addOperationEntries()
   }
 

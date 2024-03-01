@@ -1,4 +1,5 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import { MigrationFromEOAStrategy } from '@dma-library/strategies/aave-like'
 import { AaveVersion } from '@dma-library/types/aave'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { views } from '@dma-library/views'
@@ -15,6 +16,7 @@ import {
   AaveV3PaybackWithdraw,
   paybackWithdraw,
 } from './borrow/payback-withdraw'
+import { migrateAaveFromEOA } from './migrate/migrate-from-eoa'
 import { AaveV2Adjust, AaveV3Adjust, adjust } from './multiply/adjust'
 import { AaveV2Close, AaveV3Close, close } from './multiply/close'
 import { AaveV2Open, AaveV3Open, open } from './multiply/open'
@@ -45,6 +47,9 @@ export const aave: {
       adjust: AaveV3Adjust
     }
   }
+  migrate: {
+    fromEOA: MigrationFromEOAStrategy
+  }
 } = {
   borrow: {
     v2: {
@@ -72,6 +77,9 @@ export const aave: {
       close: (args, dependencies) => withV3Protocol(close, args, dependencies),
       adjust: (args, dependencies) => withV3Protocol(adjust, args, dependencies),
     },
+  },
+  migrate: {
+    fromEOA: migrateAaveFromEOA,
   },
 }
 

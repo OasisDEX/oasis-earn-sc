@@ -74,7 +74,7 @@ describe('AAVE | BorrowV3 Action | Unit', () => {
           },
         ],
       ),
-      [],
+      [0, 0, 0],
     )
   })
 

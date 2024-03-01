@@ -86,8 +86,9 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
       asset: debt.address,
       amount: new BigNumber(0),
       paybackAll: false,
+      onBehalfOf: proxy.address,
     },
-    [0, 3, 0],
+    [0, 3, 0, 0],
   )
 
   const withdrawFlashloanTokenFromAave = actions.aave.v3.aaveV3Withdraw(network, {

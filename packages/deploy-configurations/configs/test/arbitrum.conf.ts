@@ -96,6 +96,14 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      TokenBalance: {
+        name: 'TokenBalance',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
+        history: [],
+        constructorArgs: [],
+      },
       PositionCreated: {
         name: 'PositionCreated',
         deploy: false,
@@ -133,6 +141,13 @@ export const config: SystemConfig = {
         deploy: false,
         address: '0x645325494A37d35cf6baFc82C3e6bcE4473F2685',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
+        history: [],
+        constructorArgs: [],
+      },
+      PullTokenMaxAmount: {
+        name: 'PullToken',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
         history: [],
         constructorArgs: [],
       },
@@ -210,7 +225,7 @@ export const config: SystemConfig = {
       },
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
-        deploy: true,
+        deploy: false,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
@@ -218,7 +233,7 @@ export const config: SystemConfig = {
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
-        deploy: true,
+        deploy: false,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],

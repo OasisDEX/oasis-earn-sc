@@ -5,6 +5,7 @@ import { AaveLikeAdjust, adjust } from './multiply/adjust'
 import { AaveLikeClose, close } from './multiply/close'
 import { AaveLikeOpen, open } from './multiply/open'
 
+export * from './migrate'
 export { IAdjustStrategy } from './multiply/adjust/types'
 
 type AaveLike = {

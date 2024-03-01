@@ -2,7 +2,7 @@ import { ADDRESS_ZERO, ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
 import { constants } from 'ethers'
 
-type NetworkAddressesForNetwork<T extends Network> = T extends Network.MAINNET
+export type NetworkAddressesForNetwork<T extends Network> = T extends Network.MAINNET
   ? MainnetAddresses
   : T extends Network.OPTIMISM
   ? OptMainnetAddresses
@@ -43,6 +43,9 @@ const testAddresses = {
     poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
     CBETH: ADDRESSES[Network.MAINNET].common.CBETH,
     RETH: ADDRESSES[Network.MAINNET].common.RETH,
+    sparkPool: ADDRESSES[Network.MAINNET].spark.LendingPool,
+    sparkOracle: ADDRESSES[Network.MAINNET].spark.Oracle,
+    sparkPoolDataProvider: ADDRESSES[Network.MAINNET].spark.PoolDataProvider,
   },
   [Network.OPTIMISM]: {
     DAI: ADDRESSES[Network.OPTIMISM].common.DAI,

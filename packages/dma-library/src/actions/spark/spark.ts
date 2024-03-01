@@ -36,6 +36,7 @@ export function sparkDeposit(
 export function sparkBorrow(
   network: Network,
   args: { amount: BigNumber; asset: string; to: string },
+  paramsMapping: [amount: number, asset: number, to: number] = [0, 0, 0],
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
@@ -48,6 +49,7 @@ export function sparkBorrow(
         asset: args.asset,
         to: args.to,
       },
+      paramsMapping,
     ],
   )
 }
@@ -75,8 +77,10 @@ export function sparkWithdraw(
 // Import ActionCall as it assists type generation
 export function sparkPayback(
   network: Network,
-  args: { asset: string; amount: BigNumber; paybackAll: boolean },
-  paramsMapping: [asset: number, amount: number, paybackAll: number] = [0, 0, 0],
+  args: { asset: string; amount: BigNumber; paybackAll: boolean; onBehalfOf: string },
+  paramsMapping: [asset: number, amount: number, paybackAll: number, onBehalfOf: number] = [
+    0, 0, 0, 0,
+  ],
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
@@ -88,6 +92,7 @@ export function sparkPayback(
         asset: args.asset,
         amount: args.amount.toFixed(0),
         paybackAll: args.paybackAll,
+        onBehalfOf: args.onBehalfOf,
       },
       paramsMapping,
     ],

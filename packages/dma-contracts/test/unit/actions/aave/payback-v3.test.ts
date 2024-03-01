@@ -28,6 +28,7 @@ describe('AAVE | PaybackV3 Action | Unit', () => {
     asset: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     amount: 1000,
     paybackAll: false,
+    onBehalfOf: `0x0000000000000000000000000000000000000000`,
   }
 
   before(async () => {
@@ -66,7 +67,7 @@ describe('AAVE | PaybackV3 Action | Unit', () => {
 
     await paybackV3Action.execute(
       utils.defaultAbiCoder.encode([calldataTypes.aaveV3.Payback], [expectedValues]),
-      [0, 0],
+      [0, 0, 0],
     )
   })
 

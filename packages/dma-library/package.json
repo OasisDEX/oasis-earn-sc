@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.6.29",
+  "version": "0.6.30",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -13,7 +13,7 @@
     "lib/*"
   ],
   "scripts": {
-    "build": "npx parcel build ./src/index.ts --dist-dir ./lib --no-source-maps",
+    "build": "npx parcel build ./src/index.ts --dist-dir ./lib --no-optimize",
     "clean": "rm -rf lib && rm -f tsconfig.lint.tsbuildinfo",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
     "lint:fix": "yarn eslint . --fix --ext .ts",

@@ -27,6 +27,25 @@ export function pullToken(
   )
 }
 
+export function pullTokenMaxAmount(
+  network: Network,
+  args: { amount: BigNumber; asset: string; from: string },
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN_MAX_AMOUNT),
+    [calldataTypes.common.PullTokenMaxAmount],
+    [
+      {
+        amount: args.amount.toFixed(0),
+        asset: args.asset,
+        from: args.from,
+      },
+    ],
+  )
+}
+
 export function setApproval(
   network: Network,
   args: { amount: BigNumber | 0; asset: string; delegate: string; sumAmounts: boolean },
@@ -205,6 +224,26 @@ export function positionCreated(
         collateralToken: args.collateralToken,
         debtToken: args.debtToken,
       },
+    ],
+  )
+}
+
+export function tokenBalance(
+  network: Network,
+  args: { asset: string; owner: string },
+  paramsMapping: [asset: number, owner: number] = [0, 0],
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE),
+    [calldataTypes.common.TokenBalance],
+    [
+      {
+        asset: args.asset,
+        owner: args.owner,
+      },
+      paramsMapping,
     ],
   )
 }

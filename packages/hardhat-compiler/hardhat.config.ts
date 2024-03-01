@@ -46,6 +46,15 @@ const config = {
           },
         },
       },
+      {
+        version: '0.8.19',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 0,
+          },
+        },
+      },
     ],
     settings: {
       optimizer: {

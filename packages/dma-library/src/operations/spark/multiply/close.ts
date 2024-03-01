@@ -54,6 +54,7 @@ export const close: SparkCloseOperation = async ({
     asset: debt.address,
     amount: ZERO,
     paybackAll: true,
+    onBehalfOf: proxy.address,
   })
 
   const setEModeOnCollateral = actions.spark.setEMode(network, {
