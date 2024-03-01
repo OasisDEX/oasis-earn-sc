@@ -1,5 +1,4 @@
 import { MigrationFromEOAStrategy } from '@dma-library/strategies/aave-like'
-
 import { depositBorrowOmni } from '@dma-library/strategies/spark/omni/borrow/deposit-borrow'
 import { openDepositBorrowOmni } from '@dma-library/strategies/spark/omni/borrow/open-deposit-borrow'
 import { paybackWithdrawOmni } from '@dma-library/strategies/spark/omni/borrow/payback-withdraw'
