@@ -1,1 +1,1 @@
-export type PositionType = 'Multiply' | 'Earn' | 'Borrow'
+export type PositionType = 'Multiply' | 'Earn' | 'Borrow' | 'Migrate'

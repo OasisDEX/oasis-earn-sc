@@ -103,6 +103,14 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      TokenBalance: {
+        name: 'TokenBalance',
+        deploy: false,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       PositionCreated: {
         name: 'PositionCreated',
         deploy: false,
@@ -145,6 +153,13 @@ export const config: SystemConfig = {
         address: '0x73835b6c3179a7788df7fb6272fd69bba97907be',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
         history: ['0x0bE3B9c118eD4eF2002Fd58d0d8cc8f7c76e168C'],
+        constructorArgs: [],
+      },
+      PullTokenMaxAmount: {
+        name: 'PullToken',
+        deploy: true,
+        address: '',
+        history: [],
         constructorArgs: [],
       },
       SendToken: {

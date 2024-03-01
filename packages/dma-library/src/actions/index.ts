@@ -18,11 +18,13 @@ import {
 import {
   positionCreated,
   pullToken,
+  pullTokenMaxAmount,
   returnFunds,
   sendToken,
   setApproval,
   swap,
   takeAFlashLoan,
+  tokenBalance,
   unwrapEth,
   wrapEth,
 } from './common'
@@ -52,6 +54,7 @@ const aave = {
 
 const common = {
   pullToken,
+  pullTokenMaxAmount,
   sendToken,
   setApproval,
   swap,
@@ -60,6 +63,7 @@ const common = {
   wrapEth,
   unwrapEth,
   takeAFlashLoan,
+  tokenBalance,
 }
 
 const ajna: {

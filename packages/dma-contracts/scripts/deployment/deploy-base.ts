@@ -13,12 +13,24 @@ async function main() {
   await ds.loadConfig()
   await ds.deployAll()
   await ds.saveConfig()
-  // await ds.addAllEntries()
+  // await ds.addAaveV3Entries(
+  //   'OpenAAVEV3Position_v2',
+  //   'CloseAAVEV3Position_v4',
+  //   'AdjustRiskUpAAVEV3Position_v2',
+  //   'AdjustRiskDownAAVEV3Position_v2',
+  //   'AAVEV3DepositBorrow_v2',
+  //   'AAVEV3OpenDepositBorrow_v2',
+  //   'AAVEV3Borrow_v2',
+  //   'AAVEV3PaybackWithdraw_v2',
+  //   'MigrateAaveV3EOA_v2',
+  // )
+
+  process.exit()
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch(error => {
   console.error(error)
-  process.exitCode = 1
+  process.exit(1)
 })

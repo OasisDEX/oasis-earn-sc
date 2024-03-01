@@ -35,7 +35,8 @@ export function aaveV3Deposit(
 // Import ActionCall as it assists type generation
 export function aaveV3Borrow(
   network: Network,
-  args: { amount: BigNumber; asset: string; to: string },
+  args: { asset: string; amount: BigNumber; to: string },
+  paramsMapping: [asset: number, amount: number, to: number] = [0, 0, 0],
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
@@ -44,10 +45,11 @@ export function aaveV3Borrow(
     [calldataTypes.aaveV3.Borrow],
     [
       {
-        amount: args.amount.toFixed(0),
         asset: args.asset,
+        amount: args.amount.toFixed(0),
         to: args.to,
       },
+      paramsMapping,
     ],
   )
 }
@@ -75,8 +77,10 @@ export function aaveV3Withdraw(
 // Import ActionCall as it assists type generation
 export function aaveV3Payback(
   network: Network,
-  args: { asset: string; amount: BigNumber; paybackAll: boolean },
-  paramsMapping: [asset: number, amount: number, paybackAll: number] = [0, 0, 0],
+  args: { asset: string; amount: BigNumber; paybackAll: boolean; onBehalfOf: string },
+  paramsMapping: [asset: number, amount: number, paybackAll: number, onBehalfOf: number] = [
+    0, 0, 0, 0,
+  ],
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
@@ -88,6 +92,7 @@ export function aaveV3Payback(
         asset: args.asset,
         amount: args.amount.toFixed(0),
         paybackAll: args.paybackAll,
+        onBehalfOf: args.onBehalfOf,
       },
       paramsMapping,
     ],

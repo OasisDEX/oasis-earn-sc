@@ -45,6 +45,7 @@ const refinanceClose_calls: RefinancePartialOperationGenerator = async _args => 
     asset: position.debt.address,
     amount: position.debt.amount,
     paybackAll: isPaybackAll,
+    onBehalfOf: proxy.address,
   })
   lastStorageIndex += 1
 

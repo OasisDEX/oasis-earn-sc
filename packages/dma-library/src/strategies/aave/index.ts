@@ -6,6 +6,7 @@ import { paybackWithdrawOmni } from '@dma-library/strategies/aave/omni/borrow/pa
 import { adjustOmni } from '@dma-library/strategies/aave/omni/multiply/adjust'
 import { closeOmni } from '@dma-library/strategies/aave/omni/multiply/close'
 import { openOmni } from '@dma-library/strategies/aave/omni/multiply/open'
+import { MigrationFromEOAStrategy } from '@dma-library/strategies/aave-like'
 import { AaveVersion } from '@dma-library/types/aave'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { views } from '@dma-library/views'
@@ -24,6 +25,7 @@ import {
   AaveV3PaybackWithdraw,
   paybackWithdraw,
 } from './borrow/payback-withdraw'
+import { migrateAaveFromEOA } from './migrate/migrate-from-eoa'
 import { AaveAdjustActionOmni, AaveV2Adjust, AaveV3Adjust, adjust } from './multiply/adjust'
 import { AaveCloseActionOmni, AaveV2Close, AaveV3Close, close } from './multiply/close'
 import { AaveOpenActionOmni, AaveV2Open, AaveV3Open, open } from './multiply/open'
@@ -77,6 +79,9 @@ export const aave: {
         close: AaveCloseActionOmni
       }
     }
+  }
+  migrate: {
+    fromEOA: MigrationFromEOAStrategy
   }
 } = {
   borrow: {
@@ -135,6 +140,9 @@ export const aave: {
         adjust: (args, dependencies) => withV3Protocol(adjustOmni, args, dependencies),
       },
     },
+  },
+  migrate: {
+    fromEOA: migrateAaveFromEOA,
   },
 }
 

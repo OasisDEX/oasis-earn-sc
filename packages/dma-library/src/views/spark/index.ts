@@ -77,7 +77,7 @@ export const getCurrentSparkPosition: SparkGetCurrentPosition = async (args, dep
       address: debtTokenAddress,
     },
     {
-      amount: new BigNumber(userReserveDataForCollateral.currentATokenBalance.toString()),
+      amount: new BigNumber(userReserveDataForCollateral.currentSpTokenBalance.toString()),
       symbol: collateralToken.symbol,
       precision: collateralToken.precision,
       address: collateralTokenAddress,

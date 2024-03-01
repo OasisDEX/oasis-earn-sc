@@ -73,3 +73,8 @@ struct PositionCreatedData {
   address collateralToken;
   address debtToken;
 }
+
+struct TokenBalanceData {
+  address asset;
+  address owner;
+}

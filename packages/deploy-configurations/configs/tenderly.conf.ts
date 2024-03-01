@@ -128,6 +128,14 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      TokenBalance: {
+        name: 'TokenBalance',
+        deploy: false,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TOKEN_BALANCE,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       PositionCreated: {
         name: 'PositionCreated',
         deploy: true,
@@ -169,6 +177,13 @@ export const config: SystemConfig = {
         deploy: true,
         address: '0x3Ccfc6D7cd60b12c2DF502f9439823e99C31C46d',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
+        history: [],
+        constructorArgs: [],
+      },
+      PullTokenMaxAmount: {
+        name: 'PullToken',
+        deploy: true,
+        address: '',
         history: [],
         constructorArgs: [],
       },

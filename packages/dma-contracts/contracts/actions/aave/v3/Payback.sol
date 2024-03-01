@@ -33,11 +33,15 @@ contract AaveV3Payback is Executable, UseStore {
 
     payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
 
+    if (payback.onBehalf == address(0)) {
+      payback.onBehalf = address(this);
+    }
+
     IPoolV3(registry.getRegisteredService(AAVE_POOL)).repay(
       payback.asset,
       payback.paybackAll ? type(uint256).max : payback.amount,
       2,
-      address(this)
+      payback.onBehalf
     );
 
     store().write(bytes32(payback.amount));
