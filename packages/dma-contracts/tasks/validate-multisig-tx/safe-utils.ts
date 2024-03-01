@@ -1,8 +1,12 @@
+import { Network } from '@dma-contracts/../dma-library/src'
 import SafeApiKit from '@safe-global/api-kit'
 import { EthersAdapter } from '@safe-global/protocol-kit'
 import { EthAdapter, SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
+import { DecodedCalldata, tryDecodeCallData as _tryDecodeCallData } from '../common/decodedCalldata'
+import { OperationsDatabase } from '../common/operations-utils'
+import { SystemDatabase } from '../common/system-utils'
 import { SafeApiEndpoints } from './config'
 import { ContractExecution, ContractParameter, Filter, SafeTransaction } from './types'
 
@@ -58,6 +62,7 @@ function parseDataDecoded(dataDecoded: any): {
 } {
   const method = dataDecoded.method
 
+  console.log('dataDecoded', JSON.stringify(dataDecoded, null, 2))
   const parameters: ContractParameter[] = dataDecoded.parameters.map(parameter => {
     const { name, type, value } = parameter
     return {
@@ -78,25 +83,30 @@ function parseDataDecoded(dataDecoded: any): {
 }
 
 function parseTransaction(tx: SafeMultisigTransactionResponse): ContractExecution[] {
-  if (!tx.dataDecoded) {
+  const dataDecoded = (tx.dataDecoded as any) ?? tryDecodeCallData(tx.data)
+  if (!dataDecoded) {
     throw new Error('Multisig transaction contains no decoded calldata')
   }
 
-  const dataDecoded = tx.dataDecoded as any
   if (!dataDecoded.method) {
     throw new Error('Multisig transaction contains no method')
   }
 
   if (dataDecoded.method === 'multiSend') {
     return dataDecoded.parameters[0].valueDecoded.map((execution: any) => {
-      const { parameters, signature } = parseDataDecoded(execution.dataDecoded)
+      const dataDecoded = execution.dataDecoded ?? tryDecodeCallData(execution.data)
+      if (!dataDecoded) {
+        throw new Error('Multisig transaction contains no decoded calldata')
+      }
+
+      const { parameters, signature } = parseDataDecoded(dataDecoded)
 
       return {
         to: {
           address: execution.to,
         },
         value: execution.value,
-        method: execution.dataDecoded.method,
+        method: dataDecoded.method,
         signature: signature,
         parameters: parameters,
         calldata: execution.data,
@@ -136,4 +146,18 @@ export async function getSafeTransaction(
     rawTx,
     executionData,
   }
+}
+
+function tryDecodeCallData(calldata?: string): DecodedCalldata | undefined {
+  if (!calldata) {
+    return undefined
+  }
+  const systemAddService = SystemDatabase.functions['addNamedService']
+  const systemDecodedData = _tryDecodeCallData(systemAddService, calldata)
+  if (systemDecodedData) {
+    return systemDecodedData
+  }
+
+  const operationsAddOperation = OperationsDatabase.functions['addOperation']
+  return _tryDecodeCallData(operationsAddOperation, calldata)
 }
