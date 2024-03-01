@@ -35,7 +35,7 @@ export const createMigrateFromEOA: (protocol: 'aave' | 'spark') => MigrationFrom
         address: flashloanTokenAddress,
         amount: dependencies.currentPosition.collateral.amount,
       },
-      // amount is depricated
+      // amount is deprecated
       amount: dependencies.currentPosition.collateral.amount,
     }
 
