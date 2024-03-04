@@ -595,16 +595,7 @@ const prepareDMAPayload = ({
 }): SummerStrategy<MorphoBluePosition> => {
   return {
     simulation: {
-      swaps: swaps.map(swap => ({
-        fromTokenAddress: swap.fromTokenAddress,
-        toTokenAddress: swap.toTokenAddress,
-        fromTokenAmount: swap.fromTokenAmount,
-        toTokenAmount: swap.toTokenAmount,
-        minToTokenAmount: swap.minToTokenAmount,
-        exchangeCalldata: swap.exchangeCalldata,
-        collectFeeFrom: swap.collectFeeFrom,
-        fee: swap.tokenFee,
-      })),
+      swaps,
       errors,
       warnings,
       notices: [],

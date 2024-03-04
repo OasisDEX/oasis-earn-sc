@@ -2,11 +2,11 @@ import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { AaveProtocolData } from '@dma-library/protocols'
-import { AaveLikeTokens } from '@dma-library/types/aave-like'
+import { AaveLikePositionV2, AaveLikeTokens } from '@dma-library/types/aave-like'
 import { AaveLikeProtocol } from '@dma-library/types/protocol'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
-import { providers } from 'ethers'
+import { ethers, providers } from 'ethers'
 
 import { PositionType } from './position-type'
 import { SwapData } from './swap-data'
@@ -19,17 +19,17 @@ export interface IBasePositionTransitionArgs<Tokens> {
 }
 
 export type WithAaveEntryToken = {
-  entryToken: { symbol: AaveLikeTokens; precision?: number }
+  entryToken: { symbol: AaveLikeTokens; precision: number }
 }
 
 export type WithAaveLikeEntryToken = {
-  entryToken: { symbol: AaveLikeTokens; precision?: number }
+  entryToken: { symbol: AaveLikeTokens; precision: number }
 }
 
 export type WithAaveStrategyArgs = {
-  collateralToken: { symbol: AaveLikeTokens; precision?: number }
-  debtToken: { symbol: AaveLikeTokens; precision?: number }
-  entryToken?: { symbol: AaveLikeTokens; precision?: number }
+  collateralToken: { symbol: AaveLikeTokens; precision: number }
+  debtToken: { symbol: AaveLikeTokens; precision: number }
+  entryToken?: { symbol: AaveLikeTokens; precision: number }
 } & WithSlippage
 
 type WithAaveLikeProtocolType = {
@@ -37,15 +37,27 @@ type WithAaveLikeProtocolType = {
 }
 
 export type WithAaveLikeStrategyArgs = {
-  collateralToken: { symbol: AaveLikeTokens; precision?: number }
-  debtToken: { symbol: AaveLikeTokens; precision?: number }
+  collateralToken: { symbol: AaveLikeTokens; precision: number }
+  debtToken: { symbol: AaveLikeTokens; precision: number }
 } & WithSlippage
 
 export type WithAaveLikeBorrowStrategyArgs = {
-  entryToken?: { symbol: AaveLikeTokens; precision?: number }
+  entryToken?: { symbol: AaveLikeTokens; precision: number }
 } & WithAaveLikeStrategyArgs
 
 export type WithAaveLikeMultiplyStrategyArgs = WithAaveLikeBorrowStrategyArgs
+
+export type WithAaveLikeWithOperationExecutor = {
+  operationExecutor: string
+}
+
+export type WithAaveLikePositionV2 = {
+  position: AaveLikePositionV2
+}
+
+export type WithProvider = {
+  provider: ethers.providers.Provider
+}
 
 export type WithCloseToCollateralFlag = {
   shouldCloseToCollateral?: boolean
@@ -92,12 +104,12 @@ export type WithDepositCollateral = {
 
 export interface IViewPositionParams<Tokens> {
   proxy: string
-  collateralToken: { symbol: Tokens; precision?: number }
-  debtToken: { symbol: Tokens; precision?: number }
+  collateralToken: { symbol: Tokens; precision: number }
+  debtToken: { symbol: Tokens; precision: number }
 }
 
 export type WithDebtChange<Tokens> = {
-  newDebtToken: { symbol: Tokens; precision?: number }
+  newDebtToken: { symbol: Tokens; precision: number }
 }
 
 type SharedStrategyDependencies = {

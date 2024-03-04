@@ -1,2 +1,2 @@
 export { open } from './open'
-export { SparkOpen } from './types'
+export { SparkOpen, SparkOpenOmni } from './types'

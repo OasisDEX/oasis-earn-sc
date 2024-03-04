@@ -41,6 +41,8 @@ export interface AjnaCommonPayload {
   collateralTokenPrecision: number
   quotePrice: BigNumber
   quoteTokenPrecision: number
+  collateralToken: string
+  quoteToken: string
 }
 
 export interface AjnaOpenBorrowPayload extends AjnaCommonPayload {

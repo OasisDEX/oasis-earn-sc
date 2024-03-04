@@ -1,13 +1,13 @@
 import irmAbi from '@abis/external/protocols/morphoblue/irm.json'
 import morphoAbi from '@abis/external/protocols/morphoblue/morpho.json'
 import oracleAbi from '@abis/external/protocols/morphoblue/oracle.json'
+import { normalizeValue } from '@dma-common/utils/common'
 import { getMarketRate } from '@dma-library/strategies/morphoblue/validation'
 import { LendingCumulativesData, MorphoBluePosition } from '@dma-library/types'
 import { GetCumulativesData } from '@dma-library/views'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-// import { Morpho__factory, Oracle__factory, Irm__factory } from '../../../../dma-contracts/typechain'
 import { ONE, TEN } from '../../../../dma-common/constants/numbers'
 import type { Irm } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Irm'
 import type { Morpho } from '../../../../dma-contracts/typechain/abis/external/protocols/morphoblue/Morpho'
@@ -94,21 +94,28 @@ export async function getMorphoPosition(
 
   const cumulatives = await getCumulatives(proxyAddress, marketId)
 
-  const { borrowCumulativeWithdrawUSD, borrowCumulativeFeesUSD, borrowCumulativeDepositUSD } =
-    cumulatives
+  const {
+    borrowCumulativeWithdrawInCollateralToken,
+    borrowCumulativeDepositInCollateralToken,
+    borrowCumulativeFeesInCollateralToken,
+  } = cumulatives
 
   const netValue = collateralAmount.times(collateralPriceUSD).minus(debtAmount.times(quotePriceUSD))
 
   const pnl = {
-    withFees: borrowCumulativeWithdrawUSD
-      .plus(netValue)
-      .minus(borrowCumulativeFeesUSD)
-      .minus(borrowCumulativeDepositUSD)
-      .div(borrowCumulativeDepositUSD),
-    withoutFees: borrowCumulativeWithdrawUSD
-      .plus(netValue)
-      .minus(borrowCumulativeDepositUSD)
-      .div(borrowCumulativeDepositUSD),
+    withFees: normalizeValue(
+      borrowCumulativeWithdrawInCollateralToken
+        .plus(netValue.div(collateralPriceUSD))
+        .minus(borrowCumulativeDepositInCollateralToken)
+        .minus(borrowCumulativeFeesInCollateralToken)
+        .div(borrowCumulativeDepositInCollateralToken),
+    ),
+    withoutFees: normalizeValue(
+      borrowCumulativeWithdrawInCollateralToken
+        .plus(netValue.div(collateralPriceUSD))
+        .minus(borrowCumulativeDepositInCollateralToken)
+        .div(borrowCumulativeDepositInCollateralToken),
+    ),
     cumulatives,
   }
 
