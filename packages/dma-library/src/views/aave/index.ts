@@ -1,6 +1,7 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AaveLikePosition, AaveLikePositionV2 } from '@dma-library/types/aave-like'
+import { replaceProxyZeroAddressWithEth } from '@dma-library/utils/aave-like'
 import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import {
   AaveGetCurrentPositionArgs,
@@ -149,7 +150,7 @@ export const getCurrentPositionAaveV2Omni: AaveV2GetCurrentPositionOmni = async 
     collateralTokenAddress,
     debtTokenAddress,
     addresses: dependencies.addresses,
-    proxy: args.proxy,
+    proxy: replaceProxyZeroAddressWithEth(args.proxy),
     provider: dependencies.provider,
     protocolVersion: dependencies.protocolVersion,
   })
@@ -325,7 +326,7 @@ export const getCurrentPositionAaveV3Omni: AaveV3GetCurrentPositionOmni = async 
     collateralTokenAddress,
     debtTokenAddress,
     addresses: dependencies.addresses,
-    proxy: args.proxy,
+    proxy: replaceProxyZeroAddressWithEth(args.proxy),
     provider: dependencies.provider,
     protocolVersion: dependencies.protocolVersion,
   })

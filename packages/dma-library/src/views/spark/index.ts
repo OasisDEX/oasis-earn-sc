@@ -1,6 +1,7 @@
 import { getSparkProtocolData } from '@dma-library/protocols/spark'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AaveLikePosition, AaveLikePositionV2 } from '@dma-library/types/aave-like'
+import { replaceProxyZeroAddressWithEth } from '@dma-library/utils/aave-like'
 import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import { OmniCommonArgs } from '@dma-library/views/aave'
 import {
@@ -114,7 +115,7 @@ export const getCurrentSparkPositionOmni: SparkGetCurrentPositionOmni = async (
     collateralTokenAddress,
     debtTokenAddress,
     addresses: dependencies.addresses,
-    proxy: args.proxy,
+    proxy: replaceProxyZeroAddressWithEth(args.proxy),
     provider: dependencies.provider,
   })
 
