@@ -153,7 +153,7 @@ export const getCurrentSparkPositionOmni: SparkGetCurrentPositionOmni = async (
   }
 
   const { collateral, debt } = calculateViewValuesForPosition({
-    collateralAmount: new BigNumber(userReserveDataForCollateral.currentATokenBalance.toString()),
+    collateralAmount: new BigNumber(userReserveDataForCollateral.currentSpTokenBalance.toString()),
     collateralPrecision: collateralToken.precision,
     debtAmount: new BigNumber(userReserveDataForDebtToken.currentVariableDebt.toString()),
     debtPrecision: debtToken.precision,
