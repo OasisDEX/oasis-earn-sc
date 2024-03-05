@@ -93,7 +93,7 @@ export const config: SystemConfig = {
         address: '0x0000000000000000000000000000000000000000',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
         history: [],
-        constructorArgs: [],
+        constructorArgs: ['address:ServiceRegistry'],
       },
       ERC4626Withdraw: {
         name: 'ERC4626Withdraw',
@@ -101,7 +101,7 @@ export const config: SystemConfig = {
         address: '0x0000000000000000000000000000000000000000',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
         history: [],
-        constructorArgs: [],
+        constructorArgs: ['address:ServiceRegistry'],
       },
       TokenBalance: {
         name: 'TokenBalance',
