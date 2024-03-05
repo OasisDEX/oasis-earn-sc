@@ -1,0 +1,13 @@
+diff --git a/node_modules/@parcel/transformer-typescript-types/lib/collect.js b/node_modules/@parcel/transformer-typescript-types/lib/collect.js
+index a2a7ff1..f9638b0 100644
+--- a/node_modules/@parcel/transformer-typescript-types/lib/collect.js
++++ b/node_modules/@parcel/transformer-typescript-types/lib/collect.js
+@@ -78,7 +78,7 @@ function collect(moduleGraph, context, sourceFile) {
+     }
+ 
+     if (_typescript().default.isExportDeclaration(node)) {
+-      if (node.exportClause) {
++      if (node.exportClause && node.exportClause.elements) {
+         for (let element of node.exportClause.elements) {
+           if (node.moduleSpecifier) {
+             var _element$propertyName2;

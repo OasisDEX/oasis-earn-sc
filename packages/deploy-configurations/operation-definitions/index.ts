@@ -52,5 +52,5 @@ export { getMorphoBlueAdjustDownOperationDefinition } from './morphoblue/multipl
 export { getMorphoBlueAdjustUpOperationDefinition } from './morphoblue/multiply'
 
 // COMMON
-export { getErc4626DepositOperationDefinition } from './common/erc4626/deposit'
-export { getErc4626WithdrawOperationDefinition } from './common/erc4626/withdraw'
+export { getErc4626DepositOperationDefinition } from './common/erc4626'
+export { getErc4626WithdrawOperationDefinition } from './common/erc4626'

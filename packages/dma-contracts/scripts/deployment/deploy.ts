@@ -189,8 +189,12 @@ abstract class DeployedSystemHelpers {
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
     this.log(
-      'NETWORK / FORKED NETWORK / ChainID',
-      `${this.network} / ${this.forkedNetwork} / ${this.chainId}`,
+      'NETWORK',
+      this.network,
+      '/ FORKED NETWORK',
+      this.forkedNetwork,
+      '/ ChainID',
+      this.chainId,
     )
 
     if (this.forkedNetwork) {
@@ -511,7 +515,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     }
 
-    await this.verifyContract(contract.address, constructorArguments)
+    if (this.network != Network.HARDHAT) {
+      await this.verifyContract(contract.address, constructorArguments)
+    }
   }
 
   getRegistryEntryHash(name: string) {

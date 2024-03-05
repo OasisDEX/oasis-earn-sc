@@ -27,6 +27,7 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
+
 describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
@@ -59,6 +60,7 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
       hre,
       blockNumber: testBlockNumberForMigrations,
       useFallbackSwap: true,
+      debug: true,
     }))
     console.log('snapshot restored')
     signer = await SignerWithAddress.create(
