@@ -2,7 +2,7 @@ import { IERC4626 } from '@typechain/index'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import * as erc4626abi from '../../../../abis/external/tokens/IERC4626.json'
+import erc4626abi from '../../../../abis/external/tokens/IERC4626.json'
 import { ZERO } from '../../../../dma-common/constants/numbers'
 import { Erc4626Position } from './types'
 
