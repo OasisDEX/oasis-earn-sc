@@ -10,6 +10,7 @@ import {
 } from '@dma-library/protocols/ajna'
 import { AjnaWarning } from '@dma-library/types/ajna'
 import { AjnaCumulativesData } from '@dma-library/views/ajna'
+import { getBuyingPower } from '@dma-library/views/common'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
@@ -122,10 +123,13 @@ export class AjnaPosition implements LendingPosition {
   }
 
   get buyingPower() {
-    return this.collateralAmount
-      .times(this.collateralPrice)
-      .times(this.maxRiskRatio.loanToValue)
-      .minus(this.debtAmount.times(this.quotePrice))
+    return getBuyingPower({
+      netValue: this.netValue,
+      collateralPrice: this.collateralPrice,
+      marketPrice: this.marketPrice,
+      debtAmount: this.debtAmount,
+      maxRiskRatio: this.maxRiskRatio,
+    })
   }
 
   debtAvailable(collateralAmount?: BigNumber) {

@@ -1,6 +1,7 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
+import { getBuyingPower } from '@dma-library/views/common'
 import { MorphoCumulativesData } from '@dma-library/views/morpho'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
@@ -119,18 +120,17 @@ export class MorphoBluePosition implements LendingPosition {
   }
 
   get minRiskRatio() {
-    const loanToValue = ZERO
-
-    return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
+    return new RiskRatio(normalizeValue(ZERO), RiskRatio.TYPE.LTV)
   }
 
   get buyingPower() {
-    return negativeToZero(
-      this.collateralAmount
-        .times(this.collateralPrice)
-        .times(this.maxRiskRatio.loanToValue)
-        .minus(this.debtAmount.times(this.debtPrice)),
-    )
+    return getBuyingPower({
+      netValue: this.netValue,
+      collateralPrice: this.collateralPrice,
+      marketPrice: this.marketPrice,
+      debtAmount: this.debtAmount,
+      maxRiskRatio: this.maxRiskRatio,
+    })
   }
 
   get liquidationPenalty() {
