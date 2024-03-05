@@ -4,6 +4,7 @@ import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { LendingCumulativesData } from '@dma-library/types'
 import { LendingPosition } from '@dma-library/types/morphoblue/morphoblue-position'
 import { ReserveData } from '@dma-library/views/aave/types'
+import { getBuyingPower } from '@dma-library/views/common'
 import { IPositionCategory, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
@@ -86,12 +87,13 @@ export class AaveLikePositionV2 implements LendingPosition {
   }
 
   get buyingPower() {
-    return negativeToZero(
-      this.collateralAmount
-        .times(this.collateralPrice)
-        .times(this.maxRiskRatio.loanToValue)
-        .minus(this.debtAmount.times(this.debtPrice)),
-    )
+    return getBuyingPower({
+      netValue: this.netValue,
+      collateralPrice: this.collateralPrice,
+      marketPrice: this.marketPrice,
+      debtAmount: this.debtAmount,
+      maxRiskRatio: this.maxRiskRatio,
+    })
   }
 
   debtAvailable() {
