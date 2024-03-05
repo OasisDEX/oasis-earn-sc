@@ -1,2 +1,9 @@
 export { open } from './open'
-export { AaveLikeOpen, AaveLikeOpenArgs, AaveLikeOpenDependencies } from './types'
+export {
+  AaveLikeOpen,
+  AaveLikeOpenArgs,
+  AaveLikeOpenArgsOmni,
+  AaveLikeOpenDependencies,
+  AaveLikeOpenDependenciesOmni,
+  AaveLikeOpenOmni,
+} from './types'

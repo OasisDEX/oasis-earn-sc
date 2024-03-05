@@ -1,4 +1,4 @@
-import { FlashloanProvider } from '@dma-library/types'
+import { AaveLikePositionV2, FlashloanProvider, SummerStrategy } from '@dma-library/types'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 import { WithFlashLoanArgs } from '@dma-library/types/strategy-params'
@@ -33,3 +33,14 @@ export type AaveLikeClose = (
   args: AaveLikeCloseArgs,
   dependencies: AaveLikeCloseDependencies,
 ) => Promise<ICloseStrategy>
+
+export type AaveLikeCloseArgsOmni = AaveLikeCloseArgs & StrategyParams.WithAaveLikePositionV2
+
+export type AaveLikeCloseDependenciesOmni = AaveLikeCloseDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor &
+  StrategyParams.WithProvider
+
+export type AaveLikeCloseOmni = (
+  args: AaveLikeCloseArgsOmni,
+  dependencies: AaveLikeCloseDependenciesOmni,
+) => Promise<SummerStrategy<AaveLikePositionV2>>

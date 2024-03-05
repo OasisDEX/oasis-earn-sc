@@ -23,10 +23,8 @@ export const paybackWithdraw: AaveLikePaybackWithdraw = async (args, dependencie
     transaction: operation,
     simulation: {
       delta: {
-        debt: currentPosition.debt.amount.plus(args.amountDebtToPaybackInBaseUnit),
-        collateral: currentPosition.collateral.amount.minus(
-          args.amountCollateralToWithdrawInBaseUnit,
-        ),
+        debt: args.amountDebtToPaybackInBaseUnit,
+        collateral: args.amountCollateralToWithdrawInBaseUnit,
         flashloanAmount: ZERO,
       },
       position: finalPosition,

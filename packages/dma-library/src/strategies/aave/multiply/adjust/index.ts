@@ -1,2 +1,9 @@
 export { adjust } from './adjust'
-export { AaveV2Adjust, AaveV3Adjust } from './types'
+export {
+  AaveAdjustActionOmni,
+  AaveAdjustArgsOmni,
+  AaveAdjustDependenciesOmni,
+  AaveAdjustOmni,
+  AaveV2Adjust,
+  AaveV3Adjust,
+} from './types'

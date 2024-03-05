@@ -70,7 +70,12 @@ export type {
   AjnaOpenMultiplyPayload,
 }
 
-export { AaveLikePosition, AaveLikeTokens } from './aave-like'
+export {
+  AaveLikePosition,
+  AaveLikePositionV2,
+  AaveLikeProtocolEnum,
+  AaveLikeTokens,
+} from './aave-like'
 
 export { ActionCall }
 export { calldataTypes }

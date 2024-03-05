@@ -3,4 +3,5 @@ export {
   SparkPaybackWithdraw,
   SparkPaybackWithdrawArgs,
   SparkPaybackWithdrawDependencies,
+  SparkPaybackWithdrawOmni,
 } from './types'
