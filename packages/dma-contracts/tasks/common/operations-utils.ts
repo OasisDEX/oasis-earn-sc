@@ -3,6 +3,7 @@ import * as OperationGetters from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { ethers } from 'ethers'
 
+import { FunctionSignaturesMap } from './decodedCalldata'
 import { ActionDefinition } from './verification-utils'
 
 export type OperationDefinition = {
@@ -15,6 +16,18 @@ export type OperationDefinitionMaybe = OperationDefinition | undefined
 export type OperationDefinitionGetter = (string) => OperationDefinition
 
 export class OperationsDatabase {
+  public static readonly functions: FunctionSignaturesMap = {
+    addOperation: {
+      name: 'addOperation',
+      inputs: [
+        {
+          name: 'operation',
+          type: '(bytes32[],bool[],string)',
+        },
+      ],
+    },
+  }
+
   private readonly opNameToDefinition: { [key: string]: OperationDefinition } = {}
   private readonly opNameToCalldata: { [key: string]: string } = {}
 

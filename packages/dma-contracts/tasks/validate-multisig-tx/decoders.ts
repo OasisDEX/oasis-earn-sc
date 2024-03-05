@@ -18,6 +18,7 @@ export function decodeExecutionData(
   const systemDatabase = new SystemDatabase(network)
 
   return executionData.map(execution => {
+    console.log('execution', JSON.stringify(execution, null, 2))
     const entry = systemDatabase.getEntryByAddress(execution.to.address)
 
     execution.to.name = entry?.name
