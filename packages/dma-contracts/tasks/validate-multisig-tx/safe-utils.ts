@@ -1,4 +1,3 @@
-import { Network } from '@dma-contracts/../dma-library/src'
 import SafeApiKit from '@safe-global/api-kit'
 import { EthersAdapter } from '@safe-global/protocol-kit'
 import { EthAdapter, SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types'
