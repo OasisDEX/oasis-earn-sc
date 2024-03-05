@@ -20,7 +20,7 @@
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
     "test": "yarn test:unit && yarn test:integration:nocompile && yarn test:e2e:nocompile",
     "test:nocompile": "yarn test:unit:nocompile && yarn test:integration:nocompile && yarn test:e2e:nocompile",
-    "test:e2e": "yarn clean && yarn compile && npx hardhat test --grep E2E",
+    "test:e2e": "npx hardhat test --grep E2E",
     "test:e2e:nocompile": "npx hardhat test --grep E2E",
     "test:unit": "yarn clean && yarn compile && npx hardhat test --grep Unit",
     "test:unit:nocompile": "npx hardhat test --grep Unit",

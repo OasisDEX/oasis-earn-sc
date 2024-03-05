@@ -16,6 +16,8 @@ import {
   AjnaPaybackWithdrawAction,
 } from './ajna'
 import {
+  erc4626Deposit,
+  erc4626Withdraw,
   positionCreated,
   pullToken,
   pullTokenMaxAmount,
@@ -64,6 +66,8 @@ const common = {
   unwrapEth,
   takeAFlashLoan,
   tokenBalance,
+  erc4626Deposit,
+  erc4626Withdraw,
 }
 
 const ajna: {

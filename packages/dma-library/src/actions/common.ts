@@ -247,3 +247,32 @@ export function tokenBalance(
     ],
   )
 }
+
+export function erc4626Deposit(network: Network, args: { amount: BigNumber; vault: string }) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT),
+    [calldataTypes.common.Erc4626Deposit],
+    [
+      {
+        amount: args.amount.toFixed(0),
+        vault: args.vault,
+      },
+    ],
+  )
+}
+export function erc4626Withdraw(network: Network, args: { amount: BigNumber; vault: string }) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW),
+    [calldataTypes.common.Erc4626Withdraw],
+    [
+      {
+        amount: args.amount.toFixed(0),
+        vault: args.vault,
+      },
+    ],
+  )
+}

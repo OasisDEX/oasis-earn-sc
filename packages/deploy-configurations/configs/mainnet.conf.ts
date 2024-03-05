@@ -94,6 +94,22 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      ERC4626Deposit: {
+        name: 'ERC4626Deposit',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
+        history: [],
+        constructorArgs: [],
+      },
+      ERC4626Withdraw: {
+        name: 'ERC4626Withdraw',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
+        history: [],
+        constructorArgs: [],
+      },
       PositionCreated: {
         name: 'PositionCreated',
         deploy: false,
@@ -359,6 +375,14 @@ export const config: SystemConfig = {
         address: '0xAA777F9A6a31ad862D688a6789c393014dA59770',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.PAYBACK,
         history: ['0x77f36e80BC366E6C13Cc7e8e1EB5dF8190D2bD8e'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBlueClaimRewards: {
+        name: 'MorphoBlueClaimRewards',
+        deploy: false,
+        address: '0x6e8f4f1f4a7f3e4b1a2b1f9d6e8e7f9b1e8e7f9b',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.CLAIM_REWARDS,
+        history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
     },

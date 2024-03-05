@@ -1,5 +1,6 @@
 import { AaveOperations, aaveOperations } from './aave'
 import { AjnaOperations, ajnaOperations } from './ajna'
+import { Erc4626Operations, erc4626Operations } from './common'
 import { MorphoBlueOperations, morphoBlueOperations } from './morphoblue'
 import { SparkOperations, sparkOperations } from './spark'
 
@@ -16,11 +17,13 @@ export const operations: {
   aave: AaveOperations
   spark: SparkOperations
   morphoblue: MorphoBlueOperations
+  erc4626Operations: Erc4626Operations
 } = {
   aave,
   ajna,
   spark,
   morphoblue,
+  erc4626Operations,
 }
 
 export {

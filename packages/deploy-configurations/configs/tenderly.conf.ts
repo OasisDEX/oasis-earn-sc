@@ -128,6 +128,22 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      ERC4626Deposit: {
+        name: 'ERC4626Deposit',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
+        history: [],
+        constructorArgs: [],
+      },
+      ERC4626Withdraw: {
+        name: 'ERC4626Withdraw',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
+        history: [],
+        constructorArgs: [],
+      },
       TokenBalance: {
         name: 'TokenBalance',
         deploy: false,

@@ -27,6 +27,8 @@ export const calldataTypes = {
     PositionCreated: `tuple(string protocol, string positionType, address collateralToken, address debtToken)`,
     TakeAFlashLoan: `tuple(uint256 amount, address asset, bool isProxyFlashloan, bool isDPMProxy, uint8 provider, (bytes32 targetHash, bytes callData, bool skipped)[] calls)`,
     TokenBalance: `tuple(address asset, address owner)`,
+    Erc4626Deposit: `tuple(address vault, address amount)`,
+    Erc4626Withdraw: `tuple(address vault, address amount)`,
   },
   maker: {
     Open: `tuple(address joinAddress)`,

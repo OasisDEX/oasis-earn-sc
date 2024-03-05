@@ -11,6 +11,8 @@ export const SERVICE_REGISTRY_NAMES = {
     UNWRAP_ETH: 'UnwrapEth_3',
     RETURN_FUNDS: 'ReturnFunds_3',
     POSITION_CREATED: 'PositionCreated',
+    ERC4626_DEPOSIT: 'ERC4626Deposit',
+    ERC4626_WITHDRAW: 'ERC4626Withdraw',
     TOKEN_BALANCE: 'TokenBalance',
     ACCOUNT_GUARD: 'AccountGuard',
     ACCOUNT_FACTORY: 'AccountFactory',
