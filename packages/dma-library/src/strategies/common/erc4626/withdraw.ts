@@ -7,29 +7,26 @@ import { getGenericSwapData } from '@dma-library/strategies/common'
 import { SummerStrategy } from '@dma-library/types'
 import { GetSwapData } from '@dma-library/types/common'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { GetCumulativesData, views } from '@dma-library/views'
+import { views } from '@dma-library/views'
 import { Erc4626Position } from '@dma-library/views/common/types'
-import { MorphoCumulativesData } from '@dma-library/views/morpho'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-export interface Erc4626DepositPayload {
-  pullTokenSymbol: string
-  pullTokenPrecision: number
-  pullTokenAddress: Address
-  depositTokenSymbol: string
-  depositTokenPrecision: number
-  depositTokenAddress: Address
+export interface Erc4626WithdrawPayload {
+  returnTokenSymbol: string
+  returnTokenPrecision: number
+  returnTokenAddress: Address
+  withdrawTokenSymbol: string
+  withdrawTokenPrecision: number
+  withdrawTokenAddress: Address
   amount: BigNumber
   vault: string
   proxyAddress: Address
   user: Address
   slippage: BigNumber
-  dpmProxyAddress: Address
 }
 export interface Erc4626CommonDependencies {
   provider: ethers.providers.Provider
-  getCumulatives: GetCumulativesData<MorphoCumulativesData>
   network: Network
   addresses: AaveLikeStrategyAddresses
   operationExecutor: Address
@@ -37,7 +34,7 @@ export interface Erc4626CommonDependencies {
 }
 
 export type Erc4626WithdrawStrategy = (
-  args: Erc4626DepositPayload,
+  args: Erc4626WithdrawPayload,
   dependencies: Erc4626CommonDependencies,
 ) => Promise<SummerStrategy<Erc4626Position>>
 
@@ -47,27 +44,32 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
     {
       vaultAddress: args.vault,
       proxyAddress: args.proxyAddress,
-      // TODO: This get it from somewhere
+      user: args.user,
+      // TODO: This is a hack to get the correct position
       quotePrice: new BigNumber(1),
     },
     {
       provider: dependencies.provider,
     },
   )
+  // TODO
+  // get asset from vault
+  // get token details from ??
+  const isWithdrawingEth =
+    args.returnTokenAddress.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
+  const isSwapping =
+    args.returnTokenAddress.toLowerCase() !== args.withdrawTokenAddress.toLowerCase()
 
-  const isDepositingEth =
-    args.pullTokenAddress.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
-  const isSwapping = args.depositTokenAddress.toLowerCase() !== args.pullTokenAddress.toLowerCase()
-
+  const isClose = args.amount.isGreaterThan(position.quoteTokenAmount)
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies)
 
-  const operation = await operations.erc4626Operations.deposit(
+  const operation = await operations.erc4626Operations.withdraw(
     {
       vault: args.vault,
-      depositToken: args.depositTokenAddress,
-      pullToken: args.pullTokenAddress,
-      amountToDeposit: args.amount,
-      isEthToken: isDepositingEth,
+      withdrawToken: args.withdrawTokenAddress,
+      returnToken: args.returnTokenAddress,
+      amountToWithdraw: args.amount,
+      isEthToken: isWithdrawingEth,
       swap: {
         fee: 20,
         data: swapData.exchangeCalldata,
@@ -76,17 +78,19 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
         receiveAtLeast: swapData.minToTokenAmount,
       },
       proxy: {
-        address: args.dpmProxyAddress,
+        address: args.proxyAddress,
         // Ajna is always DPM
         isDPMProxy: true,
         owner: args.user,
       },
+      isClose,
+      isSwapping,
     },
     dependencies.addresses,
     dependencies.network,
   )
 
-  const targetPosition = position.deposit(isSwapping ? swapData.minToTokenAmount : args.amount)
+  const targetPosition = position.withdraw(isSwapping ? swapData.minToTokenAmount : args.amount)
 
   const warnings = [
     /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
@@ -110,25 +114,25 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
     tx: {
       to: dependencies.operationExecutor,
       data: encodeOperation(operation, dependencies),
-      value: isDepositingEth ? amountToWei(args.amount, 18).toString() : '0',
+      value: isWithdrawingEth ? amountToWei(args.amount, 18).toString() : '0',
     },
   }
 }
 
-async function getSwapData(args: Erc4626DepositPayload, dependencies: Erc4626CommonDependencies) {
-  const swapAmountBeforeFees = amountToWei(args.amount, args.depositTokenPrecision).integerValue(
+async function getSwapData(args: Erc4626WithdrawPayload, dependencies: Erc4626CommonDependencies) {
+  const swapAmountBeforeFees = amountToWei(args.amount, args.withdrawTokenPrecision).integerValue(
     BigNumber.ROUND_DOWN,
   )
 
   const fromToken = {
-    symbol: args.pullTokenSymbol,
-    precision: args.depositTokenPrecision,
-    address: args.depositTokenAddress,
+    symbol: args.withdrawTokenSymbol,
+    precision: args.withdrawTokenPrecision,
+    address: args.withdrawTokenAddress,
   }
   const toToken = {
-    symbol: args.depositTokenSymbol,
-    precision: args.depositTokenPrecision,
-    address: args.depositTokenAddress,
+    symbol: args.returnTokenSymbol,
+    precision: args.returnTokenPrecision,
+    address: args.returnTokenAddress,
   }
 
   return getGenericSwapData({

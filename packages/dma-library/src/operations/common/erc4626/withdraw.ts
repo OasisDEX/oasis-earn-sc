@@ -5,12 +5,16 @@ import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation, WithProxy, WithSwap } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
+import { MAX_UINT } from '../../../../../dma-common/constants/numbers'
+
 export type Erc4626WithdrawArgs = {
   vault: string
   withdrawToken: string
   returnToken: string
   amountToWithdraw: BigNumber
   isEthToken: boolean
+  isClose: boolean
+  isSwapping: boolean
 } & WithSwap &
   WithProxy
 
@@ -21,14 +25,24 @@ export type Erc4626WithdrawOperation = (
 ) => Promise<IOperation>
 
 export const withdraw: Erc4626WithdrawOperation = async (
-  { vault, amountToWithdraw, withdrawToken, returnToken, isEthToken, swap, proxy },
+  {
+    isSwapping,
+    isClose,
+    vault,
+    amountToWithdraw,
+    withdrawToken,
+    returnToken,
+    isEthToken,
+    swap,
+    proxy,
+  },
   addresses,
   network,
 ) => {
   // Import ActionCall as it assists type generation
   const calls: ActionCall[] = [
     actions.common.erc4626Withdraw(network, {
-      amount: amountToWithdraw,
+      amount: isClose ? new BigNumber(MAX_UINT) : amountToWithdraw,
       vault,
     }),
     actions.common.swap(network, {
@@ -40,13 +54,17 @@ export const withdraw: Erc4626WithdrawOperation = async (
       withData: swap.data,
       collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
     }),
-    actions.common.unwrapEth(network, {
-      amount: 0,
-    }),
+    actions.common.unwrapEth(
+      network,
+      {
+        amount: 0,
+      },
+      [2],
+    ),
     actions.common.returnFunds(network, { asset: returnToken }),
   ]
-  calls[2].skipped = !isEthToken && withdrawToken != addresses.tokens.ETH
-  calls[1].skipped = withdrawToken == returnToken
+  calls[2].skipped = !isEthToken
+  calls[1].skipped = !isSwapping
 
   return {
     calls,

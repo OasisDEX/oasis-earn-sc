@@ -1,3 +1,4 @@
+import { IERC20 } from '@abis/types/index'
 import { IERC4626 } from '@typechain/index'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -21,13 +22,20 @@ export async function getErc4626Position(
   { provider }: Erc4646EarnDependencies,
 ): Promise<Erc4626Position> {
   const vault = new ethers.Contract(vaultAddress, erc4626abi, provider) as IERC4626
+  const depositTokenAddress = await vault.asset()
+
+  const depositToken = new ethers.Contract(depositTokenAddress, erc4626abi, provider) as IERC20
+  const decimals = await depositToken.decimals()
+
   let quoteTokenAmount = new BigNumber(0)
-  await vault.balanceOf(proxyAddress).then((balance: ethers.BigNumber) => {
-    vault.convertToAssets(balance).then((assets: ethers.BigNumber) => {
-      quoteTokenAmount = new BigNumber(assets.toString())
+
+  await vault.balanceOf(proxyAddress).then(async (balance: ethers.BigNumber) => {
+    await vault.convertToAssets(balance).then(async (assets: ethers.BigNumber) => {
+      quoteTokenAmount = new BigNumber(ethers.utils.formatUnits(assets, decimals).toString())
     })
   })
   const netValue = quoteTokenAmount.multipliedBy(quotePrice)
+
   return new Erc4626Position(
     { address: vaultAddress, quoteToken: '' },
     user,

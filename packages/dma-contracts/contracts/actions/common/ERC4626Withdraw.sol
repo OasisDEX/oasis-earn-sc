@@ -32,12 +32,14 @@ contract ERC4626Withdraw is Executable, UseStore {
       address(this)
     );
     IERC4626 vault = IERC4626(depositData.vault);
+
     if (depositData.amount == type(uint256).max) {
       uint256 maxReedemable = vault.maxRedeem(address(this));
       vault.redeem(maxReedemable, address(this), address(this));
     } else {
       vault.withdraw(mappedWithdrawAmount, address(this), address(this));
     }
+
     store().write(bytes32(mappedWithdrawAmount));
   }
 
