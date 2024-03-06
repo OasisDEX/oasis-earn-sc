@@ -1,11 +1,9 @@
 import {
-  AaveOracle,
   AaveProtocolDataProvider,
   AccountImplementation,
   AccountImplementation__factory,
   ERC20,
   ERC20__factory,
-  Pool,
   WETH,
   WETH__factory,
 } from '@abis/types/ethers-contracts'
@@ -16,21 +14,24 @@ import { getNetwork } from '@deploy-configurations/utils/network'
 import { ONE } from '@dma-common/constants'
 import { addressesByNetwork, createDPMAccount, oneInchCallMock } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
-import { testBlockNumberForMigrations } from '@dma-contracts/test/config'
+import { getEvents } from '@dma-common/utils/common'
 import { restoreSnapshot, Snapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
 import { strategies } from '@dma-library'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import { BigNumber as BN } from '@ethersproject/bignumber/lib/bignumber'
+import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { IERC4626__factory } from '@typechain'
 import BigNumber from 'bignumber.js'
+import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
 
-describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
+describe.only('Deposit | ERC4626 | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider
   let signer: SignerWithAddress
+  let owner: JsonRpcSigner
   let address: string
   let WETH: WETH
   let USDC: ERC20
@@ -44,8 +45,6 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
   let network: Network
   let addresses: ReturnType<typeof addressesByNetwork>
   let aaveLikeAddresses: AaveLikeStrategyAddresses
-  const oneEther = BN.from('1000000000000000000')
-  const oneUSDC = BN.from('1000000')
 
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
@@ -53,18 +52,20 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
     console.log('Restoring snapshot')
     ;({ snapshot } = await restoreSnapshot({
       hre,
-      blockNumber: testBlockNumberForMigrations,
+      blockNumber: 19324700,
       useFallbackSwap: true,
       debug: true,
     }))
+
     console.log('snapshot restored')
     signer = await SignerWithAddress.create(
       snapshot.config.signer as ethers.providers.JsonRpcSigner,
     )
-
+    await impersonateAccount('0x63C6139e8275391adA0e2a59d1599066243747c2')
+    owner = hre.ethers.provider.getSigner('0x63C6139e8275391adA0e2a59d1599066243747c2')
     provider = signer.provider as ethers.providers.JsonRpcProvider
 
-    address = await signer.getAddress()
+    address = await owner.getAddress()
 
     console.log('Address: ', address)
 
@@ -96,20 +97,46 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
 
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
-    const [dpmProxy] = await createDPMAccount(system.AccountFactory.contract)
+    const [dpmProxy] = await createDPMAccount(
+      system.AccountFactory.contract,
+      await owner.getAddress(),
+    )
 
     if (!dpmProxy) {
       throw new Error('Failed to create DPM proxy')
     }
 
-    dpmAccount = AccountImplementation__factory.connect(dpmProxy, signer)
+    dpmAccount = AccountImplementation__factory.connect(dpmProxy, owner)
+
+    await system.OperationsRegistry.contract.addOperation({
+      actions: [
+        '0x79f0e71ed647d96e08c6053ffaa360fb71487ea6066544a94fa7dc52df7df26e',
+        '0x9f9d224c26adad40cade24655f1c5e3cf307c390fc6874e710cb56bdd504bc26',
+        '0xb8020e49c93f2144cdce5b93dc159b086f98dcfba95a09eec862664fbfa6a8a4',
+        '0x166438e3cb190ad4e896f7b4bd36c98f5b7dc3f5eb885f019521b3b819bc0de8',
+      ],
+      optional: [false, true, true, false],
+      name: 'ERC426Withdraw',
+    })
+    await system.OperationsRegistry.contract.addOperation({
+      actions: [
+        '0x98203051894747605630ba7bcee424c0ec4e2f7d74e8e9d5a195b7eeba3cbd10',
+        '0xae6d6b87bd69704c742ef3ff051d31d411798b8403cab6cb2d94a7ba91661f7d',
+        '0x9f9d224c26adad40cade24655f1c5e3cf307c390fc6874e710cb56bdd504bc26',
+        '0x36303c18db5a95d0dd17b9bac9bc1dbd0130264cd8a04fb5e9b427a3a03ad49e',
+        '0xe2675cf8dabe9838c0788d7f687169e95d73004dfe8f1653e42314fe5688721e',
+        '0x29732f3b4202acea9e682f5fafacfe4172f3140412e66931b5d00a4dda200962',
+      ],
+      optional: [true, true, true, false, false, true],
+      name: 'ERC426Deposit',
+    })
   })
 
-  it('should migrate EOA AAVE V3 (WETH/USDC) -> DPM AAVE V3 (WETH/USDC)', async () => {
-    const USDCBalance = await USDC.balanceOf(address)
-
-    // approve aWETH to DPM
-    await USDC.approve(dpmAccount.address, USDCBalance.toString())
+  it('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault and emit `CreatePosition` event on first deposit', async () => {
+    const depositAmount = new BigNumber('1000000000')
+    console.log('Deposit amount: ', ethers.utils.formatUnits(depositAmount.toString(), 6))
+    // approve USDC to DPM
+    await USDC.connect(owner).approve(dpmAccount.address, depositAmount.toString())
 
     const result = await strategies.common.erc4626.deposit(
       {
@@ -120,7 +147,7 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
         pullTokenAddress: USDC.address,
         pullTokenPrecision: 6,
         pullTokenSymbol: 'USDC',
-        amount: new BigNumber('1000000'),
+        amount: depositAmount,
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(1),
         user: address,
@@ -140,25 +167,19 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
     const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
       gasLimit: 5000000,
     })
-
+    const receipt = await tx.wait()
+    const events = getEvents(
+      receipt,
+      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
+    )
+    console.log(events)
+    expect(events.length).to.eq(1)
+    const vault = IERC4626__factory.connect('0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB', owner)
+    const shares = await vault.balanceOf(dpmAccount.address)
+    const balance = await vault.convertToAssets(shares)
+    console.log('Shares: ', shares.toString())
+    console.log('Balance: ', balance.toString())
+    console.log('Balance: ', ethers.utils.formatUnits(balance, 6))
     await tx.wait()
-
-    const aaveCollateralOnProxyAfterTransaction = await aavePoolDataProvider.getUserReserveData(
-      WETH.address,
-      dpmAccount.address,
-    )
-    const aaveDebtOnProxyAfterTransaction = await aavePoolDataProvider.getUserReserveData(
-      USDC.address,
-      dpmAccount.address,
-    )
-
-    console.log(
-      '[Proxy] WETH Balance on AAVE after transaction: ',
-      aaveCollateralOnProxyAfterTransaction.currentATokenBalance.toString(),
-    )
-    console.log(
-      '[Proxy] USDC Debt on AAVE after transaction',
-      aaveDebtOnProxyAfterTransaction.currentVariableDebt.toString(),
-    )
   })
 })

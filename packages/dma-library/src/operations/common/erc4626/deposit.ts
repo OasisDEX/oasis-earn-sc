@@ -11,6 +11,8 @@ export type Erc4626DepositArgs = {
   pullToken: string
   amountToDeposit: BigNumber
   isEthToken: boolean
+  isOpen: boolean
+  isSwapping: boolean
 } & WithSwap &
   WithProxy
 
@@ -21,7 +23,7 @@ export type Erc4626DepositOperation = (
 ) => Promise<IOperation>
 
 export const deposit: Erc4626DepositOperation = async (
-  { vault, amountToDeposit, depositToken, pullToken, isEthToken, swap, proxy },
+  { vault, amountToDeposit, depositToken, pullToken, isEthToken, swap, proxy, isOpen, isSwapping },
   addresses,
   network,
 ) => {
@@ -44,20 +46,37 @@ export const deposit: Erc4626DepositOperation = async (
       withData: swap.data,
       collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
     }),
-    actions.common.setApproval(network, {
-      amount: new BigNumber(0),
-      asset: isEthToken ? addresses.tokens.ETH : depositToken,
-      delegate: vault,
-      sumAmounts: true,
-    }),
-    actions.common.erc4626Deposit(network, {
-      amount: amountToDeposit,
-      vault,
+    actions.common.setApproval(
+      network,
+      {
+        amount: isSwapping ? new BigNumber(0) : amountToDeposit,
+        asset: isEthToken ? addresses.tokens.ETH : depositToken,
+        delegate: vault,
+        sumAmounts: false,
+      },
+      [0, 0, isSwapping ? 1 : 0, 0],
+    ),
+    actions.common.erc4626Deposit(
+      network,
+      {
+        vault,
+        amount: amountToDeposit,
+      },
+      [0, isSwapping ? 1 : 0],
+    ),
+
+    actions.common.positionCreated(network, {
+      protocol: vault,
+      positionType: 'Earn',
+      collateralToken: depositToken,
+      debtToken: depositToken,
     }),
   ]
-  calls[0].skipped = !isEthToken
+
+  calls[0].skipped = isEthToken
   calls[1].skipped = !isEthToken
-  calls[2].skipped = depositToken == pullToken
+  calls[2].skipped = !isSwapping
+  calls[5].skipped = !isOpen
 
   return {
     calls,

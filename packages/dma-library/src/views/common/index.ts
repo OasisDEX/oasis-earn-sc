@@ -11,12 +11,13 @@ export type Erc4646EarnDependencies = {
 }
 export type Erc4626Args = {
   proxyAddress: string
+  user: string
   vaultAddress: string
   quotePrice: BigNumber
 }
 
 export async function getErc4626Position(
-  { proxyAddress, vaultAddress, quotePrice }: Erc4626Args,
+  { proxyAddress, vaultAddress, quotePrice, user }: Erc4626Args,
   { provider }: Erc4646EarnDependencies,
 ): Promise<Erc4626Position> {
   const vault = new ethers.Contract(vaultAddress, erc4626abi, provider) as IERC4626
@@ -26,13 +27,13 @@ export async function getErc4626Position(
       quoteTokenAmount = new BigNumber(assets.toString())
     })
   })
-  // TODO: implement
+  const netValue = quoteTokenAmount.multipliedBy(quotePrice)
   return new Erc4626Position(
     { address: vaultAddress, quoteToken: '' },
-    proxyAddress,
+    user,
     quoteTokenAmount,
-    new BigNumber(100000000),
     quotePrice,
+    netValue,
     { withFees: ZERO, withoutFees: ZERO },
     { withFees: ZERO, withoutFees: ZERO },
   )

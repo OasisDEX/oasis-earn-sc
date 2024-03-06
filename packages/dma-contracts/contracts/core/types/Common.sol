@@ -80,11 +80,11 @@ struct TokenBalanceData {
 }
 
 struct ERC4626DepositData {
-  uint256 amount;
   address vault;
+  uint256 amount;
 }
 
 struct ERC4626WithdrawData {
-  uint256 amount;
   address vault;
+  uint256 amount;
 }

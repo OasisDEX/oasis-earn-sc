@@ -69,7 +69,7 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
       amountToDeposit: args.amount,
       isEthToken: isDepositingEth,
       swap: {
-        fee: 0.2,
+        fee: 20,
         data: swapData.exchangeCalldata,
         amount: args.amount,
         collectFeeFrom,
@@ -137,6 +137,6 @@ async function getSwapData(args: Erc4626DepositPayload, dependencies: Erc4626Com
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
-    __feeOverride: new BigNumber(0.2),
+    __feeOverride: new BigNumber(20),
   })
 }

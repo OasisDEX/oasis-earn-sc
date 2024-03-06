@@ -28,6 +28,10 @@ export function getErc4626DepositOperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT),
         optional: false,
       },
+      {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.POSITION_CREATED),
+        optional: true,
+      },
     ],
     log: false,
   }
