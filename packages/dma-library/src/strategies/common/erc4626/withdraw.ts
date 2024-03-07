@@ -61,61 +61,116 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
     args.returnTokenAddress.toLowerCase() !== args.withdrawTokenAddress.toLowerCase()
 
   const isClose = args.amount.isGreaterThan(position.quoteTokenAmount)
-  const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies)
 
-  const operation = await operations.erc4626Operations.withdraw(
-    {
-      vault: args.vault,
-      withdrawToken: args.withdrawTokenAddress,
-      returnToken: args.returnTokenAddress,
-      amountToWithdraw: args.amount,
-      isEthToken: isWithdrawingEth,
-      swap: {
-        fee: 20,
-        data: swapData.exchangeCalldata,
-        amount: args.amount,
-        collectFeeFrom,
-        receiveAtLeast: swapData.minToTokenAmount,
+  if (isSwapping) {
+    const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
+      { ...args, amount: isClose ? position.quoteTokenAmount : args.amount },
+      dependencies,
+    )
+    const swapInfo = {
+      fee: 20,
+      data: swapData.exchangeCalldata,
+      amount: amountToWei(
+        isClose ? position.quoteTokenAmount : args.amount,
+        args.withdrawTokenPrecision,
+      ),
+      collectFeeFrom,
+      receiveAtLeast: swapData.minToTokenAmount,
+    }
+    const operation = await operations.erc4626Operations.withdraw(
+      {
+        vault: args.vault,
+        withdrawToken: args.withdrawTokenAddress,
+        returnToken: args.returnTokenAddress,
+        amountToWithdraw: amountToWei(args.amount, args.withdrawTokenPrecision),
+        isEthToken: isWithdrawingEth,
+        swap: swapInfo,
+        proxy: {
+          address: args.proxyAddress,
+          // Ajna is always DPM
+          isDPMProxy: true,
+          owner: args.user,
+        },
+        isClose,
       },
-      proxy: {
-        address: args.proxyAddress,
-        // Ajna is always DPM
-        isDPMProxy: true,
-        owner: args.user,
+      dependencies.addresses,
+      dependencies.network,
+    )
+
+    const targetPosition = position.withdraw(swapData.minToTokenAmount)
+
+    const warnings = [
+      /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
+    ]
+
+    const errors = [
+      // ...validateLiquidity(position, targetPosition, args.quoteAmount),
+      // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
+    ]
+
+    return {
+      simulation: {
+        swaps: [],
+        errors,
+        warnings,
+        notices: [],
+        successes: [],
+        targetPosition,
+        position: targetPosition,
       },
-      isClose,
-      isSwapping,
-    },
-    dependencies.addresses,
-    dependencies.network,
-  )
+      tx: {
+        to: dependencies.operationExecutor,
+        data: encodeOperation(operation, dependencies),
+        value: '0',
+      },
+    }
+  } else {
+    const operation = await operations.erc4626Operations.withdraw(
+      {
+        vault: args.vault,
+        withdrawToken: args.withdrawTokenAddress,
+        returnToken: args.returnTokenAddress,
+        amountToWithdraw: amountToWei(args.amount, args.withdrawTokenPrecision),
+        isEthToken: isWithdrawingEth,
+        proxy: {
+          address: args.proxyAddress,
+          // Ajna is always DPM
+          isDPMProxy: true,
+          owner: args.user,
+        },
+        isClose,
+      },
+      dependencies.addresses,
+      dependencies.network,
+    )
 
-  const targetPosition = position.withdraw(isSwapping ? swapData.minToTokenAmount : args.amount)
+    const targetPosition = position.withdraw(args.amount)
 
-  const warnings = [
-    /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
-  ]
+    const warnings = [
+      /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
+    ]
 
-  const errors = [
-    // ...validateLiquidity(position, targetPosition, args.quoteAmount),
-    // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
-  ]
+    const errors = [
+      // ...validateLiquidity(position, targetPosition, args.quoteAmount),
+      // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
+    ]
 
-  return {
-    simulation: {
-      swaps: [],
-      errors,
-      warnings,
-      notices: [],
-      successes: [],
-      targetPosition,
-      position: targetPosition,
-    },
-    tx: {
-      to: dependencies.operationExecutor,
-      data: encodeOperation(operation, dependencies),
-      value: isWithdrawingEth ? amountToWei(args.amount, 18).toString() : '0',
-    },
+    return {
+      simulation: {
+        swaps: [],
+        errors,
+        warnings,
+        notices: [],
+        successes: [],
+        targetPosition,
+        position: targetPosition,
+      },
+      tx: {
+        to: dependencies.operationExecutor,
+        data: encodeOperation(operation, dependencies),
+        value: '0',
+      },
+    }
   }
 }
 

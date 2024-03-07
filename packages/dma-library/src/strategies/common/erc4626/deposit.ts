@@ -52,77 +52,127 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
     },
   )
   const isOpen = position.netValue.toString() === '0'
-  const isDepositingEth =
+
+  const isPullingEth =
     args.pullTokenAddress.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
+
   const isSwapping = args.depositTokenAddress.toLowerCase() !== args.pullTokenAddress.toLowerCase()
 
-  const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies)
-
-  const operation = await operations.erc4626Operations.deposit(
-    {
-      vault: args.vault,
-      depositToken: args.depositTokenAddress,
-      pullToken: args.pullTokenAddress,
-      amountToDeposit: args.amount,
-      isEthToken: isDepositingEth,
-      swap: {
-        fee: 20,
-        data: swapData.exchangeCalldata,
-        amount: args.amount,
-        collectFeeFrom,
-        receiveAtLeast: swapData.minToTokenAmount,
+  if (isSwapping) {
+    const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies)
+    const operation = await operations.erc4626Operations.deposit(
+      {
+        vault: args.vault,
+        depositToken: args.depositTokenAddress,
+        pullToken: args.pullTokenAddress,
+        amountToDeposit: amountToWei(args.amount, args.pullTokenPrecision),
+        isEthToken: isPullingEth,
+        swap: {
+          fee: 20,
+          data: swapData.exchangeCalldata,
+          amount: amountToWei(args.amount, args.pullTokenPrecision),
+          collectFeeFrom,
+          receiveAtLeast: swapData.minToTokenAmount,
+        },
+        proxy: {
+          address: args.proxyAddress,
+          // Ajna is always DPM
+          isDPMProxy: true,
+          owner: args.user,
+        },
+        isOpen,
       },
-      proxy: {
-        address: args.proxyAddress,
-        // Ajna is always DPM
-        isDPMProxy: true,
-        owner: args.user,
+      dependencies.addresses,
+      dependencies.network,
+    )
+
+    const targetPosition = position.deposit(swapData.minToTokenAmount)
+
+    const warnings = [
+      /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
+    ]
+
+    const errors = [
+      // ...validateLiquidity(position, targetPosition, args.quoteAmount),
+      // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
+    ]
+
+    return {
+      simulation: {
+        swaps: [],
+        errors,
+        warnings,
+        notices: [],
+        successes: [],
+        targetPosition,
+        position: targetPosition,
       },
-      isOpen,
-      isSwapping,
-    },
-    dependencies.addresses,
-    dependencies.network,
-  )
+      tx: {
+        to: dependencies.operationExecutor,
+        data: encodeOperation(operation, dependencies),
+        value: isPullingEth ? amountToWei(args.amount, 18).toString() : '0',
+      },
+    }
+  } else {
+    const operation = await operations.erc4626Operations.deposit(
+      {
+        vault: args.vault,
+        depositToken: args.depositTokenAddress,
+        pullToken: args.pullTokenAddress,
+        amountToDeposit: amountToWei(args.amount, args.pullTokenPrecision),
+        isEthToken: isPullingEth,
 
-  const targetPosition = position.deposit(isSwapping ? swapData.minToTokenAmount : args.amount)
+        proxy: {
+          address: args.proxyAddress,
+          // Ajna is always DPM
+          isDPMProxy: true,
+          owner: args.user,
+        },
+        isOpen,
+      },
+      dependencies.addresses,
+      dependencies.network,
+    )
 
-  const warnings = [
-    /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
-  ]
+    const targetPosition = position.deposit(amountToWei(args.amount, args.pullTokenPrecision))
 
-  const errors = [
-    // ...validateLiquidity(position, targetPosition, args.quoteAmount),
-    // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
-  ]
+    const warnings = [
+      /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
+    ]
 
-  return {
-    simulation: {
-      swaps: [],
-      errors,
-      warnings,
-      notices: [],
-      successes: [],
-      targetPosition,
-      position: targetPosition,
-    },
-    tx: {
-      to: dependencies.operationExecutor,
-      data: encodeOperation(operation, dependencies),
-      value: isDepositingEth ? amountToWei(args.amount, 18).toString() : '0',
-    },
+    const errors = [
+      // ...validateLiquidity(position, targetPosition, args.quoteAmount),
+      // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
+    ]
+
+    return {
+      simulation: {
+        swaps: [],
+        errors,
+        warnings,
+        notices: [],
+        successes: [],
+        targetPosition,
+        position: targetPosition,
+      },
+      tx: {
+        to: dependencies.operationExecutor,
+        data: encodeOperation(operation, dependencies),
+        value: isPullingEth ? amountToWei(args.amount, 18).toString() : '0',
+      },
+    }
   }
 }
 
 async function getSwapData(args: Erc4626DepositPayload, dependencies: Erc4626CommonDependencies) {
-  const swapAmountBeforeFees = amountToWei(args.amount, args.depositTokenPrecision).integerValue(
+  const swapAmountBeforeFees = amountToWei(args.amount, args.pullTokenPrecision).integerValue(
     BigNumber.ROUND_DOWN,
   )
 
   const fromToken = {
     symbol: args.pullTokenSymbol,
-    precision: args.depositTokenPrecision,
-    address: args.depositTokenAddress,
+    precision: args.pullTokenPrecision,
+    address: args.pullTokenAddress,
   }
   const toToken = {
     symbol: args.depositTokenSymbol,

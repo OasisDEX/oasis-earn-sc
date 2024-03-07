@@ -1,9 +1,12 @@
+import { ADDRESS_ZERO } from '@deploy-configurations/constants'
 import { getErc4626DepositOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation, WithProxy, WithSwap } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
+
+import { ZERO } from '../../../../../dma-common/constants/numbers'
 
 export type Erc4626DepositArgs = {
   vault: string
@@ -12,8 +15,7 @@ export type Erc4626DepositArgs = {
   amountToDeposit: BigNumber
   isEthToken: boolean
   isOpen: boolean
-  isSwapping: boolean
-} & WithSwap &
+} & Partial<WithSwap> &
   WithProxy
 
 export type Erc4626DepositOperation = (
@@ -23,7 +25,7 @@ export type Erc4626DepositOperation = (
 ) => Promise<IOperation>
 
 export const deposit: Erc4626DepositOperation = async (
-  { vault, amountToDeposit, depositToken, pullToken, isEthToken, swap, proxy, isOpen, isSwapping },
+  { vault, amountToDeposit, depositToken, pullToken, isEthToken, swap, proxy, isOpen },
   addresses,
   network,
 ) => {
@@ -38,23 +40,23 @@ export const deposit: Erc4626DepositOperation = async (
       amount: amountToDeposit,
     }),
     actions.common.swap(network, {
-      fromAsset: pullToken,
-      toAsset: depositToken,
-      amount: swap.amount,
-      receiveAtLeast: swap.receiveAtLeast,
-      fee: swap.fee,
-      withData: swap.data,
-      collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+      fromAsset: swap ? pullToken : ADDRESS_ZERO,
+      toAsset: swap ? depositToken : ADDRESS_ZERO,
+      amount: swap ? swap.amount : ZERO,
+      receiveAtLeast: swap ? swap.receiveAtLeast : ZERO,
+      fee: swap ? swap.fee : 0,
+      withData: swap ? swap.data : '0x00',
+      collectFeeInFromToken: swap ? swap.collectFeeFrom === 'sourceToken' : false,
     }),
     actions.common.setApproval(
       network,
       {
-        amount: isSwapping ? new BigNumber(0) : amountToDeposit,
-        asset: isEthToken ? addresses.tokens.ETH : depositToken,
+        amount: swap ? new BigNumber(0) : amountToDeposit,
+        asset: depositToken,
         delegate: vault,
         sumAmounts: false,
       },
-      [0, 0, isSwapping ? 1 : 0, 0],
+      [0, 0, swap ? 1 : 0, 0],
     ),
     actions.common.erc4626Deposit(
       network,
@@ -62,7 +64,7 @@ export const deposit: Erc4626DepositOperation = async (
         vault,
         amount: amountToDeposit,
       },
-      [0, isSwapping ? 1 : 0],
+      [0, swap ? 1 : 0],
     ),
 
     actions.common.positionCreated(network, {
@@ -75,7 +77,7 @@ export const deposit: Erc4626DepositOperation = async (
 
   calls[0].skipped = isEthToken
   calls[1].skipped = !isEthToken
-  calls[2].skipped = !isSwapping
+  calls[2].skipped = !swap
   calls[5].skipped = !isOpen
 
   return {

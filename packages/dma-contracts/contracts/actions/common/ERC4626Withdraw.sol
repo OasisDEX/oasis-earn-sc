@@ -6,6 +6,7 @@ import { UseStore, Write, Read } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ERC4626WithdrawData } from "../../core/types/Common.sol";
 import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
+import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 /**
  * @title Withdraw | Morpho Blue Action contract
@@ -32,15 +33,16 @@ contract ERC4626Withdraw is Executable, UseStore {
       address(this)
     );
     IERC4626 vault = IERC4626(depositData.vault);
+    uint beforeWithdrawal = IERC20(vault.asset()).balanceOf(address(this));
 
     if (depositData.amount == type(uint256).max) {
-      uint256 maxReedemable = vault.maxRedeem(address(this));
-      vault.redeem(maxReedemable, address(this), address(this));
+      uint256 maxWithdraw = vault.maxWithdraw(address(this));
+      vault.withdraw(maxWithdraw, address(this), address(this));
     } else {
       vault.withdraw(mappedWithdrawAmount, address(this), address(this));
     }
-
-    store().write(bytes32(mappedWithdrawAmount));
+    uint256 withrawnAmount = IERC20(vault.asset()).balanceOf(address(this)) - beforeWithdrawal;
+    store().write(bytes32(withrawnAmount));
   }
 
   function parseInputs(
