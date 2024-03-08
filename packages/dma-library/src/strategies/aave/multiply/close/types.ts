@@ -1,5 +1,7 @@
 import { AaveLikeCloseArgs } from '@dma-library/strategies/aave-like/multiply/close'
+import { AaveLikePositionV2, SummerStrategy } from '@dma-library/types'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
+import * as AaveProtocol from '@dma-library/types/aave/protocol'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
@@ -39,3 +41,23 @@ export type AaveClose = (
   args: AaveCloseArgs,
   dependencies: AaveCloseDependencies,
 ) => Promise<ICloseStrategy>
+
+export type AaveCloseArgsOmni = AaveCloseArgs & StrategyParams.WithAaveLikePositionV2
+
+export type AaveCloseDependenciesOmni = Omit<
+  AaveCloseDependencies &
+    StrategyParams.WithAaveLikeWithOperationExecutor &
+    StrategyParams.WithProvider,
+  'protocol'
+>
+
+export type AaveCloseOmni = (
+  args: AaveCloseArgsOmni,
+  dependencies: AaveCloseDependenciesOmni &
+    (AaveProtocol.WithV3Protocol | AaveProtocol.WithV2Protocol),
+) => Promise<SummerStrategy<AaveLikePositionV2>>
+
+export type AaveCloseActionOmni = (
+  args: AaveCloseArgsOmni,
+  dependencies: AaveCloseDependenciesOmni,
+) => Promise<SummerStrategy<AaveLikePositionV2>>

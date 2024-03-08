@@ -84,6 +84,8 @@ async function getPosition(args: AjnaOpenMultiplyPayload, dependencies: AjnaComm
       quotePrice: args.quotePrice,
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
+      collateralToken: args.collateralToken,
+      quoteToken: args.quoteToken,
     },
     {
       poolInfoAddress: dependencies.poolInfoAddress,

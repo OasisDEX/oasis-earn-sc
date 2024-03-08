@@ -1,3 +1,4 @@
+import { AaveLikePositionV2, SummerStrategy } from '@dma-library/types'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
@@ -17,3 +18,14 @@ export type AaveLikeDepositBorrow = (
   args: AaveLikeDepositBorrowArgs,
   dependencies: AaveLikeDepositBorrowDependencies,
 ) => Promise<IDepositBorrowStrategy>
+
+export type AaveLikeDepositBorrowArgsOmni = AaveLikeDepositBorrowArgs &
+  StrategyParams.WithAaveLikePositionV2
+
+export type AaveLikeDepositBorrowDependenciesOmni = AaveLikeDepositBorrowDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor
+
+export type AaveLikeDepositBorrowOmni = (
+  args: AaveLikeDepositBorrowArgsOmni,
+  dependencies: AaveLikeDepositBorrowDependenciesOmni,
+) => Promise<SummerStrategy<AaveLikePositionV2>>

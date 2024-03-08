@@ -28,6 +28,8 @@ export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
       quotePrice: args.quotePrice,
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
+      collateralToken: args.collateralToken,
+      quoteToken: args.quoteToken,
     },
     {
       poolInfoAddress: dependencies.poolInfoAddress,

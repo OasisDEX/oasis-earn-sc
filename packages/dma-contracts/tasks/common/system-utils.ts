@@ -5,6 +5,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { ethers } from 'ethers'
 
 import { loadContractNames } from '../../../deploy-configurations/constants/load-contract-names'
+import { FunctionSignaturesMap } from './decodedCalldata'
 
 export type SystemEntry = SystemConfigEntry & {
   path: string
@@ -16,7 +17,23 @@ export type ServiceNameEntry = {
   entryNameHash: string
   path: string
 }
+
 export class SystemDatabase {
+  public static readonly functions: FunctionSignaturesMap = {
+    addNamedService: {
+      name: 'addNamedService',
+      inputs: [
+        {
+          name: 'serviceNameHash',
+          type: 'bytes32',
+        },
+        {
+          name: 'serviceAddress',
+          type: 'address',
+        },
+      ],
+    },
+  }
   private readonly systemEntries: SystemEntry[] = []
   private readonly contractAddressToEntry: { [key: string]: SystemEntry } = {}
 

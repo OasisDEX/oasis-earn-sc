@@ -6,6 +6,7 @@ import { normalizeValue } from '@dma-common/utils/common'
 import { EarnCumulativesData, LendingCumulativesData } from '@dma-library/types'
 import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
+import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -14,6 +15,8 @@ interface Args {
   poolAddress: Address
   collateralPrice: BigNumber
   quotePrice: BigNumber
+  collateralToken: string
+  quoteToken: string
 }
 
 interface EarnData {
@@ -55,7 +58,7 @@ interface EarnDependencies {
 const WAD = new BigNumber(10).pow(18)
 
 export async function getPosition(
-  { proxyAddress, poolAddress, collateralPrice, quotePrice }: Args,
+  { proxyAddress, poolAddress, collateralPrice, quotePrice, collateralToken, quoteToken }: Args,
   { poolInfoAddress, provider, getPoolData, getCumulatives }: Dependencies,
 ): Promise<AjnaPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
@@ -70,27 +73,53 @@ export async function getPosition(
     borrowCumulativeWithdrawInCollateralToken,
     borrowCumulativeDepositInCollateralToken,
     borrowCumulativeFeesInCollateralToken,
+    borrowCumulativeWithdrawInQuoteToken,
+    borrowCumulativeDepositInQuoteToken,
+    borrowCumulativeFeesInQuoteToken,
   } = cumulatives
   const collateralAmount = new BigNumber(borrowerInfo.collateral_.toString()).div(WAD)
   const debtAmount = new BigNumber(borrowerInfo.debt_.toString()).div(WAD)
 
   const netValue = collateralAmount.times(collateralPrice).minus(debtAmount.times(quotePrice))
 
-  const pnl = {
-    withFees: normalizeValue(
-      borrowCumulativeWithdrawInCollateralToken
-        .plus(netValue.div(collateralPrice))
-        .minus(borrowCumulativeDepositInCollateralToken)
-        .minus(borrowCumulativeFeesInCollateralToken)
-        .div(borrowCumulativeDepositInCollateralToken),
-    ),
-    withoutFees: normalizeValue(
-      borrowCumulativeWithdrawInCollateralToken
-        .plus(netValue.div(collateralPrice))
-        .minus(borrowCumulativeDepositInCollateralToken)
-        .div(borrowCumulativeDepositInCollateralToken),
-    ),
-    cumulatives,
+  const isCorrelated = isCorrelatedPosition(collateralToken, quoteToken)
+
+  let pnl
+
+  if (isCorrelated) {
+    pnl = {
+      withFees: normalizeValue(
+        borrowCumulativeWithdrawInQuoteToken
+          .plus(netValue.div(quotePrice))
+          .minus(borrowCumulativeDepositInQuoteToken)
+          .minus(borrowCumulativeFeesInQuoteToken)
+          .div(borrowCumulativeDepositInQuoteToken),
+      ),
+      withoutFees: normalizeValue(
+        borrowCumulativeWithdrawInQuoteToken
+          .plus(netValue.div(quotePrice))
+          .minus(borrowCumulativeDepositInQuoteToken)
+          .div(borrowCumulativeDepositInQuoteToken),
+      ),
+      cumulatives,
+    }
+  } else {
+    pnl = {
+      withFees: normalizeValue(
+        borrowCumulativeWithdrawInCollateralToken
+          .plus(netValue.div(collateralPrice))
+          .minus(borrowCumulativeDepositInCollateralToken)
+          .minus(borrowCumulativeFeesInCollateralToken)
+          .div(borrowCumulativeDepositInCollateralToken),
+      ),
+      withoutFees: normalizeValue(
+        borrowCumulativeWithdrawInCollateralToken
+          .plus(netValue.div(collateralPrice))
+          .minus(borrowCumulativeDepositInCollateralToken)
+          .div(borrowCumulativeDepositInCollateralToken),
+      ),
+      cumulatives,
+    }
   }
 
   return new AjnaPosition(

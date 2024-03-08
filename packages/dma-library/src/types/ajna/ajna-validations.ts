@@ -56,6 +56,34 @@ export type AjnaErrorOverWithdraw = {
   }
 }
 
+export type AaveLikeErrorTargetLtvExceedsSupplyCap = {
+  name: 'target-ltv-exceeds-supply-cap'
+  data: {
+    cap: string
+  }
+}
+
+export type AaveLikeErrorTargetLtvExceedsBorrowCap = {
+  name: 'target-ltv-exceeds-borrow-cap'
+  data: {
+    cap: string
+  }
+}
+
+export type AaveLikeErrorAmountExceedsSupplyCap = {
+  name: 'deposit-amount-exceeds-supply-cap'
+  data: {
+    cap: string
+  }
+}
+
+export type AaveLikeErrorAmountExceedsBorrowCap = {
+  name: 'debt-amount-exceeds-borrow-cap'
+  data: {
+    cap: string
+  }
+}
+
 export type StrategyError =
   | AjnaErrorWithdrawUndercollateralized
   | AjnaErrorBorrowUndercollateralized
@@ -67,6 +95,10 @@ export type StrategyError =
   | AjnaErrorDustLimitMultiply
   | AjnaErrorNotEnoughLiquidity
   | AjnaErrorOverWithdraw
+  | AaveLikeErrorTargetLtvExceedsSupplyCap
+  | AaveLikeErrorTargetLtvExceedsBorrowCap
+  | AaveLikeErrorAmountExceedsSupplyCap
+  | AaveLikeErrorAmountExceedsBorrowCap
 
 type AjnaWarningGenerateCloseToMaxLtv = {
   name: 'generate-close-to-max-ltv'
@@ -86,10 +118,19 @@ type AjnaWarningLiquidationPriceCloseToMarketPrice = {
   name: 'liquidation-price-close-to-market-price'
 }
 
+type AaveLikeWarningYieldLoopCloseToLiquidation = {
+  name: 'yield-loop-close-to-liquidation'
+  data: {
+    rangeToLiquidation: string
+    liquidationPenalty: string
+  }
+}
+
 export type StrategyWarning =
   | AjnaWarningGenerateCloseToMaxLtv
   | AjnaWarningWithdrawCloseToMaxLtv
   | AjnaWarningLiquidationPriceCloseToMarketPrice
+  | AaveLikeWarningYieldLoopCloseToLiquidation
 
 export type AjnaNoticePriceBelowHtp = {
   name: 'price-below-htp'
@@ -108,4 +149,15 @@ export type AjnaSuccessPriceaboveLup = {
   }
 }
 
-export type AjnaSuccess = AjnaSuccessPriceBetweenHtpAndLup | AjnaSuccessPriceaboveLup
+type AaveLikeSuccessYieldLoopSafeFromLiquidation = {
+  name: 'yield-loop-safe-from-liquidation'
+  data: {
+    rangeToLiquidation: string
+    liquidationPenalty: string
+  }
+}
+
+export type AjnaSuccess =
+  | AjnaSuccessPriceBetweenHtpAndLup
+  | AjnaSuccessPriceaboveLup
+  | AaveLikeSuccessYieldLoopSafeFromLiquidation

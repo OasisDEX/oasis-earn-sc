@@ -1,3 +1,4 @@
+import { AaveLikePositionV2, SummerStrategy } from '@dma-library/types'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
@@ -20,3 +21,14 @@ export type SparkDepositBorrow = (
   args: SparkDepositBorrowArgs,
   dependencies: SparkDepositBorrowDependencies,
 ) => Promise<IDepositBorrowStrategy>
+
+export type SparkDepositBorrowArgsOmni = SparkDepositBorrowArgs &
+  StrategyParams.WithAaveLikePositionV2
+
+export type SparkDepositBorrowDependenciesOmni = SparkDepositBorrowDependencies &
+  StrategyParams.WithAaveLikeWithOperationExecutor
+
+export type SparkDepositBorrowOmni = (
+  args: SparkDepositBorrowArgsOmni,
+  dependencies: SparkDepositBorrowDependenciesOmni,
+) => Promise<SummerStrategy<AaveLikePositionV2>>

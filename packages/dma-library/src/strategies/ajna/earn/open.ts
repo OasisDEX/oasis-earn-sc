@@ -25,6 +25,8 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
       quotePrice: args.quotePrice,
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
+      collateralToken: args.collateralToken,
+      quoteToken: args.quoteToken,
     },
     {
       getEarnData: dependencies.getEarnData,
