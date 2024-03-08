@@ -89,6 +89,7 @@ export async function getAaveV3ProtocolData({
   collateralTokenAddress,
   flashloanTokenAddress,
   proxy,
+  useUserEmode,
 }: SharedAaveLikeProtocolDataArgs & { protocolVersion: AaveVersion.v3 }) {
   const { oracle, poolDataProvider, pool } = await getAaveLikeSystemContracts(
     addresses,
@@ -106,6 +107,7 @@ export async function getAaveV3ProtocolData({
     userCollateralData,
     collateralEModeCategory,
     debtEModeCategory,
+    userEMode,
   ] = await Promise.all([
     fetchAssetPrice(oracle, flashloanTokenAddress),
     fetchAssetPrice(oracle, debtTokenAddress),
@@ -116,6 +118,7 @@ export async function getAaveV3ProtocolData({
     proxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
     poolDataProvider.getReserveEModeCategory(collateralTokenAddress),
     poolDataProvider.getReserveEModeCategory(debtTokenAddress),
+    pool.getUserEMode(proxy)
   ])
 
   const collateralEModeCategoryAsNumber = new BigNumber(
@@ -126,10 +129,10 @@ export async function getAaveV3ProtocolData({
     collateralEModeCategoryAsNumber,
     debtEModeCategoryAsNumber,
   )
-
+  const eModeToUse = useUserEmode ? userEMode : reserveEModeCategory
   let eModeCategoryData
-  if (pool && reserveEModeCategory !== 0) {
-    eModeCategoryData = await pool.getEModeCategoryData(reserveEModeCategory)
+  if (pool && eModeToUse !== 0) {
+    eModeCategoryData = await pool.getEModeCategoryData(eModeToUse)
   }
 
   return {

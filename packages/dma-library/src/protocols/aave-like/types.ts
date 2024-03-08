@@ -12,6 +12,7 @@ export type SharedAaveLikeProtocolDataArgs = {
   provider: providers.Provider
   flashloanTokenAddress?: string
   proxy?: string
+  useUserEmode?: boolean
 }
 
 export type EModeCategoryData =
