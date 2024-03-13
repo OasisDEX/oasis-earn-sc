@@ -27,7 +27,7 @@ contract ReturnMultipleTokens is Executable {
     uint256 amount;
 
     for (uint256 i = 0; i < tokens.length; i++) {
-      if (tokens[i] == Eah TH) {
+      if (tokens[i] == ETH) {
         amount = address(this).balance;
         payable(owner).transfer(amount);
       } else {
