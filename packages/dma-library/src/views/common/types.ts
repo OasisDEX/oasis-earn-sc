@@ -101,11 +101,13 @@ interface Erc4626Vault {
 export class Erc4626Position implements IErc4626Position {
   constructor(
     public annualizedApy: BigNumber,
-    public annualizedApyFromRewards: {
-      token: string
-      value: BigNumber
-      per1kUsd?: BigNumber
-    }[],
+    public annualizedApyFromRewards:
+      | {
+          token: string
+          value: BigNumber
+          per1kUsd?: BigNumber
+        }[]
+      | undefined,
     public vault: Erc4626Vault,
     public owner: Address,
     public quoteTokenAmount: BigNumber,
@@ -133,7 +135,7 @@ export class Erc4626Position implements IErc4626Position {
       type: FeeType
       amount: BigNumber
     },
-  ) { }
+  ) {}
 
   /**
    * Represents the Annual Percentage Yield (APY) from native vault yield.
@@ -170,13 +172,15 @@ export class Erc4626Position implements IErc4626Position {
    * @returns  - An array of objects containing the token, value, and per1kUsd (optional) properties.
    */
   getTotalApyFromRewardsForDays({ days }: { days: number }) {
-    return this.annualizedApyFromRewards.map(reward => {
-      return {
-        token: reward.token,
-        value: reward.value.div(365).times(days),
-        per1kUsd: reward.per1kUsd ? reward.per1kUsd.div(365).times(days) : undefined,
-      }
-    })
+    return this.annualizedApyFromRewards
+      ? this.annualizedApyFromRewards.map(reward => {
+          return {
+            token: reward.token,
+            value: reward.value.div(365).times(days),
+            per1kUsd: reward.per1kUsd ? reward.per1kUsd.div(365).times(days) : undefined,
+          }
+        })
+      : []
   }
 
   /**

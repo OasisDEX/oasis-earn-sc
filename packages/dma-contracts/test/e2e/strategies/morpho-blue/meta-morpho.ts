@@ -40,13 +40,23 @@ const getLazyVaultSubgraphResponse = (vaultAddress: string, proxy: string) => {
       totalAssets: '0',
       totalShares: '0',
     },
+    earnCumulativeFeesUSD: '0',
+    earnCumulativeDepositUSD: '0',
+    earnCumulativeWithdrawUSD: '0',
+    earnCumulativeFeesInQuoteToken: '0',
+    earnCumulativeDepositInQuoteToken: '0',
+    earnCumulativeWithdrawInQuoteToken: '0',
+
     positions: [],
   })
 }
 const getVaultApyParameters = (vaultAddress: string) => {
   return Promise.resolve({
-    apy: '0',
-    apyFromRewards: [],
+    vault: {
+      apy: '0',
+      curator: 'xx',
+      fee: 'xx',
+    },
   })
 }
 
@@ -159,7 +169,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
     })
   })
 
-  it('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds', async () => {
+  it.only('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds', async () => {
     const usdcBalanceBeforeDeposit = await USDC.balanceOf(address)
 
     const depositAmount = new BigNumber('1000')
@@ -614,25 +624,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       },
       {
         provider: hre.ethers.provider,
-        getLazyVaultSubgraphResponse(vaultAddress: string) {
-          return Promise.resolve({
-            shares: '0',
-            id: vaultAddress,
-            vault: {
-              fee: '0',
-              curator: '0',
-              totalAssets: '0',
-              totalShares: '0',
-            },
-            positions: [],
-          })
-        },
-        getVaultApyParameters(vaultAddress) {
-          return Promise.resolve({
-            apy: '0',
-            apyFromRewards: [],
-          })
-        },
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
     // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
@@ -791,25 +784,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       },
       {
         provider: hre.ethers.provider,
-        getLazyVaultSubgraphResponse(vaultAddress: string) {
-          return Promise.resolve({
-            shares: '0',
-            id: vaultAddress,
-            vault: {
-              fee: '0',
-              curator: '0',
-              totalAssets: '0',
-              totalShares: '0',
-            },
-            positions: [],
-          })
-        },
-        getVaultApyParameters(vaultAddress) {
-          return Promise.resolve({
-            apy: '0',
-            apyFromRewards: [],
-          })
-        },
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
     // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
@@ -894,7 +870,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         .toString(),
     )
   })
-  it.only('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw 50% funds as ETH', async () => {
+  it('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw 50% funds as ETH', async () => {
     await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
 
     const wethBalanceBeforeDeposit = await hre.ethers.provider.getBalance(address)
@@ -968,25 +944,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       },
       {
         provider: hre.ethers.provider,
-        getLazyVaultSubgraphResponse(vaultAddress: string) {
-          return Promise.resolve({
-            shares: '0',
-            id: vaultAddress,
-            vault: {
-              fee: '0',
-              curator: '0',
-              totalAssets: '0',
-              totalShares: '0',
-            },
-            positions: [],
-          })
-        },
-        getVaultApyParameters(vaultAddress) {
-          return Promise.resolve({
-            apy: '0',
-            apyFromRewards: [],
-          })
-        },
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
     // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
@@ -1132,25 +1091,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       },
       {
         provider: hre.ethers.provider,
-        getLazyVaultSubgraphResponse(vaultAddress: string) {
-          return Promise.resolve({
-            shares: '0',
-            id: vaultAddress,
-            vault: {
-              fee: '0',
-              curator: '0',
-              totalAssets: '0',
-              totalShares: '0',
-            },
-            positions: [],
-          })
-        },
-        getVaultApyParameters(vaultAddress) {
-          return Promise.resolve({
-            apy: '0',
-            apyFromRewards: [],
-          })
-        },
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
     // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())

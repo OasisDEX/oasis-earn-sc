@@ -7,11 +7,25 @@ import erc4626abi from '../../../../abis/external/tokens/IERC4626.json'
 import { Erc4626Position, FeeType } from './types'
 
 type VaultApyResponse = {
-  apy: string
-  apyFromRewards: {
+  vault: {
+    apy: string
+    fee?: string
+    curator?: string
+  }
+  apyFromRewards?: {
     token: string
     value: string
     per1kUsd?: string
+  }[]
+  rewards?: {
+    token: string
+    earned: string
+    claimable: string
+  }[]
+  allocations?: {
+    token: string
+    supply: string
+    riskRatio: string
   }[]
 }
 
@@ -25,8 +39,6 @@ type SubgraphRepsonse = {
   earnCumulativeDepositInQuoteToken: string
   earnCumulativeWithdrawInQuoteToken: string
   vault: {
-    fee?: string
-    curator?: string
     totalAssets: string
     totalShares: string
   }
@@ -97,14 +109,16 @@ export async function getErc4626Position(
     withoutFees: totalEarnings.withoutFees.div(netValue),
   }
 
-  const annualizedApy = new BigNumber(vaultParameters.apy)
-  const annualizedApyFromRewards = vaultParameters.apyFromRewards.map(reward => {
-    return {
-      token: reward.token,
-      value: new BigNumber(reward.value),
-      per1kUsd: reward.per1kUsd ? new BigNumber(reward.per1kUsd) : undefined,
-    }
-  })
+  const annualizedApy = new BigNumber(vaultParameters.vault.apy)
+  const annualizedApyFromRewards = vaultParameters.apyFromRewards
+    ? vaultParameters.apyFromRewards.map(reward => {
+        return {
+          token: reward.token,
+          value: new BigNumber(reward.value),
+          per1kUsd: reward.per1kUsd ? new BigNumber(reward.per1kUsd) : undefined,
+        }
+      })
+    : undefined
 
   const tvl = new BigNumber(
     ethers.utils.formatUnits(positionParameters.vault.totalAssets, precision).toString(),
@@ -115,33 +129,33 @@ export async function getErc4626Position(
       return new BigNumber(ethers.utils.formatUnits(maxWithdraw, precision).toString())
     })
 
-  const allocations = [
-    {
-      token: underlyingAsset.address,
-      supply: new BigNumber(0.1),
-      riskRatio: new RiskRatio(new BigNumber(0.55), RISK_RATIO_CTOR_TYPE.LTV),
-    },
-  ]
-  const rewards = [
-    {
-      token: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
-      earned: new BigNumber(100),
-      claimable: new BigNumber(0.1),
-    },
-    {
-      token: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      earned: new BigNumber(1000),
-      claimable: new BigNumber(200),
-    },
-  ]
-  let fee
-  if (positionParameters.vault.fee) {
-    fee = {
-      curator: positionParameters.vault.curator,
-      type: FeeType.CURATOR,
-      amount: positionParameters.vault.fee,
-    }
-  }
+  const allocations = vaultParameters.allocations
+    ? vaultParameters.allocations.map(allocation => {
+        return {
+          token: allocation.token,
+          supply: new BigNumber(allocation.supply),
+          riskRatio: new RiskRatio(new BigNumber(allocation.riskRatio), RISK_RATIO_CTOR_TYPE.LTV),
+        }
+      })
+    : undefined
+
+  const rewards = vaultParameters.rewards
+    ? vaultParameters.rewards.map(reward => {
+        return {
+          token: reward.token,
+          earned: new BigNumber(reward.earned),
+          claimable: new BigNumber(reward.claimable),
+        }
+      })
+    : undefined
+
+  const fee = vaultParameters.vault.fee
+    ? {
+        curator: vaultParameters.vault.curator ? vaultParameters.vault.curator : '',
+        type: FeeType.CURATOR,
+        amount: new BigNumber(vaultParameters.vault.fee),
+      }
+    : undefined
 
   return new Erc4626Position(
     annualizedApy,
