@@ -220,7 +220,10 @@ abstract class DeployedSystemHelpers {
     const account = constants.AddressZero
     const probeA = encode(['uint'], [EthersBN.from('100')])
     const probeB = encode(['uint'], [EthersBN.from('200')])
-    const token = await this.ethers.getContractAt('IERC20', tokenAddress)
+    const token = await this.ethers.getContractAt(
+      '@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20',
+      tokenAddress,
+    )
     for (let i = 0; i < 100; i++) {
       let probedSlot = this.ethers.utils.keccak256(encode(['address', 'uint'], [account, i]))
       // remove padding for JSON RPC
@@ -266,7 +269,10 @@ abstract class DeployedSystemHelpers {
       index,
       this.ethers.utils.hexZeroPad(balanceBN.toHexString(), 32),
     ])
-    const token = await this.ethers.getContractAt('IERC20', tokenAddress)
+    const token = await this.ethers.getContractAt(
+      '@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20',
+      tokenAddress,
+    )
     const balanceAfter = await token.balanceOf(account)
     return balance.toString() == balanceAfter.toString()
   }
@@ -488,8 +494,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         // Mainnet is excluded because Service Registry is managed by multi-sig wallet
       } else if (!this.multiSigNetwork.includes(this.network)) {
         console.log(
-          `Adding entry to ServiceRegistry: ${
-            configItem.serviceRegistryName
+          `Adding entry to ServiceRegistry: ${configItem.serviceRegistryName
           } hash: ${utils.keccak256(
             utils.toUtf8Bytes(configItem.serviceRegistryName),
           )} for address : ${contract.address}`,
@@ -506,8 +511,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         }
       } else {
         console.log(
-          `ServiceRegistry entry not added for ${
-            configItem.serviceRegistryName
+          `ServiceRegistry entry not added for ${configItem.serviceRegistryName
           } hash: ${utils.keccak256(
             utils.toUtf8Bytes(configItem.serviceRegistryName),
           )} on network ${this.network}. Use GnosisSafeServiceClient to add entry.`,
@@ -515,9 +519,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     }
 
-    if (this.network != Network.HARDHAT) {
-      await this.verifyContract(contract.address, constructorArguments)
-    }
+    // if (this.network != Network.HARDHAT) {
+    //   await this.verifyContract(contract.address, constructorArguments)
+    // }
   }
 
   getRegistryEntryHash(name: string) {

@@ -4,7 +4,6 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import erc4626abi from '../../../../abis/external/tokens/IERC4626.json'
-import { ZERO } from '../../../../dma-common/constants/numbers'
 import { Erc4626Position, FeeType } from './types'
 
 type VaultApyResponse = {
@@ -19,6 +18,12 @@ type VaultApyResponse = {
 type SubgraphRepsonse = {
   id: string
   shares: string
+  earnCumulativeFeesUSD: string
+  earnCumulativeDepositUSD: string
+  earnCumulativeWithdrawUSD: string
+  earnCumulativeFeesInQuoteToken: string
+  earnCumulativeDepositInQuoteToken: string
+  earnCumulativeWithdrawInQuoteToken: string
   vault: {
     fee?: string
     curator?: string
@@ -53,6 +58,8 @@ export async function getErc4626Position(
   { provider, getLazyVaultSubgraphResponse, getVaultApyParameters }: Erc4646ViewDependencies,
 ): Promise<Erc4626Position> {
   const vaultContractInstance = new ethers.Contract(vaultAddress, erc4626abi, provider) as IERC4626
+  const vaultParameters = await getVaultApyParameters(vaultAddress)
+  const positionParameters = await getLazyVaultSubgraphResponse(vaultAddress, proxyAddress)
 
   const { precision } = underlyingAsset
 
@@ -69,16 +76,27 @@ export async function getErc4626Position(
     quoteToken: underlyingAsset.address,
   }
   const netValue = quoteTokenAmount.multipliedBy(quotePrice)
-  const pnl = {
-    withFees: ZERO,
-    withoutFees: ZERO,
-  }
+
   const totalEarnings = {
-    withFees: ZERO,
-    withoutFees: ZERO,
+    withFees: netValue
+      .minus(
+        new BigNumber(positionParameters.earnCumulativeDepositUSD).minus(
+          new BigNumber(positionParameters.earnCumulativeWithdrawUSD),
+        ),
+      )
+      .minus(new BigNumber(positionParameters.earnCumulativeFeesUSD)),
+    withoutFees: netValue.minus(
+      new BigNumber(positionParameters.earnCumulativeDepositUSD).minus(
+        new BigNumber(positionParameters.earnCumulativeWithdrawUSD),
+      ),
+    ),
   }
-  const vaultParameters = await getVaultApyParameters(vaultAddress)
-  const positionParameters = await getLazyVaultSubgraphResponse(vaultAddress, proxyAddress)
+
+  const pnl = {
+    withFees: totalEarnings.withFees.div(netValue),
+    withoutFees: totalEarnings.withoutFees.div(netValue),
+  }
+
   const annualizedApy = new BigNumber(vaultParameters.apy)
   const annualizedApyFromRewards = vaultParameters.apyFromRewards.map(reward => {
     return {
@@ -96,6 +114,7 @@ export async function getErc4626Position(
     .then(async (maxWithdraw: ethers.BigNumber) => {
       return new BigNumber(ethers.utils.formatUnits(maxWithdraw, precision).toString())
     })
+
   const allocations = [
     {
       token: underlyingAsset.address,
