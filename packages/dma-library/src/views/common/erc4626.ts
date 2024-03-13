@@ -1,81 +1,143 @@
-import { IERC20 } from '@abis/types/index'
+import { RISK_RATIO_CTOR_TYPE, RiskRatio } from '@domain/risk-ratio'
 import { IERC4626 } from '@typechain/index'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import erc4626abi from '../../../../abis/external/tokens/IERC4626.json'
 import { ZERO } from '../../../../dma-common/constants/numbers'
-import { AllocationType, Erc4626Position, FeeType } from './types'
+import { Erc4626Position, FeeType } from './types'
 
-export type Erc4646EarnDependencies = {
+type VaultApyResponse = {
+  apy: string
+  apyFromRewards: {
+    token: string
+    value: string
+    per1kUsd?: string
+  }[]
+}
+
+type SubgraphRepsonse = {
+  id: string
+  shares: string
+  vault: {
+    fee?: string
+    curator?: string
+    totalAssets: string
+    totalShares: string
+  }
+}
+
+export type Erc4646ViewDependencies = {
   provider: ethers.providers.Provider
+  getVaultApyParameters: (vaultAddress: string) => Promise<VaultApyResponse>
+  getLazyVaultSubgraphResponse: (
+    vaultAddress: string,
+    dpmAccount: string,
+  ) => Promise<SubgraphRepsonse>
+}
+type Token = {
+  address: string
+  precision: number
+  symbol?: string
 }
 export type Erc4626Args = {
   proxyAddress: string
   user: string
   vaultAddress: string
+  underlyingAsset: Token
   quotePrice: BigNumber
 }
 
 export async function getErc4626Position(
-  { proxyAddress, vaultAddress, quotePrice, user }: Erc4626Args,
-  { provider }: Erc4646EarnDependencies,
+  { proxyAddress, vaultAddress, quotePrice, user, underlyingAsset }: Erc4626Args,
+  { provider, getLazyVaultSubgraphResponse, getVaultApyParameters }: Erc4646ViewDependencies,
 ): Promise<Erc4626Position> {
-  const vault = new ethers.Contract(vaultAddress, erc4626abi, provider) as IERC4626
-  const depositTokenAddress = await vault.asset()
+  const vaultContractInstance = new ethers.Contract(vaultAddress, erc4626abi, provider) as IERC4626
 
-  const depositToken = new ethers.Contract(depositTokenAddress, erc4626abi, provider) as IERC20
-  const decimals = await depositToken.decimals()
+  const { precision } = underlyingAsset
 
   let quoteTokenAmount = new BigNumber(0)
 
-  await vault.balanceOf(proxyAddress).then(async (balance: ethers.BigNumber) => {
-    await vault.convertToAssets(balance).then(async (assets: ethers.BigNumber) => {
-      quoteTokenAmount = new BigNumber(ethers.utils.formatUnits(assets, decimals).toString())
+  await vaultContractInstance.balanceOf(proxyAddress).then(async (balance: ethers.BigNumber) => {
+    await vaultContractInstance.convertToAssets(balance).then(async (assets: ethers.BigNumber) => {
+      quoteTokenAmount = new BigNumber(ethers.utils.formatUnits(assets, precision).toString())
     })
   })
+
+  const vault = {
+    address: vaultAddress,
+    quoteToken: underlyingAsset.address,
+  }
   const netValue = quoteTokenAmount.multipliedBy(quotePrice)
+  const pnl = {
+    withFees: ZERO,
+    withoutFees: ZERO,
+  }
+  const totalEarnings = {
+    withFees: ZERO,
+    withoutFees: ZERO,
+  }
+  const vaultParameters = await getVaultApyParameters(vaultAddress)
+  const positionParameters = await getLazyVaultSubgraphResponse(vaultAddress, proxyAddress)
+  const annualizedApy = new BigNumber(vaultParameters.apy)
+  const annualizedApyFromRewards = vaultParameters.apyFromRewards.map(reward => {
+    return {
+      token: reward.token,
+      value: new BigNumber(reward.value),
+      per1kUsd: reward.per1kUsd ? new BigNumber(reward.per1kUsd) : undefined,
+    }
+  })
+
+  const tvl = new BigNumber(
+    ethers.utils.formatUnits(positionParameters.vault.totalAssets, precision).toString(),
+  )
+  const maxWithdrawal = await vaultContractInstance
+    .maxWithdraw(proxyAddress)
+    .then(async (maxWithdraw: ethers.BigNumber) => {
+      return new BigNumber(ethers.utils.formatUnits(maxWithdraw, precision).toString())
+    })
+  const allocations = [
+    {
+      token: underlyingAsset.address,
+      supply: new BigNumber(0.1),
+      riskRatio: new RiskRatio(new BigNumber(0.55), RISK_RATIO_CTOR_TYPE.LTV),
+    },
+  ]
+  const rewards = [
+    {
+      token: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+      earned: new BigNumber(100),
+      claimable: new BigNumber(0.1),
+    },
+    {
+      token: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      earned: new BigNumber(1000),
+      claimable: new BigNumber(200),
+    },
+  ]
+  let fee
+  if (positionParameters.vault.fee) {
+    fee = {
+      curator: positionParameters.vault.curator,
+      type: FeeType.CURATOR,
+      amount: positionParameters.vault.fee,
+    }
+  }
 
   return new Erc4626Position(
-    { address: vaultAddress, quoteToken: '' },
+    annualizedApy,
+    annualizedApyFromRewards,
+    vault,
     user,
     quoteTokenAmount,
     quotePrice,
     netValue,
-    { withFees: ZERO, withoutFees: ZERO },
-    { withFees: ZERO, withoutFees: ZERO },
-    new BigNumber(1214122.13),
-    [
-      {
-        type: AllocationType.LENDING,
-        amount: new BigNumber(0),
-        additionalInfo: [],
-      },
-    ],
-    [
-      {
-        token: 'string',
-        apyPer1d: new BigNumber(0.001),
-        apyPer7d: new BigNumber(0.5),
-        apyPer30d: new BigNumber(2),
-        apyPer90d: new BigNumber(4),
-        apyPer365d: new BigNumber(7),
-      },
-    ],
-    [
-      {
-        token: 'string',
-        amountPer1d: new BigNumber(1),
-        amountPer7d: new BigNumber(7),
-        amountPer30d: new BigNumber(30),
-        amountPer90d: new BigNumber(90),
-        amountPer365d: new BigNumber(365),
-      },
-    ],
-    {
-      curator: 'string',
-      type: FeeType.CURATOR,
-      amount: new BigNumber(5),
-    },
+    pnl,
+    totalEarnings,
+    maxWithdrawal,
+    tvl,
+    allocations,
+    rewards,
+    fee,
   )
 }

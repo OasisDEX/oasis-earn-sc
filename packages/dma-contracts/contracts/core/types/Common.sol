@@ -88,3 +88,7 @@ struct ERC4626WithdrawData {
   address vault;
   uint256 amount;
 }
+
+struct ReturnMultipleTokensData {
+  address[] assets;
+}

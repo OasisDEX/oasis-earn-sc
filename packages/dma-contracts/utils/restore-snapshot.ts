@@ -26,17 +26,20 @@ export async function restoreSnapshot(
     blockNumber: number
     useFallbackSwap?: boolean
     debug?: boolean
+    skipSnapshot?: boolean
   },
   extraDeploymentCallbacks: PostDeploymentFunction[] = [],
 ): Promise<{ snapshot: Snapshot }> {
   const { hre, blockNumber, useFallbackSwap } = args
   const debug = args.debug || false
+  const skipSnapshot = args.skipSnapshot || false
   const provider = hre.ethers.provider
   const network = hre.network.name as Network
 
   const _blockNumber = blockNumber || testBlockNumber
 
   const cacheKey = `${_blockNumber}|${useFallbackSwap}`
+
   const snapshot = snapshotCache[cacheKey]
 
   let revertSuccessful = false
@@ -44,7 +47,7 @@ export async function restoreSnapshot(
     revertSuccessful = await provider.send('evm_revert', [snapshot.id])
   }
 
-  if (typeof snapshot !== 'undefined' && revertSuccessful) {
+  if (typeof snapshot !== 'undefined' && revertSuccessful && !skipSnapshot) {
     const nextSnapshotId = await provider.send('evm_snapshot', [])
 
     if (debug) {
@@ -63,6 +66,7 @@ export async function restoreSnapshot(
       console.log('resetting node to:', _blockNumber)
       console.log('deploying system again')
     }
+
     await resetNode(network, provider, _blockNumber, debug)
 
     const deploymentCallbacks = [...DefaultPostDeploymentFunctions]

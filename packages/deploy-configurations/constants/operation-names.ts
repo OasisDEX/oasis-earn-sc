@@ -96,8 +96,8 @@ export const OPERATION_NAMES = {
   },
   common: {
     CUSTOM_OPERATION: 'CustomOperation',
-    ERC4626_DEPOSIT: 'ERC426Deposit',
-    ERC4626_WITHDRAW: 'ERC426Withdraw',
+    ERC4626_DEPOSIT: 'ERC4626Deposit',
+    ERC4626_WITHDRAW: 'ERC4626Withdraw',
   },
 } as const
 

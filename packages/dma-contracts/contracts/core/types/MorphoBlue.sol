@@ -26,3 +26,7 @@ struct PaybackData {
   address onBehalf;
   bool paybackAll;
 }
+
+struct ClaimMultipleRewardsData {
+  address[] assets;
+}

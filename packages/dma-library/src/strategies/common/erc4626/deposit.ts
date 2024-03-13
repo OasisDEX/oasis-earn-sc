@@ -7,7 +7,9 @@ import { getGenericSwapData } from '@dma-library/strategies/common'
 import { SummerStrategy } from '@dma-library/types'
 import { GetSwapData } from '@dma-library/types/common'
 import { encodeOperation } from '@dma-library/utils/operation'
+import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
+import { Erc4646ViewDependencies } from '@dma-library/views/common/erc4626'
 import { Erc4626Position } from '@dma-library/views/common/types'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -24,6 +26,7 @@ export interface Erc4626DepositPayload {
   proxyAddress: Address
   user: Address
   slippage: BigNumber
+  quoteTokenPrice: BigNumber
 }
 export interface Erc4626CommonDependencies {
   provider: ethers.providers.Provider
@@ -35,7 +38,7 @@ export interface Erc4626CommonDependencies {
 
 export type Erc4626DepositStrategy = (
   args: Erc4626DepositPayload,
-  dependencies: Erc4626CommonDependencies,
+  dependencies: Erc4626CommonDependencies & Erc4646ViewDependencies,
 ) => Promise<SummerStrategy<Erc4626Position>>
 
 export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
@@ -45,10 +48,17 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
       vaultAddress: args.vault,
       proxyAddress: args.proxyAddress,
       user: args.user,
-      quotePrice: new BigNumber(1),
+      quotePrice: args.quoteTokenPrice,
+      underlyingAsset: {
+        address: args.depositTokenAddress,
+        precision: args.depositTokenPrecision,
+        symbol: args.depositTokenSymbol,
+      },
     },
     {
       provider: dependencies.provider,
+      getLazyVaultSubgraphResponse: dependencies.getLazyVaultSubgraphResponse,
+      getVaultApyParameters: dependencies.getVaultApyParameters,
     },
   )
   const isOpen = position.netValue.toString() === '0'
@@ -66,7 +76,7 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
         depositToken: args.depositTokenAddress,
         pullToken: args.pullTokenAddress,
         amountToDeposit: amountToWei(args.amount, args.pullTokenPrecision),
-        isEthToken: isPullingEth,
+        isPullingEth: isPullingEth,
         swap: {
           fee: 20,
           data: swapData.exchangeCalldata,
@@ -76,7 +86,6 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
         },
         proxy: {
           address: args.proxyAddress,
-          // Ajna is always DPM
           isDPMProxy: true,
           owner: args.user,
         },
@@ -120,7 +129,7 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
         depositToken: args.depositTokenAddress,
         pullToken: args.pullTokenAddress,
         amountToDeposit: amountToWei(args.amount, args.pullTokenPrecision),
-        isEthToken: isPullingEth,
+        isPullingEth: isPullingEth,
 
         proxy: {
           address: args.proxyAddress,
@@ -186,6 +195,8 @@ async function getSwapData(args: Erc4626DepositPayload, dependencies: Erc4626Com
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
-    __feeOverride: new BigNumber(20),
+    __feeOverride: isCorrelatedPosition(args.pullTokenSymbol, args.depositTokenSymbol)
+      ? new BigNumber(2)
+      : new BigNumber(20),
   })
 }

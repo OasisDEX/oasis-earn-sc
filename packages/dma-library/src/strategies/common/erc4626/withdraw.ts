@@ -1,16 +1,16 @@
-import { Network } from '@deploy-configurations/types/network'
 import { Address } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like/addresses'
 import { getGenericSwapData } from '@dma-library/strategies/common'
 import { SummerStrategy } from '@dma-library/types'
-import { GetSwapData } from '@dma-library/types/common'
 import { encodeOperation } from '@dma-library/utils/operation'
+import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
+import { Erc4646ViewDependencies } from '@dma-library/views/common/erc4626'
 import { Erc4626Position } from '@dma-library/views/common/types'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
+
+import { Erc4626CommonDependencies } from './deposit'
 
 export interface Erc4626WithdrawPayload {
   returnTokenSymbol: string
@@ -24,18 +24,12 @@ export interface Erc4626WithdrawPayload {
   proxyAddress: Address
   user: Address
   slippage: BigNumber
-}
-export interface Erc4626CommonDependencies {
-  provider: ethers.providers.Provider
-  network: Network
-  addresses: AaveLikeStrategyAddresses
-  operationExecutor: Address
-  getSwapData: GetSwapData
+  quoteTokenPrice: BigNumber
 }
 
 export type Erc4626WithdrawStrategy = (
   args: Erc4626WithdrawPayload,
-  dependencies: Erc4626CommonDependencies,
+  dependencies: Erc4626CommonDependencies & Erc4646ViewDependencies,
 ) => Promise<SummerStrategy<Erc4626Position>>
 
 export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
@@ -45,18 +39,24 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
       vaultAddress: args.vault,
       proxyAddress: args.proxyAddress,
       user: args.user,
-      // TODO: This is a hack to get the correct position
-      quotePrice: new BigNumber(1),
+      quotePrice: args.quoteTokenPrice,
+      underlyingAsset: {
+        address: args.withdrawTokenAddress,
+        precision: args.withdrawTokenPrecision,
+        symbol: args.withdrawTokenSymbol,
+      },
     },
     {
       provider: dependencies.provider,
+      getLazyVaultSubgraphResponse: dependencies.getLazyVaultSubgraphResponse,
+      getVaultApyParameters: dependencies.getVaultApyParameters,
     },
   )
-  // TODO
-  // get asset from vault
-  // get token details from ??
-  const isWithdrawingEth =
+
+  const isReturningEth =
     args.returnTokenAddress.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
+  const isWithdrawingEth =
+    args.withdrawTokenAddress.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
   const isSwapping =
     args.returnTokenAddress.toLowerCase() !== args.withdrawTokenAddress.toLowerCase()
 
@@ -83,7 +83,8 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
         withdrawToken: args.withdrawTokenAddress,
         returnToken: args.returnTokenAddress,
         amountToWithdraw: amountToWei(args.amount, args.withdrawTokenPrecision),
-        isEthToken: isWithdrawingEth,
+        isWithdrawingEth: isWithdrawingEth,
+        isReturningEth: isReturningEth,
         swap: swapInfo,
         proxy: {
           address: args.proxyAddress,
@@ -131,7 +132,8 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
         withdrawToken: args.withdrawTokenAddress,
         returnToken: args.returnTokenAddress,
         amountToWithdraw: amountToWei(args.amount, args.withdrawTokenPrecision),
-        isEthToken: isWithdrawingEth,
+        isWithdrawingEth: isWithdrawingEth,
+        isReturningEth: isReturningEth,
         proxy: {
           address: args.proxyAddress,
           // Ajna is always DPM
@@ -196,6 +198,8 @@ async function getSwapData(args: Erc4626WithdrawPayload, dependencies: Erc4626Co
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
-    __feeOverride: new BigNumber(20),
+    __feeOverride: isCorrelatedPosition(args.withdrawTokenSymbol, args.returnTokenSymbol)
+      ? new BigNumber(2)
+      : new BigNumber(20),
   })
 }

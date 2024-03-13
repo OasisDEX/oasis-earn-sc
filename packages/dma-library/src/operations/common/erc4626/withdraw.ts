@@ -13,7 +13,8 @@ export type Erc4626WithdrawArgs = {
   withdrawToken: string
   returnToken: string
   amountToWithdraw: BigNumber
-  isEthToken: boolean
+  isWithdrawingEth: boolean
+  isReturningEth: boolean
   isClose: boolean
 } & Partial<WithSwap> &
   WithProxy
@@ -25,7 +26,16 @@ export type Erc4626WithdrawOperation = (
 ) => Promise<IOperation>
 
 export const withdraw: Erc4626WithdrawOperation = async (
-  { isClose, vault, amountToWithdraw, withdrawToken, returnToken, isEthToken, swap, proxy },
+  {
+    isClose,
+    vault,
+    amountToWithdraw,
+    withdrawToken,
+    returnToken,
+    isWithdrawingEth,
+    swap,
+    isReturningEth,
+  },
   addresses,
   network,
 ) => {
@@ -52,10 +62,21 @@ export const withdraw: Erc4626WithdrawOperation = async (
       },
       [2],
     ),
-    actions.common.returnFunds(network, { asset: isEthToken ? addresses.tokens.ETH : returnToken }),
+    actions.common.returnFunds(network, {
+      asset: isReturningEth ? addresses.tokens.ETH : returnToken,
+    }),
+    actions.common.returnFunds(network, {
+      asset: isWithdrawingEth ? addresses.tokens.ETH : withdrawToken,
+    }),
   ]
-  calls[2].skipped = !isEthToken
+  /* 
+  we skip unwrapping of WETH if we are not returning ETH or withdrawing ETH
+  we unwrap WETH if we are returning ETH (after swap or after withdraw) 
+  or withdrawing leftover ETH ( difference between what we withdraw and what we swap)
+  */
+  calls[2].skipped = !isReturningEth && !isWithdrawingEth
   calls[1].skipped = !swap
+  calls[4].skipped = !swap
 
   return {
     calls,

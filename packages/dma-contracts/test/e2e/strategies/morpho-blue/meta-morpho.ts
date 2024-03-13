@@ -26,7 +26,29 @@ import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
 const VAULT_ADDRESS = '0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB'
+const USER = '0x63C6139e8275391adA0e2a59d1599066243747c2'
+
 import { getOneInchCall } from './one-inch-utils/one-inch-swap'
+
+const getLazyVaultSubgraphResponse = (vaultAddress: string, proxy: string) => {
+  return Promise.resolve({
+    shares: '0',
+    id: vaultAddress,
+    vault: {
+      fee: '0',
+      curator: '0',
+      totalAssets: '0',
+      totalShares: '0',
+    },
+    positions: [],
+  })
+}
+const getVaultApyParameters = (vaultAddress: string) => {
+  return Promise.resolve({
+    apy: '0',
+    apyFromRewards: [],
+  })
+}
 
 describe.only('Deposit | ERC4626 | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -48,16 +70,18 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
   let addresses: ReturnType<typeof addressesByNetwork>
   let aaveLikeAddresses: AaveLikeStrategyAddresses
 
-  /* eslint-enable @typescript-eslint/no-unused-vars */
-
   beforeEach(async () => {
     console.log('Restoring snapshot')
-    ;({ snapshot } = await restoreSnapshot({
-      hre,
-      blockNumber: 19383283,
-      useFallbackSwap: false,
-      debug: true,
-    }))
+    ;({ snapshot } = await restoreSnapshot(
+      {
+        hre,
+        blockNumber: 19383283,
+        useFallbackSwap: false,
+        debug: true,
+        skipSnapshot: false,
+      },
+      [],
+    ))
 
     console.log('snapshot restored')
     signer = await SignerWithAddress.create(
@@ -116,9 +140,10 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         '0x9f9d224c26adad40cade24655f1c5e3cf307c390fc6874e710cb56bdd504bc26',
         '0xb8020e49c93f2144cdce5b93dc159b086f98dcfba95a09eec862664fbfa6a8a4',
         '0x166438e3cb190ad4e896f7b4bd36c98f5b7dc3f5eb885f019521b3b819bc0de8',
+        '0x166438e3cb190ad4e896f7b4bd36c98f5b7dc3f5eb885f019521b3b819bc0de8',
       ],
-      optional: [false, true, true, false],
-      name: 'ERC426Withdraw',
+      optional: [false, true, true, false, true],
+      name: 'ERC4626Withdraw',
     })
     await system.OperationsRegistry.contract.addOperation({
       actions: [
@@ -130,7 +155,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         '0x29732f3b4202acea9e682f5fafacfe4172f3140412e66931b5d00a4dda200962',
       ],
       optional: [true, true, true, false, false, true],
-      name: 'ERC426Deposit',
+      name: 'ERC4626Deposit',
     })
   })
 
@@ -156,6 +181,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -166,6 +192,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
           from: 6,
           to: 6,
         }),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -178,7 +206,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
     )
     expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(VAULT_ADDRESS)
+    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
 
     const usdcBalanceAfterDeposit = await USDC.balanceOf(address)
 
@@ -199,6 +227,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -209,6 +238,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
           from: 6,
           to: 6,
         }),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -276,6 +307,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -286,6 +318,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
           from: 6,
           to: 6,
         }),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -297,8 +331,9 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       receipt,
       testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
     )
+
     expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(VAULT_ADDRESS)
+    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
 
     const usdcBalanceAfterDeposit = await USDC.balanceOf(address)
 
@@ -319,6 +354,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -329,6 +365,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
           from: 6,
           to: 6,
         }),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -399,6 +437,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -409,6 +448,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
           from: 6,
           to: 6,
         }),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -421,7 +462,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
     )
     expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(VAULT_ADDRESS)
+    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
 
     const usdcBalanceAfterDeposit = await USDC.balanceOf(address)
 
@@ -442,6 +483,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -452,6 +494,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
           from: 6,
           to: 6,
         }),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -526,6 +570,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -533,6 +578,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         network: network,
         operationExecutor: aaveLikeAddresses.operationExecutor,
         getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -546,7 +593,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
     )
     expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(VAULT_ADDRESS)
+    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
 
     const usdcBalanceAfterDeposit = await USDC.balanceOf(address)
     const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
@@ -559,9 +606,33 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         user: address,
         quotePrice: new BigNumber(1),
+        underlyingAsset: {
+          address: USDC.address,
+          precision: 6,
+          symbol: 'USDC',
+        },
       },
       {
         provider: hre.ethers.provider,
+        getLazyVaultSubgraphResponse(vaultAddress: string) {
+          return Promise.resolve({
+            shares: '0',
+            id: vaultAddress,
+            vault: {
+              fee: '0',
+              curator: '0',
+              totalAssets: '0',
+              totalShares: '0',
+            },
+            positions: [],
+          })
+        },
+        getVaultApyParameters(vaultAddress) {
+          return Promise.resolve({
+            apy: '0',
+            apyFromRewards: [],
+          })
+        },
       },
     )
     // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
@@ -578,6 +649,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -585,6 +657,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         network: network,
         operationExecutor: aaveLikeAddresses.operationExecutor,
         getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -649,7 +723,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         .toString(),
     )
   })
-  it.only('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds as ETH', async () => {
+  it('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds as ETH', async () => {
     await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
 
     const wethBalanceBeforeDeposit = await hre.ethers.provider.getBalance(address)
@@ -673,6 +747,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -680,6 +755,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         network: network,
         operationExecutor: aaveLikeAddresses.operationExecutor,
         getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -693,7 +770,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
     )
     expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(VAULT_ADDRESS)
+    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
 
     const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
 
@@ -706,9 +783,33 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         user: address,
         quotePrice: new BigNumber(1),
+        underlyingAsset: {
+          address: USDC.address,
+          precision: 6,
+          symbol: 'USDC',
+        },
       },
       {
         provider: hre.ethers.provider,
+        getLazyVaultSubgraphResponse(vaultAddress: string) {
+          return Promise.resolve({
+            shares: '0',
+            id: vaultAddress,
+            vault: {
+              fee: '0',
+              curator: '0',
+              totalAssets: '0',
+              totalShares: '0',
+            },
+            positions: [],
+          })
+        },
+        getVaultApyParameters(vaultAddress) {
+          return Promise.resolve({
+            apy: '0',
+            apyFromRewards: [],
+          })
+        },
       },
     )
     // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
@@ -725,6 +826,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -732,6 +834,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         network: network,
         operationExecutor: aaveLikeAddresses.operationExecutor,
         getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -790,7 +894,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         .toString(),
     )
   })
-  it('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw 50% funds as ETH', async () => {
+  it.only('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw 50% funds as ETH', async () => {
     await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
 
     const wethBalanceBeforeDeposit = await hre.ethers.provider.getBalance(address)
@@ -814,6 +918,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -821,6 +926,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         network: network,
         operationExecutor: aaveLikeAddresses.operationExecutor,
         getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 
@@ -834,7 +941,13 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
       testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
     )
     expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(VAULT_ADDRESS)
+    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
+
+    const feePaid = getEvents(
+      receipt,
+      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
+    )
+    console.log('feePaid', feePaid)
 
     const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
 
@@ -847,9 +960,33 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         user: address,
         quotePrice: new BigNumber(1),
+        underlyingAsset: {
+          address: USDC.address,
+          precision: 6,
+          symbol: 'USDC',
+        },
       },
       {
         provider: hre.ethers.provider,
+        getLazyVaultSubgraphResponse(vaultAddress: string) {
+          return Promise.resolve({
+            shares: '0',
+            id: vaultAddress,
+            vault: {
+              fee: '0',
+              curator: '0',
+              totalAssets: '0',
+              totalShares: '0',
+            },
+            positions: [],
+          })
+        },
+        getVaultApyParameters(vaultAddress) {
+          return Promise.resolve({
+            apy: '0',
+            apyFromRewards: [],
+          })
+        },
       },
     )
     // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
@@ -866,6 +1003,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         proxyAddress: dpmAccount.address,
         slippage: new BigNumber(0.25),
         user: address,
+        quoteTokenPrice: new BigNumber(1),
       },
       {
         provider: provider,
@@ -873,6 +1011,172 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         network: network,
         operationExecutor: aaveLikeAddresses.operationExecutor,
         getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
+      },
+    )
+
+    const tx2 = await dpmAccount.execute(
+      system.OperationExecutor.contract.address,
+      closeCalldata.tx.data,
+      {
+        gasLimit: 5000000,
+      },
+    )
+    await tx2.wait()
+    const wethBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
+    const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
+      await getProxyShareAndDeposit(owner, dpmAccount)
+    console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
+    console.log(
+      'Position balance after deposit     : ',
+      ethers.utils.formatUnits(balanceAfterDeposit, 6).toString(),
+    )
+
+    console.log('Position shares after withdraw     : ', sharesAfterWithdraw.toString())
+    console.log(
+      'Position  balance after withdraw   : ',
+      ethers.utils.formatUnits(balanceAfterWithdraw, 6).toString(),
+    )
+
+    console.log(
+      'User WETH balance before deposit   : ',
+      ethers.utils.formatUnits(wethBalanceBeforeDeposit, 18).toString(),
+    )
+    console.log(
+      'User WETH balance after deposit    : ',
+      ethers.utils.formatUnits(wethBalanceAfterDeposit, 18).toString(),
+    )
+    console.log(
+      'User WETH balance after withdrawal : ',
+      ethers.utils.formatUnits(wethBalanceAfterWithdrawal, 18).toString(),
+    )
+    console.log(
+      'User WETH balance diff             : ',
+      ethers.utils
+        .formatUnits(wethBalanceBeforeDeposit.sub(wethBalanceAfterWithdrawal), 18)
+        .toString(),
+    )
+  })
+  it.skip('should deposit 100 Coumpound cUSD to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw 50% funds as ETH', async () => {
+    await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
+
+    const wethBalanceBeforeDeposit = await hre.ethers.provider.getBalance(address)
+
+    const depositAmount = new BigNumber('100')
+
+    console.log('Deposit amount                     : ', depositAmount.toString())
+    // approve USDC to DPM
+    const cUSD = await hre.ethers.getContractAt(
+      '@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20',
+      '0xBcca60bB61934080951369a648Fb03DF4F96263C',
+      owner,
+    )
+
+    await cUSD.connect(owner).approve(dpmAccount.address, amountToWei(depositAmount, 18).toString())
+
+    const result = await strategies.common.erc4626.deposit(
+      {
+        vault: VAULT_ADDRESS,
+        depositTokenAddress: USDC.address,
+        depositTokenPrecision: 6,
+        depositTokenSymbol: 'USDC',
+        pullTokenAddress: '0xBcca60bB61934080951369a648Fb03DF4F96263C',
+        pullTokenPrecision: 18,
+        pullTokenSymbol: 'cUSD',
+        amount: depositAmount,
+        proxyAddress: dpmAccount.address,
+        slippage: new BigNumber(0.25),
+        user: address,
+        quoteTokenPrice: new BigNumber(1),
+      },
+      {
+        provider: provider,
+        addresses: aaveLikeAddresses,
+        network: network,
+        operationExecutor: aaveLikeAddresses.operationExecutor,
+        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
+      },
+    )
+
+    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
+      gasLimit: 5000000,
+      value: result.tx.value,
+    })
+    const receipt = await tx.wait()
+    const events = getEvents(
+      receipt,
+      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
+    )
+    expect(events.length).to.eq(1)
+    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
+
+    const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
+
+    const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
+      await getProxyShareAndDeposit(owner, dpmAccount)
+
+    const currentPosition = await views.common.getErc4626Position(
+      {
+        vaultAddress: VAULT_ADDRESS,
+        proxyAddress: dpmAccount.address,
+        user: address,
+        quotePrice: new BigNumber(1),
+        underlyingAsset: {
+          address: USDC.address,
+          precision: 6,
+          symbol: 'USDC',
+        },
+      },
+      {
+        provider: hre.ethers.provider,
+        getLazyVaultSubgraphResponse(vaultAddress: string) {
+          return Promise.resolve({
+            shares: '0',
+            id: vaultAddress,
+            vault: {
+              fee: '0',
+              curator: '0',
+              totalAssets: '0',
+              totalShares: '0',
+            },
+            positions: [],
+          })
+        },
+        getVaultApyParameters(vaultAddress) {
+          return Promise.resolve({
+            apy: '0',
+            apyFromRewards: [],
+          })
+        },
+      },
+    )
+    // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
+    const closeCalldata = await strategies.common.erc4626.withdraw(
+      {
+        vault: VAULT_ADDRESS,
+        withdrawTokenAddress: USDC.address,
+        withdrawTokenPrecision: 6,
+        withdrawTokenSymbol: 'USDC',
+        returnTokenAddress: WETH.address,
+        returnTokenPrecision: 18,
+        returnTokenSymbol: 'WETH',
+        amount: currentPosition.quoteTokenAmount.times(0.5),
+        proxyAddress: dpmAccount.address,
+        slippage: new BigNumber(0.25),
+        user: address,
+        quoteTokenPrice: new BigNumber(1),
+      },
+      {
+        provider: provider,
+        addresses: aaveLikeAddresses,
+        network: network,
+        operationExecutor: aaveLikeAddresses.operationExecutor,
+        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+        getLazyVaultSubgraphResponse,
+        getVaultApyParameters,
       },
     )
 

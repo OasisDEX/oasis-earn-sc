@@ -1,24 +1,9 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
+import { SupplyPosition } from '@dma-library/types/ajna/ajna-earn-position'
+import { RiskRatio } from '@domain/risk-ratio'
 import BigNumber from 'bignumber.js'
 
-export interface SupplyPosition {
-  owner: Address
-  quoteTokenAmount: BigNumber
-  marketPrice: BigNumber
-
-  apy: {
-    per1d: BigNumber | undefined
-    per7d: BigNumber | undefined
-    per30d: BigNumber | undefined
-    per90d: BigNumber | undefined
-    per365d: BigNumber | undefined
-  }
-
-  deposit(amount: BigNumber): SupplyPosition
-  withdraw(amount: BigNumber): SupplyPosition
-  close(): SupplyPosition
-}
 export enum FeeType {
   CURATOR = 'curator',
   PERFORMANCE = 'performance',
@@ -35,10 +20,18 @@ export enum AllocationInfoValueType {
   COLL_RATIO = 'coll-ratio',
   APY = 'apy',
 }
+
 export type AllocationAdditionalInfoType = {
   valueType: AllocationInfoValueType
   value: string
 }
+
+interface ApyFromRewards {
+  token: string
+  value: BigNumber
+  per1kUsd?: BigNumber
+}
+
 /**
  * Represents an ERC4626 position.
  */
@@ -53,40 +46,32 @@ export interface IErc4626Position extends SupplyPosition {
     withFees: BigNumber
     withoutFees: BigNumber
   }
-  apy: {
-    per1d: BigNumber
-    per7d: BigNumber
-    per30d: BigNumber
-    per90d: BigNumber
-    per365d: BigNumber
+  apyFromRewards: {
+    per1d: ApyFromRewards[]
+    per7d: ApyFromRewards[]
+    per30d: ApyFromRewards[]
+    per90d: ApyFromRewards[]
+    per365d: ApyFromRewards[]
   }
+  tvl: BigNumber
   maxWithdrawal: BigNumber
   allocations?: {
-    type: AllocationType
-    amount: BigNumber
-    additionalInfo: AllocationAdditionalInfoType[]
-  }[]
-  rewardsWithPrice?: {
     token: string
-    apyPer1d: BigNumber
-    apyPer7d: BigNumber
-    apyPer30d: BigNumber
-    apyPer90d: BigNumber
-    apyPer365d: BigNumber
+    supply: BigNumber
+    riskRatio?: RiskRatio
   }[]
-  rewardsWithoutPrice?: {
+  rewards?: {
     token: string
-    amountPer1d: BigNumber
-    amountPer7d: BigNumber
-    amountPer30d: BigNumber
-    amountPer90d: BigNumber
-    amountPer365d: BigNumber
+    earned: BigNumber
+    claimable: BigNumber
   }[]
+
   fee?: {
     curator: string
     type: FeeType
     amount: BigNumber
   }
+
   /**
    * Simulates the deposit of the specified quote token amount into the ERC4626 position.
    * @param quoteTokenAmount The amount of quote token to deposit.
@@ -115,6 +100,12 @@ interface Erc4626Vault {
 
 export class Erc4626Position implements IErc4626Position {
   constructor(
+    public annualizedApy: BigNumber,
+    public annualizedApyFromRewards: {
+      token: string
+      value: BigNumber
+      per1kUsd?: BigNumber
+    }[],
     public vault: Erc4626Vault,
     public owner: Address,
     public quoteTokenAmount: BigNumber,
@@ -126,51 +117,82 @@ export class Erc4626Position implements IErc4626Position {
     },
     public totalEarnings: { withFees: BigNumber; withoutFees: BigNumber },
     public maxWithdrawal: BigNumber,
+    public tvl: BigNumber,
     public allocations?: {
-      type: AllocationType
-      amount: BigNumber
-      additionalInfo: AllocationAdditionalInfoType[]
-    }[],
-    public rewardsWithPrice?: {
       token: string
-      apyPer1d: BigNumber
-      apyPer7d: BigNumber
-      apyPer30d: BigNumber
-      apyPer90d: BigNumber
-      apyPer365d: BigNumber
+      supply: BigNumber
+      riskRatio?: RiskRatio
     }[],
-    public rewardsWithoutPrice?: {
+    public rewards?: {
       token: string
-      amountPer1d: BigNumber
-      amountPer7d: BigNumber
-      amountPer30d: BigNumber
-      amountPer90d: BigNumber
-      amountPer365d: BigNumber
+      earned: BigNumber
+      claimable: BigNumber
     }[],
     public fee?: {
       curator: string
       type: FeeType
       amount: BigNumber
     },
-  ) {}
+  ) { }
 
+  /**
+   * Represents the Annual Percentage Yield (APY) from native vault yield.
+   * @returns An object containing the APY for different time periods.
+   */
   get apy() {
     return {
-      per1d: this.getApyPerDays({ days: 1 }),
-      per7d: this.getApyPerDays({ days: 7 }),
-      per30d: this.getApyPerDays({ days: 30 }),
-      per90d: this.getApyPerDays({ days: 90 }),
-      per365d: this.getApyPerDays({ days: 365 }),
+      per1d: this.getTotalApyForDays({ days: 1 }),
+      per7d: this.getTotalApyForDays({ days: 7 }),
+      per30d: this.getTotalApyForDays({ days: 30 }),
+      per90d: this.getTotalApyForDays({ days: 90 }),
+      per365d: this.getTotalApyForDays({ days: 365 }),
     }
   }
 
-  getApyPerDays({ days }: { days: number }) {
-    // TODO: implement
-    return new BigNumber(0.1).times(days)
+  /**
+   * Calculates the annual percentage yield (APY) from additional rewards.
+   * @returns An object containing the APY for different time periods.
+   */
+  get apyFromRewards() {
+    return {
+      per1d: this.getTotalApyFromRewardsForDays({ days: 1 }),
+      per7d: this.getTotalApyFromRewardsForDays({ days: 7 }),
+      per30d: this.getTotalApyFromRewardsForDays({ days: 30 }),
+      per90d: this.getTotalApyFromRewardsForDays({ days: 90 }),
+      per365d: this.getTotalApyFromRewardsForDays({ days: 365 }),
+    }
+  }
+
+  /**
+   * Calculates the total APY (Annual Percentage Yield) from rewards for a given number of days.
+   *
+   * @param  days - The number of days to calculate the APY for.
+   * @returns  - An array of objects containing the token, value, and per1kUsd (optional) properties.
+   */
+  getTotalApyFromRewardsForDays({ days }: { days: number }) {
+    return this.annualizedApyFromRewards.map(reward => {
+      return {
+        token: reward.token,
+        value: reward.value.div(365).times(days),
+        per1kUsd: reward.per1kUsd ? reward.per1kUsd.div(365).times(days) : undefined,
+      }
+    })
+  }
+
+  /**
+   * Calculates the total APY (Annual Percentage Yield) for a given number of days.
+   *
+   * @param {number} days - The number of days to calculate the total APY for.
+   * @returns  - The total APY for the specified number of days.
+   */
+  getTotalApyForDays({ days }: { days: number }) {
+    return this.annualizedApy.div(365).times(days)
   }
 
   deposit(quoteTokenAmount: BigNumber) {
     return new Erc4626Position(
+      this.annualizedApy,
+      this.annualizedApyFromRewards,
       this.vault,
       this.owner,
       this.quoteTokenAmount.plus(quoteTokenAmount),
@@ -179,15 +201,17 @@ export class Erc4626Position implements IErc4626Position {
       this.pnl,
       this.totalEarnings,
       this.maxWithdrawal,
+      this.tvl,
       this.allocations,
-      this.rewardsWithPrice,
-      this.rewardsWithoutPrice,
+      this.rewards,
       this.fee,
     )
   }
 
   withdraw(quoteTokenAmount: BigNumber) {
     return new Erc4626Position(
+      this.annualizedApy,
+      this.annualizedApyFromRewards,
       this.vault,
       this.owner,
       this.quoteTokenAmount.minus(quoteTokenAmount),
@@ -196,15 +220,17 @@ export class Erc4626Position implements IErc4626Position {
       this.pnl,
       this.totalEarnings,
       this.maxWithdrawal,
+      this.tvl,
       this.allocations,
-      this.rewardsWithPrice,
-      this.rewardsWithoutPrice,
+      this.rewards,
       this.fee,
     )
   }
 
   close() {
     return new Erc4626Position(
+      this.annualizedApy,
+      this.annualizedApyFromRewards,
       this.vault,
       this.owner,
       ZERO,
@@ -213,9 +239,9 @@ export class Erc4626Position implements IErc4626Position {
       this.pnl,
       this.totalEarnings,
       this.maxWithdrawal,
+      this.tvl,
       this.allocations,
-      this.rewardsWithPrice,
-      this.rewardsWithoutPrice,
+      this.rewards,
       this.fee,
     )
   }
