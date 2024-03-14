@@ -2,11 +2,11 @@ import { ADDRESS_ZERO } from '@deploy-configurations/addresses'
 import { getErc4626WithdrawOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation, WithProxy, WithSwap } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { MAX_UINT, ZERO } from '../../../../../dma-common/constants/numbers'
+import { Erc4626StrategyAddresses } from '../../../types/common/erc4626-addresses'
 
 export type Erc4626WithdrawArgs = {
   vault: string
@@ -21,7 +21,7 @@ export type Erc4626WithdrawArgs = {
 
 export type Erc4626WithdrawOperation = (
   args: Erc4626WithdrawArgs,
-  addresses: AaveLikeStrategyAddresses,
+  addresses: Erc4626StrategyAddresses,
   network: Network,
 ) => Promise<IOperation>
 

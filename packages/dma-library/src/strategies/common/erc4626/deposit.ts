@@ -1,8 +1,8 @@
+import { ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
 import { Address } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like/addresses'
 import { getGenericSwapData } from '@dma-library/strategies/common'
 import { SummerStrategy } from '@dma-library/types'
 import { GetSwapData } from '@dma-library/types/common'
@@ -31,7 +31,6 @@ export interface Erc4626DepositPayload {
 export interface Erc4626CommonDependencies {
   provider: ethers.providers.Provider
   network: Network
-  addresses: AaveLikeStrategyAddresses
   operationExecutor: Address
   getSwapData: GetSwapData
 }
@@ -42,6 +41,8 @@ export type Erc4626DepositStrategy = (
 ) => Promise<SummerStrategy<Erc4626Position>>
 
 export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
+  const addresses = ADDRESSES[dependencies.network]
+
   const getPosition = views.common.getErc4626Position
   const position = await getPosition(
     {
@@ -63,13 +64,12 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
   )
   const isOpen = position.netValue.toString() === '0'
 
-  const isPullingEth =
-    args.pullTokenAddress.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
+  const isPullingEth = args.pullTokenAddress.toLowerCase() === addresses.tokens.WETH.toLowerCase()
 
   const isSwapping = args.depositTokenAddress.toLowerCase() !== args.pullTokenAddress.toLowerCase()
 
   if (isSwapping) {
-    const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies)
+    const { swapData, collectFeeFrom, fee } = await getSwapData(args, dependencies)
     const operation = await operations.erc4626Operations.deposit(
       {
         vault: args.vault,
@@ -78,7 +78,7 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
         amountToDeposit: amountToWei(args.amount, args.pullTokenPrecision),
         isPullingEth: isPullingEth,
         swap: {
-          fee: 20,
+          fee: fee,
           data: swapData.exchangeCalldata,
           amount: amountToWei(args.amount, args.pullTokenPrecision),
           collectFeeFrom,
@@ -91,27 +91,16 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
         },
         isOpen,
       },
-      dependencies.addresses,
       dependencies.network,
     )
 
     const targetPosition = position.deposit(
-      new BigNumber(
-        ethers.utils.formatUnits(
-          isSwapping ? swapData.minToTokenAmount.toString() : args.amount.toString(),
-          args.depositTokenPrecision,
-        ),
-      ),
+      amountToWei(swapData.minToTokenAmount.toString(), args.depositTokenPrecision),
     )
 
-    const warnings = [
-      /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
-    ]
+    const warnings = []
 
-    const errors = [
-      // ...validateLiquidity(position, targetPosition, args.quoteAmount),
-      // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
-    ]
+    const errors = []
 
     return {
       simulation: {
@@ -140,26 +129,19 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
 
         proxy: {
           address: args.proxyAddress,
-          // Ajna is always DPM
           isDPMProxy: true,
           owner: args.user,
         },
         isOpen,
       },
-      dependencies.addresses,
       dependencies.network,
     )
 
-    const targetPosition = position.deposit(amountToWei(args.amount, args.pullTokenPrecision))
+    const targetPosition = position.deposit(amountToWei(args.amount, args.depositTokenPrecision))
 
-    const warnings = [
-      /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
-    ]
+    const warnings = []
 
-    const errors = [
-      // ...validateLiquidity(position, targetPosition, args.quoteAmount),
-      // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
-    ]
+    const errors = []
 
     return {
       simulation: {

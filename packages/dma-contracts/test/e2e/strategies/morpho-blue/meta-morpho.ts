@@ -98,8 +98,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
     signer = await SignerWithAddress.create(
       snapshot.config.signer as ethers.providers.JsonRpcSigner,
     )
-    await impersonateAccount('0x63C6139e8275391adA0e2a59d1599066243747c2')
-    owner = hre.ethers.provider.getSigner('0x63C6139e8275391adA0e2a59d1599066243747c2')
+    await impersonateAccount(USER)
+    owner = hre.ethers.provider.getSigner(USER)
     provider = signer.provider as ethers.providers.JsonRpcProvider
 
     address = await owner.getAddress()
@@ -295,6 +295,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         .formatUnits(usdcBalanceBeforeDeposit.sub(usdcBalanceAfterWithdrawal), 6)
         .toString(),
     )
+    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
+    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
   })
   it('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault and emit `CreatePosition` event on first deposit, and withdraw 50% of funds', async () => {
     const usdcBalanceBeforeDeposit = await USDC.balanceOf(address)
@@ -422,6 +424,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         .formatUnits(usdcBalanceBeforeDeposit.sub(usdcBalanceAfterWithdrawal), 6)
         .toString(),
     )
+    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
+    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
   })
   it('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault and emit `CreatePosition` event on first deposit, deposit another 1000USDC with no `CreatePosition` event', async () => {
     const usdcBalanceBeforeDeposit = await USDC.balanceOf(address)
@@ -556,6 +560,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         .formatUnits(usdcBalanceBeforeDeposit.sub(usdcBalanceSecondDeposit), 6)
         .toString(),
     )
+    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
+    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
   })
   it('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds', async () => {
     await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
@@ -605,6 +611,16 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
     )
     expect(events.length).to.eq(1)
     expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
+
+    const feePaidDespoit = getEvents(
+      receipt,
+      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
+    )
+
+    console.log(
+      'feePaid @ deposit : ',
+      ethers.utils.formatUnits(feePaidDespoit[0].args[1], 6).toString(),
+    )
 
     const usdcBalanceAfterDeposit = await USDC.balanceOf(address)
     const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
@@ -663,7 +679,14 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         gasLimit: 5000000,
       },
     )
-    await tx2.wait()
+    const receiptWithdraw = await tx2.wait()
+
+    const feePaidWithdraw = getEvents(
+      receiptWithdraw,
+      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
+    )
+    expect(feePaidWithdraw.length).to.eq(0)
+
     const usdcBalanceAfterWithdrawal = await USDC.balanceOf(address)
     const wethBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
     const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
@@ -716,6 +739,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         .formatUnits(wethBalanceBeforeDeposit.sub(wethBalanceAfterWithdrawal), 18)
         .toString(),
     )
+    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
+    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
   })
   it('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds as ETH', async () => {
     await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
@@ -765,6 +790,16 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
     )
     expect(events.length).to.eq(1)
     expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
+
+    const feePaidDespoit = getEvents(
+      receipt,
+      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
+    )
+
+    console.log(
+      'feePaid @ deposit : ',
+      ethers.utils.formatUnits(feePaidDespoit[0].args[1], 6).toString(),
+    )
 
     const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
 
@@ -823,7 +858,17 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         gasLimit: 5000000,
       },
     )
-    await tx2.wait()
+    const receiptWithdraw = await tx2.wait()
+
+    const feePaidWithdraw = getEvents(
+      receiptWithdraw,
+      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
+    )
+
+    console.log(
+      'feePaid @ withdraw : ',
+      ethers.utils.formatUnits(feePaidWithdraw[0].args[1], 6).toString(),
+    )
     const wethBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
     const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
       await getProxyShareAndDeposit(owner, dpmAccount)
@@ -870,6 +915,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         .formatUnits(wethBalanceBeforeDeposit.sub(wethBalanceAfterWithdrawal), 18)
         .toString(),
     )
+    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
+    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
   })
   it('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw 50% funds as ETH', async () => {
     await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
@@ -920,11 +967,15 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
     expect(events.length).to.eq(1)
     expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
 
-    const feePaid = getEvents(
+    const feePaidDespoit = getEvents(
       receipt,
       testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
     )
-    console.log('feePaid', feePaid)
+
+    console.log(
+      'feePaid @ deposit : ',
+      ethers.utils.formatUnits(feePaidDespoit[0].args[1], 6).toString(),
+    )
 
     const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
 
@@ -983,7 +1034,18 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         gasLimit: 5000000,
       },
     )
-    await tx2.wait()
+    const receiptWithdraw = await tx2.wait()
+
+    const feePaidWithdraw = getEvents(
+      receiptWithdraw,
+      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
+    )
+
+    console.log(
+      'feePaid @ withdraw : ',
+      ethers.utils.formatUnits(feePaidWithdraw[0].args[1], 6).toString(),
+    )
+
     const wethBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
     const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
       await getProxyShareAndDeposit(owner, dpmAccount)
@@ -1017,6 +1079,8 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         .formatUnits(wethBalanceBeforeDeposit.sub(wethBalanceAfterWithdrawal), 18)
         .toString(),
     )
+    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
+    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
   })
   it.skip('should deposit 100 Coumpound cUSD to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw 50% funds as ETH', async () => {
     await setBalance(address, ethers.BigNumber.from('100000000000000000000'))

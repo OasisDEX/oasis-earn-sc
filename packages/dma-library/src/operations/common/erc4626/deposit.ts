@@ -2,7 +2,6 @@ import { ADDRESS_ZERO } from '@deploy-configurations/constants'
 import { getErc4626DepositOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation, WithProxy, WithSwap } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
@@ -20,13 +19,11 @@ export type Erc4626DepositArgs = {
 
 export type Erc4626DepositOperation = (
   args: Erc4626DepositArgs,
-  addresses: AaveLikeStrategyAddresses,
   network: Network,
 ) => Promise<IOperation>
 
 export const deposit: Erc4626DepositOperation = async (
   { vault, amountToDeposit, depositToken, pullToken, isPullingEth, swap, proxy, isOpen },
-  addresses,
   network,
 ) => {
   // Import ActionCall as it assists type generation

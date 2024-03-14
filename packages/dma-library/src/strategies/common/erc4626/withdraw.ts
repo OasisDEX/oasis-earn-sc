@@ -1,3 +1,4 @@
+import { ADDRESSES } from '@deploy-configurations/addresses'
 import { Address } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
@@ -9,7 +10,6 @@ import { views } from '@dma-library/views'
 import { Erc4646ViewDependencies } from '@dma-library/views/common/erc4626'
 import { Erc4626Position } from '@dma-library/views/common/types'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
 import { Erc4626CommonDependencies } from './deposit'
 
@@ -34,6 +34,7 @@ export type Erc4626WithdrawStrategy = (
 ) => Promise<SummerStrategy<Erc4626Position>>
 
 export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
+  const addresses = ADDRESSES[dependencies.network]
   const getPosition = views.common.getErc4626Position
   const position = await getPosition(
     {
@@ -55,21 +56,21 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
   )
 
   const isReturningEth =
-    args.returnTokenAddress.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
+    args.returnTokenAddress.toLowerCase() === addresses.tokens.WETH.toLowerCase()
   const isWithdrawingEth =
-    args.withdrawTokenAddress.toLowerCase() === dependencies.addresses.tokens.WETH.toLowerCase()
+    args.withdrawTokenAddress.toLowerCase() === addresses.tokens.WETH.toLowerCase()
   const isSwapping =
     args.returnTokenAddress.toLowerCase() !== args.withdrawTokenAddress.toLowerCase()
 
   const isClose = args.amount.isGreaterThan(position.quoteTokenAmount)
 
   if (isSwapping) {
-    const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
+    const { swapData, collectFeeFrom, fee } = await getSwapData(
       { ...args, amount: isClose ? position.quoteTokenAmount : args.amount },
       dependencies,
     )
     const swapInfo = {
-      fee: 20,
+      fee: fee,
       data: swapData.exchangeCalldata,
       amount: amountToWei(
         isClose ? position.quoteTokenAmount : args.amount,
@@ -89,33 +90,20 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
         swap: swapInfo,
         proxy: {
           address: args.proxyAddress,
-          // Ajna is always DPM
           isDPMProxy: true,
           owner: args.user,
         },
         isClose,
       },
-      dependencies.addresses,
+      addresses,
       dependencies.network,
     )
 
-    const targetPosition = position.withdraw(
-      new BigNumber(
-        ethers.utils.formatUnits(
-          isSwapping ? swapData.minToTokenAmount.toString() : args.amount.toString(),
-          args.returnTokenPrecision,
-        ),
-      ),
-    )
+    const targetPosition = position.withdraw(amountToWei(args.amount, args.withdrawTokenPrecision))
 
-    const warnings = [
-      /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
-    ]
+    const warnings = []
 
-    const errors = [
-      // ...validateLiquidity(position, targetPosition, args.quoteAmount),
-      // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
-    ]
+    const errors = []
 
     return {
       simulation: {
@@ -144,26 +132,20 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
         isReturningEth: isReturningEth,
         proxy: {
           address: args.proxyAddress,
-          // Ajna is always DPM
           isDPMProxy: true,
           owner: args.user,
         },
         isClose,
       },
-      dependencies.addresses,
+      addresses,
       dependencies.network,
     )
 
-    const targetPosition = position.withdraw(args.amount)
+    const targetPosition = position.withdraw(amountToWei(args.amount, args.withdrawTokenPrecision))
 
-    const warnings = [
-      /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */
-    ]
+    const warnings = []
 
-    const errors = [
-      // ...validateLiquidity(position, targetPosition, args.quoteAmount),
-      // ...validateUndercollateralized(targetPosition, position, args.quoteAmount),
-    ]
+    const errors = []
 
     return {
       simulation: {
