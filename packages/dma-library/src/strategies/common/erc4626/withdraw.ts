@@ -9,6 +9,7 @@ import { views } from '@dma-library/views'
 import { Erc4646ViewDependencies } from '@dma-library/views/common/erc4626'
 import { Erc4626Position } from '@dma-library/views/common/types'
 import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 
 import { Erc4626CommonDependencies } from './deposit'
 
@@ -98,7 +99,14 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
       dependencies.network,
     )
 
-    const targetPosition = position.withdraw(swapData.minToTokenAmount)
+    const targetPosition = position.withdraw(
+      new BigNumber(
+        ethers.utils.formatUnits(
+          isSwapping ? swapData.minToTokenAmount.toString() : args.amount.toString(),
+          args.returnTokenPrecision,
+        ),
+      ),
+    )
 
     const warnings = [
       /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */

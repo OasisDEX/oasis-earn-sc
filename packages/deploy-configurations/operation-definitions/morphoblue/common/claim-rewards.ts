@@ -10,10 +10,10 @@ export function getMorphoBlueClaimRewardsOperationDefinition(network: Network) {
     actions: [
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.CLAIM_REWARDS),
-        optional: true,
+        optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS),
         optional: false,
       },
     ],

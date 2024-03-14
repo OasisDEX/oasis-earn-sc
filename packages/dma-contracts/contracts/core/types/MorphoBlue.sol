@@ -28,5 +28,8 @@ struct PaybackData {
 }
 
 struct ClaimMultipleRewardsData {
-  address[] assets;
+  address[] urd;
+  address[] rewards;
+  uint256[] claimable;
+  bytes32[][] proofs;
 }

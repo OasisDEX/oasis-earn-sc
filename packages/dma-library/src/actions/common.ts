@@ -203,6 +203,20 @@ export function returnFunds(network: Network, args: { asset: string }) {
   )
 }
 
+export function returnMultipleTokens(network: Network, args: { assets: string[] }) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS),
+    [calldataTypes.common.ReturnMultipleTokens],
+    [
+      {
+        assets: args.assets,
+      },
+    ],
+  )
+}
+
 export function positionCreated(
   network: Network,
   args: {

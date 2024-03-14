@@ -95,7 +95,14 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
       dependencies.network,
     )
 
-    const targetPosition = position.deposit(swapData.minToTokenAmount)
+    const targetPosition = position.deposit(
+      new BigNumber(
+        ethers.utils.formatUnits(
+          isSwapping ? swapData.minToTokenAmount.toString() : args.amount.toString(),
+          args.depositTokenPrecision,
+        ),
+      ),
+    )
 
     const warnings = [
       /* ...validateGenerateCloseToMaxLtv(targetPosition, position) */

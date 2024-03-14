@@ -17,6 +17,7 @@ export type CommonActions =
   | 'UnwrapEth'
   | 'TakeFlashloan'
   | 'ReturnFunds'
+  | 'ReturnMultipleTokens'
   | 'PositionCreated'
   | 'TokenBalance'
   | 'ERC4626Deposit'

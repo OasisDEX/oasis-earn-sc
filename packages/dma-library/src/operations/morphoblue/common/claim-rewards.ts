@@ -1,43 +1,36 @@
 import { getMorphoBlueClaimRewardsOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
-import { ActionCall, IOperation, MorphoBlueMarket } from '@dma-library/types'
-import BigNumber from 'bignumber.js'
-
-import { MorphoBlueStrategyAddresses } from '../addresses'
+import { ActionCall, IOperation } from '@dma-library/types'
 
 export type MorphoBlueClaimRewardsArgs = {
-  morphoBlueMarket: MorphoBlueMarket
-  amountToClaimRewards: BigNumber
-  isEthToken: boolean
+  urds: string[]
+  rewards: string[]
+  claimable: string[]
+  proofs: string[][]
 }
 
 export type MorphoBlueClaimRewardsOperation = (
   args: MorphoBlueClaimRewardsArgs,
-  addresses: MorphoBlueStrategyAddresses,
   network: Network,
 ) => Promise<IOperation>
 
-export const borrow: MorphoBlueClaimRewardsOperation = async (
-  { morphoBlueMarket, amountToClaimRewards, isEthToken },
-  addresses,
+export const claim: MorphoBlueClaimRewardsOperation = async (
+  { urds, rewards, claimable, proofs },
   network,
 ) => {
   // Import ActionCall as it assists type generation
   const calls: ActionCall[] = [
-    actions.morphoblue.borrow(network, {
-      morphoBlueMarket: morphoBlueMarket,
-      amount: amountToClaimRewards,
+    actions.morphoblue.claim(network, {
+      urd: urds,
+      rewards: rewards,
+      claimable: claimable,
+      proofs: proofs,
     }),
-    actions.common.unwrapEth(network, {
-      amount: amountToClaimRewards,
-    }),
-    actions.common.returnFunds(network, {
-      asset: isEthToken ? addresses.tokens.ETH : morphoBlueMarket.loanToken,
+    actions.common.returnMultipleTokens(network, {
+      assets: rewards,
     }),
   ]
-
-  calls[1].skipped = !isEthToken
 
   return {
     calls,

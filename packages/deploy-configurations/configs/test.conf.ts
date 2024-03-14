@@ -236,6 +236,14 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      ReturnMultipleTokens: {
+        name: 'ReturnMultipleTokens',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS,
+        history: [],
+        constructorArgs: [],
+      },
       AaveBorrow: {
         name: 'AaveBorrow',
         deploy: true,

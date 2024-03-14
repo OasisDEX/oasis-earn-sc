@@ -197,6 +197,14 @@ export const config: SystemConfig = {
         history: ['0x645325494A37d35cf6baFc82C3e6bcE4473F2685'],
         constructorArgs: [],
       },
+      ReturnMultipleTokens: {
+        name: 'ReturnMultipleTokens',
+        deploy: false,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS,
+        history: [],
+        constructorArgs: [],
+      },
       TokenBalance: {
         name: 'TokenBalance',
         deploy: false,
@@ -380,7 +388,7 @@ export const config: SystemConfig = {
       MorphoBlueClaimRewards: {
         name: 'MorphoBlueClaimRewards',
         deploy: false,
-        address: '0x6e8f4f1f4a7f3e4b1a2b1f9d6e8e7f9b1e8e7f9b',
+        address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.CLAIM_REWARDS,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],

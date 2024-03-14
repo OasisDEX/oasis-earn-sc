@@ -119,3 +119,23 @@ export function morphoBluePayback(
     ],
   )
 }
+
+export function morphoBlueClaimRewards(
+  network: Network,
+  args: { urd: string[]; rewards: string[]; claimable: string[]; proofs: string[][] },
+): ActionCall {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.CLAIM_REWARDS),
+    [calldataTypes.morphoblue.ClaimRewards],
+    [
+      {
+        urd: args.urd,
+        rewards: args.rewards,
+        claimable: args.claimable,
+        proofs: args.proofs,
+      },
+    ],
+  )
+}
