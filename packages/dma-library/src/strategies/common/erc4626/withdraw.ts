@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@deploy-configurations/addresses'
+import { ADDRESSES, SystemKeys } from '@deploy-configurations/addresses'
 import { Address } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
@@ -34,7 +34,7 @@ export type Erc4626WithdrawStrategy = (
 ) => Promise<SummerStrategy<Erc4626Position>>
 
 export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
-  const addresses = ADDRESSES[dependencies.network]
+  const addresses = { tokens: { ...ADDRESSES[dependencies.network][SystemKeys.COMMON] } }
   const getPosition = views.common.getErc4626Position
   const position = await getPosition(
     {

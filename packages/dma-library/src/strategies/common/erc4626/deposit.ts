@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@deploy-configurations/addresses'
+import { ADDRESSES, SystemKeys } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
 import { Address } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
@@ -41,7 +41,7 @@ export type Erc4626DepositStrategy = (
 ) => Promise<SummerStrategy<Erc4626Position>>
 
 export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
-  const addresses = ADDRESSES[dependencies.network]
+  const addresses = { tokens: { ...ADDRESSES[dependencies.network][SystemKeys.COMMON] } }
 
   const getPosition = views.common.getErc4626Position
   const position = await getPosition(
