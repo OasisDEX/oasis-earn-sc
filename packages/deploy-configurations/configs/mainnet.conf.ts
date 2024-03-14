@@ -97,17 +97,17 @@ export const config: SystemConfig = {
       ERC4626Deposit: {
         name: 'ERC4626Deposit',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x02862b2f3A728EffD4E4A176ea3d296983d0f1df',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
-        history: [],
+        history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       ERC4626Withdraw: {
         name: 'ERC4626Withdraw',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x4D063cF85562Dd43f0434d397e510dd0291FC5Ae',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
-        history: [],
+        history: ['0x0000000000000000000000000000000000000000'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       PositionCreated: {
