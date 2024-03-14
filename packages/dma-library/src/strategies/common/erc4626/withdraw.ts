@@ -99,7 +99,7 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
       dependencies.network,
     )
 
-    const targetPosition = position.withdraw(amountToWei(args.amount, args.withdrawTokenPrecision))
+    const targetPosition = position.withdraw(args.amount)
 
     const warnings = []
 
@@ -141,7 +141,7 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
       dependencies.network,
     )
 
-    const targetPosition = position.withdraw(amountToWei(args.amount, args.withdrawTokenPrecision))
+    const targetPosition = position.withdraw(args.amount)
 
     const warnings = []
 

@@ -95,7 +95,11 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
     )
 
     const targetPosition = position.deposit(
-      amountToWei(swapData.minToTokenAmount.toString(), args.depositTokenPrecision),
+      new BigNumber(
+        ethers.utils
+          .formatUnits(swapData.minToTokenAmount.toString(), args.depositTokenPrecision)
+          .toString(),
+      ),
     )
 
     const warnings = []
@@ -137,7 +141,7 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
       dependencies.network,
     )
 
-    const targetPosition = position.deposit(amountToWei(args.amount, args.depositTokenPrecision))
+    const targetPosition = position.deposit(args.amount)
 
     const warnings = []
 
