@@ -39,6 +39,7 @@ const getLazyVaultSubgraphResponse = (vaultAddress: string, proxy: string) => {
       curator: '0',
       totalAssets: '0',
       totalShares: '0',
+      interestRates: [],
     },
     earnCumulativeFeesUSD: '0',
     earnCumulativeDepositUSD: '0',
@@ -169,7 +170,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
     })
   })
 
-  it.only('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds', async () => {
+  it('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds', async () => {
     const usdcBalanceBeforeDeposit = await USDC.balanceOf(address)
 
     const depositAmount = new BigNumber('1000')

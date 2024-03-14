@@ -12,6 +12,7 @@ import {
   MorphoBluePaybackWithdrawOperation,
   paybackWithdraw as morphoBluePaybackWithdraw,
 } from './borrow/payback-withdraw'
+import { morphoBlueClaimRewards, MorphoBlueClaimRewardsOperation } from './common/claim-rewards'
 import {
   adjustRiskDown as morphoBlueAdjustRiskDown,
   MorphoBlueAdjustDownOperation,
@@ -36,7 +37,9 @@ const multiply: MorphoBlueMultiplyOperations = {
   adjustRiskUp: morphoBlueAdjustRiskUp,
   adjustRiskDown: morphoBlueAdjustRiskDown,
 }
-
+const common: MorphoBlueCommonOperations = {
+  claimRewards: morphoBlueClaimRewards,
+}
 export type MorphoBlueBorrowOperations = {
   borrow: MorphoBlueBorrowOperation
   deposit: MorphoBlueDepositOperation
@@ -51,13 +54,17 @@ export type MorphoBlueMultiplyOperations = {
   adjustRiskUp: MorphoBlueAdjustUpOperation
   adjustRiskDown: MorphoBlueAdjustDownOperation
 }
-
+export type MorphoBlueCommonOperations = {
+  claimRewards: MorphoBlueClaimRewardsOperation
+}
 export type MorphoBlueOperations = {
   borrow: MorphoBlueBorrowOperations
   multiply: MorphoBlueMultiplyOperations
+  common: MorphoBlueCommonOperations
 }
 
 export const morphoBlueOperations: MorphoBlueOperations = {
   borrow,
   multiply,
+  common,
 }

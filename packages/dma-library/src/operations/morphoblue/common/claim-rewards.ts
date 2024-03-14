@@ -15,7 +15,7 @@ export type MorphoBlueClaimRewardsOperation = (
   network: Network,
 ) => Promise<IOperation>
 
-export const claim: MorphoBlueClaimRewardsOperation = async (
+export const morphoBlueClaimRewards: MorphoBlueClaimRewardsOperation = async (
   { urds, rewards, claimable, proofs },
   network,
 ) => {

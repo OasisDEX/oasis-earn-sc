@@ -53,6 +53,11 @@ export interface IErc4626Position extends SupplyPosition {
     per90d: ApyFromRewards[]
     per365d: ApyFromRewards[]
   }
+  historicalApy: {
+    previousDayAverage: BigNumber
+    sevenDayAverage: BigNumber
+    thirtyDayAverage: BigNumber
+  }
   tvl: BigNumber
   maxWithdrawal: BigNumber
   allocations?: {
@@ -108,6 +113,11 @@ export class Erc4626Position implements IErc4626Position {
           per1kUsd?: BigNumber
         }[]
       | undefined,
+    public historicalApy: {
+      previousDayAverage: BigNumber
+      sevenDayAverage: BigNumber
+      thirtyDayAverage: BigNumber
+    },
     public vault: Erc4626Vault,
     public owner: Address,
     public quoteTokenAmount: BigNumber,
@@ -197,6 +207,7 @@ export class Erc4626Position implements IErc4626Position {
     return new Erc4626Position(
       this.annualizedApy,
       this.annualizedApyFromRewards,
+      this.historicalApy,
       this.vault,
       this.owner,
       this.quoteTokenAmount.plus(quoteTokenAmount),
@@ -216,6 +227,7 @@ export class Erc4626Position implements IErc4626Position {
     return new Erc4626Position(
       this.annualizedApy,
       this.annualizedApyFromRewards,
+      this.historicalApy,
       this.vault,
       this.owner,
       this.quoteTokenAmount.minus(quoteTokenAmount),
@@ -235,6 +247,7 @@ export class Erc4626Position implements IErc4626Position {
     return new Erc4626Position(
       this.annualizedApy,
       this.annualizedApyFromRewards,
+      this.historicalApy,
       this.vault,
       this.owner,
       ZERO,

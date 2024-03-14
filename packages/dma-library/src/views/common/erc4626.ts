@@ -41,6 +41,10 @@ type SubgraphRepsonse = {
   vault: {
     totalAssets: string
     totalShares: string
+    interestRates: {
+      timestamp: string
+      rate: string
+    }[]
   }
 }
 
@@ -69,19 +73,20 @@ export async function getErc4626Position(
   { proxyAddress, vaultAddress, quotePrice, user, underlyingAsset }: Erc4626Args,
   { provider, getLazyVaultSubgraphResponse, getVaultApyParameters }: Erc4646ViewDependencies,
 ): Promise<Erc4626Position> {
-  const vaultContractInstance = new ethers.Contract(vaultAddress, erc4626abi, provider) as IERC4626
-  const vaultParameters = await getVaultApyParameters(vaultAddress)
-  const positionParameters = await getLazyVaultSubgraphResponse(vaultAddress, proxyAddress)
-
   const { precision } = underlyingAsset
 
-  let quoteTokenAmount = new BigNumber(0)
-
-  await vaultContractInstance.balanceOf(proxyAddress).then(async (balance: ethers.BigNumber) => {
-    await vaultContractInstance.convertToAssets(balance).then(async (assets: ethers.BigNumber) => {
-      quoteTokenAmount = new BigNumber(ethers.utils.formatUnits(assets, precision).toString())
-    })
-  })
+  const vaultContractInstance = new ethers.Contract(vaultAddress, erc4626abi, provider) as IERC4626
+  const [vaultParameters, positionParameters] = await Promise.all([
+    getVaultApyParameters(vaultAddress),
+    getLazyVaultSubgraphResponse(vaultAddress, proxyAddress),
+  ])
+  const [balance, maxWithdraw] = await Promise.all([
+    vaultContractInstance.balanceOf(proxyAddress),
+    vaultContractInstance.maxWithdraw(proxyAddress),
+  ])
+  const assets = await vaultContractInstance.convertToAssets(balance)
+  const quoteTokenAmount = new BigNumber(ethers.utils.formatUnits(assets, precision).toString())
+  const maxWithdrawal = new BigNumber(ethers.utils.formatUnits(maxWithdraw, precision).toString())
 
   const vault = {
     address: vaultAddress,
@@ -123,11 +128,6 @@ export async function getErc4626Position(
   const tvl = new BigNumber(
     ethers.utils.formatUnits(positionParameters.vault.totalAssets, precision).toString(),
   )
-  const maxWithdrawal = await vaultContractInstance
-    .maxWithdraw(proxyAddress)
-    .then(async (maxWithdraw: ethers.BigNumber) => {
-      return new BigNumber(ethers.utils.formatUnits(maxWithdraw, precision).toString())
-    })
 
   const allocations = vaultParameters.allocations
     ? vaultParameters.allocations.map(allocation => {
@@ -160,6 +160,7 @@ export async function getErc4626Position(
   return new Erc4626Position(
     annualizedApy,
     annualizedApyFromRewards,
+    getHistoricalApys(positionParameters),
     vault,
     user,
     quoteTokenAmount,
@@ -173,4 +174,41 @@ export async function getErc4626Position(
     rewards,
     fee,
   )
+}
+
+/**
+ * Calculates the historical APYs (Annual Percentage Yields) based on the given position parameters.
+ * @param positionParameters - The position parameters containing the vault and interest rates.
+ * @returns An object containing the historical APYs.
+ */
+function getHistoricalApys(positionParameters: SubgraphRepsonse) {
+  const historicalApy = {
+    previousDayAverage: new BigNumber(0),
+    sevenDayAverage: new BigNumber(0),
+    thirtyDayAverage: new BigNumber(0),
+  }
+  const previousDayAverage = positionParameters.vault.interestRates[0]
+  const sevenDayRates = positionParameters.vault.interestRates.slice(0, 7)
+  const thirtyDayRates = positionParameters.vault.interestRates.slice(0, 30)
+
+  if (sevenDayRates.length > 0) {
+    historicalApy.sevenDayAverage = sevenDayRates
+      .reduce((acc, rate) => {
+        return acc.plus(new BigNumber(rate.rate))
+      }, new BigNumber(0))
+      .div(sevenDayRates.length)
+  }
+
+  if (thirtyDayRates.length > 0) {
+    historicalApy.thirtyDayAverage = thirtyDayRates
+      .reduce((acc, rate) => {
+        return acc.plus(new BigNumber(rate.rate))
+      }, new BigNumber(0))
+      .div(thirtyDayRates.length)
+  }
+  if (positionParameters.vault.interestRates.length > 0) {
+    historicalApy.previousDayAverage = new BigNumber(previousDayAverage.rate)
+  }
+
+  return historicalApy
 }
