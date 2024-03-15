@@ -94,6 +94,22 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      ERC4626Deposit: {
+        name: 'ERC4626Deposit',
+        deploy: false,
+        address: '0x02862b2f3A728EffD4E4A176ea3d296983d0f1df',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      ERC4626Withdraw: {
+        name: 'ERC4626Withdraw',
+        deploy: false,
+        address: '0x4D063cF85562Dd43f0434d397e510dd0291FC5Ae',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       PositionCreated: {
         name: 'PositionCreated',
         deploy: false,
@@ -179,6 +195,14 @@ export const config: SystemConfig = {
         address: '0xce74169AF94f67eB0eC48D5151012943fCa11Db4',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS,
         history: ['0x645325494A37d35cf6baFc82C3e6bcE4473F2685'],
+        constructorArgs: [],
+      },
+      ReturnMultipleTokens: {
+        name: 'ReturnMultipleTokens',
+        deploy: false,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS,
+        history: [],
         constructorArgs: [],
       },
       TokenBalance: {
@@ -359,6 +383,14 @@ export const config: SystemConfig = {
         address: '0xAA777F9A6a31ad862D688a6789c393014dA59770',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.PAYBACK,
         history: ['0x77f36e80BC366E6C13Cc7e8e1EB5dF8190D2bD8e'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBlueClaimRewards: {
+        name: 'MorphoBlueClaimRewards',
+        deploy: false,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.CLAIM_REWARDS,
+        history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
     },
@@ -642,6 +674,7 @@ export const config: SystemConfig = {
       name: 'PAXUSD',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
     },
+    PYUSD: { name: 'PYUSD', address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8' },
     RENBTC: {
       name: 'RENBTC',
       address: '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',

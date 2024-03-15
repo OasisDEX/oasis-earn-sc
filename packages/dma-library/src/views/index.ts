@@ -9,6 +9,7 @@ import {
 } from './aave'
 import type { GetCumulativesData, GetEarnData } from './ajna'
 import { getEarnPosition, getPosition } from './ajna'
+import { getErc4626Position } from './common'
 import { getMorphoPosition } from './morpho'
 import {
   getCurrentSparkPosition,
@@ -52,13 +53,16 @@ const ajna = {
 const morpho = {
   getPosition: getMorphoPosition,
 }
-
+const common = {
+  getErc4626Position: getErc4626Position,
+}
 const views = {
   ajna,
   aave,
   spark,
   sparkOmni,
   morpho,
+  common,
 }
 export { GetCumulativesData, GetEarnData }
 export { views }

@@ -26,3 +26,10 @@ struct PaybackData {
   address onBehalf;
   bool paybackAll;
 }
+
+struct ClaimMultipleRewardsData {
+  address[] urd;
+  address[] rewards;
+  uint256[] claimable;
+  bytes32[][] proofs;
+}

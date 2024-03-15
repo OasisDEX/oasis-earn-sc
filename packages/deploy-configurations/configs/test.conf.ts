@@ -128,6 +128,22 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      ERC4626Deposit: {
+        name: 'ERC4626Deposit',
+        deploy: true,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      ERC4626Withdraw: {
+        name: 'ERC4626Withdraw',
+        deploy: true,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       TokenBalance: {
         name: 'TokenBalance',
         deploy: true,
@@ -217,6 +233,14 @@ export const config: SystemConfig = {
         deploy: true,
         address: '',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS,
+        history: [],
+        constructorArgs: [],
+      },
+      ReturnMultipleTokens: {
+        name: 'ReturnMultipleTokens',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS,
         history: [],
         constructorArgs: [],
       },
@@ -400,7 +424,7 @@ export const config: SystemConfig = {
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
-      address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
+      address: '0x1111111254eeb25477b68fb85ed929f73a960582',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     AuthorizedCaller: {

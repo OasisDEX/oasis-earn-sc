@@ -78,3 +78,17 @@ struct TokenBalanceData {
   address asset;
   address owner;
 }
+
+struct ERC4626DepositData {
+  address vault;
+  uint256 amount;
+}
+
+struct ERC4626WithdrawData {
+  address vault;
+  uint256 amount;
+}
+
+struct ReturnMultipleTokensData {
+  address[] assets;
+}

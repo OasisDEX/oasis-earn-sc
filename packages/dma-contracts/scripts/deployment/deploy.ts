@@ -189,8 +189,12 @@ abstract class DeployedSystemHelpers {
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
     this.log(
-      'NETWORK / FORKED NETWORK / ChainID',
-      `${this.network} / ${this.forkedNetwork} / ${this.chainId}`,
+      'NETWORK',
+      this.network,
+      '/ FORKED NETWORK',
+      this.forkedNetwork,
+      '/ ChainID',
+      this.chainId,
     )
 
     if (this.forkedNetwork) {
@@ -216,7 +220,10 @@ abstract class DeployedSystemHelpers {
     const account = constants.AddressZero
     const probeA = encode(['uint'], [EthersBN.from('100')])
     const probeB = encode(['uint'], [EthersBN.from('200')])
-    const token = await this.ethers.getContractAt('IERC20', tokenAddress)
+    const token = await this.ethers.getContractAt(
+      '@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20',
+      tokenAddress,
+    )
     for (let i = 0; i < 100; i++) {
       let probedSlot = this.ethers.utils.keccak256(encode(['address', 'uint'], [account, i]))
       // remove padding for JSON RPC
@@ -262,7 +269,10 @@ abstract class DeployedSystemHelpers {
       index,
       this.ethers.utils.hexZeroPad(balanceBN.toHexString(), 32),
     ])
-    const token = await this.ethers.getContractAt('IERC20', tokenAddress)
+    const token = await this.ethers.getContractAt(
+      '@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20',
+      tokenAddress,
+    )
     const balanceAfter = await token.balanceOf(account)
     return balance.toString() == balanceAfter.toString()
   }
@@ -511,7 +521,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     }
 
-    await this.verifyContract(contract.address, constructorArguments)
+    if (this.network != Network.HARDHAT) {
+      await this.verifyContract(contract.address, constructorArguments)
+    }
   }
 
   getRegistryEntryHash(name: string) {

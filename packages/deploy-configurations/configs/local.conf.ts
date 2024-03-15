@@ -100,6 +100,22 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      ERC4626Deposit: {
+        name: 'ERC4626Deposit',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      ERC4626Withdraw: {
+        name: 'ERC4626Withdraw',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       TokenBalance: {
         name: 'TokenBalance',
         deploy: false,
@@ -189,6 +205,14 @@ export const config: SystemConfig = {
         address: '0xce74169AF94f67eB0eC48D5151012943fCa11Db4',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS,
         history: ['0x645325494A37d35cf6baFc82C3e6bcE4473F2685'],
+        constructorArgs: [],
+      },
+      ReturnMultipleTokens: {
+        name: 'ReturnMultipleTokens',
+        deploy: false,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS,
+        history: [],
         constructorArgs: [],
       },
       AaveBorrow: {

@@ -16,10 +16,13 @@ import {
   AjnaPaybackWithdrawAction,
 } from './ajna'
 import {
+  erc4626Deposit,
+  erc4626Withdraw,
   positionCreated,
   pullToken,
   pullTokenMaxAmount,
   returnFunds,
+  returnMultipleTokens,
   sendToken,
   setApproval,
   swap,
@@ -34,6 +37,7 @@ import {
   morphoBluePayback,
   morphoBlueWithdraw,
 } from './morphoblue'
+import { morphoBlueClaimRewards } from './morphoblue/morphoblue'
 import { sparkBorrow, sparkDeposit, sparkPayback, sparkSetEMode, sparkWithdraw } from './spark'
 
 const aave = {
@@ -64,6 +68,9 @@ const common = {
   unwrapEth,
   takeAFlashLoan,
   tokenBalance,
+  erc4626Deposit,
+  erc4626Withdraw,
+  returnMultipleTokens,
 }
 
 const ajna: {
@@ -87,6 +94,7 @@ const morphoblue = {
   deposit: morphoBlueDeposit,
   withdraw: morphoBlueWithdraw,
   payback: morphoBluePayback,
+  claim: morphoBlueClaimRewards,
 }
 
 const actions = { aave, ajna, common, spark, morphoblue }

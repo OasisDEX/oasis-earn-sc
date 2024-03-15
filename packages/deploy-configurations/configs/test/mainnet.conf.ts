@@ -97,6 +97,22 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      ERC4626Deposit: {
+        name: 'ERC4626Deposit',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      ERC4626Withdraw: {
+        name: 'ERC4626Withdraw',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       PositionCreated: {
         name: 'PositionCreated',
         deploy: true,
@@ -178,6 +194,14 @@ export const config: SystemConfig = {
         deploy: true,
         address: '0x645325494A37d35cf6baFc82C3e6bcE4473F2685',
         serviceRegistryName: 'ReturnFunds_3',
+        history: [],
+        constructorArgs: [],
+      },
+      ReturnMultipleTokens: {
+        name: 'ReturnMultipleTokens',
+        deploy: false,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS,
         history: [],
         constructorArgs: [],
       },
@@ -490,6 +514,7 @@ export const config: SystemConfig = {
     },
     PAX: { name: 'PAX', address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1' },
     PAXUSD: { name: 'PAXUSD', address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1' },
+    PYUSD: { name: 'PYUSD', address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8' },
     RENBTC: { name: 'RENBTC', address: '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D' },
     RETH: { name: 'RETH', address: '0xae78736cd615f374d3085123a210448e74fc6393' },
     RBN: {

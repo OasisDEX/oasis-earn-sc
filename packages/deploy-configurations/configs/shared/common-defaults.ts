@@ -61,4 +61,8 @@ export const commonDefaults = {
     name: 'XETH',
     address: ADDRESS_ZERO,
   },
+  PYUSD: {
+    name: 'PYUSD',
+    address: ADDRESS_ZERO,
+  },
 } as const

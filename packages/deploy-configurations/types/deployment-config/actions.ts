@@ -17,8 +17,11 @@ export type CommonActions =
   | 'UnwrapEth'
   | 'TakeFlashloan'
   | 'ReturnFunds'
+  | 'ReturnMultipleTokens'
   | 'PositionCreated'
   | 'TokenBalance'
+  | 'ERC4626Deposit'
+  | 'ERC4626Withdraw'
 
 export type AjnaActions = 'AjnaDepositBorrow' | 'AjnaRepayWithdraw'
 
@@ -34,6 +37,7 @@ export type MorphoBlueActions =
   | `MorphoBlueDeposit`
   | `MorphoBlueWithdraw`
   | `MorphoBluePayback`
+  | 'MorphoBlueClaimRewards'
 
 export type Actions = CommonActions | AaveV3Actions | AjnaActions
 

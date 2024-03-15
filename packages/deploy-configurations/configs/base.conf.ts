@@ -2,6 +2,8 @@ import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from './shared/common-defaults'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.BASE)
 
 export const config: SystemConfig = {
@@ -93,6 +95,22 @@ export const config: SystemConfig = {
       },
     },
     actions: {
+      ERC4626Deposit: {
+        name: 'ERC4626Deposit',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      ERC4626Withdraw: {
+        name: 'ERC4626Withdraw',
+        deploy: false,
+        address: '0x0000000000000000000000000000000000000000',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
       TokenBalance: {
         name: 'TokenBalance',
         deploy: false,
@@ -185,6 +203,14 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      ReturnMultipleTokens: {
+        name: 'ReturnMultipleTokens',
+        deploy: false,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS,
+        history: [],
+        constructorArgs: [],
+      },
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
         deploy: false,
@@ -252,6 +278,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     ARB: {
       name: 'ARB',
       address: '0x0000000000000000000000000000000000000000',

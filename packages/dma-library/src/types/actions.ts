@@ -22,11 +22,14 @@ export const calldataTypes = {
     WrapEth: `tuple(uint256 amount)`,
     UnwrapEth: `tuple(uint256 amount)`,
     ReturnFunds: `tuple(address asset)`,
+    ReturnMultipleTokens: `tuple(address[] assets)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
     PullTokenMaxAmount: `tuple(address asset, address from, uint256 amount)`,
     PositionCreated: `tuple(string protocol, string positionType, address collateralToken, address debtToken)`,
     TakeAFlashLoan: `tuple(uint256 amount, address asset, bool isProxyFlashloan, bool isDPMProxy, uint8 provider, (bytes32 targetHash, bytes callData, bool skipped)[] calls)`,
     TokenBalance: `tuple(address asset, address owner)`,
+    Erc4626Deposit: `tuple(address vault, uint256 amount)`,
+    Erc4626Withdraw: `tuple(address vault, uint256 amount)`,
   },
   maker: {
     Open: `tuple(address joinAddress)`,
@@ -53,6 +56,7 @@ export const calldataTypes = {
     Withdraw: `tuple(${morphoBlueMarketParams}, uint256 amount, address to)`,
     Borrow: `tuple(${morphoBlueMarketParams}, uint256 amount)`,
     Payback: `tuple(${morphoBlueMarketParams}, uint256 amount, address onBehalf, bool paybackAll)`,
+    ClaimRewards: `tuple(address[] urd, address[] rewards, uint256[] claimable, bytes32[][] proofs)`,
   },
   ajna: {
     DepositBorrow: `tuple(address quoteToken, address collateralToken, uint256 depositAmount, uint256 borrowAmount, bool sumDepositAmounts, uint256 price)`,

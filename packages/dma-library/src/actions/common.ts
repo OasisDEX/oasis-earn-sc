@@ -203,6 +203,20 @@ export function returnFunds(network: Network, args: { asset: string }) {
   )
 }
 
+export function returnMultipleTokens(network: Network, args: { assets: string[] }) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS),
+    [calldataTypes.common.ReturnMultipleTokens],
+    [
+      {
+        assets: args.assets,
+      },
+    ],
+  )
+}
+
 export function positionCreated(
   network: Network,
   args: {
@@ -242,6 +256,45 @@ export function tokenBalance(
       {
         asset: args.asset,
         owner: args.owner,
+      },
+      paramsMapping,
+    ],
+  )
+}
+
+export function erc4626Deposit(
+  network: Network,
+  args: { vault: string; amount: BigNumber },
+  paramsMapping: [vault: number, amount: number] = [0, 0],
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT),
+    [calldataTypes.common.Erc4626Deposit],
+    [
+      {
+        vault: args.vault,
+        amount: args.amount.toFixed(0),
+      },
+      paramsMapping,
+    ],
+  )
+}
+export function erc4626Withdraw(
+  network: Network,
+  args: { vault: string; amount: BigNumber },
+  paramsMapping: [vault: number, amount: number] = [0, 0],
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW),
+    [calldataTypes.common.Erc4626Withdraw],
+    [
+      {
+        vault: args.vault,
+        amount: args.amount.toFixed(0),
       },
       paramsMapping,
     ],

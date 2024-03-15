@@ -124,6 +124,16 @@ export { MorphoBluePosition }
 export type { MorphoBlueMarket }
 
 export type {
+  Erc4626CommonDependencies,
+  Erc4626DepositPayload,
+  Erc4626DepositStrategy,
+  Erc4626StrategyAddresses,
+  Erc4626WithdrawPayload,
+  Erc4626WithdrawStrategy,
+  IErc4626Position,
+} from './common'
+export { Erc4626Position, FeeType } from './common'
+export type {
   EarnCumulativesData,
   EarnCumulativesRawData,
   LendingCumulativesData,
