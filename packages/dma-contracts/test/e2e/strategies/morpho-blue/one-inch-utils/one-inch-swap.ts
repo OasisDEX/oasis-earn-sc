@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv'
 import { getOneInchProtocols } from './one-inch-providers'
 
 dotenv.config({ path: '../../.env' })
-const ONE_INCH_API_ENDPOINT = process.env.ONE_INCH_API_ENDPOINT
+const ONE_INCH_API_ENDPOINT = process.env.ONE_INCH_API_ENDPOINT || 'https://api.1inch.dev/swap'
 if (!ONE_INCH_API_ENDPOINT) {
   throw new Error('ONE_INCH_API_ENDPOINT environment variable is not set')
 }
