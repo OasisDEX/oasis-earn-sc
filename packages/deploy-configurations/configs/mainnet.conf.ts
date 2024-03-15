@@ -561,6 +561,14 @@ export const config: SystemConfig = {
       name: 'WSTETHOracle',
       address: '0x8B6851156023f4f5A66F68BEA80851c3D905Ac93',
     },
+    USDEOracle: {
+      name: 'USDEOracle',
+      address: '0xaE4750d0813B5E37A51f7629beedd72AF1f9cA35',
+    },
+    SUSDEOracle: {
+      name: 'SUSDEOracle',
+      address: '0x5D916980D5Ae1737a8330Bf24dF812b2911Aae25',
+    },
     AAVE: {
       name: 'AAVE',
       address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',

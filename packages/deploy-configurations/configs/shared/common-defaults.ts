@@ -69,4 +69,12 @@ export const commonDefaults = {
     name: 'PYUSD',
     address: ADDRESS_ZERO,
   },
+  USDEOracle: {
+    name: 'USDEOracle',
+    address: ADDRESS_ZERO,
+  },
+  SUSDEOracle: {
+    name: 'SUSDEOracle',
+    address: ADDRESS_ZERO,
+  },
 } as const
