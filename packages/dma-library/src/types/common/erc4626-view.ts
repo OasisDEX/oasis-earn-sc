@@ -1,8 +1,10 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
-import { SupplyPosition } from '@dma-library/types/ajna/ajna-earn-position'
 import { RiskRatio } from '@domain/risk-ratio'
 import BigNumber from 'bignumber.js'
+import type { providers } from 'ethers'
+
+import { SupplyPosition } from '../ajna/ajna-earn-position'
 
 export enum FeeType {
   CURATOR = 'curator',
@@ -30,6 +32,70 @@ interface ApyFromRewards {
   token: string
   value: BigNumber
   per1kUsd?: BigNumber
+}
+
+type VaultApyResponse = {
+  vault: {
+    apy: string
+    fee?: string
+    curator?: string
+  }
+  apyFromRewards?: {
+    token: string
+    value: string
+    per1kUsd?: string
+  }[]
+  rewards?: {
+    token: string
+    earned: string
+    claimable: string
+  }[]
+  allocations?: {
+    token: string
+    supply: string
+    riskRatio: string
+  }[]
+}
+
+export type Erc4626SubgraphRepsonse = {
+  id: string
+  shares: string
+  earnCumulativeFeesUSD: string
+  earnCumulativeDepositUSD: string
+  earnCumulativeWithdrawUSD: string
+  earnCumulativeFeesInQuoteToken: string
+  earnCumulativeDepositInQuoteToken: string
+  earnCumulativeWithdrawInQuoteToken: string
+  vault: {
+    totalAssets: string
+    totalShares: string
+    interestRates: {
+      timestamp: string
+      rate: string
+    }[]
+  }
+}
+
+export type Erc4646ViewDependencies = {
+  provider: providers.Provider
+  getVaultApyParameters: (vaultAddress: string) => Promise<VaultApyResponse>
+  getLazyVaultSubgraphResponse: (
+    vaultAddress: string,
+    dpmAccount: string,
+  ) => Promise<Erc4626SubgraphRepsonse>
+}
+
+export type Erc4626Args = {
+  proxyAddress: string
+  user: string
+  vaultAddress: string
+  underlyingAsset: Token
+  quotePrice: BigNumber
+}
+export type Token = {
+  address: string
+  precision: number
+  symbol?: string
 }
 
 /**
@@ -263,5 +329,3 @@ export class Erc4626Position implements IErc4626Position {
     )
   }
 }
-
-export type Erc4626Actions = 'open-earn' | 'deposit-earn' | 'withdraw-earn' | 'claim-earn'

@@ -2,15 +2,16 @@ import { ADDRESSES, SystemKeys } from '@deploy-configurations/addresses'
 import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
 import { getGenericSwapData } from '@dma-library/strategies/common'
-import {
-  Erc4626CommonDependencies,
-  Erc4626WithdrawPayload,
-  Erc4626WithdrawStrategy,
-} from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import BigNumber from 'bignumber.js'
+
+import {
+  Erc4626CommonDependencies,
+  Erc4626WithdrawPayload,
+  Erc4626WithdrawStrategy,
+} from '../../../types/common'
 
 export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
   const addresses = { tokens: { ...ADDRESSES[dependencies.network][SystemKeys.COMMON] } }

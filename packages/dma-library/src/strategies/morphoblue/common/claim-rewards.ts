@@ -1,10 +1,15 @@
 import { Address, Tx } from '@dma-common/types'
+import { Network } from '@dma-library/index'
 import { operations } from '@dma-library/operations'
+import { CommonDMADependencies } from '@dma-library/types'
 import { encodeOperation } from '@dma-library/utils/operation'
 import BigNumber from 'bignumber.js'
 
 import { ZERO } from '../../../../../dma-common/constants/numbers'
-import { MorphoMultiplyDependencies } from './open'
+
+export interface MorphoClaimRewardsyDependencies extends CommonDMADependencies {
+  network: Network
+}
 
 export interface MorphoCloseClaimRewardsPayload {
   urds: Address[]
@@ -18,7 +23,7 @@ export interface MorphoCloseClaimRewardsPayload {
 
 export type MorphoClaimRewardsStrategy = (
   args: MorphoCloseClaimRewardsPayload,
-  dependencies: MorphoMultiplyDependencies,
+  dependencies: MorphoClaimRewardsyDependencies,
 ) => Promise<Tx>
 
 export const claimRewards: MorphoClaimRewardsStrategy = async (args, dependencies) => {

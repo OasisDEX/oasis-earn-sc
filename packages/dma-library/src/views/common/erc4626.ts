@@ -4,70 +4,12 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import erc4626abi from '../../../../abis/external/tokens/IERC4626.json'
-import { Erc4626Position, FeeType } from './types'
-
-type VaultApyResponse = {
-  vault: {
-    apy: string
-    fee?: string
-    curator?: string
-  }
-  apyFromRewards?: {
-    token: string
-    value: string
-    per1kUsd?: string
-  }[]
-  rewards?: {
-    token: string
-    earned: string
-    claimable: string
-  }[]
-  allocations?: {
-    token: string
-    supply: string
-    riskRatio: string
-  }[]
-}
-
-type SubgraphRepsonse = {
-  id: string
-  shares: string
-  earnCumulativeFeesUSD: string
-  earnCumulativeDepositUSD: string
-  earnCumulativeWithdrawUSD: string
-  earnCumulativeFeesInQuoteToken: string
-  earnCumulativeDepositInQuoteToken: string
-  earnCumulativeWithdrawInQuoteToken: string
-  vault: {
-    totalAssets: string
-    totalShares: string
-    interestRates: {
-      timestamp: string
-      rate: string
-    }[]
-  }
-}
-
-export type Erc4646ViewDependencies = {
-  provider: ethers.providers.Provider
-  getVaultApyParameters: (vaultAddress: string) => Promise<VaultApyResponse>
-  getLazyVaultSubgraphResponse: (
-    vaultAddress: string,
-    dpmAccount: string,
-  ) => Promise<SubgraphRepsonse>
-}
-type Token = {
-  address: string
-  precision: number
-  symbol?: string
-}
-export type Erc4626Args = {
-  proxyAddress: string
-  user: string
-  vaultAddress: string
-  underlyingAsset: Token
-  quotePrice: BigNumber
-}
+import { Erc4626Position, FeeType } from '../../types/common'
+import type {
+  Erc4626Args,
+  Erc4626SubgraphRepsonse,
+  Erc4646ViewDependencies,
+} from '../../types/common/erc4626-view'
 
 export async function getErc4626Position(
   { proxyAddress, vaultAddress, quotePrice, user, underlyingAsset }: Erc4626Args,
@@ -181,7 +123,7 @@ export async function getErc4626Position(
  * @param positionParameters - The position parameters containing the vault and interest rates.
  * @returns An object containing the historical APYs.
  */
-function getHistoricalApys(positionParameters: SubgraphRepsonse) {
+function getHistoricalApys(positionParameters: Erc4626SubgraphRepsonse) {
   const historicalApy = {
     previousDayAverage: new BigNumber(0),
     sevenDayAverage: new BigNumber(0),

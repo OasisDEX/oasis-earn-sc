@@ -1,11 +1,10 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
-import { Erc4626Position } from '@dma-library/views/common'
-import { Erc4646ViewDependencies } from '@dma-library/views/common/erc4626'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import { SummerStrategy } from '../ajna'
+import { Erc4626Position, Erc4646ViewDependencies } from './erc4626-view'
 import { GetSwapData } from './get-swap-data'
 
 export interface Erc4626DepositPayload {

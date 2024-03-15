@@ -1,5 +1,7 @@
-import { deposit, Erc4626DepositStrategy } from './erc4626/deposit'
-import { Erc4626WithdrawStrategy, withdraw } from './erc4626/withdraw'
+import { Erc4626DepositStrategy, Erc4626WithdrawStrategy } from '@dma-library/types'
+
+import { deposit } from './erc4626/deposit'
+import { withdraw } from './erc4626/withdraw'
 
 export { getSwapDataForCloseToCollateral } from './close-to-coll-swap-data'
 export { getSwapDataForCloseToDebt } from './close-to-debt-swap-data'

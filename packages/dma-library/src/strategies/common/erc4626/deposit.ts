@@ -2,16 +2,17 @@ import { ADDRESSES, SystemKeys } from '@deploy-configurations/addresses'
 import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
 import { getGenericSwapData } from '@dma-library/strategies/common'
-import {
-  Erc4626CommonDependencies,
-  Erc4626DepositPayload,
-  Erc4626DepositStrategy,
-} from '@dma-library/types/common'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
+
+import {
+  Erc4626CommonDependencies,
+  Erc4626DepositPayload,
+  Erc4626DepositStrategy,
+} from '../../../types/common'
 
 export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
   const addresses = { tokens: { ...ADDRESSES[dependencies.network][SystemKeys.COMMON] } }

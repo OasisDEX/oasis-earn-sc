@@ -8,6 +8,8 @@ export type {
   Erc4626WithdrawPayload,
   Erc4626WithdrawStrategy,
 } from './erc4626-strategies'
+export type { IErc4626Position } from './erc4626-view'
+export { Erc4626Position, FeeType } from './erc4626-view'
 
 export type Strategy<Position> = {
   simulation: {
