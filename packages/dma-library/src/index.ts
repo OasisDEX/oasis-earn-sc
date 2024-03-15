@@ -54,6 +54,14 @@ export type {
   AjnaOpenMultiplyPayload,
 } from './types/ajna'
 export { AjnaEarnPosition, AjnaPosition } from './types/ajna'
+export {
+  Erc4626CommonDependencies,
+  Erc4626DepositPayload,
+  Erc4626DepositStrategy,
+  Erc4626StrategyAddresses,
+  Erc4626WithdrawPayload,
+  Erc4626WithdrawStrategy,
+} from './types/common/'
 export * from './types/cumulatives'
 export { MorphoBluePosition } from './types/morphoblue'
 export { Network } from '@deploy-configurations/types/network'

@@ -1,5 +1,13 @@
 import { Address, Swap, Tx } from '@dma-common/types'
 import { ethers } from 'ethers'
+export type { Erc4626StrategyAddresses } from './erc4626-addresses'
+export type {
+  Erc4626CommonDependencies,
+  Erc4626DepositPayload,
+  Erc4626DepositStrategy,
+  Erc4626WithdrawPayload,
+  Erc4626WithdrawStrategy,
+} from './erc4626-strategies'
 
 export type Strategy<Position> = {
   simulation: {

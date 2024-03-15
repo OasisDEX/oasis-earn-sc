@@ -1,44 +1,17 @@
 import { ADDRESSES, SystemKeys } from '@deploy-configurations/addresses'
-import { Network } from '@deploy-configurations/types/network'
-import { Address } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
 import { getGenericSwapData } from '@dma-library/strategies/common'
-import { SummerStrategy } from '@dma-library/types'
-import { GetSwapData } from '@dma-library/types/common'
+import {
+  Erc4626CommonDependencies,
+  Erc4626DepositPayload,
+  Erc4626DepositStrategy,
+} from '@dma-library/types/common'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
-import { Erc4646ViewDependencies } from '@dma-library/views/common/erc4626'
-import { Erc4626Position } from '@dma-library/views/common/types'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-
-export interface Erc4626DepositPayload {
-  pullTokenSymbol: string
-  pullTokenPrecision: number
-  pullTokenAddress: Address
-  depositTokenSymbol: string
-  depositTokenPrecision: number
-  depositTokenAddress: Address
-  amount: BigNumber
-  vault: string
-  proxyAddress: Address
-  user: Address
-  slippage: BigNumber
-  quoteTokenPrice: BigNumber
-}
-export interface Erc4626CommonDependencies {
-  provider: ethers.providers.Provider
-  network: Network
-  operationExecutor: Address
-  getSwapData: GetSwapData
-}
-
-export type Erc4626DepositStrategy = (
-  args: Erc4626DepositPayload,
-  dependencies: Erc4626CommonDependencies & Erc4646ViewDependencies,
-) => Promise<SummerStrategy<Erc4626Position>>
 
 export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
   const addresses = { tokens: { ...ADDRESSES[dependencies.network][SystemKeys.COMMON] } }

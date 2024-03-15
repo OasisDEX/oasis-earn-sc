@@ -674,6 +674,7 @@ export const config: SystemConfig = {
       name: 'PAXUSD',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
     },
+    PYUSD: { name: 'PYUSD', address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8' },
     RENBTC: {
       name: 'RENBTC',
       address: '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
