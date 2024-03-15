@@ -161,6 +161,7 @@ const testVaults = [
   },
 ]
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getLazyVaultSubgraphResponse = (vaultAddress: string, proxy: string) => {
   return Promise.resolve({
     shares: '0',
@@ -182,6 +183,7 @@ const getLazyVaultSubgraphResponse = (vaultAddress: string, proxy: string) => {
     positions: [],
   })
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getVaultApyParameters = (vaultAddress: string) => {
   return Promise.resolve({
     vault: {
@@ -218,7 +220,6 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
   let config: RuntimeConfig
   let system: DeployedSystem
   let testSystem: TestDeploymentSystem
-  let helpers: TestHelpers
   let network: Network
   let addresses: ReturnType<typeof addressesByNetwork>
   let aaveLikeAddresses: AaveLikeStrategyAddresses
@@ -251,7 +252,6 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
     system = snapshot.testSystem.deployment.system
     testSystem = snapshot.testSystem
     config = snapshot.config
-    helpers = snapshot.testSystem.helpers
 
     const swapOwnerAddress = '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc'
     await setBalance(swapOwnerAddress, ethers.BigNumber.from('100000000000000000000'))

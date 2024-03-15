@@ -521,9 +521,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     }
 
-    // if (this.network != Network.HARDHAT) {
-    //   await this.verifyContract(contract.address, constructorArguments)
-    // }
+    if (this.network != Network.HARDHAT) {
+      await this.verifyContract(contract.address, constructorArguments)
+    }
   }
 
   getRegistryEntryHash(name: string) {
