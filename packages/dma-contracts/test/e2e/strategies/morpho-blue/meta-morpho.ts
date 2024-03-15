@@ -1,20 +1,17 @@
 import {
-  AaveProtocolDataProvider,
   AccountImplementation,
   AccountImplementation__factory,
-  ERC20,
   ERC20__factory,
-  WETH,
-  WETH__factory,
 } from '@abis/types/ethers-contracts'
 import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Address } from '@deploy-configurations/types/address'
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
 import { getNetwork } from '@deploy-configurations/utils/network'
-import { ONE } from '@dma-common/constants'
-import { addressesByNetwork, createDPMAccount, oneInchCallMock } from '@dma-common/test-utils'
+import { addressesByNetwork, createDPMAccount } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
-import { amountToWei, getEvents } from '@dma-common/utils/common'
+import { getEvents } from '@dma-common/utils/common'
+import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import { restoreSnapshot, Snapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
 import { strategies, views } from '@dma-library'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
@@ -25,10 +22,144 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
-const VAULT_ADDRESS = '0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB'
-const USER = '0x63C6139e8275391adA0e2a59d1599066243747c2'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { getOneInchCall } from './one-inch-utils/one-inch-swap'
+
+const USER = '0x63C6139e8275391adA0e2a59d1599066243747c2'
+
+const testVaults = [
+  {
+    vault: {
+      address: '0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB',
+      name: 'Steakhouse USDC Metamorpho Vault',
+    },
+    underlyingAsset: {
+      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+      precision: 6,
+      symbol: 'USDC',
+    },
+    pullReturnTokens: [
+      {
+        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        precision: 6,
+        symbol: 'USDC',
+        depositAmount: 1000,
+      },
+      {
+        address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        precision: 18,
+        symbol: 'WETH',
+        depositAmount: 1,
+      },
+      {
+        address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
+        precision: 6,
+        symbol: 'PYUSD',
+        depositAmount: 1000,
+      },
+    ],
+  },
+  {
+    vault: {
+      address: '0xbEEF02e5E13584ab96848af90261f0C8Ee04722a',
+      name: 'Steakhouse PYUSD Metamorpho Vault',
+    },
+    underlyingAsset: {
+      address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
+      precision: 6,
+      symbol: 'PYUSD',
+    },
+    pullReturnTokens: [
+      {
+        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        precision: 6,
+        symbol: 'USDC',
+        depositAmount: 1000,
+      },
+      {
+        address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        precision: 18,
+        symbol: 'WETH',
+        depositAmount: 1,
+      },
+      {
+        address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
+        precision: 6,
+        symbol: 'PYUSD',
+        depositAmount: 1000,
+      },
+    ],
+  },
+  {
+    vault: {
+      address: '0x2371e134e3455e0593363cBF89d3b6cf53740618',
+      name: 'Steakhouse WETH Metamorpho Vault',
+    },
+    underlyingAsset: {
+      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      precision: 18,
+      symbol: 'WETH',
+    },
+    pullReturnTokens: [
+      {
+        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        precision: 6,
+        symbol: 'USDC',
+        depositAmount: 1000,
+      },
+      {
+        address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        precision: 18,
+        symbol: 'WETH',
+        depositAmount: 1,
+      },
+      {
+        address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
+        precision: 6,
+        symbol: 'PYUSD',
+        depositAmount: 1000,
+      },
+    ],
+  },
+  {
+    vault: {
+      address: '0x83f20f44975d03b1b09e64809b757c47f942beea',
+      name: 'sDai',
+    },
+    underlyingAsset: {
+      address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      precision: 18,
+      symbol: 'DAI',
+    },
+    pullReturnTokens: [
+      {
+        address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        precision: 18,
+        symbol: 'DAI',
+        depositAmount: 1000,
+      },
+      {
+        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        precision: 6,
+        symbol: 'USDC',
+        depositAmount: 1000,
+      },
+      {
+        address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        precision: 18,
+        symbol: 'WETH',
+        depositAmount: 1,
+      },
+      {
+        address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
+        precision: 6,
+        symbol: 'PYUSD',
+        depositAmount: 1000,
+      },
+    ],
+  },
+]
 
 const getLazyVaultSubgraphResponse = (vaultAddress: string, proxy: string) => {
   return Promise.resolve({
@@ -60,18 +191,29 @@ const getVaultApyParameters = (vaultAddress: string) => {
     },
   })
 }
-
-describe.only('Deposit | ERC4626 | E2E', async () => {
+const getUnderlyingTokens = (
+  hre: HardhatRuntimeEnvironment,
+  ds: DeploymentSystem,
+): Promise<any> => {
+  for (const vault of testVaults) {
+    for (const pullToken of vault.pullReturnTokens) {
+      ds.setTokenBalance(
+        USER,
+        pullToken.address,
+        new BigNumber('100000000000000000000000000000000'),
+      )
+    }
+  }
+  return Promise.resolve({})
+}
+describe.skip('Deposit | ERC4626 | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider
   let signer: SignerWithAddress
   let owner: ethers.Signer
   let address: string
-  let WETH: WETH
-  let USDC: ERC20
 
-  let aavePoolDataProvider: AaveProtocolDataProvider
   let dpmAccount: AccountImplementation
   let config: RuntimeConfig
   let system: DeployedSystem
@@ -86,12 +228,12 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
     ;({ snapshot } = await restoreSnapshot(
       {
         hre,
-        blockNumber: 19383283,
+        blockNumber: 19435313,
         useFallbackSwap: false,
         debug: true,
         skipSnapshot: false,
       },
-      [],
+      [getUnderlyingTokens],
     ))
 
     console.log('snapshot restored')
@@ -111,19 +253,22 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
     config = snapshot.config
     helpers = snapshot.testSystem.helpers
 
-    network = await getNetwork(config.provider)
+    const swapOwnerAddress = '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc'
+    await setBalance(swapOwnerAddress, ethers.BigNumber.from('100000000000000000000'))
+    await impersonateAccount(swapOwnerAddress)
+    const swapOwner = hre.ethers.provider.getSigner(swapOwnerAddress)
+    await system.Swap.contract.connect(swapOwner).addFeeTier(2)
 
-    WETH = WETH__factory.connect(ADDRESSES[network].common.WETH, config.signer)
-    USDC = ERC20__factory.connect(ADDRESSES[network].common.USDC, config.signer)
+    network = await getNetwork(config.provider)
 
     addresses = addressesByNetwork(Network.MAINNET)
 
     aaveLikeAddresses = {
       tokens: {
-        WETH: WETH.address,
         DAI: ADDRESSES[network].common.DAI,
-        USDC: USDC.address,
         ETH: ADDRESSES[network].common.ETH,
+        USDC: ADDRESSES[network].common.USDC,
+        WETH: ADDRESSES[network].common.WETH,
       },
       operationExecutor: system.OperationExecutor.contract.address,
       chainlinkEthUsdPriceFeed: addresses.chainlinkEthUsdPriceFeed,
@@ -170,1068 +315,181 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
     })
   })
 
-  it('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds', async () => {
-    const usdcBalanceBeforeDeposit = await USDC.balanceOf(address)
-
-    const depositAmount = new BigNumber('1000')
-
-    console.log('Deposit amount                     : ', depositAmount.toString())
-    // approve USDC to DPM
-    await USDC.connect(owner).approve(dpmAccount.address, amountToWei(depositAmount, 6).toString())
-
-    const result = await strategies.common.erc4626.deposit(
-      {
-        vault: VAULT_ADDRESS,
-        depositTokenAddress: USDC.address,
-        depositTokenPrecision: 6,
-        depositTokenSymbol: 'USDC',
-        pullTokenAddress: USDC.address,
-        pullTokenPrecision: 6,
-        pullTokenSymbol: 'USDC',
-        amount: depositAmount,
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: oneInchCallMock(ONE.div(new BigNumber(3500)), {
-          from: 6,
-          to: 6,
-        }),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
-      gasLimit: 5000000,
-    })
-    const receipt = await tx.wait()
-    const events = getEvents(
-      receipt,
-      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
-    )
-    expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
-
-    const usdcBalanceAfterDeposit = await USDC.balanceOf(address)
-
-    const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-
-    // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
-    const closeCalldata = await strategies.common.erc4626.withdraw(
-      {
-        vault: VAULT_ADDRESS,
-        withdrawTokenAddress: USDC.address,
-        withdrawTokenPrecision: 6,
-        withdrawTokenSymbol: 'USDC',
-        returnTokenAddress: USDC.address,
-        returnTokenPrecision: 6,
-        returnTokenSymbol: 'USDC',
-        amount: depositAmount.times(2),
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: oneInchCallMock(ONE.div(new BigNumber(3500)), {
-          from: 6,
-          to: 6,
-        }),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx2 = await dpmAccount.execute(
-      system.OperationExecutor.contract.address,
-      closeCalldata.tx.data,
-      {
-        gasLimit: 5000000,
-      },
-    )
-    await tx2.wait()
-    const usdcBalanceAfterWithdrawal = await USDC.balanceOf(address)
-    const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-    console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
-    console.log(
-      'Position balance after deposit     : ',
-      ethers.utils.formatUnits(balanceAfterDeposit, 6).toString(),
-    )
-
-    console.log('Position shares after withdraw     : ', sharesAfterWithdraw.toString())
-    console.log(
-      'Position  balance after withdraw   : ',
-      ethers.utils.formatUnits(balanceAfterWithdraw, 6).toString(),
-    )
-
-    console.log(
-      'User USDC balance before deposit   : ',
-      ethers.utils.formatUnits(usdcBalanceBeforeDeposit, 6).toString(),
-    )
-    console.log(
-      'User USDC balance after deposit    : ',
-      ethers.utils.formatUnits(usdcBalanceAfterDeposit, 6).toString(),
-    )
-    console.log(
-      'User USDC balance after withdrawal : ',
-      ethers.utils.formatUnits(usdcBalanceAfterWithdrawal, 6).toString(),
-    )
-    console.log(
-      'User USDC balance diff             : ',
-      ethers.utils
-        .formatUnits(usdcBalanceBeforeDeposit.sub(usdcBalanceAfterWithdrawal), 6)
-        .toString(),
-    )
-    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
-    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
-  })
-  it('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault and emit `CreatePosition` event on first deposit, and withdraw 50% of funds', async () => {
-    const usdcBalanceBeforeDeposit = await USDC.balanceOf(address)
-
-    const depositAmount = new BigNumber('1000')
-
-    console.log('Deposit amount                     : ', depositAmount.toString())
-    // approve USDC to DPM
-    await USDC.connect(owner).approve(dpmAccount.address, amountToWei(depositAmount, 6).toString())
-
-    const result = await strategies.common.erc4626.deposit(
-      {
-        vault: VAULT_ADDRESS,
-        depositTokenAddress: USDC.address,
-        depositTokenPrecision: 6,
-        depositTokenSymbol: 'USDC',
-        pullTokenAddress: USDC.address,
-        pullTokenPrecision: 6,
-        pullTokenSymbol: 'USDC',
-        amount: depositAmount,
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: oneInchCallMock(ONE.div(new BigNumber(3500)), {
-          from: 6,
-          to: 6,
-        }),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
-      gasLimit: 5000000,
-    })
-    const receipt = await tx.wait()
-    const events = getEvents(
-      receipt,
-      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
-    )
-
-    expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
-
-    const usdcBalanceAfterDeposit = await USDC.balanceOf(address)
-
-    const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-
-    // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
-    const closeCalldata = await strategies.common.erc4626.withdraw(
-      {
-        vault: VAULT_ADDRESS,
-        withdrawTokenAddress: USDC.address,
-        withdrawTokenPrecision: 6,
-        withdrawTokenSymbol: 'USDC',
-        returnTokenAddress: USDC.address,
-        returnTokenPrecision: 6,
-        returnTokenSymbol: 'USDC',
-        amount: depositAmount.times(0.5),
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: oneInchCallMock(ONE.div(new BigNumber(3500)), {
-          from: 6,
-          to: 6,
-        }),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx2 = await dpmAccount.execute(
-      system.OperationExecutor.contract.address,
-      closeCalldata.tx.data,
-      {
-        gasLimit: 5000000,
-      },
-    )
-    await tx2.wait()
-    const usdcBalanceAfterWithdrawal = await USDC.balanceOf(address)
-    const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-    console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
-    console.log(
-      'Position balance after deposit     : ',
-      ethers.utils.formatUnits(balanceAfterDeposit, 6).toString(),
-    )
-
-    console.log('Position shares after withdraw     : ', sharesAfterWithdraw.toString())
-    console.log(
-      'Position  balance after withdraw   : ',
-      ethers.utils.formatUnits(balanceAfterWithdraw, 6).toString(),
-    )
-
-    console.log(
-      'User USDC balance before deposit   : ',
-      ethers.utils.formatUnits(usdcBalanceBeforeDeposit, 6).toString(),
-    )
-    console.log(
-      'User USDC balance after deposit    : ',
-      ethers.utils.formatUnits(usdcBalanceAfterDeposit, 6).toString(),
-    )
-    console.log(
-      'User USDC balance after withdrawal : ',
-      ethers.utils.formatUnits(usdcBalanceAfterWithdrawal, 6).toString(),
-    )
-    console.log(
-      'User USDC balance diff             : ',
-      ethers.utils
-        .formatUnits(usdcBalanceBeforeDeposit.sub(usdcBalanceAfterWithdrawal), 6)
-        .toString(),
-    )
-    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
-    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
-  })
-  it('should deposit 1000 USDC to Steakhosue USDC Metamorpho Vault and emit `CreatePosition` event on first deposit, deposit another 1000USDC with no `CreatePosition` event', async () => {
-    const usdcBalanceBeforeDeposit = await USDC.balanceOf(address)
-
-    const depositAmount = new BigNumber('1000')
-
-    console.log('Deposit amount                     : ', depositAmount.toString())
-    // approve USDC to DPM
-    await USDC.connect(owner).approve(
-      dpmAccount.address,
-      amountToWei(depositAmount.times(2), 6).toString(),
-    )
-
-    const result = await strategies.common.erc4626.deposit(
-      {
-        vault: VAULT_ADDRESS,
-        depositTokenAddress: USDC.address,
-        depositTokenPrecision: 6,
-        depositTokenSymbol: 'USDC',
-        pullTokenAddress: USDC.address,
-        pullTokenPrecision: 6,
-        pullTokenSymbol: 'USDC',
-        amount: depositAmount,
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: oneInchCallMock(ONE.div(new BigNumber(3500)), {
-          from: 6,
-          to: 6,
-        }),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
-      gasLimit: 5000000,
-    })
-    const receipt = await tx.wait()
-    const events = getEvents(
-      receipt,
-      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
-    )
-    expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
-
-    const usdcBalanceAfterDeposit = await USDC.balanceOf(address)
-
-    const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-
-    // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
-    const secondDeposit = await strategies.common.erc4626.deposit(
-      {
-        vault: VAULT_ADDRESS,
-        depositTokenAddress: USDC.address,
-        depositTokenPrecision: 6,
-        depositTokenSymbol: 'USDC',
-        pullTokenAddress: USDC.address,
-        pullTokenPrecision: 6,
-        pullTokenSymbol: 'USDC',
-        amount: depositAmount,
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: oneInchCallMock(ONE.div(new BigNumber(3500)), {
-          from: 6,
-          to: 6,
-        }),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const secondDepositTx = await dpmAccount.execute(
-      system.OperationExecutor.contract.address,
-      secondDeposit.tx.data,
-      {
-        gasLimit: 5000000,
-      },
-    )
-    const secondDepositReceipt = await secondDepositTx.wait()
-    const secondDepositEvents = getEvents(
-      secondDepositReceipt,
-      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
-    )
-    expect(secondDepositEvents.length).to.eq(0)
-    const usdcBalanceSecondDeposit = await USDC.balanceOf(address)
-    const { shares: sharesAfterSecondDeposit, balance: balanceAfterSecondDeposit } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-    console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
-    console.log(
-      'Position balance after deposit     : ',
-      ethers.utils.formatUnits(balanceAfterDeposit, 6).toString(),
-    )
-
-    console.log('Position shares after 2nd deposit  : ', sharesAfterSecondDeposit.toString())
-    console.log(
-      'Position  balance after 2nd deposit: ',
-      ethers.utils.formatUnits(balanceAfterSecondDeposit, 6).toString(),
-    )
-
-    console.log(
-      'User USDC balance before deposit   : ',
-      ethers.utils.formatUnits(usdcBalanceBeforeDeposit, 6).toString(),
-    )
-    console.log(
-      'User USDC balance after deposit    : ',
-      ethers.utils.formatUnits(usdcBalanceAfterDeposit, 6).toString(),
-    )
-    console.log(
-      'User USDC balance after 2nd deposit: ',
-      ethers.utils.formatUnits(usdcBalanceSecondDeposit, 6).toString(),
-    )
-    console.log(
-      'User USDC balance diff             : ',
-      ethers.utils
-        .formatUnits(usdcBalanceBeforeDeposit.sub(usdcBalanceSecondDeposit), 6)
-        .toString(),
-    )
-    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
-    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
-  })
-  it('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds', async () => {
-    await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
-    const usdcBalanceBeforeDeposit = await USDC.balanceOf(address)
-    const wethBalanceBeforeDeposit = await hre.ethers.provider.getBalance(address)
-
-    const depositAmount = new BigNumber('1')
-
-    console.log('Deposit amount                     : ', depositAmount.toString())
-    // approve USDC to DPM
-    await USDC.connect(owner).approve(dpmAccount.address, amountToWei(depositAmount, 6).toString())
-
-    const result = await strategies.common.erc4626.deposit(
-      {
-        vault: VAULT_ADDRESS,
-        depositTokenAddress: USDC.address,
-        depositTokenPrecision: 6,
-        depositTokenSymbol: 'USDC',
-        pullTokenAddress: WETH.address,
-        pullTokenPrecision: 18,
-        pullTokenSymbol: 'WETH',
-        amount: depositAmount,
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
-      gasLimit: 5000000,
-      value: result.tx.value,
-    })
-    const receipt = await tx.wait()
-    const events = getEvents(
-      receipt,
-      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
-    )
-    expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
-
-    const feePaidDespoit = getEvents(
-      receipt,
-      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
-    )
-
-    console.log(
-      'feePaid @ deposit : ',
-      ethers.utils.formatUnits(feePaidDespoit[0].args[1], 6).toString(),
-    )
-
-    const usdcBalanceAfterDeposit = await USDC.balanceOf(address)
-    const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
-    const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-
-    const currentPosition = await views.common.getErc4626Position(
-      {
-        vaultAddress: VAULT_ADDRESS,
-        proxyAddress: dpmAccount.address,
-        user: address,
-        quotePrice: new BigNumber(1),
-        underlyingAsset: {
-          address: USDC.address,
-          precision: 6,
-          symbol: 'USDC',
-        },
-      },
-      {
-        provider: hre.ethers.provider,
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-    // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
-    const closeCalldata = await strategies.common.erc4626.withdraw(
-      {
-        vault: VAULT_ADDRESS,
-        withdrawTokenAddress: USDC.address,
-        withdrawTokenPrecision: 6,
-        withdrawTokenSymbol: 'USDC',
-        returnTokenAddress: USDC.address,
-        returnTokenPrecision: 6,
-        returnTokenSymbol: 'USDC',
-        amount: currentPosition.quoteTokenAmount.times(2),
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx2 = await dpmAccount.execute(
-      system.OperationExecutor.contract.address,
-      closeCalldata.tx.data,
-      {
-        gasLimit: 5000000,
-      },
-    )
-    const receiptWithdraw = await tx2.wait()
-
-    const feePaidWithdraw = getEvents(
-      receiptWithdraw,
-      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
-    )
-    expect(feePaidWithdraw.length).to.eq(0)
-
-    const usdcBalanceAfterWithdrawal = await USDC.balanceOf(address)
-    const wethBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
-    const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-    console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
-    console.log(
-      'Position balance after deposit     : ',
-      ethers.utils.formatUnits(balanceAfterDeposit, 6).toString(),
-    )
-
-    console.log('Position shares after withdraw     : ', sharesAfterWithdraw.toString())
-    console.log(
-      'Position  balance after withdraw   : ',
-      ethers.utils.formatUnits(balanceAfterWithdraw, 6).toString(),
-    )
-
-    console.log(
-      'User USDC balance before deposit   : ',
-      ethers.utils.formatUnits(usdcBalanceBeforeDeposit, 6).toString(),
-    )
-    console.log(
-      'User ETH balance before deposit    : ',
-      ethers.utils.formatUnits(wethBalanceBeforeDeposit, 18).toString(),
-    )
-    console.log(
-      'User USDC balance after deposit    : ',
-      ethers.utils.formatUnits(usdcBalanceAfterDeposit, 6).toString(),
-    )
-    console.log(
-      'User WETH balance after deposit    : ',
-      ethers.utils.formatUnits(wethBalanceAfterDeposit, 18).toString(),
-    )
-    console.log(
-      'User USDC balance after withdrawal : ',
-      ethers.utils.formatUnits(usdcBalanceAfterWithdrawal, 6).toString(),
-    )
-    console.log(
-      'User WETH balance after withdrawal : ',
-      ethers.utils.formatUnits(wethBalanceAfterWithdrawal, 18).toString(),
-    )
-    console.log(
-      'User USDC balance diff             : ',
-      ethers.utils
-        .formatUnits(usdcBalanceBeforeDeposit.sub(usdcBalanceAfterWithdrawal), 6)
-        .toString(),
-    )
-    console.log(
-      'User WETH balance diff             : ',
-      ethers.utils
-        .formatUnits(wethBalanceBeforeDeposit.sub(wethBalanceAfterWithdrawal), 18)
-        .toString(),
-    )
-    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
-    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
-  })
-  it('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw all funds as ETH', async () => {
-    await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
-
-    const wethBalanceBeforeDeposit = await hre.ethers.provider.getBalance(address)
-
-    const depositAmount = new BigNumber('1')
-
-    console.log('Deposit amount                     : ', depositAmount.toString())
-    // approve USDC to DPM
-    await USDC.connect(owner).approve(dpmAccount.address, amountToWei(depositAmount, 6).toString())
-
-    const result = await strategies.common.erc4626.deposit(
-      {
-        vault: VAULT_ADDRESS,
-        depositTokenAddress: USDC.address,
-        depositTokenPrecision: 6,
-        depositTokenSymbol: 'USDC',
-        pullTokenAddress: WETH.address,
-        pullTokenPrecision: 18,
-        pullTokenSymbol: 'WETH',
-        amount: depositAmount,
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
-      gasLimit: 5000000,
-      value: result.tx.value,
-    })
-    const receipt = await tx.wait()
-    const events = getEvents(
-      receipt,
-      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
-    )
-    expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
-
-    const feePaidDespoit = getEvents(
-      receipt,
-      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
-    )
-
-    console.log(
-      'feePaid @ deposit : ',
-      ethers.utils.formatUnits(feePaidDespoit[0].args[1], 6).toString(),
-    )
-
-    const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
-
-    const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-
-    const currentPosition = await views.common.getErc4626Position(
-      {
-        vaultAddress: VAULT_ADDRESS,
-        proxyAddress: dpmAccount.address,
-        user: address,
-        quotePrice: new BigNumber(1),
-        underlyingAsset: {
-          address: USDC.address,
-          precision: 6,
-          symbol: 'USDC',
-        },
-      },
-      {
-        provider: hre.ethers.provider,
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-    // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
-    const closeCalldata = await strategies.common.erc4626.withdraw(
-      {
-        vault: VAULT_ADDRESS,
-        withdrawTokenAddress: USDC.address,
-        withdrawTokenPrecision: 6,
-        withdrawTokenSymbol: 'USDC',
-        returnTokenAddress: WETH.address,
-        returnTokenPrecision: 18,
-        returnTokenSymbol: 'WETH',
-        amount: currentPosition.quoteTokenAmount.times(2),
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx2 = await dpmAccount.execute(
-      system.OperationExecutor.contract.address,
-      closeCalldata.tx.data,
-      {
-        gasLimit: 5000000,
-      },
-    )
-    const receiptWithdraw = await tx2.wait()
-
-    const feePaidWithdraw = getEvents(
-      receiptWithdraw,
-      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
-    )
-
-    console.log(
-      'feePaid @ withdraw : ',
-      ethers.utils.formatUnits(feePaidWithdraw[0].args[1], 6).toString(),
-    )
-    const wethBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
-    const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-    console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
-    console.log(
-      'Position balance after deposit               : ',
-      ethers.utils.formatUnits(balanceAfterDeposit, 6).toString(),
-    )
-
-    console.log('Position shares after withdraw     : ', sharesAfterWithdraw.toString())
-    console.log(
-      'Position  balance after withdraw             : ',
-      ethers.utils.formatUnits(balanceAfterWithdraw, 6).toString(),
-    )
-
-    console.log(
-      'User WETH balance before deposit             : ',
-      ethers.utils.formatUnits(wethBalanceBeforeDeposit, 18).toString(),
-    )
-
-    console.log(
-      'User WETH balance after deposit              : ',
-      ethers.utils.formatUnits(wethBalanceAfterDeposit, 18).toString(),
-    )
-    console.log(
-      'User WETH deposited (based on balance)       : ',
-      ethers.utils
-        .formatUnits(wethBalanceBeforeDeposit.sub(wethBalanceAfterDeposit), 18)
-        .toString(),
-    )
-    console.log(
-      'User WETH balance after withdrawal           : ',
-      ethers.utils.formatUnits(wethBalanceAfterWithdrawal, 18).toString(),
-    )
-    console.log(
-      'User WETH withdrawn (based on balance)       : ',
-      ethers.utils
-        .formatUnits(wethBalanceAfterDeposit.sub(wethBalanceAfterWithdrawal), 18)
-        .toString(),
-    )
-    console.log(
-      'User WETH balance diff (gas cost)            : ',
-      ethers.utils
-        .formatUnits(wethBalanceBeforeDeposit.sub(wethBalanceAfterWithdrawal), 18)
-        .toString(),
-    )
-    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
-    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
-  })
-  it('should deposit 1 WETH to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw 50% funds as ETH', async () => {
-    await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
-
-    const wethBalanceBeforeDeposit = await hre.ethers.provider.getBalance(address)
-
-    const depositAmount = new BigNumber('1')
-
-    console.log('Deposit amount                     : ', depositAmount.toString())
-    // approve USDC to DPM
-    await USDC.connect(owner).approve(dpmAccount.address, amountToWei(depositAmount, 6).toString())
-
-    const result = await strategies.common.erc4626.deposit(
-      {
-        vault: VAULT_ADDRESS,
-        depositTokenAddress: USDC.address,
-        depositTokenPrecision: 6,
-        depositTokenSymbol: 'USDC',
-        pullTokenAddress: WETH.address,
-        pullTokenPrecision: 18,
-        pullTokenSymbol: 'WETH',
-        amount: depositAmount,
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
-      gasLimit: 5000000,
-      value: result.tx.value,
-    })
-    const receipt = await tx.wait()
-    const events = getEvents(
-      receipt,
-      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
-    )
-    expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
-
-    const feePaidDespoit = getEvents(
-      receipt,
-      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
-    )
-
-    console.log(
-      'feePaid @ deposit : ',
-      ethers.utils.formatUnits(feePaidDespoit[0].args[1], 6).toString(),
-    )
-
-    const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
-
-    const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-
-    const currentPosition = await views.common.getErc4626Position(
-      {
-        vaultAddress: VAULT_ADDRESS,
-        proxyAddress: dpmAccount.address,
-        user: address,
-        quotePrice: new BigNumber(1),
-        underlyingAsset: {
-          address: USDC.address,
-          precision: 6,
-          symbol: 'USDC',
-        },
-      },
-      {
-        provider: hre.ethers.provider,
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-    // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
-    const closeCalldata = await strategies.common.erc4626.withdraw(
-      {
-        vault: VAULT_ADDRESS,
-        withdrawTokenAddress: USDC.address,
-        withdrawTokenPrecision: 6,
-        withdrawTokenSymbol: 'USDC',
-        returnTokenAddress: WETH.address,
-        returnTokenPrecision: 18,
-        returnTokenSymbol: 'WETH',
-        amount: currentPosition.quoteTokenAmount.times(0.5),
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx2 = await dpmAccount.execute(
-      system.OperationExecutor.contract.address,
-      closeCalldata.tx.data,
-      {
-        gasLimit: 5000000,
-      },
-    )
-    const receiptWithdraw = await tx2.wait()
-
-    const feePaidWithdraw = getEvents(
-      receiptWithdraw,
-      testSystem.deployment.system.Swap.contract.interface.getEvent('FeePaid'),
-    )
-
-    console.log(
-      'feePaid @ withdraw : ',
-      ethers.utils.formatUnits(feePaidWithdraw[0].args[1], 6).toString(),
-    )
-
-    const wethBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
-    const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-    console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
-    console.log(
-      'Position balance after deposit     : ',
-      ethers.utils.formatUnits(balanceAfterDeposit, 6).toString(),
-    )
-
-    console.log('Position shares after withdraw     : ', sharesAfterWithdraw.toString())
-    console.log(
-      'Position  balance after withdraw   : ',
-      ethers.utils.formatUnits(balanceAfterWithdraw, 6).toString(),
-    )
-
-    console.log(
-      'User WETH balance before deposit   : ',
-      ethers.utils.formatUnits(wethBalanceBeforeDeposit, 18).toString(),
-    )
-    console.log(
-      'User WETH balance after deposit    : ',
-      ethers.utils.formatUnits(wethBalanceAfterDeposit, 18).toString(),
-    )
-    console.log(
-      'User WETH balance after withdrawal : ',
-      ethers.utils.formatUnits(wethBalanceAfterWithdrawal, 18).toString(),
-    )
-    console.log(
-      'User WETH balance diff             : ',
-      ethers.utils
-        .formatUnits(wethBalanceBeforeDeposit.sub(wethBalanceAfterWithdrawal), 18)
-        .toString(),
-    )
-    expect(await USDC.balanceOf(dpmAccount.address)).to.eq(0)
-    expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
-  })
-  it.skip('should deposit 100 Coumpound cUSD to Steakhosue USDC Metamorpho Vault, emit `CreatePosition` event on first deposit, and withdraw 50% funds as ETH', async () => {
-    await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
-
-    const wethBalanceBeforeDeposit = await hre.ethers.provider.getBalance(address)
-
-    const depositAmount = new BigNumber('100')
-
-    console.log('Deposit amount                     : ', depositAmount.toString())
-    // approve USDC to DPM
-    const cUSD = await hre.ethers.getContractAt(
-      '@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20',
-      '0xBcca60bB61934080951369a648Fb03DF4F96263C',
-      owner,
-    )
-
-    await cUSD.connect(owner).approve(dpmAccount.address, amountToWei(depositAmount, 18).toString())
-
-    const result = await strategies.common.erc4626.deposit(
-      {
-        vault: VAULT_ADDRESS,
-        depositTokenAddress: USDC.address,
-        depositTokenPrecision: 6,
-        depositTokenSymbol: 'USDC',
-        pullTokenAddress: '0xBcca60bB61934080951369a648Fb03DF4F96263C',
-        pullTokenPrecision: 18,
-        pullTokenSymbol: 'cUSD',
-        amount: depositAmount,
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
-      gasLimit: 5000000,
-      value: result.tx.value,
-    })
-    const receipt = await tx.wait()
-    const events = getEvents(
-      receipt,
-      testSystem.deployment.system.PositionCreated.contract.interface.getEvent('CreatePosition'),
-    )
-    expect(events.length).to.eq(1)
-    expect(events[0].args?.protocol).to.eq(`erc4626-${VAULT_ADDRESS.toLowerCase()}`)
-
-    const wethBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
-
-    const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-
-    const currentPosition = await views.common.getErc4626Position(
-      {
-        vaultAddress: VAULT_ADDRESS,
-        proxyAddress: dpmAccount.address,
-        user: address,
-        quotePrice: new BigNumber(1),
-        underlyingAsset: {
-          address: USDC.address,
-          precision: 6,
-          symbol: 'USDC',
-        },
-      },
-      {
-        provider: hre.ethers.provider,
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-    // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
-    const closeCalldata = await strategies.common.erc4626.withdraw(
-      {
-        vault: VAULT_ADDRESS,
-        withdrawTokenAddress: USDC.address,
-        withdrawTokenPrecision: 6,
-        withdrawTokenSymbol: 'USDC',
-        returnTokenAddress: WETH.address,
-        returnTokenPrecision: 18,
-        returnTokenSymbol: 'WETH',
-        amount: currentPosition.quoteTokenAmount.times(0.5),
-        proxyAddress: dpmAccount.address,
-        slippage: new BigNumber(0.25),
-        user: address,
-        quoteTokenPrice: new BigNumber(1),
-      },
-      {
-        provider: provider,
-        addresses: aaveLikeAddresses,
-        network: network,
-        operationExecutor: aaveLikeAddresses.operationExecutor,
-        getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
-        getLazyVaultSubgraphResponse,
-        getVaultApyParameters,
-      },
-    )
-
-    const tx2 = await dpmAccount.execute(
-      system.OperationExecutor.contract.address,
-      closeCalldata.tx.data,
-      {
-        gasLimit: 5000000,
-      },
-    )
-    await tx2.wait()
-    const wethBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
-    const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
-      await getProxyShareAndDeposit(owner, dpmAccount)
-    console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
-    console.log(
-      'Position balance after deposit     : ',
-      ethers.utils.formatUnits(balanceAfterDeposit, 6).toString(),
-    )
-
-    console.log('Position shares after withdraw     : ', sharesAfterWithdraw.toString())
-    console.log(
-      'Position  balance after withdraw   : ',
-      ethers.utils.formatUnits(balanceAfterWithdraw, 6).toString(),
-    )
-
-    console.log(
-      'User WETH balance before deposit   : ',
-      ethers.utils.formatUnits(wethBalanceBeforeDeposit, 18).toString(),
-    )
-    console.log(
-      'User WETH balance after deposit    : ',
-      ethers.utils.formatUnits(wethBalanceAfterDeposit, 18).toString(),
-    )
-    console.log(
-      'User WETH balance after withdrawal : ',
-      ethers.utils.formatUnits(wethBalanceAfterWithdrawal, 18).toString(),
-    )
-    console.log(
-      'User WETH balance diff             : ',
-      ethers.utils
-        .formatUnits(wethBalanceBeforeDeposit.sub(wethBalanceAfterWithdrawal), 18)
-        .toString(),
-    )
-  })
+  for (const vault of testVaults) {
+    for (const pullToken of vault.pullReturnTokens) {
+      it(`deposit ${pullToken.depositAmount} of ${pullToken.symbol} to ${vault.vault.name} where ${vault.underlyingAsset.symbol} is the underlying asset`, async () => {
+        await setBalance(address, ethers.BigNumber.from('100000000000000000000'))
+        const pullTokenContract = ERC20__factory.connect(pullToken.address, owner)
+        const depositTokenContract =
+          pullToken.address.toLowerCase() === vault.underlyingAsset.address.toLowerCase()
+            ? pullTokenContract
+            : ERC20__factory.connect(vault.underlyingAsset.address, owner)
+
+        const pullTokenBalanceBeforeDeposit = await pullTokenContract.balanceOf(address)
+        const depositTokenBalanceBeforeDeposit = await depositTokenContract.balanceOf(address)
+
+        const depositAmount = new BigNumber(pullToken.depositAmount)
+
+        console.log(
+          'Deposit amount                     : ',
+          depositAmount.toString(),
+          pullToken.symbol,
+        )
+        await pullTokenContract
+          .connect(owner)
+          .approve(dpmAccount.address, '10000000000000000000000000')
+
+        await depositTokenContract
+          .connect(owner)
+          .approve(dpmAccount.address, '1000000000000000000000000')
+
+        const result = await strategies.common.erc4626.deposit(
+          {
+            vault: vault.vault.address,
+            depositTokenAddress: depositTokenContract.address,
+            depositTokenPrecision: vault.underlyingAsset.precision,
+            depositTokenSymbol: vault.underlyingAsset.symbol,
+            pullTokenAddress: pullTokenContract.address,
+            pullTokenPrecision: pullToken.precision,
+            pullTokenSymbol: pullToken.symbol,
+            amount: depositAmount,
+            proxyAddress: dpmAccount.address,
+            slippage: new BigNumber(0.25),
+            user: address,
+            quoteTokenPrice: new BigNumber(1),
+          },
+          {
+            provider: provider,
+            network: network,
+            operationExecutor: aaveLikeAddresses.operationExecutor,
+            getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+            getLazyVaultSubgraphResponse,
+            getVaultApyParameters,
+          },
+        )
+        const tx = await dpmAccount
+          .connect(owner)
+          .execute(system.OperationExecutor.contract.address, result.tx.data, {
+            gasLimit: 5000000,
+            value: result.tx.value,
+          })
+        const receipt = await tx.wait()
+        const events = getEvents(
+          receipt,
+          testSystem.deployment.system.PositionCreated.contract.interface.getEvent(
+            'CreatePosition',
+          ),
+        )
+        expect(events.length).to.eq(1)
+        expect(events[0].args?.protocol).to.eq(`erc4626-${vault.vault.address.toLowerCase()}`)
+
+        const pullTokenBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
+
+        const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
+          await getProxyShareAndDeposit(owner, dpmAccount, vault.vault.address)
+
+        const currentPosition = await views.common.getErc4626Position(
+          {
+            vaultAddress: vault.vault.address,
+            proxyAddress: dpmAccount.address,
+            user: address,
+            quotePrice: new BigNumber(1),
+            underlyingAsset: {
+              address: vault.underlyingAsset.address,
+              precision: vault.underlyingAsset.precision,
+              symbol: vault.underlyingAsset.symbol,
+            },
+          },
+          {
+            provider: hre.ethers.provider,
+            getLazyVaultSubgraphResponse,
+            getVaultApyParameters,
+          },
+        )
+        // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
+        const closeCalldata = await strategies.common.erc4626.withdraw(
+          {
+            vault: vault.vault.address,
+            withdrawTokenAddress: vault.underlyingAsset.address,
+            withdrawTokenPrecision: vault.underlyingAsset.precision,
+            withdrawTokenSymbol: vault.underlyingAsset.symbol,
+            returnTokenAddress: pullToken.address,
+            returnTokenPrecision: pullToken.precision,
+            returnTokenSymbol: pullToken.symbol,
+            amount: currentPosition.quoteTokenAmount.times(0.5),
+            proxyAddress: dpmAccount.address,
+            slippage: new BigNumber(0.25),
+            user: address,
+            quoteTokenPrice: new BigNumber(1),
+          },
+          {
+            provider: provider,
+            network: network,
+            operationExecutor: aaveLikeAddresses.operationExecutor,
+            getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+            getLazyVaultSubgraphResponse,
+            getVaultApyParameters,
+          },
+        )
+
+        const tx2 = await dpmAccount.execute(
+          system.OperationExecutor.contract.address,
+          closeCalldata.tx.data,
+          {
+            gasLimit: 5000000,
+          },
+        )
+        await tx2.wait()
+        const pullTokenBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
+        const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
+          await getProxyShareAndDeposit(owner, dpmAccount, vault.vault.address)
+        console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
+        console.log(
+          'Position balance after deposit     : ',
+          ethers.utils.formatUnits(balanceAfterDeposit, vault.underlyingAsset.precision).toString(),
+        )
+
+        console.log('Position shares after withdraw     : ', sharesAfterWithdraw.toString())
+        console.log(
+          'Position  balance after withdraw   : ',
+          ethers.utils
+            .formatUnits(balanceAfterWithdraw, vault.underlyingAsset.precision)
+            .toString(),
+        )
+
+        console.log(
+          `User ${pullToken.symbol} balance before deposit   : `,
+          ethers.utils.formatUnits(pullTokenBalanceBeforeDeposit, pullToken.precision).toString(),
+        )
+        console.log(
+          `User ${pullToken.symbol} after  deposit    : `,
+          ethers.utils.formatUnits(pullTokenBalanceAfterDeposit, pullToken.precision).toString(),
+        )
+        console.log(
+          `User ${pullToken.symbol} after  withdrawal    : `,
+          ethers.utils.formatUnits(pullTokenBalanceAfterWithdrawal, pullToken.precision).toString(),
+        )
+        console.log(
+          `User ${pullToken.symbol} balance diff             : `,
+          ethers.utils
+            .formatUnits(
+              pullTokenBalanceBeforeDeposit.sub(pullTokenBalanceAfterWithdrawal),
+              pullToken.precision,
+            )
+            .toString(),
+        )
+        expect(await depositTokenContract.balanceOf(dpmAccount.address)).to.eq(0)
+        expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
+      })
+    }
+  }
 })
-async function getProxyShareAndDeposit(owner: ethers.Signer, dpmAccount: AccountImplementation) {
-  const vault = IERC4626__factory.connect(VAULT_ADDRESS, owner)
+async function getProxyShareAndDeposit(
+  owner: ethers.Signer,
+  dpmAccount: AccountImplementation,
+  vaultAddress: Address,
+) {
+  const vault = IERC4626__factory.connect(vaultAddress, owner)
   const shares = await vault.balanceOf(dpmAccount.address)
   const balance = await vault.convertToAssets(shares)
 

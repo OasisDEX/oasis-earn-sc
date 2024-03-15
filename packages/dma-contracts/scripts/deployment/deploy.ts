@@ -494,7 +494,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         // Mainnet is excluded because Service Registry is managed by multi-sig wallet
       } else if (!this.multiSigNetwork.includes(this.network)) {
         console.log(
-          `Adding entry to ServiceRegistry: ${configItem.serviceRegistryName
+          `Adding entry to ServiceRegistry: ${
+            configItem.serviceRegistryName
           } hash: ${utils.keccak256(
             utils.toUtf8Bytes(configItem.serviceRegistryName),
           )} for address : ${contract.address}`,
@@ -511,7 +512,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         }
       } else {
         console.log(
-          `ServiceRegistry entry not added for ${configItem.serviceRegistryName
+          `ServiceRegistry entry not added for ${
+            configItem.serviceRegistryName
           } hash: ${utils.keccak256(
             utils.toUtf8Bytes(configItem.serviceRegistryName),
           )} on network ${this.network}. Use GnosisSafeServiceClient to add entry.`,
