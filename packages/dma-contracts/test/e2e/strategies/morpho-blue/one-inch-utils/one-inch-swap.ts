@@ -10,8 +10,8 @@ const ONE_INCH_API_ENDPOINT = process.env.ONE_INCH_API_ENDPOINT || 'https://api.
 if (!ONE_INCH_API_ENDPOINT) {
   throw new Error('ONE_INCH_API_ENDPOINT environment variable is not set')
 }
-
-const ONE_INCH_API_KEY = process.env.ONE_INCH_API_KEY
+// TODO: disposable dev key - get rid when it's set up in the env
+const ONE_INCH_API_KEY = process.env.ONE_INCH_API_KEY || '1jeGrvvfK39r35Bl09zXVTyS5tZ4S24y'
 if (!ONE_INCH_API_KEY) {
   throw new Error('ONE_INCH_API_KEY environment variable is not set')
 }
