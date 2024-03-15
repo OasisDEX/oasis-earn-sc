@@ -32,5 +32,7 @@ export type Common =
   | 'ChainlinkPriceOracle_ETHUSD'
   | 'SdaiOracle'
   | 'WSTETHOracle'
+  | 'USDEOracle'
+  | 'SUSDEOracle'
 
 export type CommonContracts = Record<Common, ConfigEntry>
