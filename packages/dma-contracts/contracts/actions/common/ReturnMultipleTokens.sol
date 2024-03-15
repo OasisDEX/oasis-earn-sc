@@ -18,10 +18,7 @@ contract ReturnMultipleTokens is Executable {
    * @param data Encoded calldata that conforms to the ReturnFundsData struct
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    ReturnMultipleTokensData memory returnData = abi.decode(
-      data,
-      (ReturnMultipleTokensData)
-    );
+    ReturnMultipleTokensData memory returnData = abi.decode(data, (ReturnMultipleTokensData));
     address[] memory tokens = returnData.assets;
     address owner = IDSProxy(payable(address(this))).owner();
     uint256 amount;
