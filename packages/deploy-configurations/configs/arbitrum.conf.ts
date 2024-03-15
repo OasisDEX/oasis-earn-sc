@@ -2,6 +2,8 @@ import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from './shared/common-defaults'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.ARBITRUM)
 
 export const config: SystemConfig = {
@@ -268,6 +270,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     ARB: {
       name: 'ARB',
       address: '0x912ce59144191c1204e64559fe8253a0e49e6548',

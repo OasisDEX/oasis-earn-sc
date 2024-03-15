@@ -167,10 +167,10 @@ const config = {
         },
       ],
       chainId: ChainIdByNetwork[Network.LOCAL],
-      // mining: {
-      //   auto: true,
-      //   interval: 2000,
-      // },
+      mining: {
+        auto: true,
+        interval: 2000,
+      },
       hardfork: 'london',
       gas: 'auto',
       initialBaseFeePerGas: 1000000000,
