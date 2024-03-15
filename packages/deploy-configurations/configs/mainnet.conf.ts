@@ -781,6 +781,10 @@ export const config: SystemConfig = {
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
     },
+    USDE: {
+      name: 'USDE',
+      address: '0x4c9edd5852cd905f086c759e8383e09bff1e68b3',
+    },
     'USDC.E': {
       name: 'USDC.E',
       address: '0x0000000000000000000000000000000000000000',
