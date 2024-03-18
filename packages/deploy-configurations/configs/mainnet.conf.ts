@@ -200,7 +200,7 @@ export const config: SystemConfig = {
       ReturnMultipleTokens: {
         name: 'ReturnMultipleTokens',
         deploy: false,
-        address: '',
+        address: '0xEAd2DF7334E9B6579B922749Db294b6D34d002b8',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS,
         history: [],
         constructorArgs: [],
@@ -388,10 +388,10 @@ export const config: SystemConfig = {
       MorphoBlueClaimRewards: {
         name: 'MorphoBlueClaimRewards',
         deploy: false,
-        address: '',
+        address: '0x8DA1109207Ed8e529Ba21Cd8187126053c07EC3E',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.CLAIM_REWARDS,
         history: [],
-        constructorArgs: ['address:ServiceRegistry'],
+        constructorArgs: [],
       },
     },
   },
@@ -682,7 +682,10 @@ export const config: SystemConfig = {
       name: 'PAXUSD',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
     },
-    PYUSD: { name: 'PYUSD', address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8' },
+    PYUSD: {
+      name: 'PYUSD',
+      address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
+    },
     RENBTC: {
       name: 'RENBTC',
       address: '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',

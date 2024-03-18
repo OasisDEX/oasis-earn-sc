@@ -10,6 +10,7 @@ export const SERVICE_REGISTRY_NAMES = {
     WRAP_ETH: 'WrapEth_3',
     UNWRAP_ETH: 'UnwrapEth_3',
     RETURN_FUNDS: 'ReturnFunds_3',
+    RETURN_MULTIPLE_TOKENS: 'ReturnMultipleTokens',
     POSITION_CREATED: 'PositionCreated',
     ERC4626_DEPOSIT: 'ERC4626Deposit',
     ERC4626_WITHDRAW: 'ERC4626Withdraw',
