@@ -7,6 +7,7 @@ import {
   MorphoPaybackWithdrawStrategy,
   paybackWithdraw as morphoPaybackWithdraw,
 } from './borrow/payback-withdraw'
+import { claimRewards, MorphoClaimRewardsStrategy } from './common/claim-rewards'
 import { adjustMultiply, MorphoAdjustRiskStrategy } from './multiply/adjust'
 import { closeMultiply, MorphoCloseStrategy } from './multiply/close'
 import { MorphoOpenMultiplyStrategy, openMultiply } from './multiply/open'
@@ -22,6 +23,9 @@ export const morphoblue: {
     close: MorphoCloseStrategy
     adjust: MorphoAdjustRiskStrategy
   }
+  common: {
+    claimRewards: MorphoClaimRewardsStrategy
+  }
 } = {
   borrow: {
     openDepositBorrow: morphoblueOpenDepositBorrow,
@@ -32,5 +36,8 @@ export const morphoblue: {
     open: openMultiply,
     adjust: adjustMultiply,
     close: closeMultiply,
+  },
+  common: {
+    claimRewards: claimRewards,
   },
 }
