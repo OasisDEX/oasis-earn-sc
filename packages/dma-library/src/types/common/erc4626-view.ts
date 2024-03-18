@@ -58,22 +58,24 @@ type VaultApyResponse = {
 }
 
 export type Erc4626SubgraphRepsonse = {
-  id: string
-  shares: string
-  earnCumulativeFeesUSD: string
-  earnCumulativeDepositUSD: string
-  earnCumulativeWithdrawUSD: string
-  earnCumulativeFeesInQuoteToken: string
-  earnCumulativeDepositInQuoteToken: string
-  earnCumulativeWithdrawInQuoteToken: string
-  vault: {
-    totalAssets: string
-    totalShares: string
+  positions: {
+    earnCumulativeDepositInQuoteToken: string
+    earnCumulativeDepositUSD: string
+    earnCumulativeFeesInQuoteToken: string
+    earnCumulativeFeesUSD: string
+    earnCumulativeWithdrawInQuoteToken: string
+    earnCumulativeWithdrawUSD: string
+    id: string
+    shares: string
+  }[]
+  vaults: {
     interestRates: {
       timestamp: string
       rate: string
     }[]
-  }
+    totalAssets: string
+    totalShares: string
+  }[]
 }
 
 export type Erc4646ViewDependencies = {

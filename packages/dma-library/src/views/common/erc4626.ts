@@ -25,10 +25,19 @@ export async function getErc4626Position(
   const { precision } = underlyingAsset
 
   const vaultContractInstance = new ethers.Contract(vaultAddress, erc4626abi, provider) as IERC4626
-  const [vaultParameters, positionParameters] = await Promise.all([
+  const [vaultParameters, subgraphResponse] = await Promise.all([
     getVaultApyParameters(vaultAddress),
     getLazyVaultSubgraphResponse(vaultAddress, proxyAddress),
   ])
+  if (subgraphResponse.vaults.length === 0) {
+    throw new Error('dma-library/views/erc4626 - Vault not found')
+  }
+  if (subgraphResponse.positions.length === 0) {
+    throw new Error('dma-library/views/erc4626 - Position not found')
+  }
+
+  const positionParameters = subgraphResponse.positions[0]
+  const vaultParametersFromSubgraph = subgraphResponse.vaults[0]
   const [balance, maxWithdraw] = await Promise.all([
     vaultContractInstance.balanceOf(proxyAddress),
     vaultContractInstance.maxWithdraw(proxyAddress),
@@ -75,7 +84,7 @@ export async function getErc4626Position(
     : undefined
 
   const tvl = new BigNumber(
-    ethers.utils.formatUnits(positionParameters.vault.totalAssets, precision).toString(),
+    ethers.utils.formatUnits(vaultParametersFromSubgraph.totalAssets, precision).toString(),
   )
 
   const allocations = vaultParameters.allocations
@@ -109,7 +118,7 @@ export async function getErc4626Position(
   return new Erc4626Position(
     annualizedApy,
     annualizedApyFromRewards,
-    getHistoricalApys(positionParameters),
+    getHistoricalApys(subgraphResponse),
     vault,
     user,
     quoteTokenAmount,
@@ -130,15 +139,15 @@ export async function getErc4626Position(
  * @param positionParameters - The position parameters containing the vault and interest rates.
  * @returns An object containing the historical APYs.
  */
-function getHistoricalApys(positionParameters: Erc4626SubgraphRepsonse) {
+function getHistoricalApys(subgraphResponse: Erc4626SubgraphRepsonse) {
   const historicalApy = {
     previousDayAverage: new BigNumber(0),
     sevenDayAverage: new BigNumber(0),
     thirtyDayAverage: new BigNumber(0),
   }
-  const previousDayAverage = positionParameters.vault.interestRates[0]
-  const sevenDayRates = positionParameters.vault.interestRates.slice(0, 7)
-  const thirtyDayRates = positionParameters.vault.interestRates.slice(0, 30)
+  const previousDayAverage = subgraphResponse.vaults[0].interestRates[0]
+  const sevenDayRates = subgraphResponse.vaults[0].interestRates.slice(0, 7)
+  const thirtyDayRates = subgraphResponse.vaults[0].interestRates.slice(0, 30)
 
   if (sevenDayRates.length > 0) {
     historicalApy.sevenDayAverage = sevenDayRates
@@ -155,7 +164,7 @@ function getHistoricalApys(positionParameters: Erc4626SubgraphRepsonse) {
       }, new BigNumber(0))
       .div(thirtyDayRates.length)
   }
-  if (positionParameters.vault.interestRates.length > 0) {
+  if (subgraphResponse.vaults[0].interestRates.length > 0) {
     historicalApy.previousDayAverage = new BigNumber(previousDayAverage.rate)
   }
 
