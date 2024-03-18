@@ -7,7 +7,7 @@ import BigNumber from 'bignumber.js'
 
 import { ZERO } from '../../../../../dma-common/constants/numbers'
 
-export interface MorphoClaimRewardsyDependencies extends CommonDMADependencies {
+export interface MorphoClaimRewardsDependencies extends CommonDMADependencies {
   network: Network
 }
 
@@ -16,14 +16,11 @@ export interface MorphoCloseClaimRewardsPayload {
   rewards: Address[]
   claimable: BigNumber[]
   proofs: string[][]
-  user: string
-  dpmProxyAddress: string
-  shouldCloseToCollateral: boolean
 }
 
 export type MorphoClaimRewardsStrategy = (
   args: MorphoCloseClaimRewardsPayload,
-  dependencies: MorphoClaimRewardsyDependencies,
+  dependencies: MorphoClaimRewardsDependencies,
 ) => Promise<Tx>
 
 export const claimRewards: MorphoClaimRewardsStrategy = async (args, dependencies) => {
