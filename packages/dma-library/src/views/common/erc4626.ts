@@ -29,12 +29,6 @@ export async function getErc4626Position(
     getVaultApyParameters(vaultAddress),
     getLazyVaultSubgraphResponse(vaultAddress, proxyAddress),
   ])
-  if (subgraphResponse.vaults.length === 0) {
-    throw new Error('dma-library/views/erc4626 - Vault not found')
-  }
-  if (subgraphResponse.positions.length === 0) {
-    throw new Error('dma-library/views/erc4626 - Position not found')
-  }
 
   const positionParameters = subgraphResponse.positions[0]
   const vaultParametersFromSubgraph = subgraphResponse.vaults[0]
