@@ -11,6 +11,13 @@ import type {
   Erc4646ViewDependencies,
 } from '../../types/common/erc4626-view'
 
+/**
+ * Retrieves the ERC4626 position based on the provided arguments and dependencies.
+ *
+ * @param {Erc4626Args} args - The arguments required to fetch the ERC4626 position.
+ * @param {Erc4646ViewDependencies} dependencies - The dependencies required to fetch the ERC4626 position.
+ * @returns {Promise<Erc4626Position>} - A promise that resolves to the ERC4626 position.
+ */
 export async function getErc4626Position(
   { proxyAddress, vaultAddress, quotePrice, user, underlyingAsset }: Erc4626Args,
   { provider, getLazyVaultSubgraphResponse, getVaultApyParameters }: Erc4646ViewDependencies,
@@ -34,19 +41,19 @@ export async function getErc4626Position(
     address: vaultAddress,
     quoteToken: underlyingAsset.address,
   }
-  const netValue = quoteTokenAmount.multipliedBy(quotePrice)
+  const netValue = quoteTokenAmount
 
   const totalEarnings = {
     withFees: netValue
       .minus(
-        new BigNumber(positionParameters.earnCumulativeDepositUSD).minus(
-          new BigNumber(positionParameters.earnCumulativeWithdrawUSD),
+        new BigNumber(positionParameters.earnCumulativeDepositInQuoteToken).minus(
+          new BigNumber(positionParameters.earnCumulativeWithdrawInQuoteToken),
         ),
       )
-      .minus(new BigNumber(positionParameters.earnCumulativeFeesUSD)),
+      .minus(new BigNumber(positionParameters.earnCumulativeFeesInQuoteToken)),
     withoutFees: netValue.minus(
-      new BigNumber(positionParameters.earnCumulativeDepositUSD).minus(
-        new BigNumber(positionParameters.earnCumulativeWithdrawUSD),
+      new BigNumber(positionParameters.earnCumulativeDepositInQuoteToken).minus(
+        new BigNumber(positionParameters.earnCumulativeWithdrawInQuoteToken),
       ),
     ),
   }
