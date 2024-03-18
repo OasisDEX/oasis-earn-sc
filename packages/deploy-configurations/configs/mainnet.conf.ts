@@ -387,7 +387,7 @@ export const config: SystemConfig = {
       },
       MorphoBlueClaimRewards: {
         name: 'MorphoBlueClaimRewards',
-        deploy: true,
+        deploy: false,
         address: '0x8DA1109207Ed8e529Ba21Cd8187126053c07EC3E',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.CLAIM_REWARDS,
         history: [],
