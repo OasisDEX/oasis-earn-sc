@@ -42,7 +42,7 @@ async function showRemoteEntry(serviceRegistry: ServiceRegistry, service: Config
     return
   }
 
-  if (serviceAddress !== service.address) {
+  if (serviceAddress.toLowerCase() !== service.address.toLowerCase()) {
     console.log(
       `[❌][ MISMATCHED ] ${service.name}: ${serviceAddress} (expected ${service.address})`,
     )
@@ -103,6 +103,9 @@ async function pushEntryToRemote(serviceRegistry: ServiceRegistry, service: Conf
   if (isInvalidAddress(serviceAddress)) {
     const serviceNameHash = await serviceRegistry.getServiceNameHash(service.serviceRegistryName)
     try {
+      console.log(
+        `[✅][PUSHING] Service ${service.name} hash: ${serviceNameHash} address : ${service.address}`,
+      )
       const tx = await serviceRegistry.addNamedService(serviceNameHash, service.address)
       await tx.wait()
     } catch (e) {
@@ -120,7 +123,7 @@ async function pushEntryToRemote(serviceRegistry: ServiceRegistry, service: Conf
       service.serviceRegistryName,
     )
 
-    if (newServiceAddress !== service.address.toLowerCase()) {
+    if (newServiceAddress.toLowerCase() !== service.address.toLowerCase()) {
       console.log(
         `[❌][ PUSH ERROR ] ${service.name}: read address ${newServiceAddress} does not match expected ${service.address}`,
       )
