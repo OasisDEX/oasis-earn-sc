@@ -65,6 +65,7 @@ export async function migrateSparkStrategy(
     positionType: 'Borrow',
     sourceAddress: sourceAddress,
     operationExecutor,
+    erc20ProxyActions: dependencies.erc20ProxyActions,
   })
   return {
     migration: {

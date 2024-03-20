@@ -68,6 +68,7 @@ export async function migrateAaveStrategy(
     positionType: 'Borrow',
     sourceAddress: sourceAddress,
     operationExecutor,
+    erc20ProxyActions: dependencies.erc20ProxyActions,
   })
 
   return {
