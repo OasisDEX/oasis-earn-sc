@@ -58,7 +58,8 @@ export const OPERATION_NAMES = {
     CUSTOM_OPERATION: 'CustomOperation',
   },
   refinance: {
-    MAKER_TO_AAVE: 'MakerToAave',
+    MAKER_TO_AAVE: 'RefinanceMakerToAave',
+    MAKER_TO_SPARK: 'RefinanceMakerToSpark',
   },
 } as const
 

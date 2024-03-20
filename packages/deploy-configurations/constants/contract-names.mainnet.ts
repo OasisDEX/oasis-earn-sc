@@ -54,8 +54,8 @@ export const SERVICE_REGISTRY_NAMES = {
   spark: {
     DEPOSIT: 'SparkDeposit',
     WITHDRAW: 'SparkWithdraw',
-    BORROW: 'SparkBorrow',
-    PAYBACK: 'SparkPayback',
+    BORROW: 'SparkBorrow_2',
+    PAYBACK: 'SparkPayback_2',
     LENDING_POOL: 'SparkLendingPool',
     SET_EMODE: 'SparkSetEMode',
   },
