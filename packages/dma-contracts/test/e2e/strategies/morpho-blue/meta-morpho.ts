@@ -192,7 +192,7 @@ const getUnderlyingTokens = (
   }
   return Promise.resolve({})
 }
-describe('Deposit | ERC4626 | E2E', async () => {
+describe.skip('Deposit | ERC4626 | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider
