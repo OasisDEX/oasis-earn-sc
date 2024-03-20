@@ -55,13 +55,9 @@ export const withdraw: Erc4626WithdrawOperation = async (
       withData: swap ? swap.data : '0x00',
       collectFeeInFromToken: swap ? swap.collectFeeFrom === 'sourceToken' : false,
     }),
-    actions.common.unwrapEth(
-      network,
-      {
-        amount: 0,
-      },
-      [2],
-    ),
+    actions.common.unwrapEth(network, {
+      amount: new BigNumber(MAX_UINT),
+    }),
     actions.common.returnFunds(network, {
       asset: isReturningEth ? addresses.tokens.ETH : returnToken,
     }),
