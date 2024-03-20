@@ -1,3 +1,3 @@
-import { createMigrateFromEOA } from '@dma-library/strategies/aave-like/migrate/migrate-from-eoa'
+import { migrate } from '../../common/migrate/migrate'
 
-export const migrateAaveFromEOA = createMigrateFromEOA('aave')
+export const migrateAave = migrate

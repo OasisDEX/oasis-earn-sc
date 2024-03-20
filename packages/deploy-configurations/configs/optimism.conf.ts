@@ -95,6 +95,13 @@ export const config: SystemConfig = {
           'address:ServiceRegistry',
         ],
       },
+      ERC20ProxyActions: {
+        name: 'ERC20ProxyActions',
+        deploy: false,
+        address: '',
+        history: [],
+        constructorArgs: [],
+      },
     },
     actions: {
       ERC4626Deposit: {

@@ -97,7 +97,12 @@ export type WithBorrowDebt = {
 export type WithPositionType = {
   positionType: PositionType
 }
-
+export type WithMigrationSource = {
+  sourceAddress: string
+}
+export type WithOperationExecutorOvveride = {
+  operationExecutor: string
+}
 export type WithDepositCollateral = {
   amountCollateralToDepositInBaseUnit: BigNumber
 }
@@ -119,6 +124,12 @@ type SharedStrategyDependencies = {
   user: Address
   network: Network
 }
+export type WithMigrationStrategyDependencies = {
+  provider: providers.Provider
+  proxy: Address
+  user: Address
+  network: Network
+} & WithOperationExecutorOvveride
 
 export type WithAaveLikeStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses

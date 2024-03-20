@@ -1,56 +1,59 @@
-import { getAaveMigrateEOAV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAaveV3MigrateOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import {
-  IOperation,
-  WithFlashloan,
-  WithNetwork,
-  WithPositionType,
-  WithProxy,
-} from '@dma-library/types'
+import { IOperation, WithFlashloan, WithNetwork, WithPositionType } from '@dma-library/types'
 import {
   WithAaveLikeStrategyAddresses,
   WithAToken,
   WithDebt,
   WithVDToken,
 } from '@dma-library/types/operations'
+import {
+  WithMigrationSource,
+  WithOperationExecutorOvveride,
+} from '@dma-library/types/strategy-params'
 import BigNumber from 'bignumber.js'
 
-export type MigrateEOAV3OperationArgs = WithDebt &
+export type MigrateV3OperationArgs = WithDebt &
   WithAToken &
   WithVDToken &
   WithFlashloan &
-  WithProxy &
   WithAaveLikeStrategyAddresses &
   WithNetwork &
-  WithPositionType
+  WithPositionType &
+  WithMigrationSource &
+  WithOperationExecutorOvveride
 
-export type AaveV3MigrateEOAOperation = ({
+export type AaveV3MigrateOperation = ({
   aToken,
   vdToken,
   flashloan,
-  proxy,
   addresses,
   network,
-}: MigrateEOAV3OperationArgs) => Promise<IOperation>
+  sourceAddress,
+  positionType,
+  operationExecutor,
+}: MigrateV3OperationArgs) => Promise<IOperation>
 
-export const migrateEOA: AaveV3MigrateEOAOperation = async ({
+export const migrate: AaveV3MigrateOperation = async ({
   debt,
   flashloan,
   aToken,
   vdToken,
-  proxy,
   addresses,
   network,
   positionType,
+  sourceAddress,
+  operationExecutor,
 }) => {
   const amount = flashloan.token.amount
   const depositToken = flashloan.token.address
   const borrowToken = debt.address
+  const sourceAccount = sourceAddress
 
-  const variableDebtTokenBalanceOnEOA = actions.common.tokenBalance(network, {
+  const variableDebtTokenBalanceOnMigratedPosition = actions.common.tokenBalance(network, {
     asset: vdToken.address,
-    owner: proxy.owner,
+    owner: sourceAccount,
   })
 
   const approveFlashloan = actions.common.setApproval(
@@ -80,7 +83,7 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
     {
       asset: borrowToken,
       amount: new BigNumber(0), // from mapping
-      to: proxy.owner,
+      to: sourceAccount,
     },
     [0, 1, 0],
   )
@@ -102,7 +105,7 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
       asset: borrowToken,
       amount: new BigNumber(0), //from mapping
       paybackAll: false,
-      onBehalfOf: proxy.owner,
+      onBehalfOf: sourceAccount,
     },
     [0, 1, 0, 0],
   )
@@ -110,13 +113,13 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
   const pullTokenAction2 = actions.common.pullTokenMaxAmount(network, {
     asset: aToken.address,
     amount: new BigNumber(MAX_UINT),
-    from: proxy.owner,
+    from: sourceAccount,
   })
 
   const withdrawAction = actions.aave.v3.aaveV3Withdraw(network, {
     asset: depositToken,
     amount: amount,
-    to: addresses.operationExecutor,
+    to: operationExecutor,
   })
 
   const positionCreated = actions.common.positionCreated(network, {
@@ -127,7 +130,7 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
   })
 
   const calls = [
-    variableDebtTokenBalanceOnEOA, // 0
+    variableDebtTokenBalanceOnMigratedPosition, // 0
     approveFlashloan, // 1
     depositFlashLoan, // 2
     borrowAction, // 3
@@ -149,6 +152,6 @@ export const migrateEOA: AaveV3MigrateEOAOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: getAaveMigrateEOAV3OperationDefinition(network).name,
+    operationName: getAaveV3MigrateOperationDefinition(network).name,
   }
 }

@@ -46,7 +46,7 @@ enum AaveKeys {
   V3 = 'v3',
 }
 
-type DefaultDeployment = {
+export type DefaultDeployment = {
   [SystemKeys.MPA]: {
     [MpaKeys.CORE]: Record<Core, Address>
     [MpaKeys.ACTIONS]: Record<Actions, Address>

@@ -16,12 +16,12 @@ import {
   getAaveDepositBorrowV3OperationDefinition,
   getAaveDepositV2OperationDefinition,
   getAaveDepositV3OperationDefinition,
-  getAaveMigrateEOAV3OperationDefinition,
   getAaveOpenDepositBorrowV3OperationDefinition,
   getAaveOpenV2OperationDefinition,
   getAaveOpenV3OperationDefinition,
   getAavePaybackWithdrawV2OperationDefinition,
   getAavePaybackWithdrawV3OperationDefinition,
+  getAaveV3MigrateOperationDefinition,
   getAjnaAdjustDownOperationDefinition,
   getAjnaAdjustUpOperationDefinition,
   getAjnaCloseToCollateralOperationDefinition,
@@ -42,7 +42,7 @@ import {
   getSparkCloseOperationDefinition,
   getSparkDepositBorrowOperationDefinition,
   getSparkDepositOperationDefinition,
-  getSparkMigrateEOAOperationDefinition,
+  getSparkMigrateOperationDefinition,
   getSparkOpenDepositBorrowOperationDefinition,
   getSparkOpenOperationDefinition,
   getSparkPaybackWithdrawOperationDefinition,
@@ -966,8 +966,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
 
     await operationsRegistry.addOp(
-      getAaveMigrateEOAV3OperationDefinition(network).name,
-      getAaveMigrateEOAV3OperationDefinition(network).actions,
+      getAaveV3MigrateOperationDefinition(network).name,
+      getAaveV3MigrateOperationDefinition(network).actions,
     )
 
     // AJNA
@@ -1126,12 +1126,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
     this.logOp(morphoblueAdjustDownOperationDefinition)
 
-    const sparkMigrateEOAOperationDefinition = getSparkMigrateEOAOperationDefinition(network)
+    const sparkMigrateOperationDefinition = getSparkMigrateOperationDefinition(network)
     await operationsRegistry.addOp(
-      sparkMigrateEOAOperationDefinition.name,
-      sparkMigrateEOAOperationDefinition.actions,
+      sparkMigrateOperationDefinition.name,
+      sparkMigrateOperationDefinition.actions,
     )
-    this.logOp(sparkMigrateEOAOperationDefinition)
+    this.logOp(sparkMigrateOperationDefinition)
   }
 
   async addAaveV3Operations(...args: AaveV3OperationNames[]) {
@@ -1195,8 +1195,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         getAaveBorrowV3OperationDefinition(network).actions,
       ],
       [
-        getAaveMigrateEOAV3OperationDefinition(network).name,
-        getAaveMigrateEOAV3OperationDefinition(network).actions,
+        getAaveV3MigrateOperationDefinition(network).name,
+        getAaveV3MigrateOperationDefinition(network).actions,
       ],
     ]
 
@@ -1288,8 +1288,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         getSparkBorrowOperationDefinition(network).actions,
       ],
       [
-        getSparkMigrateEOAOperationDefinition(network).name,
-        getSparkMigrateEOAOperationDefinition(network).actions,
+        getSparkMigrateOperationDefinition(network).name,
+        getSparkMigrateOperationDefinition(network).actions,
       ],
     ]
 

@@ -24,7 +24,7 @@ import { AaveLikeAdjust, AaveLikeAdjustOmni, adjust } from './multiply/adjust'
 import { AaveLikeClose, AaveLikeCloseOmni, close } from './multiply/close'
 import { AaveLikeOpen, AaveLikeOpenOmni, open } from './multiply/open'
 
-export * from './migrate'
+export * from '../common/migrate'
 export { IAdjustStrategy } from './multiply/adjust/types'
 
 type AaveLike = {
