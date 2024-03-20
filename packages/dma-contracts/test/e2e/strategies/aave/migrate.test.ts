@@ -19,12 +19,10 @@ import { addressesByNetwork, createDPMAccount } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumberForMigrations } from '@dma-contracts/test/config'
 import { restoreSnapshot, Snapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
-import { AaveVersion } from '@dma-library'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveLikeSystemContracts } from '@dma-library/protocols/aave-like/utils'
 import { migrateAave } from '@dma-library/strategies/aave/migrate/migrate-from-eoa'
 import { PositionSource } from '@dma-library/strategies/common/migrate'
-import { getCurrentPositionAaveV3 } from '@dma-library/views/aave'
 import { BigNumber as BN } from '@ethersproject/bignumber/lib/bignumber'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import BigNumber from 'bignumber.js'
@@ -168,28 +166,6 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
       new BigNumber(aWETHBalance.toString()).times(1.01).toFixed(0),
     ) // we need to approve slightly more than the balance
 
-    const currentPosition = await getCurrentPositionAaveV3(
-      {
-        collateralToken: { symbol: 'WETH', precision: 18 },
-        proxy: address,
-        debtToken: { symbol: 'USDC', precision: 6 },
-      },
-      {
-        addresses: aaveLikeAddresses,
-        provider: provider,
-        protocolVersion: AaveVersion.v3,
-      },
-    )
-
-    // const migrationArgs = {
-    //   aToken: {
-    //     address: AWETH.address,
-    //     amount: new BigNumber(aWETHBalance.toString()),
-    //   },
-    //   vdToken: {
-    //     address: VDUSDC.address,
-    //   },
-    // }
     const migrationArgs = {
       collateralToken: { address: WETH.address, symbol: 'WETH' as Tokens, precision: 18 },
       debtToken: { address: USDC.address, symbol: 'USDC' as Tokens, precision: 18 },
