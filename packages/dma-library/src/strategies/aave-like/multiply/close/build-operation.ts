@@ -102,9 +102,10 @@ export async function buildCloseFlashloan(
   const flashloanProvider = resolveFlashloanProvider(
     await getForkedNetwork(dependencies.provider),
     lendingProtocol,
+    args.debtToken.symbol,
   )
 
-  if (flashloanProvider === FlashloanProvider.Balancer && dependencies.protocolType === 'Spark') {
+  if (dependencies.protocolType === 'Spark') {
     // This covers off the situation where debt balances accrue interest
     const amountToFlashloan = dependencies.currentPosition.debt.amount.times(
       ONE.plus(SAFETY_MARGIN),
@@ -117,7 +118,7 @@ export async function buildCloseFlashloan(
         precision: args.debtToken.precision ?? TYPICAL_PRECISION,
         address: args.debtToken.address,
       },
-      provider: FlashloanProvider.Balancer,
+      provider: flashloanProvider,
     }
   }
 

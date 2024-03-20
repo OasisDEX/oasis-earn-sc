@@ -143,9 +143,10 @@ export async function buildAdjustFlashloan(
   const flashloanProvider = resolveFlashloanProvider(
     await getForkedNetwork(dependencies.provider),
     lendingProtocol,
+    args.debtToken.symbol,
   )
 
-  if (flashloanProvider === FlashloanProvider.Balancer && dependencies.protocolType === 'Spark') {
+  if (dependencies.protocolType === 'Spark') {
     // Need to add fees to the swap amount
     const fromSwapAmountBeforeFees = swap.fromTokenAmount.plus(preSwapFee)
     const receivedAmountAfterSwap = swap.minToTokenAmount
@@ -158,7 +159,7 @@ export async function buildAdjustFlashloan(
           address: args.debtToken.address,
         },
         amount: Domain.debtToCollateralSwapFlashloan(fromSwapAmountBeforeFees),
-        provider: FlashloanProvider.Balancer,
+        provider: flashloanProvider,
       }
     } else {
       return {
@@ -168,7 +169,7 @@ export async function buildAdjustFlashloan(
           address: args.debtToken.address,
         },
         amount: Domain.collateralToDebtSwapFlashloan(receivedAmountAfterSwap),
-        provider: FlashloanProvider.Balancer,
+        provider: flashloanProvider,
       }
     }
   }
