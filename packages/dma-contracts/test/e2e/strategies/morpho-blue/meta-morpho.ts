@@ -52,48 +52,11 @@ const testVaults = [
         symbol: 'WETH',
         depositAmount: 1,
       },
-      {
-        address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
-        precision: 6,
-        symbol: 'PYUSD',
-        depositAmount: 1000,
-      },
     ],
   },
   {
     vault: {
-      address: '0xbEEF02e5E13584ab96848af90261f0C8Ee04722a',
-      name: 'Steakhouse PYUSD Metamorpho Vault',
-    },
-    underlyingAsset: {
-      address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
-      precision: 6,
-      symbol: 'PYUSD',
-    },
-    pullReturnTokens: [
-      {
-        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        precision: 6,
-        symbol: 'USDC',
-        depositAmount: 1000,
-      },
-      {
-        address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-        precision: 18,
-        symbol: 'WETH',
-        depositAmount: 1,
-      },
-      {
-        address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
-        precision: 6,
-        symbol: 'PYUSD',
-        depositAmount: 1000,
-      },
-    ],
-  },
-  {
-    vault: {
-      address: '0x2371e134e3455e0593363cBF89d3b6cf53740618',
+      address: '0xbeef050ecd6a16c4e7bffbb52ebba7846c4b8cd4',
       name: 'Steakhouse WETH Metamorpho Vault',
     },
     underlyingAsset: {
@@ -114,11 +77,30 @@ const testVaults = [
         symbol: 'WETH',
         depositAmount: 1,
       },
+    ],
+  },
+  {
+    vault: {
+      address: '0x2371e134e3455e0593363cBF89d3b6cf53740618',
+      name: 'Not Steakhouse WETH Metamorpho Vault',
+    },
+    underlyingAsset: {
+      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      precision: 18,
+      symbol: 'WETH',
+    },
+    pullReturnTokens: [
       {
-        address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
+        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         precision: 6,
-        symbol: 'PYUSD',
+        symbol: 'USDC',
         depositAmount: 1000,
+      },
+      {
+        address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        precision: 18,
+        symbol: 'WETH',
+        depositAmount: 1,
       },
     ],
   },
@@ -164,23 +146,25 @@ const testVaults = [
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getLazyVaultSubgraphResponse = (vaultAddress: string, proxy: string) => {
   return Promise.resolve({
-    shares: '0',
-    id: vaultAddress,
-    vault: {
-      fee: '0',
-      curator: '0',
-      totalAssets: '0',
-      totalShares: '0',
-      interestRates: [],
-    },
-    earnCumulativeFeesUSD: '0',
-    earnCumulativeDepositUSD: '0',
-    earnCumulativeWithdrawUSD: '0',
-    earnCumulativeFeesInQuoteToken: '0',
-    earnCumulativeDepositInQuoteToken: '0',
-    earnCumulativeWithdrawInQuoteToken: '0',
-
-    positions: [],
+    vaults: [
+      {
+        totalAssets: '0',
+        totalShares: '0',
+        interestRates: [],
+      },
+    ],
+    positions: [
+      {
+        id: '0',
+        shares: '0',
+        earnCumulativeFeesUSD: '0',
+        earnCumulativeDepositUSD: '0',
+        earnCumulativeWithdrawUSD: '0',
+        earnCumulativeFeesInQuoteToken: '0',
+        earnCumulativeDepositInQuoteToken: '0',
+        earnCumulativeWithdrawInQuoteToken: '0',
+      },
+    ],
   })
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -229,7 +213,7 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
     ;({ snapshot } = await restoreSnapshot(
       {
         hre,
-        blockNumber: 19435313,
+        blockNumber: 19475673,
         useFallbackSwap: false,
         debug: true,
         skipSnapshot: false,
@@ -324,9 +308,9 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
           pullToken.address.toLowerCase() === vault.underlyingAsset.address.toLowerCase()
             ? pullTokenContract
             : ERC20__factory.connect(vault.underlyingAsset.address, owner)
-
-        const pullTokenBalanceBeforeDeposit = await pullTokenContract.balanceOf(address)
-        const depositTokenBalanceBeforeDeposit = await depositTokenContract.balanceOf(address)
+        const getBalance =
+          pullToken.symbol == 'WETH' ? hre.ethers.provider.getBalance : pullTokenContract.balanceOf
+        const pullTokenBalanceBeforeDeposit = await getBalance(address)
 
         const depositAmount = new BigNumber(pullToken.depositAmount)
 
@@ -354,7 +338,7 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
             pullTokenSymbol: pullToken.symbol,
             amount: depositAmount,
             proxyAddress: dpmAccount.address,
-            slippage: new BigNumber(0.25),
+            slippage: new BigNumber(0.025),
             user: address,
             quoteTokenPrice: new BigNumber(1),
           },
@@ -362,7 +346,7 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
             provider: provider,
             network: network,
             operationExecutor: aaveLikeAddresses.operationExecutor,
-            getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+            getSwapData: getOneInchCall(system.Swap.contract.address, 1),
             getLazyVaultSubgraphResponse,
             getVaultApyParameters,
           },
@@ -383,7 +367,7 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
         expect(events.length).to.eq(1)
         expect(events[0].args?.protocol).to.eq(`erc4626-${vault.vault.address.toLowerCase()}`)
 
-        const pullTokenBalanceAfterDeposit = await hre.ethers.provider.getBalance(address)
+        const pullTokenBalanceAfterDeposit = await getBalance(address)
 
         const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
           await getProxyShareAndDeposit(owner, dpmAccount, vault.vault.address)
@@ -406,7 +390,7 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
             getVaultApyParameters,
           },
         )
-        // expect(balanceAfterDeposit.toString()).to.equal(depositAmount.minus(1).toString())
+
         const closeCalldata = await strategies.common.erc4626.withdraw(
           {
             vault: vault.vault.address,
@@ -418,7 +402,7 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
             returnTokenSymbol: pullToken.symbol,
             amount: currentPosition.quoteTokenAmount.times(0.5),
             proxyAddress: dpmAccount.address,
-            slippage: new BigNumber(0.25),
+            slippage: new BigNumber(0.025),
             user: address,
             quoteTokenPrice: new BigNumber(1),
           },
@@ -426,7 +410,7 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
             provider: provider,
             network: network,
             operationExecutor: aaveLikeAddresses.operationExecutor,
-            getSwapData: getOneInchCall(ADDRESSES['mainnet'].mpa.core.Swap, 1),
+            getSwapData: getOneInchCall(system.Swap.contract.address, 1),
             getLazyVaultSubgraphResponse,
             getVaultApyParameters,
           },
@@ -440,7 +424,7 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
           },
         )
         await tx2.wait()
-        const pullTokenBalanceAfterWithdrawal = await hre.ethers.provider.getBalance(address)
+        const pullTokenBalanceAfterWithdrawal = await getBalance(address)
         const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
           await getProxyShareAndDeposit(owner, dpmAccount, vault.vault.address)
         console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
@@ -479,6 +463,7 @@ describe.skip('Deposit | ERC4626 | E2E', async () => {
             .toString(),
         )
         expect(await depositTokenContract.balanceOf(dpmAccount.address)).to.eq(0)
+        expect(await pullTokenContract.balanceOf(dpmAccount.address)).to.eq(0)
         expect(await hre.ethers.provider.getBalance(dpmAccount.address)).to.eq(0)
       })
     }
