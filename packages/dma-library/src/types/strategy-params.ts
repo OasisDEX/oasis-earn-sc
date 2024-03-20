@@ -100,8 +100,9 @@ export type WithPositionType = {
 export type WithMigrationSource = {
   sourceAddress: string
 }
-export type WithOperationExecutorOvveride = {
+export type WithMigrationStrategyAddresses = {
   operationExecutor: string
+  erc20ProxyActions: string
 }
 export type WithDepositCollateral = {
   amountCollateralToDepositInBaseUnit: BigNumber
@@ -129,7 +130,7 @@ export type WithMigrationStrategyDependencies = {
   proxy: Address
   user: Address
   network: Network
-} & WithOperationExecutorOvveride
+} & WithMigrationStrategyAddresses
 
 export type WithAaveLikeStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses

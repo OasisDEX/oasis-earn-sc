@@ -5,7 +5,7 @@ import { encodeOperation } from '@dma-library/utils/operation'
 import { getCurrentSparkPosition } from '@dma-library/views/spark'
 
 import { migrate as sparkMigrate } from '../../../../operations/spark/migrate/migrate'
-import { getAaveLikeAddresses } from '../helpers/aave-like'
+import { getAaveLikeAddresses, getAaveLikeApprovalTx } from '../helpers/aave-like'
 import { MigrationArgs } from '../migrate'
 
 export async function migrateSparkStrategy(
@@ -67,18 +67,21 @@ export async function migrateSparkStrategy(
     operationExecutor,
   })
   return {
-    simulation: {
-      swaps: [],
-      targetPosition: currentPosition,
-      position: currentPosition,
+    migration: {
+      simulation: {
+        swaps: [],
+        targetPosition: currentPosition,
+        position: currentPosition,
+      },
+      tx: {
+        to: dependencies.proxy,
+        data: encodeOperation(operation, {
+          provider: dependencies.provider,
+          operationExecutor,
+        }),
+        value: '0x0',
+      },
     },
-    tx: {
-      to: dependencies.proxy,
-      data: encodeOperation(operation, {
-        provider: dependencies.provider,
-        operationExecutor,
-      }),
-      value: '0x0',
-    },
+    approval: getAaveLikeApprovalTx(args, currentPosition, aTokenaddress, dependencies),
   }
 }

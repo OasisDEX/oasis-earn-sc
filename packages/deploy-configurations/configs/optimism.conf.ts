@@ -98,7 +98,7 @@ export const config: SystemConfig = {
       ERC20ProxyActions: {
         name: 'ERC20ProxyActions',
         deploy: false,
-        address: '',
+        address: '0x211131b23d07115030b51dFd8922bE5A23fd09E2',
         history: [],
         constructorArgs: [],
       },

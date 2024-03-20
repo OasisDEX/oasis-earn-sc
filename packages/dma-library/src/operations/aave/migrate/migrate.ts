@@ -10,7 +10,7 @@ import {
 } from '@dma-library/types/operations'
 import {
   WithMigrationSource,
-  WithOperationExecutorOvveride,
+  WithMigrationStrategyAddresses,
 } from '@dma-library/types/strategy-params'
 import BigNumber from 'bignumber.js'
 
@@ -22,7 +22,7 @@ export type MigrateV3OperationArgs = WithDebt &
   WithNetwork &
   WithPositionType &
   WithMigrationSource &
-  WithOperationExecutorOvveride
+  WithMigrationStrategyAddresses
 
 export type AaveV3MigrateOperation = ({
   aToken,

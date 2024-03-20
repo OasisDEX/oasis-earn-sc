@@ -9,7 +9,7 @@ import {
 } from '@dma-library/types/operations'
 import {
   WithMigrationSource,
-  WithOperationExecutorOvveride,
+  WithMigrationStrategyAddresses,
 } from '@dma-library/types/strategy-params'
 import BigNumber from 'bignumber.js'
 
@@ -21,7 +21,7 @@ export type MigrateOperationArgs = WithDebt &
   WithNetwork &
   WithPositionType &
   WithMigrationSource &
-  WithOperationExecutorOvveride
+  WithMigrationStrategyAddresses
 
 export type SparkMigrateOperation = ({
   aToken,

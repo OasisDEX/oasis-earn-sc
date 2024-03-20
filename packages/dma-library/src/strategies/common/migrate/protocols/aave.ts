@@ -1,15 +1,13 @@
-import { DefaultDeployment } from '@deploy-configurations/addresses'
 import { getAaveLikeSystemContracts } from '@dma-library/protocols/aave-like/utils'
-import { AaveLikePosition, FlashloanProvider } from '@dma-library/types'
+import { FlashloanProvider } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave/version'
 import { WithMigrationStrategyDependencies } from '@dma-library/types/strategy-params'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { getCurrentPositionAaveV3 } from '@dma-library/views/aave'
-import { ethers } from 'ethers'
 
 import { migrate as aaveMigarate } from '../../../../operations/aave/migrate/migrate'
-import { getAaveLikeAddresses, getAddresses } from '../helpers/aave-like'
-import { MigrationArgs, PositionSource } from '../migrate'
+import { getAaveLikeAddresses, getAaveLikeApprovalTx } from '../helpers/aave-like'
+import { MigrationArgs } from '../migrate'
 
 export async function migrateAaveStrategy(
   dependencies: WithMigrationStrategyDependencies,
@@ -18,7 +16,6 @@ export async function migrateAaveStrategy(
   flashloanTokenAddress: string,
   operationExecutor: string,
 ) {
-  const addresses = getAddresses(dependencies.network)
   const aaveLikeAddresses = getAaveLikeAddresses(dependencies.network, args.protocol)
   const currentPosition = await getCurrentPositionAaveV3(
     {
@@ -89,47 +86,6 @@ export async function migrateAaveStrategy(
         value: '0x0',
       },
     },
-    approval: getAaveLikeApprovalTx(args, currentPosition, addresses, aTokenaddress, dependencies),
-  }
-}
-
-function getAaveLikeApprovalTx(
-  args: MigrationArgs,
-  currentPosition: AaveLikePosition,
-  addresses: DefaultDeployment,
-  aTokenaddress: string,
-  dependencies: WithMigrationStrategyDependencies,
-) {
-  console.log(args.sourceAddress)
-  switch (args.positionSource) {
-    case PositionSource.DS_PROXY: {
-      const ABI = ['function approve(address _token,address _spender, uint _value)']
-      const iface = new ethers.utils.Interface(ABI)
-      const approvalData = iface.encodeFunctionData('approve', [
-        aTokenaddress,
-        dependencies.proxy,
-        currentPosition.collateral.amount.times(1.01).toFixed(0), // approve 1% more to accoutn for interest accrual
-      ])
-      return {
-        to: addresses.mpa.core.ERC20ProxyActions,
-        data: approvalData,
-        value: '0',
-      }
-    }
-    case PositionSource.EOA: {
-      const ABI = ['function approve(address _spender, uint _value)']
-      const iface = new ethers.utils.Interface(ABI)
-      const approvalData = iface.encodeFunctionData('approve', [
-        dependencies.proxy,
-        currentPosition.collateral.amount.times(1.01).toFixed(0), // approve 1% more to accoutn for interest accrual
-      ])
-      return {
-        to: aTokenaddress,
-        data: approvalData,
-        value: '0',
-      }
-    }
-    default:
-      throw new Error('Unsupported position source')
+    approval: getAaveLikeApprovalTx(args, currentPosition, aTokenaddress, dependencies),
   }
 }

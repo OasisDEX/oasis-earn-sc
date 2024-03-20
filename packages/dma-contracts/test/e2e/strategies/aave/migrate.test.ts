@@ -1,5 +1,4 @@
 import {
-  AaveOracle,
   AaveProtocolDataProvider,
   AccountImplementation,
   AccountImplementation__factory,
@@ -18,7 +17,7 @@ import { getNetwork } from '@deploy-configurations/utils/network'
 import { addressesByNetwork, createDPMAccount } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumberForMigrations } from '@dma-contracts/test/config'
-import { restoreSnapshot, Snapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
+import { restoreSnapshot, Snapshot } from '@dma-contracts/utils'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveLikeSystemContracts } from '@dma-library/protocols/aave-like/utils'
 import { migrateAave } from '@dma-library/strategies/aave/migrate/migrate-from-eoa'
@@ -28,7 +27,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
-describe.skip('Migrate | AAVE V3 -> DPM | E2E', async () => {
+describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider
@@ -36,16 +35,11 @@ describe.skip('Migrate | AAVE V3 -> DPM | E2E', async () => {
   let address: string
   let WETH: WETH
   let USDC: ERC20
-  let AWETH: ERC20
-  let VDUSDC: ERC20
-  let aaveOracle: AaveOracle
   let aavePoolDataProvider: AaveProtocolDataProvider
   let dpmAccount: AccountImplementation
   let aavePool: Pool
   let config: RuntimeConfig
   let system: DeployedSystem
-  let testSystem: TestDeploymentSystem
-  let helpers: TestHelpers
   let network: Network
   let addresses: ReturnType<typeof addressesByNetwork>
   let aaveLikeAddresses: AaveLikeStrategyAddresses
@@ -72,9 +66,7 @@ describe.skip('Migrate | AAVE V3 -> DPM | E2E', async () => {
     console.log('Address: ', address)
 
     system = snapshot.testSystem.deployment.system
-    testSystem = snapshot.testSystem
     config = snapshot.config
-    helpers = snapshot.testSystem.helpers
 
     network = await getNetwork(config.provider)
 
@@ -98,20 +90,14 @@ describe.skip('Migrate | AAVE V3 -> DPM | E2E', async () => {
     }
 
     // @ts-ignore
-    ;({ oracle: aaveOracle, poolDataProvider: aavePoolDataProvider } =
-      await getAaveLikeSystemContracts(aaveLikeAddresses, config.provider, 'AAVE_V3'))
+    ;({ poolDataProvider: aavePoolDataProvider } = await getAaveLikeSystemContracts(
+      aaveLikeAddresses,
+      config.provider,
+      'AAVE_V3',
+    ))
 
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
     aavePool = Pool__factory.connect(addresses.pool, config.signer)
-
-    const wethReserveAaveData = await aavePoolDataProvider.getReserveTokensAddresses(WETH.address)
-    const usdcReserveAaveData = await aavePoolDataProvider.getReserveTokensAddresses(USDC.address)
-
-    const aWETHaddress = wethReserveAaveData.aTokenAddress
-    const vdUsdc = usdcReserveAaveData.variableDebtTokenAddress
-
-    AWETH = ERC20__factory.connect(aWETHaddress, signer)
-    VDUSDC = ERC20__factory.connect(vdUsdc, signer)
 
     const [dpmProxy] = await createDPMAccount(system.AccountFactory.contract)
 
@@ -157,8 +143,6 @@ describe.skip('Migrate | AAVE V3 -> DPM | E2E', async () => {
       aaveDebtOnWalletBeforeTransaction.currentVariableDebt.toString(),
     )
 
-    const aWETHBalance = await AWETH.balanceOf(address)
-
     const migrationArgs = {
       collateralToken: { address: WETH.address, symbol: 'WETH' as Tokens, precision: 18 },
       debtToken: { address: USDC.address, symbol: 'USDC' as Tokens, precision: 18 },
@@ -172,14 +156,10 @@ describe.skip('Migrate | AAVE V3 -> DPM | E2E', async () => {
       user: address,
       network: Network.MAINNET,
       operationExecutor: system.OperationExecutor.contract.address,
+      erc20ProxyActions: system.ERC20ProxyActions.contract.address,
     })
-    await signer.call({ to: result.approval.to, data: result.approval.data })
 
-    // // approve aWETH to DPM
-    // await AWETH.approve(
-    //   dpmAccount.address,
-    //   new BigNumber(aWETHBalance.toString()).times(1.01).toFixed(0),
-    // ) // we need to approve slightly more than the balance
+    await signer.sendTransaction({ to: result.approval.to, data: result.approval.data })
 
     const tx = await dpmAccount.execute(
       system.OperationExecutor.contract.address,

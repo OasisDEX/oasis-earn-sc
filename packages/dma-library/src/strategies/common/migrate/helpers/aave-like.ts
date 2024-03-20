@@ -3,6 +3,10 @@ import { Address } from '@deploy-configurations/types/address'
 import { Tokens } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import { MigrationArgs, PositionSource } from '@dma-library/strategies/aave-like'
+import { AaveLikePosition } from '@dma-library/types'
+import { WithMigrationStrategyDependencies } from '@dma-library/types/strategy-params'
+import { ethers } from 'ethers'
 
 /**
  * Retrieves the token symbol associated with the given address.
@@ -91,5 +95,50 @@ export function getAaveLikeAddresses(
       }
     default:
       throw new Error('Unsupported protocol')
+  }
+}
+
+export function getAaveLikeApprovalTx(
+  args: MigrationArgs,
+  currentPosition: AaveLikePosition,
+  aTokenaddress: string,
+  dependencies: WithMigrationStrategyDependencies,
+) {
+  switch (args.positionSource) {
+    case PositionSource.DS_PROXY: {
+      const ABI = ['function approve(address _token,address _spender, uint _value)']
+      const IERC20 = new ethers.utils.Interface(ABI)
+      const approvalData = IERC20.encodeFunctionData('approve', [
+        aTokenaddress,
+        dependencies.proxy,
+        currentPosition.collateral.amount.times(1.01).toFixed(0), // approve 1% more to accoutn for interest accrual
+      ])
+      const proxyABI = ['function execute(address _target, bytes memory _data)']
+      const IProxy = new ethers.utils.Interface(proxyABI)
+      const encodedData = IProxy.encodeFunctionData('execute', [
+        dependencies.erc20ProxyActions,
+        approvalData,
+      ])
+      return {
+        to: args.sourceAddress,
+        data: encodedData,
+        value: '0',
+      }
+    }
+    case PositionSource.EOA: {
+      const ABI = ['function approve(address _spender, uint _value)']
+      const iface = new ethers.utils.Interface(ABI)
+      const approvalData = iface.encodeFunctionData('approve', [
+        dependencies.proxy,
+        currentPosition.collateral.amount.times(1.01).toFixed(0), // approve 1% more to accoutn for interest accrual
+      ])
+      return {
+        to: aTokenaddress,
+        data: approvalData,
+        value: '0',
+      }
+    }
+    default:
+      throw new Error('Unsupported position source')
   }
 }

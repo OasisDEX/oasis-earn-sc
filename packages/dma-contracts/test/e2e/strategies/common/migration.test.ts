@@ -1,5 +1,4 @@
 import {
-  AaveOracle,
   AaveProtocolDataProvider,
   AccountImplementation,
   AccountImplementation__factory,
@@ -7,8 +6,6 @@ import {
   ERC20__factory,
   IAccountImplementation,
   IAccountImplementation__factory,
-  Pool,
-  Pool__factory,
   WETH,
   WETH__factory,
 } from '@abis/types/ethers-contracts'
@@ -19,12 +16,11 @@ import { Network } from '@deploy-configurations/types/network'
 import { getNetwork } from '@deploy-configurations/utils/network'
 import { addressesByNetwork, createDPMAccount } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
-import { restoreSnapshot, Snapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
+import { restoreSnapshot, Snapshot } from '@dma-contracts/utils'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveLikeSystemContracts } from '@dma-library/protocols/aave-like/utils'
 import { migrateAave } from '@dma-library/strategies/aave/migrate/migrate-from-eoa'
 import { PositionSource } from '@dma-library/strategies/aave-like'
-import { BigNumber as BN } from '@ethersproject/bignumber/lib/bignumber'
 import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { expect } from 'chai'
@@ -41,22 +37,14 @@ describe.only('Migrate | AAVE V3 DsProxy -> DPM | E2E', async () => {
   let address: string
   let WETH: WETH
   let DAI: ERC20
-  let AWETH: ERC20
-  let VDDAI: ERC20
-  let aaveOracle: AaveOracle
   let aavePoolDataProvider: AaveProtocolDataProvider
   let dpmAccount: AccountImplementation
   let stolenVault: IAccountImplementation
-  let aavePool: Pool
   let config: RuntimeConfig
   let system: DeployedSystem
-  let testSystem: TestDeploymentSystem
-  let helpers: TestHelpers
   let network: Network
   let addresses: ReturnType<typeof addressesByNetwork>
   let aaveLikeAddresses: AaveLikeStrategyAddresses
-  const oneEther = BN.from('1000000000000000000')
-  const oneUSDC = BN.from('1000000')
 
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
@@ -84,9 +72,7 @@ describe.only('Migrate | AAVE V3 DsProxy -> DPM | E2E', async () => {
     console.log('Stolen vault : ', stolenVault.address)
 
     system = snapshot.testSystem.deployment.system
-    testSystem = snapshot.testSystem
     config = snapshot.config
-    helpers = snapshot.testSystem.helpers
 
     network = await getNetwork(config.provider)
 
@@ -110,21 +96,13 @@ describe.only('Migrate | AAVE V3 DsProxy -> DPM | E2E', async () => {
     }
 
     // @ts-ignore
-    ;({ oracle: aaveOracle, poolDataProvider: aavePoolDataProvider } =
-      await getAaveLikeSystemContracts(aaveLikeAddresses, config.provider, 'AAVE_V3'))
-
+    ;({ poolDataProvider: aavePoolDataProvider } = await getAaveLikeSystemContracts(
+      aaveLikeAddresses,
+      config.provider,
+      'AAVE_V3',
+    ))
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
     await system.AccountGuard.contract.setWhitelist(system.ERC20ProxyActions.contract.address, true)
-    aavePool = Pool__factory.connect(addresses.pool, config.signer)
-
-    const wethReserveAaveData = await aavePoolDataProvider.getReserveTokensAddresses(WETH.address)
-    const daiReserveAaveData = await aavePoolDataProvider.getReserveTokensAddresses(DAI.address)
-
-    const aWETHaddress = wethReserveAaveData.aTokenAddress
-    const vdUsdc = daiReserveAaveData.variableDebtTokenAddress
-
-    AWETH = ERC20__factory.connect(aWETHaddress, signer)
-    VDDAI = ERC20__factory.connect(vdUsdc, signer)
 
     const [dpmProxy] = await createDPMAccount(system.AccountFactory.contract, address)
 
@@ -173,11 +151,10 @@ describe.only('Migrate | AAVE V3 DsProxy -> DPM | E2E', async () => {
       user: address,
       network: Network.MAINNET,
       operationExecutor: system.OperationExecutor.contract.address,
+      erc20ProxyActions: system.ERC20ProxyActions.contract.address,
     })
 
-    await stolenVault
-      .connect(signer)
-      .execute(system.ERC20ProxyActions.contract.address, result.approval.data)
+    await signer.sendTransaction({ to: result.approval.to, data: result.approval.data })
 
     const tx = await dpmAccount.execute(
       system.OperationExecutor.contract.address,

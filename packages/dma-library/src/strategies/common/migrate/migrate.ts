@@ -38,6 +38,7 @@ export type MigrationStrategy = (
  * @param dependencies - The dependencies required for the migration.
  *   - provider: An ethers provider.
  *   - operationExecutor: An optional string representing the Ethereum address of the OperationExecutor to override.
+ *   - erc20ProxyActions: ERC20Proxy actions contract used for proxy erc20 approvals
  *   - proxy: A string representing the Ethereum address of the dpm account, which is the target of the migration.
  *   - user: A string representing the Ethereum address of the user, who is the owner of the position.
  *   - network: A string representing the network (e.g., 'mainnet').
@@ -69,15 +70,15 @@ export const migrate: MigrationStrategy = async (
         operationExecutor,
       )
     }
-    // case 'spark': {
-    //   return await migrateSparkStrategy(
-    //     dependencies,
-    //     args,
-    //     sourceAddress,
-    //     flashloanTokenAddress,
-    //     operationExecutor,
-    //   )
-    // }
+    case 'spark': {
+      return await migrateSparkStrategy(
+        dependencies,
+        args,
+        sourceAddress,
+        flashloanTokenAddress,
+        operationExecutor,
+      )
+    }
     default:
       throw new Error('Unsupported protocol')
   }
