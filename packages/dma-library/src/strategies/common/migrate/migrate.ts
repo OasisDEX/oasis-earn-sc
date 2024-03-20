@@ -1,5 +1,5 @@
 import { SystemKeys, Tokens } from '@deploy-configurations/types/deployment-config'
-import { Address } from '@dma-common/types'
+import { Address, Tx } from '@dma-common/types'
 import { Strategy } from '@dma-library/types'
 import { WithMigrationStrategyDependencies } from '@dma-library/types/strategy-params'
 import { IPosition } from '@domain'
@@ -24,7 +24,7 @@ export type MigrationArgs = {
 export type MigrationStrategy = (
   args: MigrationArgs,
   dependencies: WithMigrationStrategyDependencies,
-) => Promise<Strategy<IPosition>>
+) => Promise<{ migration: Strategy<IPosition>; approval: Tx }>
 
 /**
  * Migrates a position from source to target destination.
@@ -47,7 +47,7 @@ export type MigrationStrategy = (
 export const migrate: MigrationStrategy = async (
   args: MigrationArgs,
   dependencies: WithMigrationStrategyDependencies,
-): Promise<Strategy<IPosition>> => {
+): Promise<{ migration: Strategy<IPosition>; approval: Tx }> => {
   // common fields
   const addresses = getAddresses(dependencies.network)
   const sourceAddress = args.positionSource === 'dsProxy' ? args.sourceAddress : dependencies.user
@@ -69,15 +69,15 @@ export const migrate: MigrationStrategy = async (
         operationExecutor,
       )
     }
-    case 'spark': {
-      return await migrateSparkStrategy(
-        dependencies,
-        args,
-        sourceAddress,
-        flashloanTokenAddress,
-        operationExecutor,
-      )
-    }
+    // case 'spark': {
+    //   return await migrateSparkStrategy(
+    //     dependencies,
+    //     args,
+    //     sourceAddress,
+    //     flashloanTokenAddress,
+    //     operationExecutor,
+    //   )
+    // }
     default:
       throw new Error('Unsupported protocol')
   }

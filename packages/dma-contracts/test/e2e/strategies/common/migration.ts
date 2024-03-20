@@ -27,8 +27,6 @@ import { PositionSource } from '@dma-library/strategies/aave-like'
 import { BigNumber as BN } from '@ethersproject/bignumber/lib/bignumber'
 import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { ERC20ProxyActions } from '@typechain'
-import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
@@ -162,18 +160,6 @@ describe.only('Migrate | AAVE V3 DsProxy -> DPM | E2E', async () => {
       ),
     )
 
-    const aWETHBalance = await AWETH.balanceOf(stolenVault.address)
-
-    const erc20ProxyActions = system.ERC20ProxyActions.contract as ERC20ProxyActions
-
-    const approvalData = erc20ProxyActions.interface.encodeFunctionData('approve', [
-      AWETH.address,
-      dpmAccount.address,
-      new BigNumber(aWETHBalance.toString()).times(1.01).toFixed(0), // approve 1% more to accoutn for interest accrual
-    ])
-
-    await stolenVault.connect(signer).execute(erc20ProxyActions.address, approvalData)
-
     const migrationArgs = {
       collateralToken: { address: WETH.address, symbol: 'WETH' as Tokens, precision: 18 },
       debtToken: { address: DAI.address, symbol: 'DAI' as Tokens, precision: 18 },
@@ -189,9 +175,17 @@ describe.only('Migrate | AAVE V3 DsProxy -> DPM | E2E', async () => {
       operationExecutor: system.OperationExecutor.contract.address,
     })
 
-    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
-      gasLimit: 5000000,
-    })
+    await stolenVault
+      .connect(signer)
+      .execute(system.ERC20ProxyActions.contract.address, result.approval.data)
+
+    const tx = await dpmAccount.execute(
+      system.OperationExecutor.contract.address,
+      result.migration.tx.data,
+      {
+        gasLimit: 5000000,
+      },
+    )
 
     await tx.wait()
 

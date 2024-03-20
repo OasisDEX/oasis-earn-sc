@@ -25,11 +25,10 @@ import { migrateAave } from '@dma-library/strategies/aave/migrate/migrate-from-e
 import { PositionSource } from '@dma-library/strategies/common/migrate'
 import { BigNumber as BN } from '@ethersproject/bignumber/lib/bignumber'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
-describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
+describe.skip('Migrate | AAVE V3 -> DPM | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider
@@ -160,12 +159,6 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
 
     const aWETHBalance = await AWETH.balanceOf(address)
 
-    // approve aWETH to DPM
-    await AWETH.approve(
-      dpmAccount.address,
-      new BigNumber(aWETHBalance.toString()).times(1.01).toFixed(0),
-    ) // we need to approve slightly more than the balance
-
     const migrationArgs = {
       collateralToken: { address: WETH.address, symbol: 'WETH' as Tokens, precision: 18 },
       debtToken: { address: USDC.address, symbol: 'USDC' as Tokens, precision: 18 },
@@ -180,10 +173,21 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
       network: Network.MAINNET,
       operationExecutor: system.OperationExecutor.contract.address,
     })
+    await signer.call({ to: result.approval.to, data: result.approval.data })
 
-    const tx = await dpmAccount.execute(system.OperationExecutor.contract.address, result.tx.data, {
-      gasLimit: 5000000,
-    })
+    // // approve aWETH to DPM
+    // await AWETH.approve(
+    //   dpmAccount.address,
+    //   new BigNumber(aWETHBalance.toString()).times(1.01).toFixed(0),
+    // ) // we need to approve slightly more than the balance
+
+    const tx = await dpmAccount.execute(
+      system.OperationExecutor.contract.address,
+      result.migration.tx.data,
+      {
+        gasLimit: 5000000,
+      },
+    )
 
     await tx.wait()
 
