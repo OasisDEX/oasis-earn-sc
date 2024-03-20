@@ -5,10 +5,14 @@ import { FlashloanProvider } from '@dma-library/types/common'
 export function resolveFlashloanProvider(
   network: Network,
   lendingProtocol?: Protocol,
+  debtToken?: string,
 ): FlashloanProvider {
   switch (network) {
     case Network.MAINNET:
-      if (lendingProtocol === 'Spark' || lendingProtocol === 'Ajna') {
+      if (lendingProtocol === 'Ajna') {
+        return FlashloanProvider.Balancer
+      }
+      if (lendingProtocol === 'Spark' && debtToken !== 'DAI') {
         return FlashloanProvider.Balancer
       }
       return FlashloanProvider.DssFlash
