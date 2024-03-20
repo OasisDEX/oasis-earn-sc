@@ -6,7 +6,7 @@ import {
   AaveLikeOpenArgs,
   AaveLikeOpenDependencies,
 } from '@dma-library/strategies/aave-like/multiply/open/types'
-import { FlashloanProvider, SwapData } from '@dma-library/types'
+import { SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -117,9 +117,10 @@ export async function buildOpenFlashloan(
   const flashloanProvider = resolveFlashloanProvider(
     await getForkedNetwork(dependencies.provider),
     lendingProtocol,
+    args.debtToken.symbol,
   )
 
-  if (flashloanProvider === FlashloanProvider.Balancer && dependencies.protocolType === 'Spark') {
+  if (dependencies.protocolType === 'Spark') {
     const swapAmountBeforeFees = simulation.swap.fromTokenAmount
     return {
       token: {
@@ -127,7 +128,7 @@ export async function buildOpenFlashloan(
         address: args.debtToken.address,
       },
       amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
-      provider: FlashloanProvider.Balancer,
+      provider: flashloanProvider,
     }
   }
 
