@@ -11,7 +11,6 @@ import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { CDP_MANAGER } from "../../core/constants/Maker.sol";
 import { WETH } from "../../core/constants/Common.sol";
 
-import "hardhat/console.sol";
 contract MakerWithdraw is Executable, UseStore {
   using Read for OperationStorage;
   using Write for OperationStorage;
@@ -19,8 +18,6 @@ contract MakerWithdraw is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    console.log('WITHDRAW START' );
-    
     WithdrawData memory withdrawData = parseInputs(data);
     withdrawData.vaultId = store().readUint(
       bytes32(withdrawData.vaultId),
@@ -30,13 +27,9 @@ contract MakerWithdraw is Executable, UseStore {
 
     uint256 amountWithdrawn = _withdraw(withdrawData);
     store().write(bytes32(amountWithdrawn));
-
-    console.log('WITHDRAW DONE', amountWithdrawn );
-    
   }
 
   function _withdraw(WithdrawData memory data) internal returns (uint256) {
-    address gem = data.joinAddr.gem();
     uint256 convertedAmount = MathUtils.convertTo18(data.joinAddr, data.amount);
 
     // Unlocks WETH/GEM amount from the CDP
@@ -48,17 +41,6 @@ contract MakerWithdraw is Executable, UseStore {
 
     // Exits token/WETH amount to the user's wallet as a token
     data.joinAddr.exit(address(this), convertedAmount);
-
-
-    // !! disabled unwrapping WETH and sending back ETH for now
-    // if (gem == registry.getRegisteredService(WETH)) {
-    //   console.log('withdraw here' );
-      
-    //   // Converts WETH to ETH
-    //   IWETH(gem).withdraw(convertedAmount);
-    //   // Sends ETH back to the user's wallet
-    //   payable(data.userAddress).transfer(convertedAmount);
-    // }
 
     return convertedAmount;
   }

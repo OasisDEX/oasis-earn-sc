@@ -57,6 +57,9 @@ export const OPERATION_NAMES = {
   common: {
     CUSTOM_OPERATION: 'CustomOperation',
   },
+  refinance: {
+    MAKER_TO_AAVE: 'MakerToAave',
+  },
 } as const
 
 type ValuesOf<T> = T[keyof T]

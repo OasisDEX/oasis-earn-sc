@@ -14,8 +14,6 @@ import { PaybackData } from "../../core/types/Maker.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { CDP_MANAGER, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
 
-import "hardhat/console.sol";
-
 contract MakerPayback is Executable, UseStore {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -33,8 +31,6 @@ contract MakerPayback is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    console.log("PAYBACK START");
-
     PaybackData memory paybackData = parseInputs(data);
     paybackData.vaultId = uint256(
       store().read(bytes32(paybackData.vaultId), paramsMap[0], address(this))
@@ -42,13 +38,10 @@ contract MakerPayback is Executable, UseStore {
     IManager manager = IManager(registry.getRegisteredService(CDP_MANAGER));
     IDaiJoin daiJoin = IDaiJoin(registry.getRegisteredService(MCD_JOIN_DAI));
 
-    console.log("BEFORE PAYBACK", address(manager), address(daiJoin), paybackData.paybackAll);
-
     uint256 amountPaidBack = paybackData.paybackAll
       ? _paybackAll(manager, daiJoin, paybackData)
       : _payback(manager, daiJoin, paybackData);
 
-    console.log("AFTER PAYBACK");
     store().write(bytes32(amountPaidBack));
   }
 
@@ -97,9 +90,6 @@ contract MakerPayback is Executable, UseStore {
     (, uint256 art) = vat.urns(ilk, urn);
 
     if (own == address(this) || manager.cdpCan(own, data.vaultId, address(this)) == 1) {
-      console.log("paying back from address", data.userAddress);
-      console.log("user address balance", IERC20(daiJoin.dai()).balanceOf(data.userAddress));
-
       // Joins DAI amount into the vat
       joinDai(data.userAddress, daiJoin, urn, _getWipeAllWad(WipeData(vat, urn, urn, 0, ilk)));
 
@@ -115,7 +105,6 @@ contract MakerPayback is Executable, UseStore {
       );
       // Paybacks debt to the CDP
       vat.frob(ilk, urn, address(this), address(this), 0, -int256(art));
-      console.log("AFTER FROB1");
     }
 
     return uint256(art);
@@ -159,8 +148,6 @@ contract MakerPayback is Executable, UseStore {
 
     // If the rad precision has some dust, it will need to request for 1 extra wad wei
     wad = wad.mul(MathUtils.RAY) < rad ? wad + 1 : wad;
-
-    console.log("WAD", wad);
   }
 
   function parseInputs(bytes memory _callData) public pure returns (PaybackData memory params) {

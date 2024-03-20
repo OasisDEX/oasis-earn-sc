@@ -80,7 +80,7 @@ import { inspect } from 'util'
 const restrictedNetworks = [Network.MAINNET, Network.OPTIMISM, Network.GOERLI]
 
 const rpcUrls: any = {
-  [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
+  [Network.MAINNET]: 'https://eth-mainnet.g.alchemy.com/v2/leqNKB1DH4F77iMb-fgDhlsvOwdfZ83R',
   [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.BASE]: 'https://base-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
@@ -529,17 +529,20 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.provider) throw new Error('No provider set')
     if (!this.signerAddress) throw new Error('No signerAddress set')
     if (!this.deployedSystem.ServiceRegistry) throw new Error('No ServiceRegistry instance')
-    
+
     if (this.deployedSystem.DummySwap) {
       const serviceRegistry = this.deployedSystem.ServiceRegistry
       const swapHash = this.getRegistryEntryHash('Swap')
       const encode = (types: any[], values: any[]) =>
         this.ethers.utils.defaultAbiCoder.encode(types, values)
       const slot = this.ethers.utils.keccak256(encode(['bytes32', 'uint'], [swapHash, 1]))
-      const paddedAddress = ethers.utils.hexZeroPad(this.deployedSystem.DummySwap.contract.address, 32)
+      const paddedAddress = ethers.utils.hexZeroPad(
+        this.deployedSystem.DummySwap.contract.address,
+        32,
+      )
 
-      console.log('PADDED ADDRESS', paddedAddress );
-      
+      console.log('PADDED ADDRESS', paddedAddress)
+
       await this.provider.send('hardhat_setStorageAt', [
         serviceRegistry.contract.address,
         slot,
