@@ -69,11 +69,11 @@ export const withdraw: Erc4626WithdrawOperation = async (
   we skip unwrapping of WETH if we are not returning ETH or withdrawing ETH
   we unwrap WETH if we are returning ETH (after swap or after withdraw) 
   or withdrawing leftover ETH ( difference between what we withdraw and what we swap)
+  we skip the second return funds action if there is no swap - we withdraw and return the same token
   */
-  const onlyEthWithdraw = isWithdrawingEth && isReturningEth
   calls[2].skipped = !isReturningEth && !isWithdrawingEth
   calls[1].skipped = !swap
-  calls[4].skipped = !swap && onlyEthWithdraw
+  calls[4].skipped = !swap
 
   return {
     calls,
