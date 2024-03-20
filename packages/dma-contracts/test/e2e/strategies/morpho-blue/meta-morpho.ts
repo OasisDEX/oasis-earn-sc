@@ -192,7 +192,7 @@ const getUnderlyingTokens = (
   }
   return Promise.resolve({})
 }
-describe.only('Deposit | ERC4626 | E2E', async () => {
+describe('Deposit | ERC4626 | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider
@@ -308,9 +308,9 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
           pullToken.address.toLowerCase() === vault.underlyingAsset.address.toLowerCase()
             ? pullTokenContract
             : ERC20__factory.connect(vault.underlyingAsset.address, owner)
-
-        const pullTokenBalanceBeforeDeposit = await pullTokenContract.balanceOf(address)
-        const depositTokenBalanceBeforeDeposit = await depositTokenContract.balanceOf(address)
+        const getBalance =
+          pullToken.symbol == 'WETH' ? hre.ethers.provider.getBalance : pullTokenContract.balanceOf
+        const pullTokenBalanceBeforeDeposit = await getBalance(address)
 
         const depositAmount = new BigNumber(pullToken.depositAmount)
 
@@ -367,7 +367,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
         expect(events.length).to.eq(1)
         expect(events[0].args?.protocol).to.eq(`erc4626-${vault.vault.address.toLowerCase()}`)
 
-        const pullTokenBalanceAfterDeposit = await pullTokenContract.balanceOf(address)
+        const pullTokenBalanceAfterDeposit = await getBalance(address)
 
         const { shares: sharesAfterDeposit, balance: balanceAfterDeposit } =
           await getProxyShareAndDeposit(owner, dpmAccount, vault.vault.address)
@@ -424,7 +424,7 @@ describe.only('Deposit | ERC4626 | E2E', async () => {
           },
         )
         await tx2.wait()
-        const pullTokenBalanceAfterWithdrawal = await pullTokenContract.balanceOf(address)
+        const pullTokenBalanceAfterWithdrawal = await getBalance(address)
         const { shares: sharesAfterWithdraw, balance: balanceAfterWithdraw } =
           await getProxyShareAndDeposit(owner, dpmAccount, vault.vault.address)
         console.log('Position shares after deposit      : ', sharesAfterDeposit.toString())
