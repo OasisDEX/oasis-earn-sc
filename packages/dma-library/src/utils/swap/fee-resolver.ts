@@ -1,4 +1,4 @@
-import { DEFAULT_FEE, NO_FEE } from '@dma-common/constants'
+import { DEFAULT_FEE, LOW_CORRELATED_ASSET_FEE, NO_FEE } from '@dma-common/constants'
 import BigNumber from 'bignumber.js'
 
 export const feeResolver = <T extends string = string>(
@@ -15,11 +15,14 @@ export const feeResolver = <T extends string = string>(
   if (isCorrelatedPosition(fromToken, toToken) || flags?.isEarnPosition) {
     type = 'earnMultiply'
   }
+  // overrides earnMultiply type
+  if (isCorrelatedLowFeePosition(fromToken, toToken)) {
+    type = 'lowFeeMultiply'
+  }
   if (flags?.isEntrySwap) {
     // Should override multiply type given position type isn't relevant if the swap is an entry swap
     type = 'entry'
   }
-
   const feesConfig = {
     entry: {
       onIncrease: new BigNumber(DEFAULT_FEE),
@@ -32,6 +35,10 @@ export const feeResolver = <T extends string = string>(
     defaultMultiply: {
       onIncrease: new BigNumber(DEFAULT_FEE),
       onDecrease: new BigNumber(DEFAULT_FEE),
+    },
+    lowFeeMultiply: {
+      onIncrease: new BigNumber(LOW_CORRELATED_ASSET_FEE),
+      onDecrease: new BigNumber(LOW_CORRELATED_ASSET_FEE),
     },
   }
 
@@ -61,6 +68,33 @@ export function isCorrelatedPosition(symbolA: string, symbolB: string) {
     ], // ETH correlated assets
     ['WBTC', 'TBTC'], // BTC correlated assets
     ['USDC', 'DAI', 'GHO', 'SDAI', 'USDT', 'CDAI', 'AUSDC', 'PYUSD'], // USDC correlated assets
+    // Add more arrays here to expand the matrix in the future
+  ]
+
+  // Iterate over each row in the matrix
+  for (let i = 0; i < correlatedAssetMatrix.length; i++) {
+    // Check if both symbols are in the same row
+    if (
+      correlatedAssetMatrix[i].includes(symbolA.toUpperCase()) &&
+      correlatedAssetMatrix[i].includes(symbolB.toUpperCase())
+    ) {
+      return true
+    }
+  }
+
+  // If we haven't found both symbols in the same row, they're not correlated
+  return false
+}
+
+/**
+ * Checks if two symbols are in a correlated low fee position.
+ * @param symbolA - The first symbol.
+ * @param symbolB - The second symbol.
+ * @returns True if the symbols are in a correlated low fee position, false otherwise.
+ */
+export function isCorrelatedLowFeePosition(symbolA: string, symbolB: string) {
+  const correlatedAssetMatrix = [
+    ['USDE', 'SUSDE', 'DAI', 'USDC', 'USDT'],
     // Add more arrays here to expand the matrix in the future
   ]
 
