@@ -61,7 +61,6 @@ function parseDataDecoded(dataDecoded: any): {
 } {
   const method = dataDecoded.method
 
-  console.log('dataDecoded', JSON.stringify(dataDecoded, null, 2))
   const parameters: ContractParameter[] = dataDecoded.parameters.map(parameter => {
     const { name, type, value } = parameter
     return {
