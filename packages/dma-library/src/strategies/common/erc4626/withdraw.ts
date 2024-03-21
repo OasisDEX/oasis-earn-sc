@@ -46,7 +46,7 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
   const isClose = args.amount.isGreaterThan(position.quoteTokenAmount)
 
   if (isSwapping) {
-    const { swapData, collectFeeFrom, fee } = await getSwapData(
+    const { swapData, collectFeeFrom, fee, tokenFee } = await getSwapData(
       { ...args, amount: isClose ? position.quoteTokenAmount : args.amount },
       dependencies,
     )
@@ -93,7 +93,7 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
       toTokenAmount: swapData.toTokenAmount,
       minToTokenAmount: swapData.minToTokenAmount,
       exchangeCalldata: swapData.exchangeCalldata,
-      tokenFee: fee,
+      tokenFee: tokenFee,
       collectFeeFrom: collectFeeFrom,
     }
     return {

@@ -44,7 +44,7 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
   const isSwapping = args.depositTokenAddress.toLowerCase() !== args.pullTokenAddress.toLowerCase()
 
   if (isSwapping) {
-    const { swapData, collectFeeFrom, fee } = await getSwapData(args, dependencies)
+    const { swapData, collectFeeFrom, fee, tokenFee } = await getSwapData(args, dependencies)
     const operation = await operations.erc4626Operations.deposit(
       {
         vault: args.vault,
@@ -85,7 +85,7 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
       fromTokenAmount: amountToWei(args.amount, args.pullTokenPrecision),
       toTokenAmount: swapData.toTokenAmount,
       minToTokenAmount: swapData.minToTokenAmount,
-      tokenFee: fee,
+      tokenFee: tokenFee,
       collectFeeFrom: collectFeeFrom,
       exchangeCalldata: swapData.exchangeCalldata,
     }
