@@ -86,9 +86,19 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
 
     const errors = [...validateMaxWithdraw(args.amount, position)]
 
+    const swap = {
+      fromTokenAddress: args.withdrawTokenAddress,
+      toTokenAddress: args.returnTokenAddress,
+      fromTokenAmount: amountToWei(args.amount, args.withdrawTokenPrecision),
+      toTokenAmount: swapData.toTokenAmount,
+      minToTokenAmount: swapData.minToTokenAmount,
+      exchangeCalldata: swapData.exchangeCalldata,
+      tokenFee: fee,
+      collectFeeFrom: collectFeeFrom,
+    }
     return {
       simulation: {
-        swaps: [],
+        swaps: [swap],
         errors,
         warnings,
         notices: [],

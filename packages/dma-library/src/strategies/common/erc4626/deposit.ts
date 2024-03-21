@@ -79,9 +79,19 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
 
     const errors = [...validateMaxDeposit(depositAmount, position)]
 
+    const swap = {
+      fromTokenAddress: args.pullTokenAddress,
+      toTokenAddress: args.depositTokenAddress,
+      fromTokenAmount: amountToWei(args.amount, args.pullTokenPrecision),
+      toTokenAmount: swapData.toTokenAmount,
+      minToTokenAmount: swapData.minToTokenAmount,
+      tokenFee: fee,
+      collectFeeFrom: collectFeeFrom,
+      exchangeCalldata: swapData.exchangeCalldata,
+    }
     return {
       simulation: {
-        swaps: [],
+        swaps: [swap],
         errors,
         warnings,
         notices: [],
@@ -161,6 +171,7 @@ async function getSwapData(args: Erc4626DepositPayload, dependencies: Erc4626Com
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
+    // TODO: use fee resolver with low correlated fee
     __feeOverride: isCorrelatedPosition(args.pullTokenSymbol, args.depositTokenSymbol)
       ? new BigNumber(2)
       : new BigNumber(20),
