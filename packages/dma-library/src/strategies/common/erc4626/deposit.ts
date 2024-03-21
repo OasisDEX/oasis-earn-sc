@@ -13,6 +13,7 @@ import {
   Erc4626DepositPayload,
   Erc4626DepositStrategy,
 } from '../../../types/common'
+import { validateMaxDeposit } from './validation/validate-max-deposit'
 
 export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
   const addresses = { tokens: { ...ADDRESSES[dependencies.network][SystemKeys.COMMON] } }
@@ -67,18 +68,16 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
       },
       dependencies.network,
     )
-
-    const targetPosition = position.deposit(
-      new BigNumber(
-        ethers.utils
-          .formatUnits(swapData.minToTokenAmount.toString(), args.depositTokenPrecision)
-          .toString(),
-      ),
+    const depositAmount = new BigNumber(
+      ethers.utils
+        .formatUnits(swapData.minToTokenAmount.toString(), args.depositTokenPrecision)
+        .toString(),
     )
+    const targetPosition = position.deposit(depositAmount)
 
     const warnings = []
 
-    const errors = []
+    const errors = [...validateMaxDeposit(depositAmount, position)]
 
     return {
       simulation: {
@@ -119,7 +118,7 @@ export const deposit: Erc4626DepositStrategy = async (args, dependencies) => {
 
     const warnings = []
 
-    const errors = []
+    const errors = [...validateMaxDeposit(args.amount, position)]
 
     return {
       simulation: {

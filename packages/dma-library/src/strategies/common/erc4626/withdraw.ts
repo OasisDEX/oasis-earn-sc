@@ -12,6 +12,7 @@ import {
   Erc4626WithdrawPayload,
   Erc4626WithdrawStrategy,
 } from '../../../types/common'
+import { validateMaxWithdraw } from './validation/validate-max-withdraw'
 
 export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
   const addresses = { tokens: { ...ADDRESSES[dependencies.network][SystemKeys.COMMON] } }
@@ -83,7 +84,7 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
 
     const warnings = []
 
-    const errors = []
+    const errors = [...validateMaxWithdraw(args.amount, position)]
 
     return {
       simulation: {
@@ -125,7 +126,7 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
 
     const warnings = []
 
-    const errors = []
+    const errors = [...validateMaxWithdraw(args.amount, position)]
 
     return {
       simulation: {

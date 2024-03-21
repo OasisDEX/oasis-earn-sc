@@ -128,6 +128,7 @@ export interface IErc4626Position extends SupplyPosition {
   }
   tvl: BigNumber
   maxWithdrawal: BigNumber
+  maxDeposit: BigNumber
   allocations?: {
     token: string
     supply: BigNumber
@@ -197,6 +198,7 @@ export class Erc4626Position implements IErc4626Position {
     },
     public totalEarnings: { withFees: BigNumber; withoutFees: BigNumber },
     public maxWithdrawal: BigNumber,
+    public maxDeposit: BigNumber,
     public tvl: BigNumber,
     public allocations?: {
       token: string
@@ -284,6 +286,7 @@ export class Erc4626Position implements IErc4626Position {
       this.pnl,
       this.totalEarnings,
       this.maxWithdrawal.plus(quoteTokenAmount),
+      this.maxDeposit.minus(quoteTokenAmount),
       this.tvl,
       this.allocations,
       this.rewards,
@@ -304,6 +307,7 @@ export class Erc4626Position implements IErc4626Position {
       this.pnl,
       this.totalEarnings,
       this.maxWithdrawal.minus(quoteTokenAmount),
+      this.maxDeposit.plus(quoteTokenAmount),
       this.tvl,
       this.allocations,
       this.rewards,
@@ -324,6 +328,7 @@ export class Erc4626Position implements IErc4626Position {
       this.pnl,
       this.totalEarnings,
       ZERO,
+      this.maxDeposit,
       this.tvl,
       this.allocations,
       this.rewards,
