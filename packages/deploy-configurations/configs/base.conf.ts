@@ -51,7 +51,7 @@ export const config: SystemConfig = {
       DSProxyRegistry: {
         name: 'DSProxyRegistry',
         deploy: false,
-        address: '0x29CCc2C12054Ae0A5eE6FE5120784D33ec17B7E9',
+        address: '0x425fA97285965E01Cc5F951B62A51F6CDEA5cc0d',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
         constructorArgs: ['address:DSProxyFactory'],
