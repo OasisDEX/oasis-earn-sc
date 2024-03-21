@@ -514,6 +514,10 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: ADDRESS_ZERO,
     },
+    MORPHO: {
+      name: 'MORPHO',
+      address: ADDRESS_ZERO,
+    },
     OSETH: {
       name: 'OSETH',
       address: ADDRESS_ZERO,

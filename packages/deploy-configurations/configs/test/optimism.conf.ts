@@ -431,6 +431,10 @@ export const config: SystemConfig = {
     LRC: { name: 'LRC', address: ADDRESS_ZERO },
     MANA: { name: 'MANA', address: ADDRESS_ZERO },
     MATIC: { name: 'MATIC', address: ADDRESS_ZERO },
+    MORPHO: {
+      name: 'MORPHO',
+      address: '0x9994e35db50125e0df82e4c2dde62496ce330999',
+    },
     OSETH: {
       name: 'OSETH',
       address: ADDRESS_ZERO,
