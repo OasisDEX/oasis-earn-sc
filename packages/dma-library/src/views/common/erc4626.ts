@@ -32,13 +32,17 @@ export async function getErc4626Position(
 
   const positionParameters = subgraphResponse.positions[0]
   const vaultParametersFromSubgraph = subgraphResponse.vaults[0]
-  const [balance, maxWithdraw] = await Promise.all([
+  const [balance, maxWithdraw, maxDeposit] = await Promise.all([
     vaultContractInstance.balanceOf(proxyAddress),
     vaultContractInstance.maxWithdraw(proxyAddress),
+    vaultContractInstance.maxDeposit(proxyAddress),
   ])
   const assets = await vaultContractInstance.convertToAssets(balance)
   const quoteTokenAmount = new BigNumber(ethers.utils.formatUnits(assets, precision).toString())
-  const maxWithdrawal = new BigNumber(ethers.utils.formatUnits(maxWithdraw, precision).toString())
+  const maxWithdrawalAmount = new BigNumber(
+    ethers.utils.formatUnits(maxWithdraw, precision).toString(),
+  )
+  const maxDepositAmount = new BigNumber(ethers.utils.formatUnits(maxDeposit, precision).toString())
 
   const vault = {
     address: vaultAddress,
@@ -120,7 +124,8 @@ export async function getErc4626Position(
     netValue,
     pnl,
     totalEarnings,
-    maxWithdrawal,
+    maxWithdrawalAmount,
+    maxDepositAmount,
     tvl,
     allocations,
     rewards,
