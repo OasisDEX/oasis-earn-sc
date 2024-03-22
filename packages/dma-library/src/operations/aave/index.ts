@@ -28,7 +28,7 @@ import {
   paybackWithdraw as aaveV3PaybackWithdraw,
 } from './borrow/v3/payback-withdraw'
 // Migrate
-import { AaveV3MigrateEOAOperation, migrateEOA as aaveV3MigrateEOA } from './migrate/migrateEOA'
+import { AaveV3MigrateOperation, migrate as aaveV3MigrateEOA } from './migrate/migrate'
 // Multiply
 import {
   AaveV2AdjustDownOperation,
@@ -123,7 +123,7 @@ export type AaveMultiplyOperations = {
 
 export type AaveMigrateOperations = {
   v3: {
-    migrateEOA: AaveV3MigrateEOAOperation
+    migrateEOA: AaveV3MigrateOperation
   }
 }
 

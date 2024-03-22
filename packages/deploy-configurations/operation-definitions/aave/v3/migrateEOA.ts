@@ -2,7 +2,7 @@ import { loadContractNames, OPERATION_NAMES } from '@deploy-configurations/const
 import { Network } from '@deploy-configurations/types/network'
 import { getActionHash } from '@deploy-configurations/utils/action-hash'
 
-export function getAaveMigrateEOAV3OperationDefinition(network: Network) {
+export function getAaveV3MigrateOperationDefinition(network: Network) {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return {

@@ -2,7 +2,7 @@ import { loadContractNames, OPERATION_NAMES } from '@deploy-configurations/const
 import { Network } from '@deploy-configurations/types/network'
 import { getActionHash } from '@deploy-configurations/utils/action-hash'
 
-export function getSparkMigrateEOAOperationDefinition(network: Network) {
+export function getSparkMigrateOperationDefinition(network: Network) {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return {

@@ -97,7 +97,13 @@ export type WithBorrowDebt = {
 export type WithPositionType = {
   positionType: PositionType
 }
-
+export type WithMigrationSource = {
+  sourceAddress: string
+}
+export type WithMigrationStrategyAddresses = {
+  operationExecutor: string
+  erc20ProxyActions: string
+}
 export type WithDepositCollateral = {
   amountCollateralToDepositInBaseUnit: BigNumber
 }
@@ -119,6 +125,12 @@ type SharedStrategyDependencies = {
   user: Address
   network: Network
 }
+export type WithMigrationStrategyDependencies = {
+  provider: providers.Provider
+  proxy: Address
+  user: Address
+  network: Network
+} & WithMigrationStrategyAddresses
 
 export type WithAaveLikeStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses

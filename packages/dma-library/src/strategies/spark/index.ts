@@ -1,4 +1,4 @@
-import { MigrationFromEOAStrategy } from '@dma-library/strategies/aave-like'
+import { migrate, MigrationStrategy } from '@dma-library/strategies/common/migrate'
 import { depositBorrowOmni } from '@dma-library/strategies/spark/omni/borrow/deposit-borrow'
 import { openDepositBorrowOmni } from '@dma-library/strategies/spark/omni/borrow/open-deposit-borrow'
 import { paybackWithdrawOmni } from '@dma-library/strategies/spark/omni/borrow/payback-withdraw'
@@ -21,7 +21,6 @@ import {
   SparkPaybackWithdraw,
   SparkPaybackWithdrawOmni,
 } from './borrow/payback-withdraw'
-import { migrateSparkFromEOA } from './migrate/migrate-from-eoa'
 import { adjust as sparkAdjust, SparkAdjust, SparkAdjustOmni } from './multiply/adjust'
 import { close as sparkClose, SparkClose, SparkCloseOmni } from './multiply/close'
 import { open as sparkOpen, SparkOpen, SparkOpenOmni } from './multiply/open'
@@ -50,7 +49,7 @@ export const spark: {
     }
   }
   migrate: {
-    fromEOA: MigrationFromEOAStrategy
+    fromEOA: MigrationStrategy
   }
 } = {
   borrow: {
@@ -76,6 +75,6 @@ export const spark: {
     },
   },
   migrate: {
-    fromEOA: migrateSparkFromEOA,
+    fromEOA: migrate,
   },
 }

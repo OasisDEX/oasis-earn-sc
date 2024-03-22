@@ -9,7 +9,7 @@ import {
 import { addressesByNetwork, createDPMAccount } from '@dma-common/test-utils'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import { AaveVersion, Network } from '@dma-library'
-import { migrateAaveFromEOA } from '@dma-library/strategies/aave/migrate/migrate-from-eoa'
+import { migrateAave } from '@dma-library/strategies/aave/migrate/migrate-from-eoa'
 import { getCurrentPositionAaveV3 } from '@dma-library/views/aave'
 import { BigNumber as BN } from 'ethers'
 import hre from 'hardhat'
@@ -168,7 +168,7 @@ async function main() {
     },
   })
 
-  const result = await migrateAaveFromEOA(
+  const result = await migrateAave(
     {
       aToken: {
         address: aWETHaddress,

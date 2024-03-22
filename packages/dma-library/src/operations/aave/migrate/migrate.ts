@@ -1,58 +1,62 @@
-import { getSparkMigrateEOAOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAaveV3MigrateOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import {
-  IOperation,
-  WithFlashloan,
-  WithNetwork,
-  WithPositionType,
-  WithProxy,
-} from '@dma-library/types'
+import { IOperation, WithFlashloan, WithNetwork, WithPositionType } from '@dma-library/types'
 import {
   WithAaveLikeStrategyAddresses,
   WithAToken,
   WithDebt,
   WithVDToken,
 } from '@dma-library/types/operations'
+import {
+  WithMigrationSource,
+  WithMigrationStrategyAddresses,
+} from '@dma-library/types/strategy-params'
 import BigNumber from 'bignumber.js'
 
-export type MigrateEOAOperationArgs = WithDebt &
+export type MigrateV3OperationArgs = WithDebt &
   WithAToken &
   WithVDToken &
   WithFlashloan &
-  WithProxy &
   WithAaveLikeStrategyAddresses &
   WithNetwork &
-  WithPositionType
+  WithPositionType &
+  WithMigrationSource &
+  WithMigrationStrategyAddresses
 
-export type SparkMigrateEOAOperation = ({
+export type AaveV3MigrateOperation = ({
   aToken,
   vdToken,
   flashloan,
-  proxy,
   addresses,
   network,
-}: MigrateEOAOperationArgs) => Promise<IOperation>
+  sourceAddress,
+  positionType,
+  operationExecutor,
+}: MigrateV3OperationArgs) => Promise<IOperation>
 
-export const migrateEOA: SparkMigrateEOAOperation = async ({
+export const migrate: AaveV3MigrateOperation = async ({
   debt,
   flashloan,
   aToken,
   vdToken,
-  proxy,
   addresses,
   network,
   positionType,
+  sourceAddress,
+  operationExecutor,
 }) => {
   const amount = flashloan.token.amount
   const depositToken = flashloan.token.address
   const borrowToken = debt.address
+  const sourceAccount = sourceAddress
 
-  const tokenBalance = actions.common.tokenBalance(network, {
+  const variableDebtTokenBalanceOnMigratedPosition = actions.common.tokenBalance(network, {
     asset: vdToken.address,
-    owner: proxy.owner,
+    owner: sourceAccount,
   })
 
-  const approvalAction = actions.common.setApproval(
+  const approveFlashloan = actions.common.setApproval(
     network,
     {
       asset: depositToken,
@@ -63,7 +67,7 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
     [0, 0, 0, 0],
   )
 
-  const depositAction = actions.spark.deposit(
+  const depositFlashLoan = actions.aave.v3.aaveV3Deposit(
     network,
     {
       asset: depositToken,
@@ -74,12 +78,12 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
     [0, 0, 0, 0],
   )
 
-  const borrowAction = actions.spark.borrow(
+  const borrowAction = actions.aave.v3.aaveV3Borrow(
     network,
     {
       asset: borrowToken,
       amount: new BigNumber(0), // from mapping
-      to: proxy.owner,
+      to: sourceAccount,
     },
     [0, 1, 0],
   )
@@ -95,44 +99,44 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
     [0, 0, 1, 0],
   )
 
-  const paybackAction = actions.spark.payback(
+  const paybackAction = actions.aave.v3.aaveV3Payback(
     network,
     {
       asset: borrowToken,
       amount: new BigNumber(0), //from mapping
       paybackAll: false,
-      onBehalfOf: proxy.owner,
+      onBehalfOf: sourceAccount,
     },
     [0, 1, 0, 0],
   )
 
   const pullTokenAction2 = actions.common.pullTokenMaxAmount(network, {
     asset: aToken.address,
-    amount: aToken.amount,
-    from: proxy.owner,
+    amount: new BigNumber(MAX_UINT),
+    from: sourceAccount,
   })
 
-  const withdrawAction = actions.spark.withdraw(network, {
+  const withdrawAction = actions.aave.v3.aaveV3Withdraw(network, {
     asset: depositToken,
     amount: amount,
-    to: addresses.operationExecutor,
+    to: operationExecutor,
   })
 
   const positionCreated = actions.common.positionCreated(network, {
-    protocol: 'Spark',
+    protocol: 'AAVE_V3',
     positionType,
     collateralToken: depositToken,
     debtToken: borrowToken,
   })
 
   const calls = [
-    tokenBalance,
-    approvalAction,
-    depositAction,
-    borrowAction,
-    approval2Action,
-    paybackAction,
-    pullTokenAction2,
+    variableDebtTokenBalanceOnMigratedPosition, // 0
+    approveFlashloan, // 1
+    depositFlashLoan, // 2
+    borrowAction, // 3
+    approval2Action, // 4
+    paybackAction, // 5
+    pullTokenAction2, // 6
     withdrawAction,
     positionCreated,
   ]
@@ -148,6 +152,6 @@ export const migrateEOA: SparkMigrateEOAOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: getSparkMigrateEOAOperationDefinition(network).name,
+    operationName: getAaveV3MigrateOperationDefinition(network).name,
   }
 }

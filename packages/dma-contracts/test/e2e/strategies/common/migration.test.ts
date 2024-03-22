@@ -4,8 +4,8 @@ import {
   AccountImplementation__factory,
   ERC20,
   ERC20__factory,
-  Pool,
-  Pool__factory,
+  IAccountImplementation,
+  IAccountImplementation__factory,
   WETH,
   WETH__factory,
 } from '@abis/types/ethers-contracts'
@@ -16,54 +16,60 @@ import { Network } from '@deploy-configurations/types/network'
 import { getNetwork } from '@deploy-configurations/utils/network'
 import { addressesByNetwork, createDPMAccount } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
-import { testBlockNumberForMigrations } from '@dma-contracts/test/config'
 import { restoreSnapshot, Snapshot } from '@dma-contracts/utils'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveLikeSystemContracts } from '@dma-library/protocols/aave-like/utils'
 import { migrateAave } from '@dma-library/strategies/aave/migrate/migrate-from-eoa'
-import { PositionSource } from '@dma-library/strategies/common/migrate'
-import { BigNumber as BN } from '@ethersproject/bignumber/lib/bignumber'
+import { PositionSource } from '@dma-library/strategies/aave-like'
+import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
-describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
+
+// 0x2bA1eefeBb0A1807D1Df52c7EFc1aBdc9FcF5475 aave weth vault @ block : 19468682
+
+describe.only('Migrate | AAVE V3 DsProxy -> DPM | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider
   let signer: SignerWithAddress
   let address: string
   let WETH: WETH
-  let USDC: ERC20
+  let DAI: ERC20
   let aavePoolDataProvider: AaveProtocolDataProvider
   let dpmAccount: AccountImplementation
-  let aavePool: Pool
+  let stolenVault: IAccountImplementation
   let config: RuntimeConfig
   let system: DeployedSystem
   let network: Network
   let addresses: ReturnType<typeof addressesByNetwork>
   let aaveLikeAddresses: AaveLikeStrategyAddresses
-  const oneEther = BN.from('1000000000000000000')
-  const oneUSDC = BN.from('1000000')
 
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
   beforeEach(async () => {
     ;({ snapshot } = await restoreSnapshot({
       hre,
-      blockNumber: testBlockNumberForMigrations,
+      blockNumber: 19468682,
       useFallbackSwap: true,
     }))
-
-    signer = await SignerWithAddress.create(
-      snapshot.config.signer as ethers.providers.JsonRpcSigner,
+    stolenVault = await IAccountImplementation__factory.connect(
+      '0x2bA1eefeBb0A1807D1Df52c7EFc1aBdc9FcF5475',
+      hre.ethers.provider,
     )
+    const vaultOwner = await stolenVault.owner()
+    await impersonateAccount(vaultOwner)
+    const owner = await hre.ethers.provider.getSigner(vaultOwner)
+    // @ts-ignore
+    signer = owner
 
     provider = signer.provider as ethers.providers.JsonRpcProvider
 
     address = await signer.getAddress()
 
     console.log('Address: ', address)
+    console.log('Stolen vault : ', stolenVault.address)
 
     system = snapshot.testSystem.deployment.system
     config = snapshot.config
@@ -71,16 +77,16 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
     network = await getNetwork(config.provider)
 
     WETH = WETH__factory.connect(ADDRESSES[network].common.WETH, config.signer)
-    USDC = ERC20__factory.connect(ADDRESSES[network].common.USDC, config.signer)
+    DAI = ERC20__factory.connect(ADDRESSES[network].common.DAI, config.signer)
 
     addresses = addressesByNetwork(Network.MAINNET)
 
     aaveLikeAddresses = {
       tokens: {
         WETH: WETH.address,
-        DAI: ADDRESSES[network].common.DAI,
-        USDC: USDC.address,
+        DAI: DAI.address,
         ETH: ADDRESSES[network].common.ETH,
+        USDC: ADDRESSES[network].common.USDC,
       },
       operationExecutor: system.OperationExecutor.contract.address,
       chainlinkEthUsdPriceFeed: addresses.chainlinkEthUsdPriceFeed,
@@ -95,11 +101,10 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
       config.provider,
       'AAVE_V3',
     ))
-
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
-    aavePool = Pool__factory.connect(addresses.pool, config.signer)
+    await system.AccountGuard.contract.setWhitelist(system.ERC20ProxyActions.contract.address, true)
 
-    const [dpmProxy] = await createDPMAccount(system.AccountFactory.contract)
+    const [dpmProxy] = await createDPMAccount(system.AccountFactory.contract, address)
 
     if (!dpmProxy) {
       throw new Error('Failed to create DPM proxy')
@@ -108,46 +113,36 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
     dpmAccount = AccountImplementation__factory.connect(dpmProxy, signer)
   })
 
-  it('should migrate EOA AAVE V3 (WETH/USDC) -> DPM AAVE V3 (WETH/USDC)', async () => {
-    await WETH.deposit({ value: oneEther.mul(10) })
-    await WETH.approve(aavePool.address, oneEther.mul(10))
-    await aavePool['supply(address,uint256,address,uint16)'](
-      WETH.address,
-      oneEther.mul(10),
-      address,
-      0,
-    )
-    await aavePool['borrow(address,uint256,uint256,uint16,address)'](
-      USDC.address,
-      oneUSDC.mul(1000),
-      2,
-      0,
-      address,
-    )
-
+  it('should migrate dsProxy AAVE V3 (WETH/DAI) -> DPM AAVE V3 (WETH/DAI)', async () => {
     const aaveCollateralOnWalletBeforeTransaction = await aavePoolDataProvider.getUserReserveData(
       WETH.address,
-      address,
+      stolenVault.address,
     )
     const aaveDebtOnWalletBeforeTransaction = await aavePoolDataProvider.getUserReserveData(
-      USDC.address,
-      address,
+      DAI.address,
+      stolenVault.address,
     )
 
     console.log(
-      '[EOA] WETH Balance on AAVE before transaction: ',
-      aaveCollateralOnWalletBeforeTransaction.currentATokenBalance.toString(),
+      '[  dsProxy  ] WETH Balance on AAVE before transaction : ',
+      ethers.utils.formatUnits(
+        aaveCollateralOnWalletBeforeTransaction.currentATokenBalance.toString(),
+        18,
+      ),
     )
     console.log(
-      '[EOA] USDC Debt on AAVE before transaction: ',
-      aaveDebtOnWalletBeforeTransaction.currentVariableDebt.toString(),
+      '[  dsProxy  ] DAI Debt on AAVE before transaction     : ',
+      ethers.utils.formatUnits(
+        aaveDebtOnWalletBeforeTransaction.currentVariableDebt.toString(),
+        18,
+      ),
     )
 
     const migrationArgs = {
       collateralToken: { address: WETH.address, symbol: 'WETH' as Tokens, precision: 18 },
-      debtToken: { address: USDC.address, symbol: 'USDC' as Tokens, precision: 18 },
-      positionSource: PositionSource.EOA,
-      sourceAddress: address,
+      debtToken: { address: DAI.address, symbol: 'DAI' as Tokens, precision: 18 },
+      positionSource: PositionSource.DS_PROXY,
+      sourceAddress: stolenVault.address,
       protocol: SystemKeys.AAVE,
     }
     const result = await migrateAave(migrationArgs, {
@@ -176,17 +171,20 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
       address,
     )
     const aaveDebtOnWalletAfterTransaction = await aavePoolDataProvider.getUserReserveData(
-      USDC.address,
+      DAI.address,
       address,
     )
 
     console.log(
-      '[EOA] WETH Balance on AAVE after transaction: ',
-      aaveCollateralOnWalletAfterTransaction.currentATokenBalance.toString(),
+      '[  dsProxy  ] WETH Balance on AAVE after transaction  : ',
+      ethers.utils.formatUnits(
+        aaveCollateralOnWalletAfterTransaction.currentATokenBalance.toString(),
+        18,
+      ),
     )
     console.log(
-      '[EOA] USDC Debt on AAVE after transaction: ',
-      aaveDebtOnWalletAfterTransaction.currentVariableDebt.toString(),
+      '[  dsProxy  ] DAI Debt on AAVE after transaction      : ',
+      ethers.utils.formatUnits(aaveDebtOnWalletAfterTransaction.currentVariableDebt.toString(), 18),
     )
 
     const aaveCollateralOnProxyAfterTransaction = await aavePoolDataProvider.getUserReserveData(
@@ -194,17 +192,20 @@ describe.only('Migrate | AAVE V3 -> DPM | E2E', async () => {
       dpmAccount.address,
     )
     const aaveDebtOnProxyAfterTransaction = await aavePoolDataProvider.getUserReserveData(
-      USDC.address,
+      DAI.address,
       dpmAccount.address,
     )
 
     console.log(
-      '[Proxy] WETH Balance on AAVE after transaction: ',
-      aaveCollateralOnProxyAfterTransaction.currentATokenBalance.toString(),
+      '[dpm account] WETH Balance on AAVE after transaction  : ',
+      ethers.utils.formatUnits(
+        aaveCollateralOnProxyAfterTransaction.currentATokenBalance.toString(),
+        18,
+      ),
     )
     console.log(
-      '[Proxy] USDC Debt on AAVE after transaction',
-      aaveDebtOnProxyAfterTransaction.currentVariableDebt.toString(),
+      '[dpm account] DAI Debt on AAVE after transaction      :',
+      ethers.utils.formatUnits(aaveDebtOnProxyAfterTransaction.currentVariableDebt.toString(), 18),
     )
 
     expect(aaveCollateralOnWalletAfterTransaction.currentATokenBalance).to.be.equal(0)

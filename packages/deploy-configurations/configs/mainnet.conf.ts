@@ -92,6 +92,13 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      ERC20ProxyActions: {
+        name: 'ERC20ProxyActions',
+        deploy: false,
+        address: '0x50A9ceC5AB2E2e0D350dACeb10bA769EbCbc49F3',
+        history: [],
+        constructorArgs: [],
+      },
     },
     actions: {
       ERC4626Deposit: {

@@ -1,1 +1,1 @@
-export { getSparkMigrateEOAOperationDefinition } from './migrateEOA'
+export { getSparkMigrateOperationDefinition } from './migrateEOA'
