@@ -77,4 +77,92 @@ export const commonDefaults = {
     name: 'SUSDEOracle',
     address: ADDRESS_ZERO,
   },
+  CRVUSD: {
+    name: 'CRVUSD',
+    address: ADDRESS_ZERO,
+  },
+  AETHSDAI: {
+    name: 'AETHSDAI',
+    address: ADDRESS_ZERO,
+  },
+  AETHUSDC: {
+    name: 'AETHUSDC',
+    address: ADDRESS_ZERO,
+  },
+  AETHUSDT: {
+    name: 'AETHUSDT',
+    address: ADDRESS_ZERO,
+  },
+  AETHDAI: {
+    name: 'AETHDAI',
+    address: ADDRESS_ZERO,
+  },
+  AETHPYUSD: {
+    name: 'AETHPYUSD',
+    address: ADDRESS_ZERO,
+  },
+  AETHLUSD: {
+    name: 'AETHLUSD',
+    address: ADDRESS_ZERO,
+  },
+  AUSDC: {
+    name: 'AUSDC',
+    address: ADDRESS_ZERO,
+  },
+  AUSDT: {
+    name: 'AUSDT',
+    address: ADDRESS_ZERO,
+  },
+  CUSDCV3: {
+    name: 'CUSDCV3',
+    address: ADDRESS_ZERO,
+  },
+  CDAI: {
+    name: 'CDAI',
+    address: ADDRESS_ZERO,
+  },
+  CUSDC: {
+    name: 'CUSDC',
+    address: ADDRESS_ZERO,
+  },
+  AETHWSTETH: {
+    name: 'AETHWSTETH',
+    address: ADDRESS_ZERO,
+  },
+  AETHWETH: {
+    name: 'AETHWETH',
+    address: ADDRESS_ZERO,
+  },
+  AETHRETH: {
+    name: 'AETHRETH',
+    address: ADDRESS_ZERO,
+  },
+  AETHCBETH: {
+    name: 'AETHCBETH',
+    address: ADDRESS_ZERO,
+  },
+  ASETH: {
+    name: 'ASETH',
+    address: ADDRESS_ZERO,
+  },
+  AWETH: {
+    name: 'AWETH',
+    address: ADDRESS_ZERO,
+  },
+  CETH: {
+    name: 'CETH',
+    address: ADDRESS_ZERO,
+  },
+  CWETHV3: {
+    name: 'CWETHV3',
+    address: ADDRESS_ZERO,
+  },
+  AETHWBTC: {
+    name: 'AETHWBTC',
+    address: ADDRESS_ZERO,
+  },
+  AWBTC: {
+    name: 'AWBTC',
+    address: ADDRESS_ZERO,
+  },
 } as const

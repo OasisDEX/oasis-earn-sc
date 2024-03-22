@@ -858,6 +858,94 @@ export const config: SystemConfig = {
       name: 'ZRX',
       address: '0xE41d2489571d322189246DaFA5ebDe1F4699F498',
     },
+    CRVUSD: {
+      name: 'CRVUSD',
+      address: '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e',
+    },
+    AETHSDAI: {
+      name: 'AETHSDAI',
+      address: '0x4C612E3B15b96Ff9A6faED838F8d07d479a8dD4c',
+    },
+    AETHUSDC: {
+      name: 'AETHUSDC',
+      address: '0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c',
+    },
+    AETHUSDT: {
+      name: 'AETHUSDT',
+      address: '0x23878914EFE38d27C4D67Ab83ed1b93A74D4086a',
+    },
+    AETHDAI: {
+      name: 'AETHDAI',
+      address: '0x018008bfb33d285247A21d44E50697654f754e63',
+    },
+    AETHPYUSD: {
+      name: 'AETHPYUSD',
+      address: '0x0C0d01AbF3e6aDfcA0989eBbA9d6e85dD58EaB1E',
+    },
+    AETHLUSD: {
+      name: 'AETHLUSD',
+      address: '0x3Fe6a295459FAe07DF8A0ceCC36F37160FE86AA9',
+    },
+    AUSDC: {
+      name: 'AUSDC',
+      address: '0xBcca60bB61934080951369a648Fb03DF4F96263C',
+    },
+    AUSDT: {
+      name: 'AUSDT',
+      address: '0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811',
+    },
+    CUSDCV3: {
+      name: 'CUSDCV3',
+      address: '0xc3d688B66703497DAA19211EEdff47f25384cdc3',
+    },
+    CDAI: {
+      name: 'CDAI',
+      address: '0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643',
+    },
+    CUSDC: {
+      name: 'CUSDC',
+      address: '0x39AA39c021dfbaE8faC545936693aC917d5E7563',
+    },
+    AETHWSTETH: {
+      name: 'AETHWSTETH',
+      address: '0x0B925eD163218f6662a35e0f0371Ac234f9E9371',
+    },
+    AETHWETH: {
+      name: 'AETHWETH',
+      address: '0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8',
+    },
+    AETHRETH: {
+      name: 'AETHRETH',
+      address: '0xCc9EE9483f662091a1de4795249E24aC0aC2630f',
+    },
+    AETHCBETH: {
+      name: 'AETHCBETH',
+      address: '0x977b6fc5dE62598B08C85AC8Cf2b745874E8b78c',
+    },
+    ASETH: {
+      name: 'ASETH',
+      address: '0x1982b2F5814301d4e9a8b0201555376e62F82428',
+    },
+    AWETH: {
+      name: 'AWETH',
+      address: '0x030bA81f1c18d280636F32af80b9AAd02Cf0854e',
+    },
+    CETH: {
+      name: 'CETH',
+      address: '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
+    },
+    CWETHV3: {
+      name: 'CWETHV3',
+      address: '0xA17581A9E3356d9A858b789D68B4d866e593aE94',
+    },
+    AETHWBTC: {
+      name: 'AETHWBTC',
+      address: '0x5Ee5bf7ae06D1Be5997A1A72006FE6C607eC6DE8',
+    },
+    AWBTC: {
+      name: 'AWBTC',
+      address: '0xFC4B8ED459e00e5400be803A9BB3954234FD50e3',
+    },
   },
   aave: {
     v2: {
