@@ -88,9 +88,13 @@ export function getAaveLikeAddresses(
           ...addresses[SystemKeys.COMMON],
         },
         operationExecutor: addresses[SystemKeys.MPA]['core'].OperationExecutor,
-        oracle: addresses[SystemKeys.SPARK].Oracle!,
-        lendingPool: addresses[SystemKeys.SPARK].LendingPool!,
-        poolDataProvider: addresses[SystemKeys.SPARK].PoolDataProvider!,
+        oracle: addresses[SystemKeys.SPARK].Oracle ? addresses[SystemKeys.SPARK].Oracle : '',
+        lendingPool: addresses[SystemKeys.SPARK].LendingPool
+          ? addresses[SystemKeys.SPARK].LendingPool
+          : '',
+        poolDataProvider: addresses[SystemKeys.SPARK].PoolDataProvider
+          ? addresses[SystemKeys.SPARK].PoolDataProvider
+          : '',
         chainlinkEthUsdPriceFeed: addresses[SystemKeys.COMMON].ChainlinkPriceOracle_ETHUSD,
       }
     default:
