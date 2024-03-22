@@ -515,6 +515,10 @@ export const config: SystemConfig = {
     LRC: { name: 'LRC', address: '0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD' },
     MANA: { name: 'MANA', address: '0x0F5D2fB29fb7d3CFeE444a200298f468908cC942' },
     MATIC: { name: 'MATIC', address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0' },
+    MORPHO: {
+      name: 'MORPHO',
+      address: '0x9994e35db50125e0df82e4c2dde62496ce330999',
+    },
     OSETH: {
       name: 'OSETH',
       address: '0xf1c9acdc66974dfb6decb12aa385b9cd01190e38',

@@ -1,6 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 
 export const NO_FEE = 0
+export const LOW_CORRELATED_ASSET_FEE = 2
 export const REDUCED_FEE = 7
 export const DEFAULT_FEE = 20
 export const FEE_BASE = 10000

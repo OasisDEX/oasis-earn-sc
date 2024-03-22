@@ -1,5 +1,12 @@
 export { EMPTY_ADDRESS, NULL_ADDRESS } from './addresses'
-export { DEFAULT_FEE, FEE_BASE, FEE_ESTIMATE_INFLATOR, NO_FEE, REDUCED_FEE } from './fee'
+export {
+  DEFAULT_FEE,
+  FEE_BASE,
+  FEE_ESTIMATE_INFLATOR,
+  LOW_CORRELATED_ASSET_FEE,
+  NO_FEE,
+  REDUCED_FEE,
+} from './fee'
 export {
   BILLION,
   FIFTY,

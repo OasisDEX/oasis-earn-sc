@@ -12,6 +12,7 @@ import {
   Erc4626WithdrawPayload,
   Erc4626WithdrawStrategy,
 } from '../../../types/common'
+import { validateMaxWithdraw } from './validation/validate-max-withdraw'
 
 export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
   const addresses = { tokens: { ...ADDRESSES[dependencies.network][SystemKeys.COMMON] } }
@@ -45,7 +46,7 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
   const isClose = args.amount.isGreaterThan(position.quoteTokenAmount)
 
   if (isSwapping) {
-    const { swapData, collectFeeFrom, fee } = await getSwapData(
+    const { swapData, collectFeeFrom, fee, tokenFee } = await getSwapData(
       { ...args, amount: isClose ? position.quoteTokenAmount : args.amount },
       dependencies,
     )
@@ -83,11 +84,21 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
 
     const warnings = []
 
-    const errors = []
+    const errors = [...validateMaxWithdraw(args.amount, position)]
 
+    const swap = {
+      fromTokenAddress: args.withdrawTokenAddress,
+      toTokenAddress: args.returnTokenAddress,
+      fromTokenAmount: amountToWei(args.amount, args.withdrawTokenPrecision),
+      toTokenAmount: swapData.toTokenAmount,
+      minToTokenAmount: swapData.minToTokenAmount,
+      exchangeCalldata: swapData.exchangeCalldata,
+      tokenFee: tokenFee,
+      collectFeeFrom: collectFeeFrom,
+    }
     return {
       simulation: {
-        swaps: [],
+        swaps: [swap],
         errors,
         warnings,
         notices: [],
@@ -125,7 +136,7 @@ export const withdraw: Erc4626WithdrawStrategy = async (args, dependencies) => {
 
     const warnings = []
 
-    const errors = []
+    const errors = [...validateMaxWithdraw(args.amount, position)]
 
     return {
       simulation: {

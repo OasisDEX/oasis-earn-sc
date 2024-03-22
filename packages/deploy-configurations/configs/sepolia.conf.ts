@@ -44,7 +44,7 @@ export const config: SystemConfig = {
       DSProxyFactory: {
         name: 'DSProxyFactory',
         deploy: false,
-        address: '0x84eFB9c18059394172D0d69A3E58B03320001871',
+        address: '0x0000000000000000000000000000000000000000',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_FACTORY,
         history: [],
         constructorArgs: [],
@@ -52,7 +52,7 @@ export const config: SystemConfig = {
       DSProxyRegistry: {
         name: 'DSProxyRegistry',
         deploy: false,
-        address: '0x46759093D8158db8BB555aC7C6F98070c56169ce',
+        address: '0x0000000000000000000000000000000000000000',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
         constructorArgs: ['address:DSProxyFactory'],
@@ -465,6 +465,10 @@ export const config: SystemConfig = {
     },
     MANA: { name: 'MANA', address: '0x347fceA8b4fD1a46e2c0DB8F79e22d293c2F8513' },
     MATIC: { name: 'MATIC', address: '0x5B3b6CF665Cc7B4552F4347623a2A9E00600CBB5' },
+    MORPHO: {
+      name: 'MORPHO',
+      address: ADDRESS_ZERO,
+    },
     OSETH: {
       name: 'OSETH',
       address: '0x0000000000000000000000000000000000000000',

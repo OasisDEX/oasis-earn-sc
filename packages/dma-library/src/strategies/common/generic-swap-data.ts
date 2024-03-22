@@ -1,10 +1,11 @@
 import { Address } from '@deploy-configurations/types/address'
+import { FEE_ESTIMATE_INFLATOR } from '@dma-common/constants'
 import { calculateFee } from '@dma-common/utils/swap'
 import { GetSwapData } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
-import { ZERO } from '../../../../dma-common/constants/numbers'
+import { ONE, ZERO } from '../../../../dma-common/constants/numbers'
 
 interface GetGenericSwapDataArgs {
   fromToken: {
@@ -40,6 +41,7 @@ export async function getGenericSwapData({
 
   const preSwapFee =
     collectFeeFrom === 'sourceToken' ? calculateFee(swapAmountBeforeFees, fee.toNumber()) : ZERO
+
   const swapAmountAfterFees = swapAmountBeforeFees
     .minus(preSwapFee)
     .integerValue(BigNumber.ROUND_DOWN)
@@ -50,6 +52,11 @@ export async function getGenericSwapData({
     swapAmountAfterFees,
     slippage,
   )
+  const postSwapFee =
+    collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
 
-  return { swapData, collectFeeFrom, fee: fee.toString() }
+  const tokenFee = preSwapFee.plus(
+    postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+  )
+  return { swapData, collectFeeFrom, fee: fee.toString(), tokenFee }
 }

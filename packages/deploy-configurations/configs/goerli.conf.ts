@@ -465,6 +465,10 @@ export const config: SystemConfig = {
     },
     MANA: { name: 'MANA', address: '0x347fceA8b4fD1a46e2c0DB8F79e22d293c2F8513' },
     MATIC: { name: 'MATIC', address: '0x5B3b6CF665Cc7B4552F4347623a2A9E00600CBB5' },
+    MORPHO: {
+      name: 'MORPHO',
+      address: ADDRESS_ZERO,
+    },
     OSETH: {
       name: 'OSETH',
       address: '0x0000000000000000000000000000000000000000',

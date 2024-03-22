@@ -1,4 +1,4 @@
-import { DEFAULT_FEE, NO_FEE } from '@dma-common/constants'
+import { DEFAULT_FEE, LOW_CORRELATED_ASSET_FEE, NO_FEE } from '@dma-common/constants'
 import { feeResolver } from '@dma-library/utils/swap'
 import { isCorrelatedPosition } from '@dma-library/utils/swap/fee-resolver'
 import BigNumber from 'bignumber.js'
@@ -9,7 +9,10 @@ describe('feeResolver', function () {
     const fee = feeResolver('WSTETH', 'ETH', { isEntrySwap: true })
     assert(fee.isEqualTo(new BigNumber(DEFAULT_FEE)))
   })
-
+  it('should return LOW_CORRELATED_ASSET_FEE  for DAI and SUSDE', function () {
+    const fee = feeResolver('SUSDE', 'DAI', { isEntrySwap: false })
+    assert(fee.isEqualTo(new BigNumber(LOW_CORRELATED_ASSET_FEE)))
+  })
   it('should return NO_FEE when decreasing risk and token pair are correlated', function () {
     const fee = feeResolver('WSTETH', 'ETH')
     assert(fee.isEqualTo(new BigNumber(NO_FEE)))
