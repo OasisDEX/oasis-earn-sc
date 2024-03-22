@@ -220,5 +220,10 @@ export async function getEarnPosition(
     pnl,
     totalEarnings,
     isBucketFrozen,
+    {
+      previousDayAverage: pool.lendApr,
+      sevenDayAverage: pool.lendApr7dAverage,
+      thirtyDayAverage: pool.lendApr30dAverage,
+    },
   )
 }

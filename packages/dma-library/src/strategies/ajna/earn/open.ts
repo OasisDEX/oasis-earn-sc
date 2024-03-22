@@ -72,6 +72,7 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
     position.pnl,
     position.totalEarnings,
     false,
+    position.historicalApy,
   )
 
   return getAjnaEarnActionOutput({
