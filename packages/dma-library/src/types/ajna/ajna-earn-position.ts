@@ -50,6 +50,11 @@ export class AjnaEarnPosition implements SupplyPosition {
     },
     public totalEarnings: { withFees: BigNumber; withoutFees: BigNumber },
     public isBucketFrozen: boolean,
+    public historicalApy: {
+      previousDayAverage: BigNumber
+      sevenDayAverage: BigNumber
+      thirtyDayAverage: BigNumber
+    },
   ) {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
@@ -133,6 +138,7 @@ export class AjnaEarnPosition implements SupplyPosition {
       this.pnl,
       this.totalEarnings,
       this.isBucketFrozen,
+      this.historicalApy,
     )
   }
 
@@ -149,6 +155,7 @@ export class AjnaEarnPosition implements SupplyPosition {
       this.pnl,
       this.totalEarnings,
       this.isBucketFrozen,
+      this.historicalApy,
     )
   }
 
@@ -165,6 +172,7 @@ export class AjnaEarnPosition implements SupplyPosition {
       this.pnl,
       this.totalEarnings,
       this.isBucketFrozen,
+      this.historicalApy,
     )
   }
 
@@ -181,6 +189,7 @@ export class AjnaEarnPosition implements SupplyPosition {
       this.pnl,
       this.totalEarnings,
       this.isBucketFrozen,
+      this.historicalApy,
     )
   }
 
@@ -197,6 +206,7 @@ export class AjnaEarnPosition implements SupplyPosition {
       this.pnl,
       this.totalEarnings,
       this.isBucketFrozen,
+      this.historicalApy,
     )
   }
 
@@ -213,6 +223,7 @@ export class AjnaEarnPosition implements SupplyPosition {
       this.pnl,
       this.totalEarnings,
       this.isBucketFrozen,
+      this.historicalApy,
     )
   }
 }

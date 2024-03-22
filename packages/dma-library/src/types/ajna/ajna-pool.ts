@@ -39,6 +39,9 @@ export interface AjnaPool {
   debt: BigNumber
   depositSize: BigNumber
   apr30dAverage: BigNumber
+  apr7dAverage: BigNumber
+  lendApr30dAverage: BigNumber
+  lendApr7dAverage: BigNumber
   dailyPercentageRate30dAverage: BigNumber
   monthlyPercentageRate30dAverage: BigNumber
   currentBurnEpoch: BigNumber
