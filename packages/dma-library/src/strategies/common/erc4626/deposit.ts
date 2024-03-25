@@ -3,7 +3,6 @@ import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
 import { getGenericSwapData } from '@dma-library/strategies/common'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -171,9 +170,5 @@ async function getSwapData(args: Erc4626DepositPayload, dependencies: Erc4626Com
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
-    // TODO: use fee resolver with low correlated fee
-    __feeOverride: isCorrelatedPosition(args.pullTokenSymbol, args.depositTokenSymbol)
-      ? new BigNumber(2)
-      : new BigNumber(20),
   })
 }
