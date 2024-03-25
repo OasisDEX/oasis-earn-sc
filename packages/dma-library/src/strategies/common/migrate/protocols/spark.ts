@@ -40,7 +40,7 @@ export async function migrateSparkStrategy(
     args.debtToken.address,
   )
 
-  const aTokenaddress = collateralReserveAaveData.aTokenAddress
+  const aTokenaddress = collateralReserveAaveData.spTokenAddress
   const variableDebtTokenAddress = debtReserveAaveData.variableDebtTokenAddress
   const flashloan = {
     provider: FlashloanProvider.Balancer,
