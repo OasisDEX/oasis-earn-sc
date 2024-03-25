@@ -1,6 +1,6 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
 import { AjnaWarning } from '@dma-library/types/ajna'
-import { LendingPosition } from '@dma-library/types/morphoblue/morphoblue-position'
+import { LendingPosition } from '@dma-library/types/common'
 
 const MAX_LTV_OFFSET = 0.05
 
