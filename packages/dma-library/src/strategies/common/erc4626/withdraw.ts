@@ -3,7 +3,6 @@ import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
 import { getGenericSwapData } from '@dma-library/strategies/common'
 import { encodeOperation } from '@dma-library/utils/operation'
-import { isCorrelatedPosition } from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import BigNumber from 'bignumber.js'
 
@@ -179,8 +178,5 @@ async function getSwapData(args: Erc4626WithdrawPayload, dependencies: Erc4626Co
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
-    __feeOverride: isCorrelatedPosition(args.withdrawTokenSymbol, args.returnTokenSymbol)
-      ? new BigNumber(2)
-      : new BigNumber(20),
   })
 }
