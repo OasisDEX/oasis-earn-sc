@@ -165,4 +165,16 @@ export const commonDefaults = {
     name: 'AWBTC',
     address: ADDRESS_ZERO,
   },
+  DEGEN: {
+    name: 'DEGEN',
+    address: ADDRESS_ZERO,
+  },
+  SNX: {
+    name: 'SNX',
+    address: ADDRESS_ZERO,
+  },
+  ENA: {
+    name: 'ENA',
+    address: ADDRESS_ZERO,
+  },
 } as const
