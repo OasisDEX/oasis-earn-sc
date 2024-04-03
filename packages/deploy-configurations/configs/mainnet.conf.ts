@@ -447,6 +447,14 @@ export const config: SystemConfig = {
       name: 'SUSD',
       address: '0x0000000000000000000000000000000000000000',
     },
+    DEGEN: {
+      name: 'DEGEN',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    SNX: {
+      name: 'SNX',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     SUSDE: {
       name: 'SUSDE',
       address: '0x9d39a5de30e57443bff2a8307a4256c8797a3497',
@@ -454,6 +462,10 @@ export const config: SystemConfig = {
     RPL: {
       name: 'RPL',
       address: '0xd33526068d116ce69f19a9ee46f0bd304f21a51f',
+    },
+    ENA: {
+      name: 'ENA',
+      address: '0x57e114b691db790c35207b2e685d4a43181e6061',
     },
     GnosisSafe: {
       name: 'GnosisSafe',

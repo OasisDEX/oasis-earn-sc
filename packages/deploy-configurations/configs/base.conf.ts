@@ -286,6 +286,18 @@ export const config: SystemConfig = {
   },
   common: {
     ...commonDefaults,
+    DEGEN: {
+      name: 'DEGEN',
+      address: '0x4ed4e862860bed51a9570b96d89af5e1b0efefed',
+    },
+    CUSDCV3: {
+      name: 'CUSDCV3',
+      address: '0xb125e6687d4313864e53df431d5425969c15eb2f',
+    },
+    SNX: {
+      name: 'SNX',
+      address: '0x22e6966B799c4D5B13BE962E1D117b56327FDa66',
+    },
     ARB: {
       name: 'ARB',
       address: '0x0000000000000000000000000000000000000000',

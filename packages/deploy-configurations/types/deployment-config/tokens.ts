@@ -103,3 +103,6 @@ export type Tokens =
   | 'CWETHV3'
   | 'AETHWBTC'
   | 'AWBTC'
+  | 'DEGEN'
+  | 'SNX'
+  | 'ENA'
