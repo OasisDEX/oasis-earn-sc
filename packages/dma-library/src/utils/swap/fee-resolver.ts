@@ -118,6 +118,8 @@ export function isCorrelatedLowFeePosition(symbolA: string, symbolB: string) {
       'CUSDCV3',
       'CDAI',
       'CUSDC',
+      'SUSD',
+      'USDC.E',
     ],
     [
       'WSTETH',
