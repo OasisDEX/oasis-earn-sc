@@ -21,7 +21,6 @@ interface GetSwapDataToCloseToCollateralArgs {
   debtPrice: BigNumber
   outstandingDebt: BigNumber
   slippage: BigNumber
-  ETHAddress: Address
   getSwapData: GetSwapData
   __feeOverride?: BigNumber
 }
@@ -33,7 +32,6 @@ export async function getSwapDataForCloseToCollateral({
   debtPrice,
   outstandingDebt,
   slippage,
-  ETHAddress,
   getSwapData,
   __feeOverride,
 }: GetSwapDataToCloseToCollateralArgs) {
