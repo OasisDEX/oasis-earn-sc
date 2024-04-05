@@ -2,6 +2,8 @@ import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { emptyAjnaPools } from './shared/empty-ajna-pools'
+
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export const config: SystemConfig = {
@@ -1475,6 +1477,7 @@ export const config: SystemConfig = {
     },
   },
   ajna: {
+    ...emptyAjnaPools,
     AjnaPoolPairs_AJNADAI: {
       name: 'AjnaPoolPairs_AJNADAI',
       address: '0x2feef99a711d684e00a017c4ac587bea31f12875',
@@ -1678,6 +1681,14 @@ export const config: SystemConfig = {
     AjnaPoolPairs_EZETHWETH: {
       name: 'AjnaPoolPairs_EZETHWETH',
       address: '0x95af0f183cee1d797c921f53090c73f310610e73',
+    },
+    AjnaPoolPairs_ENASDAI: {
+      name: 'AjnaPoolPairs_ENASDAI',
+      address: '0x4176747Bc01BE99f9e8FE78A7b2303d4662a2244',
+    },
+    AjnaPoolPairs_SDAIENA: {
+      name: 'AjnaPoolPairs_SDAIENA',
+      address: '0x52054b0f7f07bb8e6daa06d177ece312ccc1f685',
     },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',

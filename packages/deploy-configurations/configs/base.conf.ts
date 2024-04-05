@@ -3,6 +3,7 @@ import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
 import { commonDefaults } from './shared/common-defaults'
+import { emptyAjnaPools } from './shared/empty-ajna-pools'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.BASE)
 
@@ -1241,6 +1242,7 @@ export const config: SystemConfig = {
     },
   },
   ajna: {
+    ...emptyAjnaPools,
     AjnaPoolPairs_AJNADAI: {
       name: 'AjnaPoolPairs_AJNADAI',
       address: '0x0000000000000000000000000000000000000000',
@@ -1444,6 +1446,26 @@ export const config: SystemConfig = {
     AjnaPoolPairs_EZETHWETH: {
       name: 'AjnaPoolPairs_EZETHWETH',
       address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_DEGENUSDC: {
+      name: 'AjnaPoolPairs_DEGENUSDC',
+      address: '0x52e69a7cf5076a769e11fffc2e99e837b575f65e',
+    },
+    AjnaPoolPairs_DEGENCUSDCV3: {
+      name: 'AjnaPoolPairs_DEGENCUSDCV3',
+      address: '0x343F462B050975005c388AE3eA62e4C1FC418C64',
+    },
+    AjnaPoolPairs_USDCDEGEN: {
+      name: 'AjnaPoolPairs_USDCDEGEN',
+      address: '0x1dec31e6550c958af3e116f23472fe1493476496',
+    },
+    AjnaPoolPairs_SNXUSDC: {
+      name: 'AjnaPoolPairs_SNXUSDC',
+      address: '0xd784b2ee3cd12a93e7ed592e583f6929f2d4e0b2',
+    },
+    AjnaPoolPairs_SNXCUSDCV3: {
+      name: 'AjnaPoolPairs_SNXCUSDCV3',
+      address: '0x7B1a82Ac53935884c22187B5fd219d310428D9b5',
     },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
