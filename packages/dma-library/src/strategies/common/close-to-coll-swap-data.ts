@@ -1,6 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
 import { FEE_BASE, ONE, TEN, ZERO } from '@dma-common/constants'
-import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { calculateFee } from '@dma-common/utils/swap'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { GetSwapData } from '@dma-library/types/common'
@@ -22,7 +21,6 @@ interface GetSwapDataToCloseToCollateralArgs {
   debtPrice: BigNumber
   outstandingDebt: BigNumber
   slippage: BigNumber
-  ETHAddress: Address
   getSwapData: GetSwapData
   __feeOverride?: BigNumber
 }
@@ -34,7 +32,6 @@ export async function getSwapDataForCloseToCollateral({
   debtPrice,
   outstandingDebt,
   slippage,
-  ETHAddress,
   getSwapData,
   __feeOverride,
 }: GetSwapDataToCloseToCollateralArgs) {
@@ -65,7 +62,7 @@ export async function getSwapDataForCloseToCollateral({
     colPrice,
     collateralTokenPrecision,
     _outstandingDebt,
-    fee,
+    fee.div(new BigNumber(FEE_BASE).plus(fee)),
     slippage,
   )
 
@@ -74,47 +71,21 @@ export async function getSwapDataForCloseToCollateral({
   // there is a deviation threshold value that shows how much the prices on/off chain might differ
   // When there is a 1inch swap, we use real-time market price. To calculate that,
   // A preflight request is sent to calculate the existing market price.
-  const debtIsEth = areAddressesEqual(debtToken.address, ETHAddress)
-  const collateralIsEth = areAddressesEqual(collateralToken.address, ETHAddress)
+  debtPrice = ONE.times(TEN.pow(debtTokenPrecision))
 
-  if (debtIsEth) {
-    debtPrice = ONE.times(TEN.pow(debtTokenPrecision))
-  } else {
-    const debtPricePreflightSwapData = await getSwapData(
-      debtToken.address,
-      ETHAddress,
-      _outstandingDebt,
-      slippage,
-      undefined,
-      true, // inverts swap mock in tests ignored in prod
-    )
-    debtPrice = new BigNumber(
-      debtPricePreflightSwapData.toTokenAmount
-        .div(debtPricePreflightSwapData.fromTokenAmount)
-        .times(TEN.pow(debtTokenPrecision))
-        .toFixed(0),
-    )
-  }
+  const colPricePreflightSwapData = await getSwapData(
+    collateralToken.address,
+    debtToken.address,
+    collateralNeeded.integerValue(BigNumber.ROUND_DOWN),
+    slippage,
+  )
 
-  if (collateralIsEth) {
-    colPrice = ONE.times(TEN.pow(collateralTokenPrecision))
-  } else {
-    const colPricePreflightSwapData =
-      !collateralIsEth &&
-      (await getSwapData(
-        collateralToken.address,
-        ETHAddress,
-        collateralNeeded.integerValue(BigNumber.ROUND_DOWN),
-        slippage,
-      ))
-
-    colPrice = new BigNumber(
-      colPricePreflightSwapData.toTokenAmount
-        .div(colPricePreflightSwapData.fromTokenAmount)
-        .times(TEN.pow(collateralTokenPrecision))
-        .toFixed(0),
-    )
-  }
+  colPrice = new BigNumber(
+    colPricePreflightSwapData.toTokenAmount
+      .div(colPricePreflightSwapData.fromTokenAmount)
+      .times(TEN.pow(collateralTokenPrecision))
+      .toFixed(0),
+  )
 
   // 4. Get Swap Data
   // This is the actual swap data that will be used in the transaction.

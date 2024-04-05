@@ -179,7 +179,6 @@ async function getMorphoSwapDataToCloseToCollateral(
     debtPrice,
     slippage: args.slippage,
     outstandingDebt,
-    ETHAddress: dependencies.addresses.ETH,
     getSwapData: dependencies.getSwapData,
   })
 }

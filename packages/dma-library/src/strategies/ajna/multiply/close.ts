@@ -155,7 +155,6 @@ async function getAjnaSwapDataToCloseToCollateral(
     debtPrice,
     slippage: args.slippage,
     outstandingDebt,
-    ETHAddress: dependencies.WETH,
     getSwapData: dependencies.getSwapData,
   })
 }
