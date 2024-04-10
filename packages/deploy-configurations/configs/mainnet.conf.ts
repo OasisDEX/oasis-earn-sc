@@ -2,6 +2,7 @@ import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
+import { commonDefaults } from './shared/common-defaults'
 import { emptyAjnaPools } from './shared/empty-ajna-pools'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
@@ -405,6 +406,7 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    ...commonDefaults,
     CSETH: {
       name: 'CSETH',
       address: '0x5d74468b69073f809d4fae90afec439e69bf6263',

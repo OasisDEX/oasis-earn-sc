@@ -478,6 +478,10 @@ export const config: SystemConfig = {
       name: 'AAVE',
       address: '0x0000000000000000000000000000000000000000',
     },
+    AERO: {
+      name: 'AERO',
+      address: '0x940181a94a35a4569e4529a3cdfb74e38fd98631',
+    },
     AJNA: {
       name: 'AJNA',
       address: '0x0000000000000000000000000000000000000000',
@@ -586,6 +590,10 @@ export const config: SystemConfig = {
     PAXUSD: {
       name: 'PAXUSD',
       address: '0x0000000000000000000000000000000000000000',
+    },
+    PRIME: {
+      name: 'PRIME',
+      address: '0xfa980ced6895ac314e7de34ef1bfae90a5add21b',
     },
     RENBTC: {
       name: 'RENBTC',
@@ -1466,6 +1474,14 @@ export const config: SystemConfig = {
     AjnaPoolPairs_SNXCUSDCV3: {
       name: 'AjnaPoolPairs_SNXCUSDCV3',
       address: '0x7B1a82Ac53935884c22187B5fd219d310428D9b5',
+    },
+    AjnaPoolPairs_AEROUSDC: {
+      name: 'AjnaPoolPairs_AEROUSDC',
+      address: '0x97dbbdba28df6d629bc17e0349bcb73d541ed041',
+    },
+    AjnaPoolPairs_PRIMEUSDC: {
+      name: 'AjnaPoolPairs_PRIMEUSDC',
+      address: '0x2b2b94dc8e974433c7c4ec7741f686eb46584831',
     },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',

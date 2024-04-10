@@ -61,6 +61,8 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_SNXCUSDCV3'
   | 'AjnaPoolPairs_ENASDAI'
   | 'AjnaPoolPairs_SDAIENA'
+  | 'AjnaPoolPairs_AEROUSDC'
+  | 'AjnaPoolPairs_PRIMEUSDC'
   | 'AjnaProxyActions'
   | 'AjnaRewardsClaimer'
   | 'AjnaRewardsManager'

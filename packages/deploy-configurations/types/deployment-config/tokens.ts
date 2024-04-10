@@ -1,6 +1,7 @@
 export type Tokens =
   | 'AAVE'
   | 'ADAI'
+  | 'AERO'
   | 'AJNA'
   | 'APXETH'
   | 'ARB'
@@ -36,6 +37,7 @@ export type Tokens =
   | 'OSETH'
   | 'PAX'
   | 'PAXUSD'
+  | 'PRIME'
   | 'RENBTC'
   | 'RETH'
   | 'RBN'

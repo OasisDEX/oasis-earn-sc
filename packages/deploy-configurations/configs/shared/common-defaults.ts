@@ -177,4 +177,12 @@ export const commonDefaults = {
     name: 'ENA',
     address: ADDRESS_ZERO,
   },
+  AERO: {
+    name: 'AERO',
+    address: ADDRESS_ZERO,
+  },
+  PRIME: {
+    name: 'PRIME',
+    address: ADDRESS_ZERO,
+  },
 } as const
