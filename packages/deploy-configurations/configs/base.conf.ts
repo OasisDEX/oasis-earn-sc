@@ -1469,7 +1469,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_SNXUSDC: {
       name: 'AjnaPoolPairs_SNXUSDC',
-      address: '0xd784b2ee3cd12a93e7ed592e583f6929f2d4e0b2',
+      address: '0x92c85b18e7f0df000bbfab4ce76c28a4ddbae64a',
     },
     AjnaPoolPairs_SNXCUSDCV3: {
       name: 'AjnaPoolPairs_SNXCUSDCV3',
