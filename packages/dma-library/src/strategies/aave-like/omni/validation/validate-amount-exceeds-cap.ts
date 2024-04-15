@@ -8,7 +8,7 @@ export function validateAmountExceedsCap(
   const maxSupply = position.reserveData.collateral.availableToSupply
   const maxBorrow = position.reserveData.debt.availableToBorrow
 
-  if (targetPosition.collateralAmount.gt(maxSupply)) {
+  if (targetPosition.collateralAmount.minus(position.collateralAmount).gt(maxSupply)) {
     return [
       {
         name: 'deposit-amount-exceeds-supply-cap',
@@ -19,7 +19,7 @@ export function validateAmountExceedsCap(
     ]
   }
 
-  if (targetPosition.debtAmount.gt(maxBorrow)) {
+  if (targetPosition.debtAmount.minus(position.debtAmount).gt(maxBorrow)) {
     return [
       {
         name: 'debt-amount-exceeds-borrow-cap',
