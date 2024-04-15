@@ -4,7 +4,6 @@ import {
   AaveLikePaybackWithdrawDependenciesOmni,
 } from '@dma-library/strategies/aave-like/borrow/payback-withdraw'
 import {
-  validateAmountExceedsCap,
   validateYieldLoopCloseToLiquidation,
   validateYieldLoopSafeFromLiquidation,
 } from '@dma-library/strategies/aave-like/omni/validation'
@@ -25,7 +24,7 @@ export const paybackWithdrawOmni = async (
   return {
     simulation: {
       swaps: [],
-      errors: [...validateAmountExceedsCap(args.position, targetPosition)],
+      errors: [],
       warnings: [...validateYieldLoopCloseToLiquidation(args.position, targetPosition)],
       notices: [],
       successes: [...validateYieldLoopSafeFromLiquidation(args.position, targetPosition)],
