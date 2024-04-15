@@ -19,6 +19,7 @@ export { getMarketRate } from './strategies/morphoblue/validation'
 export { views } from './views'
 
 // UTILS
+export { correlatedAssetDictionary } from './utils/swap/correlated-assets'
 export { isCorrelatedPosition } from './utils/swap/fee-resolver'
 export { normalizeValue } from '@dma-common/utils/common'
 export { negativeToZero } from '@dma-common/utils/common'

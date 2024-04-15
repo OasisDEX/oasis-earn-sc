@@ -1,6 +1,8 @@
 import { DEFAULT_FEE, LOW_CORRELATED_ASSET_FEE, NO_FEE } from '@dma-common/constants'
 import BigNumber from 'bignumber.js'
 
+import { correlatedAssetDictionary } from './correlated-assets'
+
 export const feeResolver = <T extends string = string>(
   fromToken: T,
   toToken: T,
@@ -50,24 +52,17 @@ export const feeResolver = <T extends string = string>(
   return feeToCharge
 }
 
+/**
+ * Checks if two symbols are in a correlated position.
+ * @param symbolA - The first symbol.
+ * @param symbolB - The second symbol.
+ * @returns True if the symbols are in a correlated position, false otherwise.
+ */
 export function isCorrelatedPosition(symbolA: string, symbolB: string) {
   const correlatedAssetMatrix = [
-    [
-      'WETH',
-      'ETH',
-      'WSTETH',
-      'CBETH',
-      'RETH',
-      'STETH',
-      'OSETH',
-      'WEETH',
-      'EZETH',
-      'AWSTETH',
-      'ASETH',
-      'CWETHV3',
-    ], // ETH correlated assets
-    ['WBTC', 'TBTC'], // BTC correlated assets
-    ['USDC', 'DAI', 'GHO', 'SDAI', 'USDT', 'CDAI', 'AUSDC', 'PYUSD'], // USDC correlated assets
+    correlatedAssetDictionary.CorrelatedAssetFee.ETH,
+    correlatedAssetDictionary.CorrelatedAssetFee.BTC,
+    correlatedAssetDictionary.CorrelatedAssetFee.Stable,
     // Add more arrays here to expand the matrix in the future
   ]
 
@@ -94,53 +89,11 @@ export function isCorrelatedPosition(symbolA: string, symbolB: string) {
  */
 export function isCorrelatedLowFeePosition(symbolA: string, symbolB: string) {
   const correlatedAssetMatrix = [
-    [
-      'DAI',
-      'USDT',
-      'USDC',
-      'PYUSD',
-      'FRAX',
-      'LUSD',
-      'GUSD',
-      'CRVUSD',
-      'SDAI',
-      'SUSDE',
-      'USDE',
-      'AETHSDAI',
-      'AETHUSDC',
-      'AETHUSDT',
-      'AETHDAI',
-      'AETHPYUSD',
-      'AETHLUSD',
-      'AUSDC',
-      'ADAI',
-      'AUSDT',
-      'CUSDCV3',
-      'CDAI',
-      'CUSDC',
-      'SUSD',
-      'USDC.E',
-    ],
-    [
-      'WSTETH',
-      'RETH',
-      'CBETH',
-      'STETH',
-      'AETHWSTETH',
-      'AETHWETH',
-      'AETHRETH',
-      'AETHCBETH',
-      'ASETH',
-      'AWETH',
-      'CETH',
-      'CWETHV3',
-      'WEETH',
-      'WETH',
-    ],
-    ['WBTC', 'TBTC', 'AWBTC', 'AETHWBTC'],
+    correlatedAssetDictionary.LowCorrelatedAssetFee.Stable,
+    correlatedAssetDictionary.LowCorrelatedAssetFee.ETH,
+    correlatedAssetDictionary.LowCorrelatedAssetFee.BTC,
     // Add more arrays here to expand the matrix in the future
   ]
-
   // Iterate over each row in the matrix
   for (let i = 0; i < correlatedAssetMatrix.length; i++) {
     // Check if both symbols are in the same row
