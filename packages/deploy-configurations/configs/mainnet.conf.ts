@@ -814,6 +814,10 @@ export const config: SystemConfig = {
       name: 'UNIV2WBTCETH',
       address: '0xBb2b8038a1640196FbE3e38816F3e67Cba72D940',
     },
+    USDA: {
+      name: 'USDA',
+      address: '0x0000206329b97DB379d5E1Bf586BbDB969C63274',
+    },
     USDC: {
       name: 'USDC',
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

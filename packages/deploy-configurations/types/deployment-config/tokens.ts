@@ -68,6 +68,7 @@ export type Tokens =
   | 'UNIV2USDCETH'
   | 'UNIV2WBTCDAI'
   | 'UNIV2WBTCETH'
+  | 'USDA'
   | 'USDBC'
   | 'USDC'
   | 'USDC.E'
