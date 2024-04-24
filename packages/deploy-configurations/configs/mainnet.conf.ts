@@ -749,6 +749,10 @@ export const config: SystemConfig = {
       name: 'RWA006',
       address: '0x4EE03cfBF6E784c462839f5954d60f7C2B60b113',
     },
+    SAFE: {
+      name: 'SAFE',
+      address: '0x5aFE3855358E112B5647B952709E6165e1c1eEEe',
+    },
     SDAI: {
       name: 'SDAI',
       address: '0x83f20f44975d03b1b09e64809b757c47f942beea',
@@ -1695,6 +1699,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_SDAIENA: {
       name: 'AjnaPoolPairs_SDAIENA',
       address: '0x52054b0f7f07bb8e6daa06d177ece312ccc1f685',
+    },
+    AjnaPoolPairs_SAFEDAI: {
+      name: 'AjnaPoolPairs_SAFEDAI',
+      address: '0x37b5921f0da465df64637a418110a2e3aa90b209',
     },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
