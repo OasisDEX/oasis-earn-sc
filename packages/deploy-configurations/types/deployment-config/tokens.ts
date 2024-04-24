@@ -84,6 +84,7 @@ export type Tokens =
   | 'YIELDETH'
   | 'YFI'
   | 'ZRX'
+  | 'PTWEETH'
   | 'PYUSD'
   | 'CRVUSD'
   | 'AETHSDAI'
