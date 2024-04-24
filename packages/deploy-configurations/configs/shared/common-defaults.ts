@@ -189,4 +189,8 @@ export const commonDefaults = {
     name: 'USDA',
     address: ADDRESS_ZERO,
   },
+  SAFE: {
+    name: 'SAFE',
+    address: ADDRESS_ZERO,
+  },
 } as const

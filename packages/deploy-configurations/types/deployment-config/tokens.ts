@@ -48,6 +48,7 @@ export type Tokens =
   | 'RWA004'
   | 'RWA005'
   | 'RWA006'
+  | 'SAFE'
   | 'SDAI'
   | 'STETH'
   | 'STYETH'
