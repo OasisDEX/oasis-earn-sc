@@ -709,6 +709,10 @@ export const config: SystemConfig = {
       name: 'PAXUSD',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
     },
+    PTWEETH: {
+      name: 'PTWEETH',
+      address: '0xc69ad9bab1dee23f4605a82b3354f8e40d1e5966',
+    },
     PYUSD: {
       name: 'PYUSD',
       address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',

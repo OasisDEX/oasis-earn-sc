@@ -193,4 +193,8 @@ export const commonDefaults = {
     name: 'SAFE',
     address: ADDRESS_ZERO,
   },
+  PTWEETH: {
+    name: 'PTWEETH',
+    address: ADDRESS_ZERO,
+  },
 } as const
