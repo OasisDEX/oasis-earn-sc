@@ -111,3 +111,4 @@ export type Tokens =
   | 'DEGEN'
   | 'SNX'
   | 'ENA'
+  | 'UNI-V2'

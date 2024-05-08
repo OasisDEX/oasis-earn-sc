@@ -974,6 +974,10 @@ export const config: SystemConfig = {
       name: 'AWBTC',
       address: '0xFC4B8ED459e00e5400be803A9BB3954234FD50e3',
     },
+    'UNI-V2': {
+      name: 'UNI-V2',
+      address: '0x9fdd7f845baca6d71d93f1619250c6f0b7a58842',
+    },
   },
   aave: {
     v2: {
@@ -1707,6 +1711,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_SAFEDAI: {
       name: 'AjnaPoolPairs_SAFEDAI',
       address: '0x37b5921f0da465df64637a418110a2e3aa90b209',
+    },
+    'AjnaPoolPairs_UNI-V2DAI': {
+      name: 'AjnaPoolPairs_UNI-V2DAI',
+      address: '0xc71ad394818474f87f27a5525243de52c278dcb8',
     },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
