@@ -1010,6 +1010,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_EZETHWETH',
       address: '0x0000000000000000000000000000000000000000',
     },
+    'AjnaPoolPairs_MOOAURAGYROAUSDCN/AUSDTNUSDC': {
+      name: 'AjnaPoolPairs_MOOAURAGYROAUSDCN/AUSDTNUSDC',
+      address: '0x263482c6879677494d4c51b5577188a722ec7f8c',
+    },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
       address: '0x8a7F5aFb7E3c3fD1f3Cc9D874b454b6De11EBbC9',
