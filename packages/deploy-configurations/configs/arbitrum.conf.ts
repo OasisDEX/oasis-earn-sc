@@ -632,7 +632,7 @@ export const config: SystemConfig = {
     },
     WEETH: {
       name: 'WEETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x35751007a407ca6FEFfE80b3cB397736D2cf4dbe',
     },
     YIELDBTC: {
       name: 'YIELDBTC',
