@@ -249,4 +249,8 @@ export const emptyAjnaPools = {
     name: 'AjnaPoolPairs_UNI-V2DAI',
     address: ADDRESS_ZERO,
   },
+  'AjnaPoolPairs_MOOAURAGYROAUSDCN/AUSDTNUSDC': {
+    name: 'AjnaPoolPairs_MOOAURAGYROAUSDCN/AUSDTNUSDC',
+    address: ADDRESS_ZERO,
+  },
 } as const
