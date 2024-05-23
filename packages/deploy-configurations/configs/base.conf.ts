@@ -106,7 +106,7 @@ export const config: SystemConfig = {
       ERC4626Deposit: {
         name: 'ERC4626Deposit',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x90Ddf2551b02E4003a831E48cc8bA94d54Cef898',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_DEPOSIT,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -114,7 +114,7 @@ export const config: SystemConfig = {
       ERC4626Withdraw: {
         name: 'ERC4626Withdraw',
         deploy: false,
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x9134205b3E39E4DCaA7e33b21ACC36a798061d07',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ERC4626_WITHDRAW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -214,7 +214,7 @@ export const config: SystemConfig = {
       ReturnMultipleTokens: {
         name: 'ReturnMultipleTokens',
         deploy: false,
-        address: '',
+        address: '0x06E3BE1fFf0250ECb867d6F3f0AA18Bd6fE55Bea',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_MULTIPLE_TOKENS,
         history: [],
         constructorArgs: [],
@@ -282,6 +282,46 @@ export const config: SystemConfig = {
           '0x3A2756376b9a949f7Eca58e73A2D27015AFC594B',
         ],
         constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBlueBorrow: {
+        name: 'MorphoBlueBorrow',
+        deploy: false,
+        address: '0x227B72A64FAC7597A7838034e774eAfeF95b4Ac5',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.BORROW,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBlueWithdraw: {
+        name: 'MorphoBlueWithdraw',
+        deploy: false,
+        address: '0xe3EdfDaB49ac6756f3A9A6922Ae2c52990da6188',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.WITHDRAW,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBlueDeposit: {
+        name: 'MorphoBlueDeposit',
+        deploy: false,
+        address: '0x5b8e9D4FE8f8AdF162Fc8bA12f7a93811F7BBc8c',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.DEPOSIT,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBluePayback: {
+        name: 'MorphoBluePayback',
+        deploy: false,
+        address: '0x717175C1A85351a838eC919D105f58A25faf93e6',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.PAYBACK,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      MorphoBlueClaimRewards: {
+        name: 'MorphoBlueClaimRewards',
+        deploy: false,
+        address: '0x1Be2FE53fc29B411319f3b1E1d0748B79b898b51',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.CLAIM_REWARDS,
+        history: [],
+        constructorArgs: [],
       },
     },
   },
@@ -1517,12 +1557,12 @@ export const config: SystemConfig = {
   morphoblue: {
     MorphoBlue: {
       name: 'MorphoBlue',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.MORPHO_BLUE,
     },
     AdaptiveCurveIrm: {
       name: 'AdaptiveCurveIrm',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x46415998764C29aB2a25CbeA6254146D50D22687',
     },
   },
 }
