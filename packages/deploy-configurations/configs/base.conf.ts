@@ -1523,6 +1523,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_PRIMEUSDC',
       address: '0x2b2b94dc8e974433c7c4ec7741f686eb46584831',
     },
+    AjnaPoolPairs_SUSDCYUSDC: {
+      name: 'AjnaPoolPairs_SUSDCYUSDC',
+      address: '0xebd79bdded542c3cfa6912e53581e5bc4fea4616',
+    },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
       address: '0x97fa9b0909C238D170C1ab3B5c728A3a45BBEcBa',
