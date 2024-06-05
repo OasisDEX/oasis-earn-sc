@@ -621,6 +621,10 @@ export const config: SystemConfig = {
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
     },
+    WOETH: {
+      name: 'WOETH',
+      address: '0xd8724322f44e5c58d7a815f542036fb17dbbf839',
+    },
     WLD: {
       name: 'WLD',
       address: '0x0000000000000000000000000000000000000000',
@@ -1013,6 +1017,10 @@ export const config: SystemConfig = {
     'AjnaPoolPairs_MOOAURAGYROAUSDCN/AUSDTNUSDC': {
       name: 'AjnaPoolPairs_MOOAURAGYROAUSDCN/AUSDTNUSDC',
       address: '0x263482c6879677494d4c51b5577188a722ec7f8c',
+    },
+    AjnaPoolPairs_WOETHETH: {
+      name: 'AjnaPoolPairs_WOETHETH',
+      address: '0xd36E05257143cD89B51F928951d0e803f84C8F4d',
     },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
