@@ -77,6 +77,7 @@ export type Tokens =
   | 'WBTC'
   | 'WETH'
   | 'WEETH'
+  | 'WOETH'
   | 'WLD'
   | 'WSTETH'
   | 'XETH'

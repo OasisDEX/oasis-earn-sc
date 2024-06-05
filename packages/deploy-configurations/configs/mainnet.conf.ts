@@ -857,6 +857,10 @@ export const config: SystemConfig = {
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
     },
+    WOETH: {
+      name: 'WOETH',
+      address: '0xdcee70654261af21c44c093c300ed3bb97b78192',
+    },
     WLD: {
       name: 'WLD',
       address: '0x163f8c2467924be0ae7b5347228cabf260318753',
@@ -1715,6 +1719,10 @@ export const config: SystemConfig = {
     'AjnaPoolPairs_UNI-V2DAI': {
       name: 'AjnaPoolPairs_UNI-V2DAI',
       address: '0xc71ad394818474f87f27a5525243de52c278dcb8',
+    },
+    AjnaPoolPairs_WOETHETH: {
+      name: 'AjnaPoolPairs_WOETHETH',
+      address: '0xDD433012C0d99AEbE83FFf55B4D405831DE85fbc',
     },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
