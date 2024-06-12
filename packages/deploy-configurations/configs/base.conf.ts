@@ -373,7 +373,7 @@ export const config: SystemConfig = {
     },
     EZETH: {
       name: 'EZETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x2416092f143378750bb29b79eD961ab195CcEea5',
     },
     MEVETH: {
       name: 'MEVETH',
@@ -772,7 +772,7 @@ export const config: SystemConfig = {
     },
     WEETH: {
       name: 'WEETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A',
     },
     YIELDBTC: {
       name: 'YIELDBTC',
