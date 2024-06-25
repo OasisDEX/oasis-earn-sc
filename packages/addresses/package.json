@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/addresses",
-  "version": "0.1.71",
+  "version": "0.1.72",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

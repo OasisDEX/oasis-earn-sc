@@ -153,6 +153,10 @@ export const commonDefaults = {
     name: 'CETH',
     address: ADDRESS_ZERO,
   },
+  BSDETH: {
+    name: 'BSDETH',
+    address: ADDRESS_ZERO,
+  },
   CWETHV3: {
     name: 'CWETHV3',
     address: ADDRESS_ZERO,

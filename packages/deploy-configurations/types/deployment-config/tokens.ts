@@ -8,6 +8,7 @@ export type Tokens =
   | 'BAL'
   | 'BAT'
   | 'BWAJNA'
+  | 'BSDETH'
   | 'CSETH'
   | 'CBETH'
   | 'COMP'

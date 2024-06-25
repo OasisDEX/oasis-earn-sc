@@ -331,6 +331,10 @@ export const config: SystemConfig = {
       name: 'DEGEN',
       address: '0x4ed4e862860bed51a9570b96d89af5e1b0efefed',
     },
+    BSDETH: {
+      name: 'BSDETH',
+      address: '0xCb327b99fF831bF8223cCEd12B1338FF3aA322Ff',
+    },
     CUSDCV3: {
       name: 'CUSDCV3',
       address: '0xb125e6687d4313864e53df431d5425969c15eb2f',
