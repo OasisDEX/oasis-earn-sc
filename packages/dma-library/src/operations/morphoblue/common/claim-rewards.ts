@@ -28,7 +28,11 @@ export const morphoBlueClaimRewards: MorphoBlueClaimRewardsOperation = async (
       proofs: proofs,
     }),
     actions.common.returnMultipleTokens(network, {
-      assets: rewards,
+      assets: rewards.filter(
+        // for now we need to filter our MORPHO token as it is not transferable and it will stay on dpm proxy
+        // until they will update transferability
+        item => item.toLowerCase() !== '0x9994e35db50125e0df82e4c2dde62496ce330999',
+      ),
     }),
   ]
 
