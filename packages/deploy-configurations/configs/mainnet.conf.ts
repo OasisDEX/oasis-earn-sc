@@ -693,6 +693,10 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
     },
+    MKR: {
+      name: 'MKR',
+      address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
+    },
     MORPHO: {
       name: 'MORPHO',
       address: '0x9994e35db50125e0df82e4c2dde62496ce330999',

@@ -489,7 +489,9 @@ export async function getTokenSymbol(
     return await erc20.symbol()
   } catch (e) {
     // It's required because for example MKR token symbol() returns bytes32 instead of string
-    console.warn('Issue with getting token symbol as string, trying to fetch as bytes32...')
+    console.warn(
+      `Issue with getting a symbol for ${token} token as string type, trying to fetch as bytes32...`,
+    )
 
     try {
       const erc20 = new ethers.Contract(token, getTokenSymbolAbi('bytes32'), provider)
@@ -497,7 +499,7 @@ export async function getTokenSymbol(
 
       return ethers.utils.parseBytes32String(symbol)
     } catch (e) {
-      console.error('Failed to get token symbol')
+      console.error(`Failed to get token symbol for: ${token} token`)
       return 'UNKNOWN_SYMBOL'
     }
   }
