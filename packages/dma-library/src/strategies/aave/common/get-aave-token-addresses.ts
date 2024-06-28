@@ -14,7 +14,7 @@ export const getAaveTokenAddress = (
   }
 
   if (!tokenAddress || tokenAddress === EMPTY_ADDRESS)
-    throw new Error('Token not recognised or address missing in dependencies')
+    throw new Error('Token not recognised or address missing in dependencies: ' + token.symbol)
 
   return tokenAddress
 }
