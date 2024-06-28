@@ -460,34 +460,47 @@ export async function getSwapData(
   return { swapData, collectFeeFrom, preSwapFee }
 }
 
+const getTokenSymbolAbi = (type: 'string' | 'bytes32') => {
+  return [
+    {
+      constant: true,
+      inputs: [],
+      name: 'symbol',
+      outputs: [
+        {
+          name: '',
+          type,
+        },
+      ],
+      payable: false,
+      stateMutability: 'view',
+      type: 'function',
+    },
+  ]
+}
+
 export async function getTokenSymbol(
   token: Address,
   provider: providers.Provider,
 ): Promise<string> {
-  const erc20 = new ethers.Contract(
-    token,
-    [
-      {
-        constant: true,
-        inputs: [],
-        name: 'symbol',
-        outputs: [
-          {
-            name: '',
-            type: 'string',
-          },
-        ],
-        payable: false,
-        stateMutability: 'view',
-        type: 'function',
-      },
-    ],
-    provider,
-  )
+  try {
+    const erc20 = new ethers.Contract(token, getTokenSymbolAbi('string'), provider)
 
-  const symbol = await erc20.symbol()
+    return await erc20.symbol()
+  } catch (e) {
+    // It's required because for example MKR token symbol() returns bytes32 instead of string
+    console.warn('Issue with getting token symbol as string, trying to fetch as bytes32...')
 
-  return symbol
+    try {
+      const erc20 = new ethers.Contract(token, getTokenSymbolAbi('bytes32'), provider)
+      const symbol = await erc20.symbol()
+
+      return ethers.utils.parseBytes32String(symbol)
+    } catch (e) {
+      console.error('Failed to get token symbol')
+      return 'UNKNOWN_SYMBOL'
+    }
+  }
 }
 
 export function prepareMorphoMultiplyDMAPayload(
