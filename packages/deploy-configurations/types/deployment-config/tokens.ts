@@ -115,3 +115,4 @@ export type Tokens =
   | 'SNX'
   | 'ENA'
   | 'UNI-V2'
+  | 'RSETH'

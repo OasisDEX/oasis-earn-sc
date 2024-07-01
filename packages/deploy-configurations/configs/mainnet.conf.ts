@@ -737,6 +737,10 @@ export const config: SystemConfig = {
       name: 'RWA001',
       address: '0x10b2aA5D77Aa6484886d8e244f0686aB319a270d',
     },
+    RSETH: {
+      name: 'RSETH',
+      address: '0xa1290d69c65a6fe4df752f95823fae25cb99e5a7',
+    },
     RWA002: {
       name: 'RWA002',
       address: '0xAAA760c2027817169D7C8DB0DC61A2fb4c19AC23',
