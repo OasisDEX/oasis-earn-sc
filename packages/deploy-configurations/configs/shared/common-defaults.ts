@@ -204,6 +204,10 @@ export const commonDefaults = {
     name: 'WOETH',
     address: ADDRESS_ZERO,
   },
+  RSETH: {
+    name: 'RSETH',
+    address: ADDRESS_ZERO,
+  },
   'UNI-V2': {
     name: 'UNI-V2',
     address: ADDRESS_ZERO,
