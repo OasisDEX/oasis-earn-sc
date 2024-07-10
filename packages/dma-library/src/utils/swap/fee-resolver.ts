@@ -67,6 +67,7 @@ export function isCorrelatedPosition(symbolA: string, symbolB: string) {
       'CWETHV3',
       'WOETH',
       'BSDETH',
+      'RSETH',
     ], // ETH correlated assets
     ['WBTC', 'TBTC'], // BTC correlated assets
     ['USDC', 'DAI', 'GHO', 'SDAI', 'USDT', 'CDAI', 'AUSDC', 'PYUSD'], // USDC correlated assets
