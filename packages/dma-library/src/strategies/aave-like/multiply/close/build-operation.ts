@@ -99,11 +99,12 @@ export async function buildCloseFlashloan(
   dependencies: AaveLikeCloseDependencies,
 ): Promise<CloseFlashloanArgs> {
   const lendingProtocol = dependencies.protocolType
-  const flashloanProvider = resolveFlashloanProvider(
-    await getForkedNetwork(dependencies.provider),
+  const flashloanProvider = resolveFlashloanProvider({
+    network: await getForkedNetwork(dependencies.provider),
     lendingProtocol,
-    args.debtToken.symbol,
-  )
+    debtToken: args.debtToken.symbol,
+    collateralToken: args.collateralToken.symbol,
+  })
 
   if (dependencies.protocolType === 'Spark') {
     // This covers off the situation where debt balances accrue interest

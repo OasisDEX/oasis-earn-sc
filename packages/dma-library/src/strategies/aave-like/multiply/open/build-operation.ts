@@ -114,11 +114,12 @@ export async function buildOpenFlashloan(
   dependencies: AaveLikeOpenDependencies,
 ) {
   const lendingProtocol = dependencies.protocolType
-  const flashloanProvider = resolveFlashloanProvider(
-    await getForkedNetwork(dependencies.provider),
+  const flashloanProvider = resolveFlashloanProvider({
+    network: await getForkedNetwork(dependencies.provider),
     lendingProtocol,
-    args.debtToken.symbol,
-  )
+    debtToken: args.debtToken.symbol,
+    collateralToken: args.collateralToken.symbol,
+  })
 
   if (dependencies.protocolType === 'Spark') {
     const swapAmountBeforeFees = simulation.swap.fromTokenAmount
