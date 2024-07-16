@@ -8,7 +8,7 @@ export function validateTargetLtvExceedsCap(
   const maxSupply = position.reserveData.collateral.availableToSupply
   const maxBorrow = position.reserveData.debt.availableToBorrow
 
-  if (targetPosition.collateralAmount.gt(maxSupply)) {
+  if (targetPosition.collateralAmount.minus(position.collateralAmount).gt(maxSupply)) {
     return [
       {
         name: 'target-ltv-exceeds-supply-cap',
@@ -19,12 +19,12 @@ export function validateTargetLtvExceedsCap(
     ]
   }
 
-  if (targetPosition.debtAmount.gt(maxBorrow)) {
+  if (targetPosition.debtAmount.minus(position.debtAmount).gt(maxBorrow)) {
     return [
       {
         name: 'target-ltv-exceeds-borrow-cap',
         data: {
-          cap: formatCryptoBalance(maxSupply),
+          cap: formatCryptoBalance(maxBorrow),
         },
       },
     ]
