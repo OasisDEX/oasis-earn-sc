@@ -212,4 +212,8 @@ export const commonDefaults = {
     name: 'UNI-V2',
     address: ADDRESS_ZERO,
   },
+  SYRUPUSDC: {
+    name: 'SYRUPUSDC',
+    address: ADDRESS_ZERO,
+  },
 } as const

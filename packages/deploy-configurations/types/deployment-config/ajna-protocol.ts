@@ -68,6 +68,7 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_MOOAURAGYROAUSDCN/AUSDTNUSDC'
   | 'AjnaPoolPairs_SUSDCYUSDC'
   | 'AjnaPoolPairs_WOETHETH'
+  | 'AjnaPoolPairs_SYRUPUSDCUSDC'
   | 'AjnaProxyActions'
   | 'AjnaRewardsClaimer'
   | 'AjnaRewardsManager'
