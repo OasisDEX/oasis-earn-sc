@@ -765,6 +765,10 @@ export const config: SystemConfig = {
       name: 'SAFE',
       address: '0x5aFE3855358E112B5647B952709E6165e1c1eEEe',
     },
+    SYRUPUSDC: {
+      name: 'SYRUPUSDC',
+      address: '0x80ac24aa929eaf5013f6436cda2a7ba190f5cc0b',
+    },
     SDAI: {
       name: 'SDAI',
       address: '0x83f20f44975d03b1b09e64809b757c47f942beea',
@@ -1731,6 +1735,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_WOETHETH: {
       name: 'AjnaPoolPairs_WOETHETH',
       address: '0xDD433012C0d99AEbE83FFf55B4D405831DE85fbc',
+    },
+    AjnaPoolPairs_SYRUPUSDCUSDC: {
+      name: 'AjnaPoolPairs_SYRUPUSDCUSDC',
+      address: '0xbcda8ee352778071fc7f09b8bfbcd832aa09cee9',
     },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',

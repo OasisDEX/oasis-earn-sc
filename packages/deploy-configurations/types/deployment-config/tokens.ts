@@ -116,3 +116,4 @@ export type Tokens =
   | 'ENA'
   | 'UNI-V2'
   | 'RSETH'
+  | 'SYRUPUSDC'
