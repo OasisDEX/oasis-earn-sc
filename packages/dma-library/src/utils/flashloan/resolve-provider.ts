@@ -25,7 +25,9 @@ export function resolveFlashloanProvider({
       if (lendingProtocol === 'Spark' && debtToken !== 'DAI') {
         return FlashloanProvider.Balancer
       }
-
+      if (lendingProtocol === 'MorphoBlue' && debtToken !== 'DAI') {
+        return FlashloanProvider.Balancer
+      }
       if (
         lendingProtocol === 'AAVE_V3' &&
         aaveIsolatedCollateralTokens.includes(collateralToken.toUpperCase())

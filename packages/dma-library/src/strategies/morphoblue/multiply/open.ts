@@ -348,6 +348,8 @@ async function buildOperation(
   })
 
   const network = await getNetwork(dependencies.provider)
+  const isDai =
+    position.marketParams.loanToken.toLowerCase() === dependencies.addresses.DAI.toLowerCase()
 
   const openMultiplyArgs: MorphoBlueOpenOperationArgs = {
     morphoBlueMarket: {
@@ -385,7 +387,7 @@ async function buildOperation(
         address: position.marketParams.loanToken,
       },
       amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
-      provider: FlashloanProvider.Balancer,
+      provider: isDai ? FlashloanProvider.DssFlash : FlashloanProvider.Balancer,
     },
     position: {
       type: positionType,
