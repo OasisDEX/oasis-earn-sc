@@ -86,7 +86,6 @@ export class MakerPosition implements LendingPosition {
   }
 
   get liquidationPenalty() {
-    console.log('liquidationPenalty', this.penalty)
     return this.penalty
   }
 
