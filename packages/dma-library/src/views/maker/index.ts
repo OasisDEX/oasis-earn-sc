@@ -99,8 +99,11 @@ export async function getMakerPosition(
   //   cumulatives,
   // }
 
-  const collateralAmount = new BigNumber(position.collateral)
-  const debtAmount = new BigNumber(position.normalizedDebt).times(position.ilk.rate)
+  const collateralAmount = position.collateral ? new BigNumber(position.collateral) : ZERO
+  const debtAmount = position.normalizedDebt
+    ? new BigNumber(position.normalizedDebt).times(position.ilk.rate)
+    : ZERO
+  const rate = new BigNumber(Number(position.ilk.stabilityFee) - 1)
 
   return new MakerPosition(
     proxyAddress,
@@ -111,7 +114,7 @@ export async function getMakerPosition(
     osmNextCollateralPriceUSD,
     quotePriceUSD,
     osmCurrentCollateralPriceUSD.div(quotePriceUSD),
-    new BigNumber(Number(position.ilk.stabilityFee) - 1),
+    rate,
     {
       withFees: ZERO,
       withoutFees: ZERO,
