@@ -90,9 +90,6 @@ export class MakerPosition implements LendingPosition {
   }
 
   debtAvailable(collateralAmount?: BigNumber, debtAmount?: BigNumber) {
-    // (debt + addDebt) / ((col + addedColl) * price) = lltv
-    // lltv*price*(col + addedColl) - debt = addDebt
-
     return negativeToZero(
       normalizeValue(
         this.maxRiskRatio.loanToValue
