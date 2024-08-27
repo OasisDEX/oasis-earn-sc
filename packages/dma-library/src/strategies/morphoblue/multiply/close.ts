@@ -224,6 +224,9 @@ async function buildOperation(
     ? swapData.fromTokenAmount.plus(preSwapFee)
     : lockedCollateralAmount
 
+  const isDai =
+    args.position.marketParams.loanToken.toLowerCase() === dependencies.addresses.DAI.toLowerCase()
+
   const closeArgs = {
     collateral: {
       address: collateralToken.address,
@@ -245,7 +248,7 @@ async function buildOperation(
         amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
         address: position.marketParams.loanToken,
       },
-      provider: FlashloanProvider.Balancer,
+      provider: isDai ? FlashloanProvider.DssFlash : FlashloanProvider.Balancer,
       amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
     },
     position: {

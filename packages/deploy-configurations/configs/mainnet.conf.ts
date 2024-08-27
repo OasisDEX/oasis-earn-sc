@@ -773,6 +773,10 @@ export const config: SystemConfig = {
       name: 'SDAI',
       address: '0x83f20f44975d03b1b09e64809b757c47f942beea',
     },
+    SWBTC: {
+      name: 'SWBTC',
+      address: '0x8db2350d78abc13f5673a411d4700bcf87864dde',
+    },
     STETH: {
       name: 'STETH',
       address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
