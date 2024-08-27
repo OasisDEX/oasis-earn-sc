@@ -506,6 +506,10 @@ export const config: SystemConfig = {
       name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x0000000000000000000000000000000000000000',
     },
+    ChainlinkPriceOracle_BTCUSD: {
+      name: 'ChainlinkPriceOracle_ETHUSD',
+      address: '0x64c911996D3c6aC71f9b455B1E8E7266BcbD848F',
+    },
     SdaiOracle: {
       name: 'SdaiOracle',
       address: '0x0000000000000000000000000000000000000000',

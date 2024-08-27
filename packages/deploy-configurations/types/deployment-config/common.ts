@@ -30,6 +30,7 @@ export type Common =
   | 'LidoCrvLiquidityFarmingReward'
   | 'ChainlinkPriceOracle_USDCUSD'
   | 'ChainlinkPriceOracle_ETHUSD'
+  | 'ChainlinkPriceOracle_BTCUSD'
   | 'SdaiOracle'
   | 'WSTETHOracle'
   | 'USDEOracle'
