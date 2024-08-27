@@ -24,6 +24,10 @@ export const commonDefaults = {
     name: 'SUSD',
     address: ADDRESS_ZERO,
   },
+  SWBTC: {
+    name: 'SWBTC',
+    address: ADDRESS_ZERO,
+  },
   USDE: {
     name: 'USDE',
     address: ADDRESS_ZERO,

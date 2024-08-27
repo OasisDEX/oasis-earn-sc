@@ -55,6 +55,7 @@ export type Tokens =
   | 'STETH'
   | 'STYETH'
   | 'SUSD'
+  | 'SWBTC'
   | 'SUSDE'
   | 'USDE'
   | 'TBTC'
