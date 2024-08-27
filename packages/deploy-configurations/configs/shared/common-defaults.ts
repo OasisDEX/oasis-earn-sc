@@ -220,4 +220,8 @@ export const commonDefaults = {
     name: 'SYRUPUSDC',
     address: ADDRESS_ZERO,
   },
+  ChainlinkPriceOracle_BTCUSD: {
+    name: 'ChainlinkPriceOracle_ETHUSD',
+    address: ADDRESS_ZERO,
+  },
 } as const
