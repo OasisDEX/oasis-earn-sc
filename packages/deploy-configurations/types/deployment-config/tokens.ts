@@ -42,6 +42,7 @@ export type Tokens =
   | 'PRIME'
   | 'RENBTC'
   | 'RETH'
+  | 'RSWETH'
   | 'RBN'
   | 'RPL'
   | 'RWA001'
@@ -118,3 +119,4 @@ export type Tokens =
   | 'UNI-V2'
   | 'RSETH'
   | 'SYRUPUSDC'
+  | 'LBTC'

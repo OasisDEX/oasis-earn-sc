@@ -745,6 +745,10 @@ export const config: SystemConfig = {
       name: 'RSETH',
       address: '0xa1290d69c65a6fe4df752f95823fae25cb99e5a7',
     },
+    RSWETH: {
+      name: 'RSWETH',
+      address: '0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0',
+    },
     RWA002: {
       name: 'RWA002',
       address: '0xAAA760c2027817169D7C8DB0DC61A2fb4c19AC23',
@@ -780,6 +784,10 @@ export const config: SystemConfig = {
     SWBTC: {
       name: 'SWBTC',
       address: '0x8db2350d78abc13f5673a411d4700bcf87864dde',
+    },
+    LBTC: {
+      name: 'LBTC',
+      address: '0x8236a87084f8b84306f72007f36f2618a5634494',
     },
     STETH: {
       name: 'STETH',
