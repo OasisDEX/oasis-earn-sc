@@ -224,4 +224,12 @@ export const commonDefaults = {
     name: 'ChainlinkPriceOracle_ETHUSD',
     address: ADDRESS_ZERO,
   },
+  RSWETH: {
+    name: 'RSWETH',
+    address: ADDRESS_ZERO,
+  },
+  LBTC: {
+    name: 'LBTC',
+    address: ADDRESS_ZERO,
+  },
 } as const
