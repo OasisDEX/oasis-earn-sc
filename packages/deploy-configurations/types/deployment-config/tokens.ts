@@ -120,3 +120,4 @@ export type Tokens =
   | 'RSETH'
   | 'SYRUPUSDC'
   | 'LBTC'
+  | 'SUPEROETHB'
