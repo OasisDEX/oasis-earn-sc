@@ -6,6 +6,11 @@ enum FlashloanProvider {
   Balancer
 }
 
+enum FeeType {
+    Percentage,
+    Fixed
+}
+
 struct FlashloanData {
   uint256 amount;
   address asset;
@@ -42,6 +47,7 @@ struct SwapData {
   uint256 fee;
   bytes withData;
   bool collectFeeInFromToken;
+  FeeType feeType;
 }
 
 struct Call {
