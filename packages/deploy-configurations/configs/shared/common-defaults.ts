@@ -232,8 +232,8 @@ export const commonDefaults = {
     name: 'LBTC',
     address: ADDRESS_ZERO,
   },
-  SUPEROETHB: {
-    name: 'SUPEROETHB',
+  WSUPEROETHB: {
+    name: 'WSUPEROETHB',
     address: ADDRESS_ZERO,
   },
 } as const

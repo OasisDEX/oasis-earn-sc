@@ -691,8 +691,8 @@ export const config: SystemConfig = {
       name: 'STYETH',
       address: '0x0000000000000000000000000000000000000000',
     },
-    SUPEROETHB: {
-      name: 'SUPEROETHB',
+    WSUPEROETHB: {
+      name: 'WSUPEROETHB',
       address: '0x7FcD174E80f264448ebeE8c88a7C4476AAF58Ea6',
     },
     TBTC: {
