@@ -19,7 +19,7 @@ export type SparkView = SparkGetCurrentPosition
 export type SparkViewOmni = SparkGetCurrentPositionOmni
 
 export type SparkGetCurrentPosition = (
-  args: SparkGetCurrentPositionArgs,
+  args: SparkGetCurrentPositionArgs & {useUserEMode?: boolean},
   addresses: SparkGetCurrentPositionDependencies,
 ) => Promise<AaveLikePosition>
 
@@ -40,6 +40,7 @@ export const getCurrentSparkPosition: SparkGetCurrentPosition = async (args, dep
     addresses: dependencies.addresses,
     proxy: args.proxy,
     provider: dependencies.provider,
+    useUserEmode: args.useUserEMode,
   })
 
   const {

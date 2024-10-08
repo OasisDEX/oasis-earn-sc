@@ -12,6 +12,14 @@ interface IAaveLikePositionBalance {
   address: Address
 }
 
+interface EModeCategoryData {
+  ltv: number;
+  liquidationThreshold: number;
+  liquidationBonus: number;
+  priceSource: string;
+  label: string;
+}
+
 export class AaveLikePositionBalance extends PositionBalance {
   public symbol: AaveLikeTokens
   public address: Address
@@ -25,15 +33,18 @@ export class AaveLikePositionBalance extends PositionBalance {
 export class AaveLikePosition extends Position {
   public debt: AaveLikePositionBalance
   public collateral: AaveLikePositionBalance
+  public eModeCategoryData: EModeCategoryData | undefined
 
   constructor(
     debt: Optional<IAaveLikePositionBalance, 'precision'>,
     collateral: Optional<IAaveLikePositionBalance, 'precision'>,
     oraclePrice: BigNumber,
     category: IPositionCategory,
+    eModeCategoryData?: EModeCategoryData,
   ) {
     super(debt, collateral, oraclePrice, category)
     this.debt = new AaveLikePositionBalance(debt)
     this.collateral = new AaveLikePositionBalance(collateral)
+    this.eModeCategoryData = eModeCategoryData
   }
 }
