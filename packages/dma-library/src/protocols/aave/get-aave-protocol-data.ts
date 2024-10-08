@@ -104,8 +104,6 @@ export async function getAaveV3ProtocolData({
     collateralReserveData,
     userDebtData,
     userCollateralData,
-    collateralEModeCategory,
-    debtEModeCategory,
   ] = await Promise.all([
     fetchAssetPrice(oracle, flashloanTokenAddress),
     fetchAssetPrice(oracle, debtTokenAddress),
@@ -114,14 +112,10 @@ export async function getAaveV3ProtocolData({
     fetchReserveData(poolDataProvider, collateralTokenAddress),
     proxy ? fetchUserReserveData(poolDataProvider, debtTokenAddress, proxy) : undefined,
     proxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
-    poolDataProvider.getReserveEModeCategory(collateralTokenAddress),
-    poolDataProvider.getReserveEModeCategory(debtTokenAddress),
   ])
 
-  const collateralEModeCategoryAsNumber = new BigNumber(
-    (await collateralEModeCategory).toString(),
-  ).toNumber()
-  const debtEModeCategoryAsNumber = new BigNumber((await debtEModeCategory).toString()).toNumber()
+  const collateralEModeCategoryAsNumber = new BigNumber(0).toNumber()
+  const debtEModeCategoryAsNumber = new BigNumber(0).toNumber()
   const reserveEModeCategory = determineReserveEModeCategory(
     collateralEModeCategoryAsNumber,
     debtEModeCategoryAsNumber,
