@@ -54,7 +54,8 @@
   "devDependencies": {
     "@inquirer/prompts": "^3.2.0",
     "@prb/math": "2.5.0",
-    "@tenderly/hardhat-tenderly": "^1.7.7",
+    "@tenderly/api-client": "^1.0.1",
+    "@tenderly/hardhat-tenderly": "1",
     "console-log-colors": "^0.4.0",
     "inquirer": "^8.0.0",
     "solc": "0.8.15"
