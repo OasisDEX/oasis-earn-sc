@@ -9,6 +9,7 @@ import { amountToWei } from '@dma-common/utils/common'
 import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
+import { SwapFeeType } from '@dma-library/types'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { MockExchange } from '@typechain'
@@ -168,6 +169,7 @@ describe('Swap | Unit', async () => {
           fee,
           response.tx.data,
           true,
+          SwapFeeType.Percentage,
         ],
         {
           value: 0,
@@ -215,6 +217,7 @@ describe('Swap | Unit', async () => {
           fee,
           response.tx.data,
           true,
+          SwapFeeType.Percentage,
         ],
         {
           value: 0,
