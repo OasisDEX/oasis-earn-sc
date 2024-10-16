@@ -133,12 +133,17 @@ contract Swap {
     uint256 fromAmount,
     uint256 fee
   ) internal returns (uint256 amount) {
-    amount = fromAmount.sub(fee);
-
+    // if fee gt fromAmount, fee should eq fromAmount
+    if (fee > fromAmount) {
+      fee = fromAmount;
+    }
+   
     if (fee > 0) {
       IERC20(asset).safeTransfer(feeBeneficiaryAddress, fee);
       emit FeePaid(feeBeneficiaryAddress, fee, asset);
     }
+
+    amount = fromAmount.sub(fee);
   }
 
   function _collectFee(
