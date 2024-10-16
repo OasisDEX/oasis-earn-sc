@@ -120,7 +120,7 @@ export async function getAaveV3ProtocolData({
   })
   const isCollateralEthCorrelated = collateralTokenSymbol?.toUpperCase().includes('ETH') || false
   const isDebtEthCorrelated = debtTokenSymbol?.toUpperCase().includes('ETH') || false
-  const reserveEModeCategory = isCollateralEthCorrelated || isDebtEthCorrelated ? 1 : 0
+  const reserveEModeCategory = isCollateralEthCorrelated && isDebtEthCorrelated ? 1 : 0
 
   let eModeCategoryData
   if (pool && reserveEModeCategory !== 0) {
