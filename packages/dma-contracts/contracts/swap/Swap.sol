@@ -6,7 +6,7 @@ import { IERC20 } from "../interfaces/tokens/IERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { SafeERC20 } from "../libs/SafeERC20.sol";
 import { ONE_INCH_AGGREGATOR } from "../core/constants/Common.sol";
-import { SwapData, FeeType } from "../core/types/Common.sol";
+import { FeeType, SwapData } from "../core/types/Common.sol";
 
 contract Swap {
   using SafeMath for uint256;
@@ -137,7 +137,7 @@ contract Swap {
     if (fee > fromAmount) {
       fee = fromAmount;
     }
-   
+
     if (fee > 0) {
       IERC20(asset).safeTransfer(feeBeneficiaryAddress, fee);
       emit FeePaid(feeBeneficiaryAddress, fee, asset);
@@ -182,7 +182,12 @@ contract Swap {
     );
 
     if (!swapData.collectFeeInFromToken) {
-      toTokenBalance = _collectFee(swapData.toAsset, toTokenBalance, swapData.fee, swapData.feeType);
+      toTokenBalance = _collectFee(
+        swapData.toAsset,
+        toTokenBalance,
+        swapData.fee,
+        swapData.feeType
+      );
     }
 
     uint256 fromTokenBalance = IERC20(swapData.fromAsset).balanceOf(address(this));

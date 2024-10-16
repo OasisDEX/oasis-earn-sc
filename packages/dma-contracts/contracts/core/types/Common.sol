@@ -7,8 +7,8 @@ enum FlashloanProvider {
 }
 
 enum FeeType {
-    Percentage,
-    Fixed
+  Percentage,
+  Fixed
 }
 
 struct FlashloanData {
