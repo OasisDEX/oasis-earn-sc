@@ -133,6 +133,13 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      AaveRewardsProxyActions: {
+        name: 'AaveRewardsProxyActions',
+        deploy: true,
+        address: '',
+        history: [],
+        constructorArgs: [],
+      },
     },
     actions: {
       ERC4626Deposit: {
@@ -800,6 +807,10 @@ export const config: SystemConfig = {
       L2Encoder: {
         name: 'L2Encoder',
         address: '0x0000000000000000000000000000000000000000',
+      },
+      RewardsController: {
+        name: 'RewardsController',
+        address: '0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb',
       },
     },
   },

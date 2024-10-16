@@ -14,6 +14,7 @@ export type Core =
   | 'AccountFactory'
   | 'Swap'
   | 'ERC20ProxyActions'
+  | 'AaveRewardsProxyActions'
 
 export type CoreContracts = Record<Core, SystemConfigEntry>
 export type CoreMainnetOnlyContracts = Partial<Record<CoreMainnetOnly, SystemConfigEntry>>
