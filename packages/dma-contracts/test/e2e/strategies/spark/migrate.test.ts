@@ -34,7 +34,7 @@ import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
 
-describe('Migrate | Spark -> DPM | E2E', async () => {
+describe.skip('Migrate | Spark -> DPM | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider

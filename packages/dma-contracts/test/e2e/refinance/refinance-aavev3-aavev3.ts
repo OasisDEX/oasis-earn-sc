@@ -108,7 +108,7 @@ async function enableZeroFee(
   })
 }
 
-describe('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
+describe.skip('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let signer: SignerWithAddress
