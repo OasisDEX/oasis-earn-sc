@@ -4,6 +4,7 @@ import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
+  SwapFeeType,
   WithAjnaBucketPrice,
   WithCollateralAndWithdrawal,
   WithDebt,
@@ -81,6 +82,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const unwrapEth = actions.common.unwrapEth(network, {

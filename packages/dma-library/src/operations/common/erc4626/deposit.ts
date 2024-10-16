@@ -2,7 +2,7 @@ import { ADDRESS_ZERO } from '@deploy-configurations/constants'
 import { getErc4626DepositOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
-import { ActionCall, IOperation, WithProxy, WithSwap } from '@dma-library/types'
+import { ActionCall, IOperation, SwapFeeType, WithProxy, WithSwap } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { ZERO } from '../../../../../dma-common/constants/numbers'
@@ -44,6 +44,7 @@ export const deposit: Erc4626DepositOperation = async (
       fee: swap ? swap.fee : 0,
       withData: swap ? swap.data : '0x00',
       collectFeeInFromToken: swap ? swap.collectFeeFrom === 'sourceToken' : false,
+      feeType: swap?.feeType !== undefined ? swap.feeType : SwapFeeType.Percentage,
     }),
     actions.common.setApproval(
       network,

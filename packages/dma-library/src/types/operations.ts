@@ -11,6 +11,7 @@ import { ActionCall } from './action-call'
 import { FlashloanProvider } from './common'
 import { MorphoBlueMarket } from './morphoblue'
 import { PositionType } from './position-type'
+import type { SwapFeeType } from './swap-fee-type'
 
 export interface IOperation {
   calls: ActionCall[]
@@ -64,6 +65,7 @@ export type WithOptionalDeposit = Partial<{
 export type WithSwapParameters = {
   swap: {
     fee: number
+    feeType?: SwapFeeType
     data: string | number
     collectFeeFrom: 'sourceToken' | 'targetToken'
     receiveAtLeast: BigNumber

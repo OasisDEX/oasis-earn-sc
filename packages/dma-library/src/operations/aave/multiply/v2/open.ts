@@ -2,6 +2,7 @@ import { getAaveOpenV2OperationDefinition } from '@deploy-configurations/operati
 import { Protocol } from '@deploy-configurations/types/protocol'
 import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { SwapFeeType } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
 import {
   IOperation,
@@ -99,6 +100,7 @@ export const open: AaveV2OpenOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const depositIsCollateral = depositAddress === collateral.address

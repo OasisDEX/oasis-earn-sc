@@ -7,6 +7,7 @@ import {
   FlashloanProvider,
   IOperation,
   Protocol,
+  SwapFeeType,
   WithAjnaBucketPrice,
   WithCollateral,
   WithDebtAndBorrow,
@@ -82,6 +83,7 @@ export const open: AjnaOpenOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   // We do not need to dynamically calculate index here
