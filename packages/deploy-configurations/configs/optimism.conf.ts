@@ -736,7 +736,7 @@ export const config: SystemConfig = {
       },
       PoolDataProvider: {
         name: 'PoolDataProvider',
-        address: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
+        address: '0x7F23D86Ee20D869112572136221e173428DD740B',
       },
       L2Encoder: {
         name: 'L2Encoder',
