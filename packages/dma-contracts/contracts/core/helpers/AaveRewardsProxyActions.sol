@@ -70,12 +70,23 @@ contract AaveRewardsProxyActions {
     address _dataProvider,
     address _user,
     address _token
-  ) external view returns (address[] memory rewardsList, uint256[] memory unclaimedAmounts, address[] memory assets) {
+  )
+    external
+    view
+    returns (
+      address[] memory rewardsList,
+      uint256[] memory unclaimedAmounts,
+      address[] memory assets
+    )
+  {
     IDataProvider dataProvider = IDataProvider(_dataProvider);
     (address aToken, , address variableDebtToken) = dataProvider.getReserveTokensAddresses(_token);
     assets = new address[](2);
     assets[0] = aToken;
     assets[1] = variableDebtToken;
-    (rewardsList, unclaimedAmounts) = IRewardsController(_rewardsController).getAllUserRewards(assets, _user);
+    (rewardsList, unclaimedAmounts) = IRewardsController(_rewardsController).getAllUserRewards(
+      assets,
+      _user
+    );
   }
 }
