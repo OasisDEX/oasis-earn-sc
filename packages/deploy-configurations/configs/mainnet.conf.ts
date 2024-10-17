@@ -102,8 +102,8 @@ export const config: SystemConfig = {
       AaveRewardsProxyActions: {
         name: 'AaveRewardsProxyActions',
         deploy: true,
-        address: '0x8aD75eFF83EbcB2E343b1b8d76eFBC796Cf38594',
-        history: [],
+        address: '0x1498fEb3731b3ED60443F67dB323f0807d887a4a',
+        history: ['0x8aD75eFF83EbcB2E343b1b8d76eFBC796Cf38594'],
         constructorArgs: [],
       },
     },

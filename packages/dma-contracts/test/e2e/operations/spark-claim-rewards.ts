@@ -75,11 +75,11 @@ describe.only('AAVE V3 | Claim Rewards | E2E', async () => {
       },
       operationExecutor: system.OperationExecutor.contract.address,
       chainlinkEthUsdPriceFeed: addresses.chainlinkEthUsdPriceFeed,
-      oracle: ADDRESSES[network].spark.Oracle!,
-      lendingPool: ADDRESSES[network].spark.LendingPool!,
-      poolDataProvider: ADDRESSES[network].spark.PoolDataProvider!,
+      oracle: ADDRESSES[network].spark.Oracle,
+      lendingPool: ADDRESSES[network].spark.LendingPool,
+      poolDataProvider: ADDRESSES[network].spark.PoolDataProvider,
     }
-    rewardsControllerAddress = ADDRESSES[network].spark.RewardsController!
+    rewardsControllerAddress = ADDRESSES[network].spark.RewardsController
     // we use mainnet address since we user forked network and an existing dpm proxy
     const accountGuardAddress = ADDRESSES['mainnet'].mpa.core.AccountGuard
     rewardsControllerProxyActionsAddress = system.AaveRewardsProxyActions.contract.address
@@ -107,7 +107,8 @@ describe.only('AAVE V3 | Claim Rewards | E2E', async () => {
     // Prepare the calldata for claiming rewards
     const { poolDataProvider } = await getAaveLikeSystemContracts(
       aaveLikeAddresses,
-      impersonatedSigner.provider!,
+      // @ts-ignore
+      impersonatedSigner.provider,
       'Spark',
     )
     const tokens = await poolDataProvider.getReserveTokensAddresses(addresses.WETH)
@@ -115,7 +116,7 @@ describe.only('AAVE V3 | Claim Rewards | E2E', async () => {
 
     const rewards = await rewardsControllerProxyActionsContract.getAllUserRewards(
       rewardsControllerAddress,
-      ADDRESSES[network].spark.PoolDataProvider!,
+      ADDRESSES[network].spark.PoolDataProvider,
       PROXY,
       addresses.WETH,
     )
