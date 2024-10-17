@@ -49,7 +49,6 @@ const testAddresses = {
     sparkOracle: ADDRESSES[Network.MAINNET].spark.Oracle,
     sparkPoolDataProvider: ADDRESSES[Network.MAINNET].spark.PoolDataProvider,
     sparkRewardsController: ADDRESSES[Network.MAINNET].spark.RewardsController,
-    
   },
   [Network.OPTIMISM]: {
     DAI: ADDRESSES[Network.OPTIMISM].common.DAI,
