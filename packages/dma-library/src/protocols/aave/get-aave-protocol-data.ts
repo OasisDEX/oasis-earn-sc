@@ -94,6 +94,8 @@ export async function getAaveV3ProtocolData({
     'AAVE_V3',
   )
 
+  const networkData = await provider.getNetwork()
+
   const [
     flashloanPrice,
     debtPrice,
@@ -120,7 +122,15 @@ export async function getAaveV3ProtocolData({
   })
   const isCollateralEthCorrelated = collateralTokenSymbol?.toUpperCase().includes('ETH') || false
   const isDebtEthCorrelated = debtTokenSymbol?.toUpperCase().includes('ETH') || false
-  const reserveEModeCategory = isCollateralEthCorrelated && isDebtEthCorrelated ? 1 : 0
+  const reserveEModeCategory =
+    isCollateralEthCorrelated && isDebtEthCorrelated
+      ? {
+          1: 1, // MAINNET
+          42161: 2, // ARBITRUM
+          10: 2, // OPTIMISM
+          8453: 1, // BASE
+        }[networkData.chainId]
+      : 0
 
   let eModeCategoryData
   if (pool && reserveEModeCategory !== 0) {
