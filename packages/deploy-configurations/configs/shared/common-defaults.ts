@@ -236,4 +236,8 @@ export const commonDefaults = {
     name: 'WSUPEROETHB',
     address: ADDRESS_ZERO,
   },
+  CBBTC: {
+    name: 'CBBTC',
+    address: ADDRESS_ZERO,
+  },
 } as const

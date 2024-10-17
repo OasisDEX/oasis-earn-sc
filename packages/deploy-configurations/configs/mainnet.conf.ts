@@ -787,6 +787,10 @@ export const config: SystemConfig = {
       name: 'CBETH',
       address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704',
     },
+    CBBTC: {
+      name: 'CBBTC',
+      address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+    },
     COMP: {
       name: 'COMP',
       address: '0xc00e94Cb662C3520282E6f5717214004A7f26888',

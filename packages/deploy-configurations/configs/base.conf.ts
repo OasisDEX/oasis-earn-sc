@@ -346,6 +346,10 @@ export const config: SystemConfig = {
       name: 'CUSDCV3',
       address: '0xb125e6687d4313864e53df431d5425969c15eb2f',
     },
+    CBBTC: {
+      name: 'CBBTC',
+      address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+    },
     SNX: {
       name: 'SNX',
       address: '0x22e6966B799c4D5B13BE962E1D117b56327FDa66',
