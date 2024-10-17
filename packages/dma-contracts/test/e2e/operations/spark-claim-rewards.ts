@@ -24,10 +24,8 @@ import hre from 'hardhat'
 
 describe.only('AAVE V3 | Claim Rewards | E2E', async () => {
   let snapshot: Snapshot
-  let provider: ethers.providers.JsonRpcProvider
   let address: string
   let signer: SignerWithAddress
-  let user: SignerWithAddress
   let WETH: WETH
   let USDC: ERC20
   let config: RuntimeConfig
@@ -49,8 +47,6 @@ describe.only('AAVE V3 | Claim Rewards | E2E', async () => {
     signer = await SignerWithAddress.create(
       snapshot.config.signer as ethers.providers.JsonRpcSigner,
     )
-    user = signer
-    provider = signer.provider as ethers.providers.JsonRpcProvider
 
     address = await signer.getAddress()
 
@@ -129,7 +125,7 @@ describe.only('AAVE V3 | Claim Rewards | E2E', async () => {
       impersonatedSigner,
     ).balanceOf(IMPERSONATED_SPARK_OWNER)
     // Execute the claim rewards operation through the proxy
-    const [success, receipt] = await executeThroughDPMProxy(
+    const [success] = await executeThroughDPMProxy(
       PROXY,
       {
         address: rewardsControllerProxyActionsAddress,
