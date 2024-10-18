@@ -101,6 +101,13 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      AaveRewardsProxyActions: {
+        name: 'AaveRewardsProxyActions',
+        deploy: true,
+        address: '0x2b1c1925987009Fd39ced009a1b11Db21BE3c2AC',
+        history: [],
+        constructorArgs: [],
+      },
     },
     actions: {
       ERC4626Deposit: {
@@ -338,6 +345,10 @@ export const config: SystemConfig = {
     CUSDCV3: {
       name: 'CUSDCV3',
       address: '0xb125e6687d4313864e53df431d5425969c15eb2f',
+    },
+    CBBTC: {
+      name: 'CBBTC',
+      address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
     },
     SNX: {
       name: 'SNX',
@@ -834,11 +845,15 @@ export const config: SystemConfig = {
       },
       PoolDataProvider: {
         name: 'PoolDataProvider',
-        address: '0x2d8A3C5677189723C4cB8873CfC9C8976FDF38Ac',
+        address: '0xd82a47fdebB5bf5329b09441C3DaB4b5df2153Ad',
       },
       L2Encoder: {
         name: 'L2Encoder',
         address: '0x39e97c588B2907Fb67F44fea256Ae3BA064207C5',
+      },
+      RewardsController: {
+        name: 'RewardsController',
+        address: '0xf9cc4F0D883F1a1eb2c253bdb46c254Ca51E1F44',
       },
     },
   },

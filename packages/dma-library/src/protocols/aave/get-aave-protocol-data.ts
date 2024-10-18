@@ -3,7 +3,6 @@ import {
   SharedAaveLikeProtocolDataArgs,
 } from '@dma-library/protocols/aave-like/types'
 import {
-  determineReserveEModeCategory,
   fetchAssetPrice,
   fetchReserveData,
   fetchUserReserveData,
@@ -11,7 +10,6 @@ import {
 } from '@dma-library/protocols/aave-like/utils'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AaveVersion } from '@dma-library/types/aave'
-import BigNumber from 'bignumber.js'
 
 export type AaveV2ProtocolDataArgs = SharedAaveLikeProtocolDataArgs & {
   protocolVersion: AaveVersion.v2
@@ -104,8 +102,6 @@ export async function getAaveV3ProtocolData({
     collateralReserveData,
     userDebtData,
     userCollateralData,
-    collateralEModeCategory,
-    debtEModeCategory,
   ] = await Promise.all([
     fetchAssetPrice(oracle, flashloanTokenAddress),
     fetchAssetPrice(oracle, debtTokenAddress),
@@ -114,22 +110,21 @@ export async function getAaveV3ProtocolData({
     fetchReserveData(poolDataProvider, collateralTokenAddress),
     proxy ? fetchUserReserveData(poolDataProvider, debtTokenAddress, proxy) : undefined,
     proxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
-    poolDataProvider.getReserveEModeCategory(collateralTokenAddress),
-    poolDataProvider.getReserveEModeCategory(debtTokenAddress),
   ])
-
-  const collateralEModeCategoryAsNumber = new BigNumber(
-    (await collateralEModeCategory).toString(),
-  ).toNumber()
-  const debtEModeCategoryAsNumber = new BigNumber((await debtEModeCategory).toString()).toNumber()
-  const reserveEModeCategory = determineReserveEModeCategory(
-    collateralEModeCategoryAsNumber,
-    debtEModeCategoryAsNumber,
-  )
+  const allTokensSymbols = Object.keys(addresses.tokens)
+  const collateralTokenSymbol = allTokensSymbols.find(tokenSymbol => {
+    return addresses.tokens[tokenSymbol]?.toLowerCase() === collateralTokenAddress.toLowerCase()
+  })
+  const debtTokenSymbol = allTokensSymbols.find(tokenSymbol => {
+    return addresses.tokens[tokenSymbol]?.toLowerCase() === debtTokenAddress.toLowerCase()
+  })
+  const isCollateralEthCorrelated = collateralTokenSymbol?.toUpperCase().includes('ETH') || false
+  const isDebtEthCorrelated = debtTokenSymbol?.toUpperCase().includes('ETH') || false
+  const reserveEModeCategory = isCollateralEthCorrelated && isDebtEthCorrelated ? 1 : 0
 
   let eModeCategoryData
   if (pool && reserveEModeCategory !== 0) {
-    eModeCategoryData = await pool.getEModeCategoryData(reserveEModeCategory)
+    eModeCategoryData = await pool.getEModeCategoryCollateralConfig(reserveEModeCategory)
   }
 
   return {

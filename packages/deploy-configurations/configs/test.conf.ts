@@ -133,6 +133,13 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      AaveRewardsProxyActions: {
+        name: 'AaveRewardsProxyActions',
+        deploy: true,
+        address: '',
+        history: [],
+        constructorArgs: [],
+      },
     },
     actions: {
       ERC4626Deposit: {
@@ -833,11 +840,15 @@ export const config: SystemConfig = {
       },
       PoolDataProvider: {
         name: 'PoolDataProvider',
-        address: '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3',
+        address: '0x41393e5e337606dc3821075Af65AeE84D7688CBD',
       },
       L2Encoder: {
         name: 'L2Encoder',
         address: '0x0000000000000000000000000000000000000000',
+      },
+      RewardsController: {
+        name: 'RewardsController',
+        address: '0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb',
       },
     },
   },
@@ -854,6 +865,10 @@ export const config: SystemConfig = {
     PoolDataProvider: {
       name: 'PoolDataProvider',
       address: '0xFc21d6d146E6086B8359705C8b28512a983db0cb',
+    },
+    RewardsController: {
+      name: 'RewardsController',
+      address: '0x4370D3b6C9588E02ce9D22e684387859c7Ff5b34',
     },
   },
   maker: {

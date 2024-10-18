@@ -2,9 +2,6 @@ import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
-import { commonDefaults } from './shared/common-defaults'
-import { emptyAjnaPools } from './shared/empty-ajna-pools'
-
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export const config: SystemConfig = {
@@ -100,6 +97,13 @@ export const config: SystemConfig = {
         deploy: false,
         address: '0x50A9ceC5AB2E2e0D350dACeb10bA769EbCbc49F3',
         history: [],
+        constructorArgs: [],
+      },
+      AaveRewardsProxyActions: {
+        name: 'AaveRewardsProxyActions',
+        deploy: true,
+        address: '0x1498fEb3731b3ED60443F67dB323f0807d887a4a',
+        history: ['0x8aD75eFF83EbcB2E343b1b8d76eFBC796Cf38594'],
         constructorArgs: [],
       },
     },
@@ -406,7 +410,42 @@ export const config: SystemConfig = {
     },
   },
   common: {
-    ...commonDefaults,
+    ARB: {
+      name: 'ARB',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    CRV: {
+      name: 'CRV',
+      address: '0xD533a949740bb3306d119CC777fa900bA034cd52',
+    },
+    MKR: {
+      name: 'MKR',
+      address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
+    },
+    OP: {
+      name: 'OP',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    SUSD: {
+      name: 'SUSD',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    SWBTC: {
+      name: 'SWBTC',
+      address: '0x8db2350d78abc13f5673a411d4700bcf87864dde',
+    },
+    USDE: {
+      name: 'USDE',
+      address: '0x4c9edd5852cd905f086c759e8383e09bff1e68b3',
+    },
+    RPL: {
+      name: 'RPL',
+      address: '0xd33526068d116ce69f19a9ee46f0bd304f21a51f',
+    },
+    SUSDE: {
+      name: 'SUSDE',
+      address: '0x9d39a5de30e57443bff2a8307a4256c8797a3497',
+    },
     CSETH: {
       name: 'CSETH',
       address: '0x5d74468b69073f809d4fae90afec439e69bf6263',
@@ -435,21 +474,109 @@ export const config: SystemConfig = {
       name: 'XETH',
       address: '0xe063f04f280c60aeca68b38341c2eecbec703ae2',
     },
-    ARB: {
-      name: 'ARB',
+    PYUSD: {
+      name: 'PYUSD',
+      address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
+    },
+    USDEOracle: {
+      name: 'USDEOracle',
+      address: '0xaE4750d0813B5E37A51f7629beedd72AF1f9cA35',
+    },
+    SUSDEOracle: {
+      name: 'SUSDEOracle',
+      address: '0x5D916980D5Ae1737a8330Bf24dF812b2911Aae25',
+    },
+    CRVUSD: {
+      name: 'CRVUSD',
+      address: '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e',
+    },
+    AETHSDAI: {
+      name: 'AETHSDAI',
+      address: '0x4C612E3B15b96Ff9A6faED838F8d07d479a8dD4c',
+    },
+    AETHUSDC: {
+      name: 'AETHUSDC',
+      address: '0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c',
+    },
+    AETHUSDT: {
+      name: 'AETHUSDT',
+      address: '0x23878914EFE38d27C4D67Ab83ed1b93A74D4086a',
+    },
+    AETHDAI: {
+      name: 'AETHDAI',
+      address: '0x018008bfb33d285247A21d44E50697654f754e63',
+    },
+    AETHPYUSD: {
+      name: 'AETHPYUSD',
+      address: '0x0C0d01AbF3e6aDfcA0989eBbA9d6e85dD58EaB1E',
+    },
+    AETHLUSD: {
+      name: 'AETHLUSD',
+      address: '0x3Fe6a295459FAe07DF8A0ceCC36F37160FE86AA9',
+    },
+    AUSDC: {
+      name: 'AUSDC',
+      address: '0xBcca60bB61934080951369a648Fb03DF4F96263C',
+    },
+    AUSDT: {
+      name: 'AUSDT',
+      address: '0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811',
+    },
+    CUSDCV3: {
+      name: 'CUSDCV3',
+      address: '0xc3d688B66703497DAA19211EEdff47f25384cdc3',
+    },
+    CDAI: {
+      name: 'CDAI',
+      address: '0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643',
+    },
+    CUSDC: {
+      name: 'CUSDC',
+      address: '0x39AA39c021dfbaE8faC545936693aC917d5E7563',
+    },
+    AETHWSTETH: {
+      name: 'AETHWSTETH',
+      address: '0x0B925eD163218f6662a35e0f0371Ac234f9E9371',
+    },
+    AETHWETH: {
+      name: 'AETHWETH',
+      address: '0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8',
+    },
+    AETHRETH: {
+      name: 'AETHRETH',
+      address: '0xCc9EE9483f662091a1de4795249E24aC0aC2630f',
+    },
+    AETHCBETH: {
+      name: 'AETHCBETH',
+      address: '0x977b6fc5dE62598B08C85AC8Cf2b745874E8b78c',
+    },
+    ASETH: {
+      name: 'ASETH',
+      address: '0x1982b2F5814301d4e9a8b0201555376e62F82428',
+    },
+    AWETH: {
+      name: 'AWETH',
+      address: '0x030bA81f1c18d280636F32af80b9AAd02Cf0854e',
+    },
+    CETH: {
+      name: 'CETH',
+      address: '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
+    },
+    BSDETH: {
+      name: 'BSDETH',
       address: '0x0000000000000000000000000000000000000000',
     },
-    CRV: {
-      name: 'CRV',
-      address: '0xD533a949740bb3306d119CC777fa900bA034cd52',
+    CWETHV3: {
+      name: 'CWETHV3',
+      address: '0xA17581A9E3356d9A858b789D68B4d866e593aE94',
     },
-    OP: {
-      name: 'OP',
-      address: '0x0000000000000000000000000000000000000000',
+    AETHWBTC: {
+      name: 'AETHWBTC',
+      address: '0x5Ee5bf7ae06D1Be5997A1A72006FE6C607eC6DE8',
     },
-    SUSD: {
-      name: 'SUSD',
-      address: '0x0000000000000000000000000000000000000000',
+    AWBTC: {
+      name: 'AWBTC',
+      address: '0xFC4B8ED459e00e5400be803A9BB3954234FD50e3',
     },
     DEGEN: {
       name: 'DEGEN',
@@ -459,17 +586,61 @@ export const config: SystemConfig = {
       name: 'SNX',
       address: '0x0000000000000000000000000000000000000000',
     },
-    SUSDE: {
-      name: 'SUSDE',
-      address: '0x9d39a5de30e57443bff2a8307a4256c8797a3497',
-    },
-    RPL: {
-      name: 'RPL',
-      address: '0xd33526068d116ce69f19a9ee46f0bd304f21a51f',
-    },
     ENA: {
       name: 'ENA',
       address: '0x57e114b691db790c35207b2e685d4a43181e6061',
+    },
+    AERO: {
+      name: 'AERO',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    PRIME: {
+      name: 'PRIME',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    USDA: {
+      name: 'USDA',
+      address: '0x0000206329b97DB379d5E1Bf586BbDB969C63274',
+    },
+    SAFE: {
+      name: 'SAFE',
+      address: '0x5aFE3855358E112B5647B952709E6165e1c1eEEe',
+    },
+    PTWEETH: {
+      name: 'PTWEETH',
+      address: '0xc69ad9bab1dee23f4605a82b3354f8e40d1e5966',
+    },
+    WOETH: {
+      name: 'WOETH',
+      address: '0xdcee70654261af21c44c093c300ed3bb97b78192',
+    },
+    RSETH: {
+      name: 'RSETH',
+      address: '0xa1290d69c65a6fe4df752f95823fae25cb99e5a7',
+    },
+    'UNI-V2': {
+      name: 'UNI-V2',
+      address: '0x9fdd7f845baca6d71d93f1619250c6f0b7a58842',
+    },
+    SYRUPUSDC: {
+      name: 'SYRUPUSDC',
+      address: '0x80ac24aa929eaf5013f6436cda2a7ba190f5cc0b',
+    },
+    ChainlinkPriceOracle_BTCUSD: {
+      name: 'ChainlinkPriceOracle_BTCUSD',
+      address: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
+    },
+    RSWETH: {
+      name: 'RSWETH',
+      address: '0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0',
+    },
+    LBTC: {
+      name: 'LBTC',
+      address: '0x8236a87084f8b84306f72007f36f2618a5634494',
+    },
+    WSUPEROETHB: {
+      name: 'WSUPEROETHB',
+      address: '0x0000000000000000000000000000000000000000',
     },
     GnosisSafe: {
       name: 'GnosisSafe',
@@ -576,10 +747,6 @@ export const config: SystemConfig = {
       name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
     },
-    ChainlinkPriceOracle_BTCUSD: {
-      name: 'ChainlinkPriceOracle_BTCUSD',
-      address: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
-    },
     SdaiOracle: {
       name: 'SdaiOracle',
       address: '0xb9E6DBFa4De19CCed908BcbFe1d015190678AB5f',
@@ -587,14 +754,6 @@ export const config: SystemConfig = {
     WSTETHOracle: {
       name: 'WSTETHOracle',
       address: '0x8B6851156023f4f5A66F68BEA80851c3D905Ac93',
-    },
-    USDEOracle: {
-      name: 'USDEOracle',
-      address: '0xaE4750d0813B5E37A51f7629beedd72AF1f9cA35',
-    },
-    SUSDEOracle: {
-      name: 'SUSDEOracle',
-      address: '0x5D916980D5Ae1737a8330Bf24dF812b2911Aae25',
     },
     AAVE: {
       name: 'AAVE',
@@ -627,6 +786,10 @@ export const config: SystemConfig = {
     CBETH: {
       name: 'CBETH',
       address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704',
+    },
+    CBBTC: {
+      name: 'CBBTC',
+      address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
     },
     COMP: {
       name: 'COMP',
@@ -697,10 +860,6 @@ export const config: SystemConfig = {
       name: 'MATIC',
       address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
     },
-    MKR: {
-      name: 'MKR',
-      address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
-    },
     MORPHO: {
       name: 'MORPHO',
       address: '0x9994e35db50125e0df82e4c2dde62496ce330999',
@@ -717,14 +876,6 @@ export const config: SystemConfig = {
       name: 'PAXUSD',
       address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
     },
-    PTWEETH: {
-      name: 'PTWEETH',
-      address: '0xc69ad9bab1dee23f4605a82b3354f8e40d1e5966',
-    },
-    PYUSD: {
-      name: 'PYUSD',
-      address: '0x6c3ea9036406852006290770bedfcaba0e23a0e8',
-    },
     RENBTC: {
       name: 'RENBTC',
       address: '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
@@ -740,14 +891,6 @@ export const config: SystemConfig = {
     RWA001: {
       name: 'RWA001',
       address: '0x10b2aA5D77Aa6484886d8e244f0686aB319a270d',
-    },
-    RSETH: {
-      name: 'RSETH',
-      address: '0xa1290d69c65a6fe4df752f95823fae25cb99e5a7',
-    },
-    RSWETH: {
-      name: 'RSWETH',
-      address: '0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0',
     },
     RWA002: {
       name: 'RWA002',
@@ -769,25 +912,9 @@ export const config: SystemConfig = {
       name: 'RWA006',
       address: '0x4EE03cfBF6E784c462839f5954d60f7C2B60b113',
     },
-    SAFE: {
-      name: 'SAFE',
-      address: '0x5aFE3855358E112B5647B952709E6165e1c1eEEe',
-    },
-    SYRUPUSDC: {
-      name: 'SYRUPUSDC',
-      address: '0x80ac24aa929eaf5013f6436cda2a7ba190f5cc0b',
-    },
     SDAI: {
       name: 'SDAI',
       address: '0x83f20f44975d03b1b09e64809b757c47f942beea',
-    },
-    SWBTC: {
-      name: 'SWBTC',
-      address: '0x8db2350d78abc13f5673a411d4700bcf87864dde',
-    },
-    LBTC: {
-      name: 'LBTC',
-      address: '0x8236a87084f8b84306f72007f36f2618a5634494',
     },
     STETH: {
       name: 'STETH',
@@ -850,18 +977,10 @@ export const config: SystemConfig = {
       name: 'UNIV2WBTCETH',
       address: '0xBb2b8038a1640196FbE3e38816F3e67Cba72D940',
     },
-    USDA: {
-      name: 'USDA',
-      address: '0x0000206329b97DB379d5E1Bf586BbDB969C63274',
-    },
     USDC: {
       name: 'USDC',
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
-    },
-    USDE: {
-      name: 'USDE',
-      address: '0x4c9edd5852cd905f086c759e8383e09bff1e68b3',
     },
     'USDC.E': {
       name: 'USDC.E',
@@ -884,10 +1003,6 @@ export const config: SystemConfig = {
       name: 'WETH',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
-    },
-    WOETH: {
-      name: 'WOETH',
-      address: '0xdcee70654261af21c44c093c300ed3bb97b78192',
     },
     WLD: {
       name: 'WLD',
@@ -917,98 +1032,6 @@ export const config: SystemConfig = {
     ZRX: {
       name: 'ZRX',
       address: '0xE41d2489571d322189246DaFA5ebDe1F4699F498',
-    },
-    CRVUSD: {
-      name: 'CRVUSD',
-      address: '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e',
-    },
-    AETHSDAI: {
-      name: 'AETHSDAI',
-      address: '0x4C612E3B15b96Ff9A6faED838F8d07d479a8dD4c',
-    },
-    AETHUSDC: {
-      name: 'AETHUSDC',
-      address: '0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c',
-    },
-    AETHUSDT: {
-      name: 'AETHUSDT',
-      address: '0x23878914EFE38d27C4D67Ab83ed1b93A74D4086a',
-    },
-    AETHDAI: {
-      name: 'AETHDAI',
-      address: '0x018008bfb33d285247A21d44E50697654f754e63',
-    },
-    AETHPYUSD: {
-      name: 'AETHPYUSD',
-      address: '0x0C0d01AbF3e6aDfcA0989eBbA9d6e85dD58EaB1E',
-    },
-    AETHLUSD: {
-      name: 'AETHLUSD',
-      address: '0x3Fe6a295459FAe07DF8A0ceCC36F37160FE86AA9',
-    },
-    AUSDC: {
-      name: 'AUSDC',
-      address: '0xBcca60bB61934080951369a648Fb03DF4F96263C',
-    },
-    AUSDT: {
-      name: 'AUSDT',
-      address: '0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811',
-    },
-    CUSDCV3: {
-      name: 'CUSDCV3',
-      address: '0xc3d688B66703497DAA19211EEdff47f25384cdc3',
-    },
-    CDAI: {
-      name: 'CDAI',
-      address: '0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643',
-    },
-    CUSDC: {
-      name: 'CUSDC',
-      address: '0x39AA39c021dfbaE8faC545936693aC917d5E7563',
-    },
-    AETHWSTETH: {
-      name: 'AETHWSTETH',
-      address: '0x0B925eD163218f6662a35e0f0371Ac234f9E9371',
-    },
-    AETHWETH: {
-      name: 'AETHWETH',
-      address: '0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8',
-    },
-    AETHRETH: {
-      name: 'AETHRETH',
-      address: '0xCc9EE9483f662091a1de4795249E24aC0aC2630f',
-    },
-    AETHCBETH: {
-      name: 'AETHCBETH',
-      address: '0x977b6fc5dE62598B08C85AC8Cf2b745874E8b78c',
-    },
-    ASETH: {
-      name: 'ASETH',
-      address: '0x1982b2F5814301d4e9a8b0201555376e62F82428',
-    },
-    AWETH: {
-      name: 'AWETH',
-      address: '0x030bA81f1c18d280636F32af80b9AAd02Cf0854e',
-    },
-    CETH: {
-      name: 'CETH',
-      address: '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
-    },
-    CWETHV3: {
-      name: 'CWETHV3',
-      address: '0xA17581A9E3356d9A858b789D68B4d866e593aE94',
-    },
-    AETHWBTC: {
-      name: 'AETHWBTC',
-      address: '0x5Ee5bf7ae06D1Be5997A1A72006FE6C607eC6DE8',
-    },
-    AWBTC: {
-      name: 'AWBTC',
-      address: '0xFC4B8ED459e00e5400be803A9BB3954234FD50e3',
-    },
-    'UNI-V2': {
-      name: 'UNI-V2',
-      address: '0x9fdd7f845baca6d71d93f1619250c6f0b7a58842',
     },
   },
   aave: {
@@ -1044,11 +1067,15 @@ export const config: SystemConfig = {
       },
       PoolDataProvider: {
         name: 'PoolDataProvider',
-        address: '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3',
+        address: '0x41393e5e337606dc3821075Af65AeE84D7688CBD',
       },
       L2Encoder: {
         name: 'L2Encoder',
         address: '0x0000000000000000000000000000000000000000',
+      },
+      RewardsController: {
+        name: 'RewardsController',
+        address: '0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb',
       },
     },
   },
@@ -1065,6 +1092,10 @@ export const config: SystemConfig = {
     PoolDataProvider: {
       name: 'PoolDataProvider',
       address: '0xFc21d6d146E6086B8359705C8b28512a983db0cb',
+    },
+    RewardsController: {
+      name: 'RewardsController',
+      address: '0x4370D3b6C9588E02ce9D22e684387859c7Ff5b34',
     },
   },
   maker: {
@@ -1527,7 +1558,6 @@ export const config: SystemConfig = {
     },
   },
   ajna: {
-    ...emptyAjnaPools,
     AjnaPoolPairs_AJNADAI: {
       name: 'AjnaPoolPairs_AJNADAI',
       address: '0x2feef99a711d684e00a017c4ac587bea31f12875',
@@ -1732,6 +1762,26 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_EZETHWETH',
       address: '0x95af0f183cee1d797c921f53090c73f310610e73',
     },
+    AjnaPoolPairs_DEGENUSDC: {
+      name: 'AjnaPoolPairs_DEGENUSDC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_DEGENCUSDCV3: {
+      name: 'AjnaPoolPairs_DEGENCUSDCV3',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_USDCDEGEN: {
+      name: 'AjnaPoolPairs_USDCDEGEN',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_SNXUSDC: {
+      name: 'AjnaPoolPairs_SNXUSDC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_SNXCUSDCV3: {
+      name: 'AjnaPoolPairs_SNXCUSDCV3',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     AjnaPoolPairs_ENASDAI: {
       name: 'AjnaPoolPairs_ENASDAI',
       address: '0x4176747Bc01BE99f9e8FE78A7b2303d4662a2244',
@@ -1740,6 +1790,14 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_SDAIENA',
       address: '0x52054b0f7f07bb8e6daa06d177ece312ccc1f685',
     },
+    AjnaPoolPairs_AEROUSDC: {
+      name: 'AjnaPoolPairs_AEROUSDC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_PRIMEUSDC: {
+      name: 'AjnaPoolPairs_PRIMEUSDC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     AjnaPoolPairs_SAFEDAI: {
       name: 'AjnaPoolPairs_SAFEDAI',
       address: '0x37b5921f0da465df64637a418110a2e3aa90b209',
@@ -1747,6 +1805,14 @@ export const config: SystemConfig = {
     'AjnaPoolPairs_UNI-V2DAI': {
       name: 'AjnaPoolPairs_UNI-V2DAI',
       address: '0xc71ad394818474f87f27a5525243de52c278dcb8',
+    },
+    'AjnaPoolPairs_MOOAURAGYROAUSDCN/AUSDTNUSDC': {
+      name: 'AjnaPoolPairs_MOOAURAGYROAUSDCN/AUSDTNUSDC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
+    AjnaPoolPairs_SUSDCYUSDC: {
+      name: 'AjnaPoolPairs_SUSDCYUSDC',
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WOETHETH: {
       name: 'AjnaPoolPairs_WOETHETH',
