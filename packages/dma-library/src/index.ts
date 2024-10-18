@@ -55,5 +55,6 @@ export type {
 } from './types/ajna'
 export { AjnaEarnPosition, AjnaPosition } from './types/ajna'
 export * from './types/cumulatives'
+export { MakerPosition } from './types/maker'
 export { MorphoBluePosition } from './types/morphoblue'
 export { Network } from '@deploy-configurations/types/network'
