@@ -5,7 +5,7 @@ import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { DepositSwapArgs } from '@dma-library/operations/aave-like'
 import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
-import { ActionCall, IOperation, MorphoBlueMarket } from '@dma-library/types'
+import { ActionCall, IOperation, MorphoBlueMarket, SwapFeeType } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import { getIsSwapNeeded, getSwapInputToken } from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
@@ -63,6 +63,7 @@ function getSwapCalls(
           fee: swapArgs.fee,
           withData: swapArgs.calldata,
           collectFeeInFromToken: swapArgs.collectFeeInFromToken,
+          feeType: swapArgs.feeType ?? SwapFeeType.Percentage,
         }),
       ],
       isSwapNeeded,
@@ -76,6 +77,7 @@ function getSwapCalls(
       fee: 0,
       withData: 0,
       collectFeeInFromToken: false,
+      feeType: SwapFeeType.Percentage,
     })
     skippedCall.skipped = true
 

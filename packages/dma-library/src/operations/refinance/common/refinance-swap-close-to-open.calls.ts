@@ -1,4 +1,5 @@
 import { actions } from '@dma-library/actions'
+import { SwapFeeType } from '@dma-library/types'
 import {
   WithCloseToOpenSwap,
   WithNetwork,
@@ -30,6 +31,7 @@ export const refinanceSwapCloseToOpen_calls: RefinancePartialOperationGenerator 
     fee: swapCloseToOpen.fee,
     withData: swapCloseToOpen.data,
     collectFeeInFromToken: swapCloseToOpen.collectFeeFrom === 'sourceToken',
+    feeType: swapCloseToOpen.feeType ?? SwapFeeType.Percentage,
   })
   lastStorageIndex += 1
 

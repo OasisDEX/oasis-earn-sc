@@ -118,6 +118,7 @@ export type {
   WithWithdrawCollateral,
 }
 export type { SwapData }
+export { SwapFeeType } from './swap-fee-type'
 export type { Swap }
 
 export { MorphoBluePosition }

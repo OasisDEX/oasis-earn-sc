@@ -1,6 +1,6 @@
 import { getAaveAdjustDownV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { actions } from '@dma-library/actions'
-import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '@dma-library/types'
+import { IOperation, SwapFeeType, WithCollateralAndWithdrawal, WithDebt } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
 import {
   WithAaveLikeStrategyAddresses,
@@ -67,6 +67,7 @@ export const adjustRiskDown: AaveV2AdjustDownOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(

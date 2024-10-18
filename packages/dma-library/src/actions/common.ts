@@ -1,7 +1,7 @@
 import { loadContractNames } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
 import { getActionHash } from '@deploy-configurations/utils/action-hash'
-import { ActionCall, calldataTypes } from '@dma-library/types'
+import { ActionCall, calldataTypes, SwapFeeType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { ActionFactory } from './action-factory'
@@ -80,6 +80,7 @@ export function swap(
     fee: number
     withData: string | number
     collectFeeInFromToken: boolean
+    feeType: SwapFeeType
   },
 ) {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
@@ -96,6 +97,7 @@ export function swap(
         fee: args.fee,
         withData: args.withData,
         collectFeeInFromToken: args.collectFeeInFromToken,
+        feeType: args.feeType ?? SwapFeeType.Percentage,
       },
     ],
   )

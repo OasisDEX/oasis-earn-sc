@@ -4,6 +4,7 @@ import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
+  SwapFeeType,
   WithAjnaBucketPrice,
   WithCollateral,
   WithDebtAndBorrow,
@@ -76,6 +77,7 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(

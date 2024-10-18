@@ -1,7 +1,7 @@
 import { getAaveAdjustDownV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { IOperation } from '@dma-library/types'
+import { IOperation, SwapFeeType } from '@dma-library/types'
 import {
   WithAaveLikeStrategyAddresses,
   WithCollateralAndWithdrawal,
@@ -67,6 +67,7 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(

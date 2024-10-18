@@ -2,7 +2,7 @@ import { ADDRESS_ZERO } from '@deploy-configurations/addresses'
 import { getErc4626WithdrawOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
-import { ActionCall, IOperation, WithProxy, WithSwap } from '@dma-library/types'
+import { ActionCall, IOperation, SwapFeeType, WithProxy, WithSwap } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { MAX_UINT, ZERO } from '../../../../../dma-common/constants/numbers'
@@ -54,6 +54,7 @@ export const withdraw: Erc4626WithdrawOperation = async (
       fee: swap ? swap.fee : 0,
       withData: swap ? swap.data : '0x00',
       collectFeeInFromToken: swap ? swap.collectFeeFrom === 'sourceToken' : false,
+      feeType: swap?.feeType !== undefined ? swap.feeType : SwapFeeType.Percentage,
     }),
     actions.common.unwrapEth(network, {
       amount: new BigNumber(MAX_UINT),

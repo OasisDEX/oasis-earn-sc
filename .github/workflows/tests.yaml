@@ -15,7 +15,7 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - name: Set Swap Space
         uses: pierotofy/set-swap-space@master
@@ -34,7 +34,7 @@ jobs:
 
       - name: Cache node modules
         id: cache-node-modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         if:
           (github.event.inputs.force_run_tests == 'true') ||
           (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'packages/'))
@@ -44,12 +44,12 @@ jobs:
 
       - name: Install node
         id: install-node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         if:
           (github.event.inputs.force_run_tests == 'true') ||
           (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'packages/'))
         with:
-          node-version: '16.x'
+          node-version-file: '.nvmrc'
 
       - name: Install dependencies
         id: install-dependencies
@@ -65,7 +65,7 @@ jobs:
           (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'packages/'))
         run: yarn build
         env:
-          BLOCK_NUMBER: 17776518
+          BLOCK_NUMBER: 20971320
           NETWORK_FORK: mainnet
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
           PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}
@@ -78,7 +78,7 @@ jobs:
           (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'packages/'))
         run: yarn test
         env:
-          BLOCK_NUMBER: 17776518
+          BLOCK_NUMBER: 20971320
           NETWORK_FORK: mainnet
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
           PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}

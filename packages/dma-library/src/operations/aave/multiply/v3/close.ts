@@ -3,6 +3,7 @@ import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import {
   IOperation,
+  SwapFeeType,
   WithCollateral,
   WithDebt,
   WithFlashloan,
@@ -81,6 +82,7 @@ export const close: AaveV3CloseOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const swapActionStorageIndex = 3

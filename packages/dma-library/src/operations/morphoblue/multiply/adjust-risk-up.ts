@@ -1,7 +1,7 @@
 import { getMorphoBlueAdjustUpOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { IOperation } from '@dma-library/types'
+import { IOperation, SwapFeeType } from '@dma-library/types'
 import {
   WithCollateral,
   WithDebtAndBorrow,
@@ -82,6 +82,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(

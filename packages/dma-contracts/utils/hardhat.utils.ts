@@ -97,7 +97,7 @@ function _getForkedConfig(networkFork: Network | undefined): ForkConfigMaybe {
       }
       break
     default:
-      break
+      throw new Error(`NETWORK_FORK value not supported yet: ${networkFork}`)
   }
 
   if (forkConfig && !/^\d+$/.test(forkConfig.blockNumber)) {
@@ -109,10 +109,10 @@ function _getForkedConfig(networkFork: Network | undefined): ForkConfigMaybe {
 
 export function getForkedNetworkConfig(): ForkConfigMaybe {
   if (!process.env.NETWORK_FORK || process.env.NETWORK_FORK === '') {
-    return undefined
+    throw new Error(`NETWORK_FORK value not provided`)
   }
 
-  const networkFork = process.env.NETWORK_FORK as Network | undefined
+  const networkFork = process.env.NETWORK_FORK as Network
 
   const forkConfig: ForkConfigMaybe = _getForkedConfig(networkFork)
 

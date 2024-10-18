@@ -1,7 +1,7 @@
 // Do not change test block numbers as they're linked to uniswap liquidity levels
 import { Network } from '@deploy-configurations/types/network'
 
-export const testBlockNumber = 15695000
+export const testBlockNumber = 20971320
 export const testBlockNumberForAaveV3 = 16597880
 
 export const testBlockNumberForMigrations = 19324700
