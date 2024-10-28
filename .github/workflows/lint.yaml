@@ -7,25 +7,30 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      force_lint_files:
-        description: 'Force lint files (true/false)'
+      cache:
+        description: 'Should use dependency cache'
+        required: false
+        default: 'true'
+      clean:
+        description: 'Clean cache before install'
         required: false
         default: 'false'
+
 jobs:
   files:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out repository
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 18.12.1
+          node-version-file: '.nvmrc'
 
-      - name: Clear Yarn cache
-        run: yarn cache clean
-
-      - name: Cache Yarn dependencies
+      - name: Cache node modules
         uses: actions/cache@v3
+        if: github.event.inputs.cache == 'true'
         with:
           path: |
             ~/.cache/yarn
@@ -34,16 +39,17 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-yarn-cache-
 
-      - name: Clear Yarn cache
+      - name: Clean Yarn cache
+        if: github.event.inputs.clean == 'true'
         run: yarn cache clean
 
-      - name: Install
-        run: yarn --no-progress --non-interactive --frozen-lockfile
+      - name: Install dependencies
+        run: yarn install
 
       - name: Build packages
         run: yarn build
         env:
-          BLOCK_NUMBER: 15946543
+          BLOCK_NUMBER: 20971320
           NETWORK_FORK: 'mainnet'
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
           PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}
