@@ -6,7 +6,7 @@ import { IERC20 } from "../interfaces/tokens/IERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { SafeERC20 } from "../libs/SafeERC20.sol";
 import { ONE_INCH_AGGREGATOR } from "../core/constants/Common.sol";
-import { SwapData } from "../core/types/Common.sol";
+import { FeeType, SwapData } from "../core/types/Common.sol";
 
 contract Swap {
   using SafeMath for uint256;
@@ -23,6 +23,7 @@ contract Swap {
   error FeeTierDoesNotExist(uint256 fee);
   error FeeTierAlreadyExists(uint256 fee);
   error SwapFailed();
+  error FeeTypeDoesNotExist();
 
   constructor(
     address authorisedCaller,
@@ -107,7 +108,7 @@ contract Swap {
     emit AssetSwap(fromAsset, toAsset, amount, balance);
   }
 
-  function _collectFee(
+  function _collectPercentageFee(
     address asset,
     uint256 fromAmount,
     uint256 fee
@@ -127,13 +128,46 @@ contract Swap {
     amount = fromAmount.sub(feeToTransfer);
   }
 
+  function _collectFixedFee(
+    address asset,
+    uint256 fromAmount,
+    uint256 fee
+  ) internal returns (uint256 amount) {
+    // if fee gt fromAmount, fee should eq fromAmount
+    if (fee > fromAmount) {
+      fee = fromAmount;
+    }
+
+    if (fee > 0) {
+      IERC20(asset).safeTransfer(feeBeneficiaryAddress, fee);
+      emit FeePaid(feeBeneficiaryAddress, fee, asset);
+    }
+
+    amount = fromAmount.sub(fee);
+  }
+
+  function _collectFee(
+    address asset,
+    uint256 fromAmount,
+    uint256 fee,
+    FeeType feeType
+  ) internal returns (uint256 amount) {
+    if (feeType == FeeType.Percentage) {
+      amount = _collectPercentageFee(asset, fromAmount, fee);
+    } else if (feeType == FeeType.Fixed) {
+      amount = _collectFixedFee(asset, fromAmount, fee);
+    } else {
+      revert FeeTypeDoesNotExist();
+    }
+  }
+
   function swapTokens(SwapData calldata swapData) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
 
     uint256 amountFrom = swapData.amount;
 
     if (swapData.collectFeeInFromToken) {
-      amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
+      amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee, swapData.feeType);
     }
 
     address oneInch = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
@@ -148,7 +182,12 @@ contract Swap {
     );
 
     if (!swapData.collectFeeInFromToken) {
-      toTokenBalance = _collectFee(swapData.toAsset, toTokenBalance, swapData.fee);
+      toTokenBalance = _collectFee(
+        swapData.toAsset,
+        toTokenBalance,
+        swapData.fee,
+        swapData.feeType
+      );
     }
 
     uint256 fromTokenBalance = IERC20(swapData.fromAsset).balanceOf(address(this));
