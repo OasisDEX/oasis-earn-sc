@@ -1,5 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
-import { SwapData } from '@dma-library/types'
+import { SwapData, SwapFeeType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { acceptedFeeTokenByAddress } from './accepted-fee-token'
@@ -11,6 +11,7 @@ type GetSwapDataArgs<Tokens> = {
   toToken: { symbol: Tokens; address?: Address; precision?: number }
   slippage: BigNumber
   fee?: BigNumber
+  feeType: SwapFeeType
 }
 
 export async function getSwapDataHelper<Addresses, Tokens>({
@@ -45,7 +46,12 @@ export async function getSwapDataHelper<Addresses, Tokens>({
     toTokenAddress,
   })
 
-  const preSwapFee = calculatePreSwapFeeAmount(collectFeeFrom, args.swapAmountBeforeFees, args?.fee)
+  const preSwapFee = calculatePreSwapFeeAmount(
+    collectFeeFrom,
+    args.swapAmountBeforeFees,
+    args?.fee,
+    args.feeType,
+  )
   const swapAmountAfterFees = args.swapAmountBeforeFees
     .minus(preSwapFee)
     .integerValue(BigNumber.ROUND_DOWN)

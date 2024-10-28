@@ -1,6 +1,9 @@
 import { Address } from '@deploy-configurations/types/address'
 import * as AddressesUtils from '@dma-common/utils/addresses/index'
 
+/**
+ * Check if a swap is needed between two tokens
+ **/
 export function getIsSwapNeeded(
   entryTokenAddress: Address,
   depositTokenAddress: Address,

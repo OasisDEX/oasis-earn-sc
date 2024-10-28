@@ -4,6 +4,7 @@ import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
+  SwapFeeType,
   WithCollateral,
   WithDebt,
   WithFlashloan,
@@ -75,6 +76,7 @@ export const close: SparkCloseOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const sendDebtToOpExecutor = actions.common.sendToken(network, {

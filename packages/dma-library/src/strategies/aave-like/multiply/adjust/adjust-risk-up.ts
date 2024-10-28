@@ -1,6 +1,7 @@
 import { amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AaveLikeTokens } from '@dma-library/types'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 import { feeResolver, getSwapDataHelper } from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -11,9 +12,10 @@ import { AaveLikeAdjustUp } from './types'
 
 export const adjustRiskUp: AaveLikeAdjustUp = async (args, dependencies) => {
   const isAdjustUp = true
-  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+  const fee = await feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: isAdjustUp,
     isEarnPosition: dependencies.positionType === 'Earn',
+    positionData: getPositionDataAaveLike(dependencies),
   })
 
   // Get quote swap
@@ -26,7 +28,8 @@ export const adjustRiskUp: AaveLikeAdjustUp = async (args, dependencies) => {
       fromToken: args.debtToken,
       toToken: args.collateralToken,
       slippage: args.slippage,
-      fee,
+      fee: fee.feeToCharge,
+      feeType: fee.feeType,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
@@ -40,7 +43,7 @@ export const adjustRiskUp: AaveLikeAdjustUp = async (args, dependencies) => {
   const { simulatedPositionTransition: simulatedAdjustUp } = await simulate(
     isAdjustUp,
     quoteSwapData,
-    { ...args, fee },
+    { ...args, fee: fee.feeToCharge },
     dependencies,
     true,
     dependencies.debug,
@@ -55,7 +58,8 @@ export const adjustRiskUp: AaveLikeAdjustUp = async (args, dependencies) => {
       fromToken: args.debtToken,
       toToken: args.collateralToken,
       slippage: args.slippage,
-      fee,
+      fee: fee.feeToCharge,
+      feeType: fee.feeType,
       swapAmountBeforeFees: simulatedAdjustUp.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
@@ -83,7 +87,8 @@ export const adjustRiskUp: AaveLikeAdjustUp = async (args, dependencies) => {
     swapData,
     operation,
     collectFeeFrom,
-    fee,
+    fee: fee.feeToCharge,
+    feeType: fee.feeType,
     simulation: simulatedAdjustUp,
     args,
     dependencies,

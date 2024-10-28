@@ -1,4 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
+import type { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { DepositArgs } from '@dma-library/operations'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
@@ -16,6 +17,7 @@ export async function buildDepositArgs(
   slippage: BigNumber,
   dependencies: {
     user: Address
+    network: Network
     addresses: AaveLikeStrategyAddresses
   } & StrategyParams.WithOptionalGetSwap,
   alwaysReturnArgs = false,
@@ -47,6 +49,7 @@ export async function buildDepositArgs(
     dependencies.addresses.tokens.ETH,
     dependencies.addresses.tokens.WETH,
   )
+
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: entryToken.symbol,
     toTokenSymbol: collateralSymbol,
@@ -68,7 +71,7 @@ export async function buildDepositArgs(
     if (!dependencies.getSwapData) throw new Error('Swap data is required for swap to be performed')
 
     const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
-    const fee = SwapUtils.feeResolver(entryToken.symbol, collateralSymbol, {
+    const fee = SwapUtils.percentageFeeResolver(entryToken.symbol, collateralSymbol, {
       isEntrySwap: true,
     })
 
@@ -80,7 +83,8 @@ export async function buildDepositArgs(
         fromToken: entryToken,
         toToken: collateralToken,
         slippage,
-        fee,
+        fee: fee.feeToCharge,
+        feeType: fee.feeType,
         swapAmountBeforeFees: entryTokenAmount,
       },
       addresses: dependencies.addresses,
@@ -93,11 +97,11 @@ export async function buildDepositArgs(
     const swapArgs = {
       calldata: swapData.exchangeCalldata.toString(),
       collectFeeInFromToken,
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge.toNumber(),
       receiveAtLeast: swapData.minToTokenAmount,
     }
 
-    // If a swap is needed, the collateral delta is to token amount (amount of collateral received)
+    // If a swap is needed, the collateral delta is min to token amount (amount of collateral received)
     const collateralDelta = swapData.minToTokenAmount
 
     // Estimated fee collected from Swap
@@ -105,7 +109,8 @@ export async function buildDepositArgs(
       collectFeeFrom,
       entryTokenAmount,
       swapData.toTokenAmount,
-      fee,
+      fee.feeToCharge,
+      fee.feeType,
     )
 
     return {
@@ -121,6 +126,7 @@ export async function buildDepositArgs(
       },
     }
   }
+
   if (!isSwapNeeded) {
     // If no swap is needed, the collateral delta is the same as the entry token amount (deposit amount)
     const collateralDelta = entryTokenAmount

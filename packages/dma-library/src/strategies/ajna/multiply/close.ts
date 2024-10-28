@@ -1,7 +1,7 @@
-import { FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
+import { ONE, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
+import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveTxValue } from '@dma-library/protocols/ajna'
@@ -57,7 +57,7 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
 
   const targetPosition = args.position.close()
 
-  const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+  const fee = SwapUtils.percentageFeeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(
       args.collateralTokenSymbol,
       args.quoteTokenSymbol,
@@ -66,11 +66,11 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
   })
 
   const postSwapFee =
-    collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
+    collectFeeFrom === 'targetToken'
+      ? calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge.toNumber())
+      : ZERO
 
-  const tokenFee = preSwapFee.plus(
-    postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
-  )
+  const tokenFee = SwapUtils.calculateInflatedTokenFee({ postSwapFee, preSwapFee })
 
   // Validation
   const errors = [
@@ -188,7 +188,7 @@ async function buildOperation(
     address: position.pool.quoteToken,
   }
 
-  const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+  const fee = SwapUtils.percentageFeeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(
       args.collateralTokenSymbol,
       args.quoteTokenSymbol,
@@ -210,7 +210,7 @@ async function buildOperation(
       isEth: areSymbolsEqual(debtToken.symbol, 'ETH'),
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge.toNumber(),
       data: swapData.exchangeCalldata,
       amount: collateralAmountToBeSwapped,
       collectFeeFrom,

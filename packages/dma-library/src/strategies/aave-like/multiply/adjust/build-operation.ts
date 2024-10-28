@@ -5,6 +5,7 @@ import { AdjustRiskUpArgs } from '@dma-library/operations/aave/multiply/v3/adjus
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { IOperation, SwapData } from '@dma-library/types'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -44,9 +45,11 @@ export async function buildOperation({
     ? args.depositedByUser?.collateralInWei
     : args.depositedByUser?.debtInWei
   const adjustRiskDown = !adjustRiskUp
-  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+
+  const fee = await feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: adjustRiskUp,
     isEarnPosition: dependencies.positionType === 'Earn',
+    positionData: getPositionDataAaveLike(dependencies),
   })
 
   const adjustRiskArgs = {
@@ -65,7 +68,7 @@ export async function buildOperation({
       amount: depositAmount || ZERO,
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge.toNumber(),
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,

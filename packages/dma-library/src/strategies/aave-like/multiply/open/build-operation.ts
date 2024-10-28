@@ -7,6 +7,7 @@ import {
   AaveLikeOpenDependencies,
 } from '@dma-library/strategies/aave-like/multiply/open/types'
 import { SwapData } from '@dma-library/types'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -31,9 +32,10 @@ export async function buildOperation(
   const swapAmountBeforeFees = simulation.swap.fromTokenAmount
 
   const isIncreasingRisk = true
-  const fee = SwapUtils.feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+  const fee = await SwapUtils.feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk,
     isEarnPosition: dependencies.positionType === 'Earn',
+    positionData: getPositionDataAaveLike(dependencies),
   })
 
   const positionType = dependencies.positionType
@@ -66,7 +68,7 @@ export async function buildOperation(
       amount: depositAmount || ZERO,
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge.toNumber(),
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,

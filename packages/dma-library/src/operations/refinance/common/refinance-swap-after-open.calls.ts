@@ -1,6 +1,7 @@
 import { FEE_BASE } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
+import { SwapFeeType } from '@dma-library/types'
 import {
   WithAaveLikeStrategyAddresses,
   WithAfterOpenSwap,
@@ -34,6 +35,7 @@ export const refinanceSwapAfterOpen_calls: RefinancePartialOperationGenerator = 
     fee: swapAfterOpen.fee,
     withData: swapAfterOpen.data,
     collectFeeInFromToken: swapAfterOpen.collectFeeFrom === 'sourceToken',
+    feeType: swapAfterOpen.feeType ?? SwapFeeType.Percentage,
   })
   lastStorageIndex += 1
 

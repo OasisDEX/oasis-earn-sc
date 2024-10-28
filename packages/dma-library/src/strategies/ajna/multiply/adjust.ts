@@ -143,7 +143,7 @@ async function buildOperation(
   const fromTokenSymbol = riskIsIncreasing ? args.quoteTokenSymbol : args.collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? args.collateralTokenSymbol : args.quoteTokenSymbol
 
-  const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
+  const fee = SwapUtils.percentageFeeResolver(fromTokenSymbol, toTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromTokenSymbol, toTokenSymbol),
   })
@@ -184,7 +184,7 @@ async function buildOperation(
       amount: args.collateralAmount,
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge.toNumber(),
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,

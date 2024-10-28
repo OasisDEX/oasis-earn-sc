@@ -4,6 +4,7 @@ import { actions } from '@dma-library/actions'
 import {
   IOperation,
   Protocol,
+  SwapFeeType,
   WithCollateral,
   WithDebtAndBorrow,
   WithEMode,
@@ -103,6 +104,7 @@ export const open: AaveV3OpenOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const swapActionStorageIndex = 3

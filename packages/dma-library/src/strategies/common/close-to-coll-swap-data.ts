@@ -1,6 +1,6 @@
 import { Address } from '@deploy-configurations/types/address'
 import { FEE_BASE, ONE, TEN, ZERO } from '@dma-common/constants'
-import { calculateFee } from '@dma-common/utils/swap'
+import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { GetSwapData } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
@@ -50,7 +50,9 @@ export async function getSwapDataForCloseToCollateral({
   // so instead of charging the user a fee, we add an offset ( equal to the fee ) to the
   // collateral amount. This means irrespective of whether the fee is collected before
   // or after the swap, there will always be sufficient debt token remaining to cover the outstanding position debt.
-  const fee = __feeOverride || SwapUtils.feeResolver(collateralToken.symbol, debtToken.symbol)
+  const fee =
+    __feeOverride ||
+    SwapUtils.percentageFeeResolver(collateralToken.symbol, debtToken.symbol).feeToCharge
 
   // 2. Calculated the needed amount of collateral to payback the debt
   // This value is calculated based on oracle prices.
@@ -108,7 +110,7 @@ export async function getSwapDataForCloseToCollateral({
 
   const preSwapFee =
     collectFeeFrom === 'sourceToken'
-      ? calculateFee(amountNeededToEnsureRemainingDebtIsRepaid, fee.toNumber())
+      ? calculatePercentageFee(amountNeededToEnsureRemainingDebtIsRepaid, fee.toNumber())
       : ZERO
 
   // 5. Get Swap Data

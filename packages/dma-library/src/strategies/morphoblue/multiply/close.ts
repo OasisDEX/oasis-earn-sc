@@ -1,8 +1,8 @@
-import { FEE_ESTIMATE_INFLATOR, ONE, TEN, ZERO } from '@dma-common/constants'
+import { TEN, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { amountToWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
+import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { operations } from '@dma-library/operations'
 import { resolveTxValue } from '@dma-library/protocols/ajna'
 import * as StrategiesCommon from '@dma-library/strategies/common'
@@ -81,17 +81,17 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
 
   const targetPosition = args.position.close()
 
-  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = SwapUtils.percentageFeeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
     isIncreasingRisk: false,
   })
 
   const postSwapFee =
-    collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
+    collectFeeFrom === 'targetToken'
+      ? calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge.toNumber())
+      : ZERO
 
-  const tokenFee = preSwapFee.plus(
-    postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
-  )
+  const tokenFee = SwapUtils.calculateInflatedTokenFee({ postSwapFee, preSwapFee })
 
   // Validation
   const errors = [
@@ -215,7 +215,7 @@ async function buildOperation(
     address: position.marketParams.loanToken,
   }
 
-  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = SwapUtils.percentageFeeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
     isIncreasingRisk: false,
   })
@@ -237,7 +237,7 @@ async function buildOperation(
       isEth: areAddressesEqual(debtToken.address, dependencies.addresses.WETH),
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge.toNumber(),
       data: swapData.exchangeCalldata,
       amount: collateralAmountToBeSwapped,
       collectFeeFrom,

@@ -2,6 +2,7 @@ import { amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AaveLikeAdjustDown } from '@dma-library/strategies/aave-like/multiply/adjust/types'
 import { AaveLikeTokens } from '@dma-library/types'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 import { feeResolver, getSwapDataHelper } from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -12,9 +13,11 @@ import { simulate } from './simulate'
 export const adjustRiskDown: AaveLikeAdjustDown = async (args, dependencies) => {
   const isAdjustDown = true
   const isAdjustUp = !isAdjustDown
-  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+
+  const fee = await feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: isAdjustUp,
     isEarnPosition: dependencies.positionType === 'Earn',
+    positionData: await getPositionDataAaveLike(dependencies),
   })
 
   // Get quote swap
@@ -27,7 +30,8 @@ export const adjustRiskDown: AaveLikeAdjustDown = async (args, dependencies) => 
       fromToken: args.collateralToken,
       toToken: args.debtToken,
       slippage: args.slippage,
-      fee,
+      fee: fee.feeToCharge,
+      feeType: fee.feeType,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
@@ -41,7 +45,7 @@ export const adjustRiskDown: AaveLikeAdjustDown = async (args, dependencies) => 
   const { simulatedPositionTransition: simulatedAdjustDown } = await simulate(
     isAdjustUp,
     quoteSwapData,
-    { ...args, fee },
+    { ...args, fee: fee.feeToCharge },
     dependencies,
     false,
   )
@@ -55,7 +59,8 @@ export const adjustRiskDown: AaveLikeAdjustDown = async (args, dependencies) => 
       fromToken: args.collateralToken,
       toToken: args.debtToken,
       slippage: args.slippage,
-      fee,
+      fee: fee.feeToCharge,
+      feeType: fee.feeType,
       swapAmountBeforeFees: simulatedAdjustDown.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
@@ -83,7 +88,8 @@ export const adjustRiskDown: AaveLikeAdjustDown = async (args, dependencies) => 
     swapData,
     operation,
     collectFeeFrom,
-    fee,
+    fee: fee.feeToCharge,
+    feeType: fee.feeType,
     simulation: simulatedAdjustDown,
     args,
     dependencies,

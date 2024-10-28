@@ -1,6 +1,7 @@
-import { FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
-import { calculateFee } from '@dma-common/utils/swap'
+import { ZERO } from '@dma-common/constants'
+import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { IOperation, SwapData } from '@dma-library/types'
+import { calculateInflatedTokenFee } from '@dma-library/utils/swap'
 import { IBaseSimulatedTransition } from '@domain'
 import BigNumber from 'bignumber.js'
 
@@ -32,11 +33,11 @@ export async function generate({
   const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
 
   const preSwapFee = shouldCollectFeeFromSourceToken
-    ? calculateFee(simulatedPositionTransition.delta.debt, fee.toNumber())
+    ? calculatePercentageFee(simulatedPositionTransition.delta.debt, fee.toNumber())
     : ZERO
   const postSwapFee = shouldCollectFeeFromSourceToken
     ? ZERO
-    : calculateFee(swapData.toTokenAmount, fee.toNumber())
+    : calculatePercentageFee(swapData.toTokenAmount, fee.toNumber())
 
   return {
     transaction: {
@@ -49,9 +50,7 @@ export async function generate({
         ...simulatedPositionTransition.swap,
         ...swapData,
         collectFeeFrom,
-        tokenFee: preSwapFee.plus(
-          postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
-        ),
+        tokenFee: calculateInflatedTokenFee({ postSwapFee, preSwapFee }),
       },
       position: finalPosition,
     },

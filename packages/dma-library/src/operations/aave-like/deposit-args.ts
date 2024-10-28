@@ -1,8 +1,11 @@
 import { Address } from '@deploy-configurations/types/address'
 import BigNumber from 'bignumber.js'
 
+import type { SwapFeeType } from '../../types'
+
 export type DepositSwapArgs = {
   fee: number
+  feeType?: SwapFeeType
   receiveAtLeast: BigNumber
   calldata: string
   collectFeeInFromToken: boolean

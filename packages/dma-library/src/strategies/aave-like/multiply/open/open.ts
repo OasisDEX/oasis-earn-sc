@@ -1,6 +1,7 @@
 import { amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AaveLikeTokens } from '@dma-library/types/aave-like'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -10,9 +11,10 @@ import { simulate } from './simulate'
 import { AaveLikeOpen } from './types'
 
 export const open: AaveLikeOpen = async (args, dependencies) => {
-  const fee = SwapUtils.feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+  const fee = await SwapUtils.feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: true,
     isEarnPosition: dependencies.positionType === 'Earn',
+    positionData: getPositionDataAaveLike(dependencies),
   })
 
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
@@ -25,7 +27,8 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
       fromToken: args.debtToken,
       toToken: args.collateralToken,
       slippage: args.slippage,
-      fee,
+      fee: fee.feeToCharge,
+      feeType: fee.feeType,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
@@ -40,7 +43,7 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
       quoteSwapData,
       {
         ...args,
-        fee,
+        fee: fee.feeToCharge,
       },
       dependencies,
       true,
@@ -54,7 +57,8 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
       fromToken: args.debtToken,
       toToken: args.collateralToken,
       slippage: args.slippage,
-      fee,
+      fee: fee.feeToCharge,
+      feeType: fee.feeType,
       swapAmountBeforeFees: simulatedPositionTransition.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
@@ -80,7 +84,7 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
     operation,
     args,
     collectFeeFrom,
-    fee,
+    fee: fee.feeToCharge,
     dependencies,
     simulatedPositionTransition,
     quoteSwapData,

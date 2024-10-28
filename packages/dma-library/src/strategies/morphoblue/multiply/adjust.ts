@@ -221,7 +221,7 @@ async function buildOperation(
   const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
   const collateralTokenSymbol = simulatedAdjust.position.collateral.symbol.toUpperCase()
   const debtTokenSymbol = simulatedAdjust.position.debt.symbol.toUpperCase()
-  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = SwapUtils.percentageFeeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
   })
@@ -261,7 +261,7 @@ async function buildOperation(
   }
 
   const swap = {
-    fee: fee.toNumber(),
+    fee: fee.feeToCharge.toNumber(),
     data: swapData.exchangeCalldata,
     amount: swapAmountBeforeFees,
     collectFeeFrom,

@@ -1,5 +1,5 @@
 import { FEE_BASE, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { calculateFee } from '@dma-common/utils/swap'
+import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
 import { isRiskIncreasing } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
@@ -291,13 +291,13 @@ function determineFee(
 
   const normalisedSourceFee = (
     isIncreasingRisk
-      ? calculateFee(debtDelta, oazoFee.toNumber())
-      : calculateFee(collateralDelta, oazoFee.toNumber())
+      ? calculatePercentageFee(debtDelta, oazoFee.toNumber())
+      : calculatePercentageFee(collateralDelta, oazoFee.toNumber())
   ).integerValue(BigNumber.ROUND_DOWN)
   const normalisedTargetFee = (
     isIncreasingRisk
-      ? calculateFee(collateralDelta, oazoFee.toNumber())
-      : calculateFee(debtDelta, oazoFee.toNumber())
+      ? calculatePercentageFee(collateralDelta, oazoFee.toNumber())
+      : calculatePercentageFee(debtDelta, oazoFee.toNumber())
   ).integerValue(BigNumber.ROUND_DOWN)
   const sourceFee = revertToTokenSpecificPrecision(
     normalisedSourceFee,

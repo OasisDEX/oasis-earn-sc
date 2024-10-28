@@ -1,1 +1,6 @@
-export { calculateFee, calculateFeeOnInputAmount } from './calculate-fee'
+export {
+  calculateFixedFee,
+  calculateFixedFeeOnInputAmount,
+  calculatePercentageFee,
+  calculatePercentageFeeOnInputAmount,
+} from './calculate-fee'

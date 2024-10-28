@@ -124,7 +124,7 @@ async function simulateAdjustment(
   const preFlightSwapAmount = amountToWei(ONE, args.quoteTokenPrecision)
   const fromToken = buildFromToken({ ...args, position }, riskIsIncreasing)
   const toToken = buildToToken({ ...args, position }, riskIsIncreasing)
-  const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
+  const fee = SwapUtils.percentageFeeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromToken.symbol, toToken.symbol),
   })
@@ -136,7 +136,8 @@ async function simulateAdjustment(
       fromToken,
       toToken,
       slippage: args.slippage,
-      fee,
+      fee: fee.feeToCharge,
+      feeType: fee.feeType,
       swapAmountBeforeFees: preFlightSwapAmount,
     },
     addresses: dependencies.addresses,
@@ -166,7 +167,7 @@ async function simulateAdjustment(
       debt: ZERO,
     },
     fees: {
-      oazo: fee,
+      oazo: fee.feeToCharge,
       flashLoan: BALANCER_FEE,
     },
     prices: {
@@ -212,7 +213,7 @@ async function buildOperation(
   const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
   const collateralTokenSymbol = simulatedAdjust.position.collateral.symbol.toUpperCase()
   const debtTokenSymbol = simulatedAdjust.position.debt.symbol.toUpperCase()
-  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = SwapUtils.percentageFeeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
   })
@@ -242,7 +243,7 @@ async function buildOperation(
       amount: args.collateralAmount,
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge.toNumber(),
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,

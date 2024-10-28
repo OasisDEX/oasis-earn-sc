@@ -9,21 +9,19 @@ import { Contract } from 'ethers'
 
 import { Address } from '../types'
 
-export const ONE_INCH_API_URL = 'https://api-oasis.1inch.io'
+export const ONE_INCH_API_URL = process.env.ONE_INCH_API_URL
 
 /**
  * Returns the auth header for 1inch API calls
  * @throws {Error} - if process.env.ONE_INCH_API_KEY is not defined
- * @returns {Object} - { auth-key: process.env.ONE_INCH_API_KEY }
+ * @returns {Object} - { Authorization: Bearer ONE_INCH_API_KEY }
  */
 export const getOneInchAuthHeader = () => {
-  const AUTH_HEADER_KEY = 'auth-key'
-
   if (!process.env.ONE_INCH_API_KEY) {
     throw new Error('ONE_INCH_API_KEY is not defined')
   }
 
-  return { [AUTH_HEADER_KEY]: process.env.ONE_INCH_API_KEY }
+  return { ['Authorization']: 'Bearer ' + process.env.ONE_INCH_API_KEY }
 }
 
 const testMarketPrice = 0.979
@@ -105,10 +103,10 @@ export function formatOneInchSwapUrl({
   slippage,
   protocols = defaultExchangeProtocols,
   chainId = 1,
-  version = 'v4.0',
+  version = 'v4.1',
 }: OneInchSwapRequest) {
   const protocolsParam = !protocols?.length ? '' : `&protocols=${protocols.join(',')}`
-  return `${ONE_INCH_API_URL}/${version}/${chainId}/swap?fromTokenAddress=${fromTokenAddress.toLowerCase()}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${recipient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
+  return `${ONE_INCH_API_URL}/swap/${version}/${chainId}/swap?fromTokenAddress=${fromTokenAddress.toLowerCase()}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${recipient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
 }
 
 export async function exchangeTokens(request: OneInchSwapRequest): Promise<OneInchSwapResponse> {
@@ -176,7 +174,7 @@ export async function swapOneInchTokens(
   protocols?: string[],
   fakeRequestEnv?: FakeRequestEnv,
   chainId = 1,
-  version = 'v4.0',
+  version = 'v4.1',
 ): Promise<OneInchSwapResponse> {
   const request: OneInchSwapRequest = {
     fromTokenAddress,

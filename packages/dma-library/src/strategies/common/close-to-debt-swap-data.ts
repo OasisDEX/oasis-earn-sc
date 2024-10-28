@@ -1,6 +1,6 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
-import { calculateFee } from '@dma-common/utils/swap'
+import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { GetSwapData } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
@@ -35,10 +35,13 @@ export async function getSwapDataForCloseToDebt({
     toTokenAddress: toToken.address,
   })
 
-  const fee = __feeOverride || SwapUtils.feeResolver(fromToken.symbol, toToken.symbol)
+  const fee =
+    __feeOverride || SwapUtils.percentageFeeResolver(fromToken.symbol, toToken.symbol).feeToCharge
 
   const preSwapFee =
-    collectFeeFrom === 'sourceToken' ? calculateFee(swapAmountBeforeFees, fee.toNumber()) : ZERO
+    collectFeeFrom === 'sourceToken'
+      ? calculatePercentageFee(swapAmountBeforeFees, fee.toNumber())
+      : ZERO
 
   const swapAmountAfterFees = swapAmountBeforeFees
     .minus(preSwapFee)
