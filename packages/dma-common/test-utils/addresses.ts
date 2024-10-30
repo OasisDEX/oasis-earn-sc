@@ -6,6 +6,8 @@ export type NetworkAddressesForNetwork<T extends Network> = T extends Network.MA
   ? MainnetAddresses
   : T extends Network.OPTIMISM
   ? OptMainnetAddresses
+  : T extends Network.ARBITRUM
+  ? ArbMainnetAddresses
   : never
 export function addressesByNetwork<T extends Network>(network: T): NetworkAddressesForNetwork<T> {
   switch (network) {
@@ -46,6 +48,7 @@ const testAddresses = {
     sparkPool: ADDRESSES[Network.MAINNET].spark.LendingPool,
     sparkOracle: ADDRESSES[Network.MAINNET].spark.Oracle,
     sparkPoolDataProvider: ADDRESSES[Network.MAINNET].spark.PoolDataProvider,
+    sparkRewardsController: ADDRESSES[Network.MAINNET].spark.RewardsController,
   },
   [Network.OPTIMISM]: {
     DAI: ADDRESSES[Network.OPTIMISM].common.DAI,

@@ -29,7 +29,7 @@ import hre from 'hardhat'
 
 // 0x2bA1eefeBb0A1807D1Df52c7EFc1aBdc9FcF5475 aave weth vault @ block : 19468682
 
-describe.only('Migrate | AAVE V3 DsProxy -> DPM | E2E', async () => {
+describe('Migrate | AAVE V3 DsProxy -> DPM | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider
