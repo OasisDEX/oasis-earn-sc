@@ -1,6 +1,6 @@
 import hre from 'hardhat'
 
-import { DeploymentSystem } from './deploy'
+import { DeploymentSystem } from '../utils/deploy'
 
 async function main() {
   const ds = new DeploymentSystem(hre)

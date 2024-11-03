@@ -12,7 +12,7 @@ import BigNumber from 'bignumber.js'
 import { BigNumber as BN } from 'ethers'
 import hre, { ethers } from 'hardhat'
 
-import { DeploymentSystem } from './deployment/deploy'
+import { DeploymentSystem } from './utils/deploy'
 
 async function main() {
   const signer = hre.ethers.provider.getSigner(0)

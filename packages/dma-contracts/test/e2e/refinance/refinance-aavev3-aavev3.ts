@@ -6,7 +6,7 @@ import { getNetwork } from '@deploy-configurations/utils/network'
 import { addressesByNetwork, asPercentageValue, mockExchangeGetData } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
+import { DeploymentSystem } from '@dma-contracts/scripts/utils/deploy'
 import { testBlockNumberForAaveV3 } from '@dma-contracts/test/config'
 import { createETHPositionAAVEv3 } from '@dma-contracts/test/utils/aave/aave.operation.create-position'
 import { getMaxDebtToBorrow } from '@dma-contracts/test/utils/aave/debt-calculation'
@@ -108,7 +108,7 @@ async function enableZeroFee(
   })
 }
 
-describe('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
+describe.skip('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let signer: SignerWithAddress

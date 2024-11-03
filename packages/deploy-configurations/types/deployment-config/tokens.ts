@@ -121,3 +121,4 @@ export type Tokens =
   | 'SYRUPUSDC'
   | 'LBTC'
   | 'WSUPEROETHB'
+  | 'CBBTC'

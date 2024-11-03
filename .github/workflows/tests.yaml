@@ -83,3 +83,4 @@ jobs:
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
           PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}
           PRIV_KEY_TENDERLY: ${{ secrets.PRIV_KEY_MAINNET }}
+          SUBGRAPH_BASE: ${{ secrets.SUBGRAPH_BASE }}

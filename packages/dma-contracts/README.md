@@ -107,3 +107,9 @@ inclusion of the tools in the `hardhat.config.ts` file:
 //import './tasks/verify-deployment'
 //import './tasks/verify-operations'
 ```
+
+## Other npm scripts
+
+e.g. verify operation configs
+
+`yarn operations:showremote aave.v3 --network mainnet`

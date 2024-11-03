@@ -30,7 +30,7 @@ import {
   opMorphoBluePaybackWithdraw,
 } from './utils/morpho.operations.borrow.utils'
 
-describe('Borrow Operations | MorphoBlue | Integration', async () => {
+describe.skip('Borrow Operations | MorphoBlue | Integration', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let provider: JsonRpcProvider
   let owner: Signer

@@ -9,7 +9,7 @@ import {
 } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
+import { DeploymentSystem } from '@dma-contracts/scripts/utils/deploy'
 import {
   testBlockNumberForAaveOptimismV3,
   testBlockNumberForAaveV3,

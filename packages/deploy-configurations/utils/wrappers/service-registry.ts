@@ -1,5 +1,5 @@
 import { ContractNames } from '@deploy-configurations/constants'
-import { Contract, Signer, utils } from 'ethers'
+import { Contract, ethers, Signer, utils } from 'ethers'
 
 export class ServiceRegistry {
   address: string
@@ -24,10 +24,32 @@ export class ServiceRegistry {
     return this._getRegistry()
   }
 
-  async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
+  async addEntry(
+    label: ContractNames,
+    address: string,
+    debug = false,
+    { tenderly }: { tenderly: boolean } = { tenderly: false },
+  ): Promise<string> {
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await this._getRegistry()
-    await registry.addNamedService(entryHash, address)
+
+    if (tenderly) {
+      const tx = await registry.populateTransaction.addNamedService(entryHash, address)
+      const provider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_FORK_URL)
+      const txHash = await provider
+        ?.send('eth_sendTransaction', [
+          {
+            ...tx,
+            from: process.env.IMPERSONATE_ADDRESS,
+          },
+        ])
+        .catch(e => {
+          console.log('Error in the transaction', e)
+        })
+      await provider?.waitForTransaction(txHash)
+    } else {
+      await registry.addNamedService(entryHash, address)
+    }
 
     if (debug) {
       console.log(`DEBUG: Service '${label}' has been added with hash: ${entryHash}`)

@@ -6,7 +6,7 @@ import { Percentage, swapOneInchTokens } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
-import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
+import { calculatePercentageFeeOnInputAmount } from '@dma-common/utils/swap'
 import { TestDeploymentSystem } from '@dma-contracts/utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { WETH, WETH__factory } from '@typechain'
@@ -61,7 +61,7 @@ export async function swapTokens(
   }
 
   // Setup Swap
-  const amountWithFeeInWei = calculateFeeOnInputAmount(amount).plus(amount)
+  const amountWithFeeInWei = calculatePercentageFeeOnInputAmount(amount).plus(amount)
 
   const response = await swapOneInchTokens(
     fromToken,

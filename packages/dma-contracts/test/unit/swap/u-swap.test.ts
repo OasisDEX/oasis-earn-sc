@@ -10,7 +10,7 @@ import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { createDeploy } from '@dma-common/utils/deploy'
 import init from '@dma-common/utils/init'
-import { calculateFee } from '@dma-common/utils/swap'
+import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { swap, uniswapV3Swap, unoswap } from '@dma-contracts/test/fixtures'
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
@@ -67,7 +67,7 @@ describe.skip('uSwap | Unit', () => {
 
   describe('WETH to DAI, fee in WETH', () => {
     const amountInWei = amountToWei(new BigNumber(10))
-    const fee = calculateFee(amountInWei, FEE)
+    const fee = calculatePercentageFee(amountInWei, FEE)
     const depositAmountWithFeeWei = amountInWei.plus(fee)
     const slippage = asPercentageValue(10, 100)
 

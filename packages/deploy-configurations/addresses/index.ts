@@ -4,7 +4,6 @@ import {
   goerliConfig,
   mainnetConfig,
   optimismConfig,
-  sepoliaConfig,
   testConfig,
 } from '@deploy-configurations/configs'
 import { ADDRESS_ZERO as zeroAddress } from '@deploy-configurations/constants'
@@ -73,7 +72,6 @@ export type Addresses = {
   [Network.ARBITRUM]: DefaultDeployment
   [Network.BASE]: DefaultDeployment
   [Network.GOERLI]: DefaultDeployment
-  [Network.SEPOLIA]: DefaultDeployment
   [Network.TEST]: DefaultDeployment
 }
 
@@ -155,7 +153,6 @@ export const ADDRESSES: Addresses = {
   [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig),
   [Network.BASE]: createAddressesStructure(baseConfig),
   [Network.TEST]: createAddressesStructure(testConfig),
-  [Network.SEPOLIA]: createAddressesStructure(sepoliaConfig),
 }
 
 export const ADDRESS_ZERO = zeroAddress

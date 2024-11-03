@@ -1,28 +1,28 @@
 import { Protocol } from '@deploy-configurations/types/protocol'
 
 export type AaveV3OperationNames =
-  | 'OpenAAVEV3Position_v2'
-  | 'CloseAAVEV3Position_v4'
-  | 'AdjustRiskUpAAVEV3Position_v2'
-  | 'AdjustRiskDownAAVEV3Position_v2'
-  | 'AAVEV3DepositBorrow_v2'
-  | 'AAVEV3OpenDepositBorrow_v2'
-  | 'AAVEV3Deposit'
-  | 'AAVEV3Borrow_v2'
-  | 'AAVEV3PaybackWithdraw_v2'
-  | 'MigrateAaveV3EOA_v2'
+  | 'OpenAAVEV3Position_v3'
+  | 'CloseAAVEV3Position_v5'
+  | 'AdjustRiskUpAAVEV3Position_v3'
+  | 'AdjustRiskDownAAVEV3Position_v3'
+  | 'AAVEV3DepositBorrow_v3'
+  | 'AAVEV3OpenDepositBorrow_v3'
+  | 'AAVEV3Deposit_v2'
+  | 'AAVEV3Borrow_v3'
+  | 'AAVEV3PaybackWithdraw_v3'
+  | 'MigrateAaveV3EOA_v3'
 
 export type SparkOperationNames =
-  | 'SparkOpenPosition_v2'
-  | 'SparkClosePosition_v2'
-  | 'SparkAdjustRiskUp_v2'
-  | 'SparkAdjustRiskDown_v2'
-  | 'SparkDepositBorrow_v2'
-  | 'SparkOpenDepositBorrow_v2'
-  | 'SparkDeposit'
-  | 'SparkBorrow_v2'
-  | 'SparkPaybackWithdraw_v2'
-  | 'MigrateSparkEOA_v2'
+  | 'SparkOpenPosition_v3'
+  | 'SparkClosePosition_v3'
+  | 'SparkAdjustRiskUp_v3'
+  | 'SparkAdjustRiskDown_v3'
+  | 'SparkDepositBorrow_v3'
+  | 'SparkOpenDepositBorrow_v3'
+  | 'SparkDeposit_v2'
+  | 'SparkBorrow_v3'
+  | 'SparkPaybackWithdraw_v3'
+  | 'MigrateSparkEOA_v3'
 
 export const OPERATION_NAMES = {
   aave: {
@@ -38,66 +38,66 @@ export const OPERATION_NAMES = {
       PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw_2',
     },
     v3: {
-      OPEN_POSITION: 'OpenAAVEV3Position_v2',
-      CLOSE_POSITION: 'CloseAAVEV3Position_v4',
-      ADJUST_RISK_UP: 'AdjustRiskUpAAVEV3Position_v2',
-      ADJUST_RISK_DOWN: 'AdjustRiskDownAAVEV3Position_v2',
-      DEPOSIT_BORROW: 'AAVEV3DepositBorrow_v2',
-      OPEN_DEPOSIT_BORROW: 'AAVEV3OpenDepositBorrow_v2',
-      DEPOSIT: 'AAVEV3Deposit',
-      BORROW: 'AAVEV3Borrow_v2',
-      PAYBACK_WITHDRAW: 'AAVEV3PaybackWithdraw_v2',
-      MIGRATE_EOA: 'MigrateAaveV3EOA_v2',
+      OPEN_POSITION: 'OpenAAVEV3Position_v3',
+      CLOSE_POSITION: 'CloseAAVEV3Position_v5',
+      ADJUST_RISK_UP: 'AdjustRiskUpAAVEV3Position_v3',
+      ADJUST_RISK_DOWN: 'AdjustRiskDownAAVEV3Position_v3',
+      DEPOSIT_BORROW: 'AAVEV3DepositBorrow_v3',
+      OPEN_DEPOSIT_BORROW: 'AAVEV3OpenDepositBorrow_v3',
+      DEPOSIT: 'AAVEV3Deposit_v2',
+      BORROW: 'AAVEV3Borrow_v3',
+      PAYBACK_WITHDRAW: 'AAVEV3PaybackWithdraw_v3',
+      MIGRATE_EOA: 'MigrateAaveV3EOA_v3',
     },
   },
   spark: {
-    OPEN_POSITION: 'SparkOpenPosition_v2',
-    CLOSE_POSITION: 'SparkClosePosition_v2',
-    ADJUST_RISK_UP: 'SparkAdjustRiskUp_v2',
-    ADJUST_RISK_DOWN: 'SparkAdjustRiskDown_v2',
-    DEPOSIT_BORROW: 'SparkDepositBorrow_v2',
-    OPEN_DEPOSIT_BORROW: 'SparkOpenDepositBorrow_v2',
-    DEPOSIT: 'SparkDeposit',
-    BORROW: 'SparkBorrow_v2',
-    PAYBACK_WITHDRAW: 'SparkPaybackWithdraw_v2',
-    MIGRATE_EOA: 'MigrateSparkEOA_v2',
+    OPEN_POSITION: 'SparkOpenPosition_v3',
+    CLOSE_POSITION: 'SparkClosePosition_v3',
+    ADJUST_RISK_UP: 'SparkAdjustRiskUp_v3',
+    ADJUST_RISK_DOWN: 'SparkAdjustRiskDown_v3',
+    DEPOSIT_BORROW: 'SparkDepositBorrow_v3',
+    OPEN_DEPOSIT_BORROW: 'SparkOpenDepositBorrow_v3',
+    DEPOSIT: 'SparkDeposit_v2',
+    BORROW: 'SparkBorrow_v3',
+    PAYBACK_WITHDRAW: 'SparkPaybackWithdraw_v3',
+    MIGRATE_EOA: 'MigrateSparkEOA_v3',
   },
   maker: {
-    OPEN_AND_DRAW: 'OpenAndDraw',
-    OPEN_DRAW_AND_CLOSE: 'OpenDrawAndClose',
-    INCREASE_MULTIPLE: 'IncreaseMultiple',
-    INCREASE_MULTIPLE_WITH_DAI_TOP_UP: 'IncreaseMultipleWithDaiTopup',
-    INCREASE_MULTIPLE_WITH_COLL_TOP_UP: 'IncreaseMultipleWithCollateralTopup',
-    INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP: 'IncreaseMultipleWithDaiAndCollTopup',
-    INCREASE_MULTIPLE_WITH_FLASHLOAN: 'IncreaseMultipleWithFlashloan',
+    OPEN_AND_DRAW: 'OpenAndDraw_v2',
+    OPEN_DRAW_AND_CLOSE: 'OpenDrawAndClose_v2',
+    INCREASE_MULTIPLE: 'IncreaseMultiple_v2',
+    INCREASE_MULTIPLE_WITH_DAI_TOP_UP: 'IncreaseMultipleWithDaiTopup_v2',
+    INCREASE_MULTIPLE_WITH_COLL_TOP_UP: 'IncreaseMultipleWithCollateralTopup_v2',
+    INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP: 'IncreaseMultipleWithDaiAndCollTopup_v2',
+    INCREASE_MULTIPLE_WITH_FLASHLOAN: 'IncreaseMultipleWithFlashloan_v2',
     INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP:
-      'IncreaseMultipleWithFlashloanWithDaiAndCollTopup',
+      'IncreaseMultipleWithFlashloanWithDaiAndCollTopup_v2',
   },
   ajna: {
-    OPEN_MULTIPLY_POSITION: 'AjnaOpenMultiplyPosition_5',
-    ADJUST_RISK_UP: 'AjnaAdjustRiskUp_5',
-    ADJUST_RISK_DOWN: 'AjnaAdjustRiskDown_5',
-    DEPOSIT_BORROW: 'AjnaDepositBorrow_5',
-    PAYBACK_WITHDRAW: 'AjnaPaybackWithdraw_5',
-    CLOSE_POSITION_TO_QUOTE: 'AjnaCloseToQuotePosition_5',
-    CLOSE_POSITION_TO_COLLATERAL: 'AjnaCloseToCollateralPosition_5',
+    OPEN_MULTIPLY_POSITION: 'AjnaOpenMultiplyPosition_6',
+    ADJUST_RISK_UP: 'AjnaAdjustRiskUp_6',
+    ADJUST_RISK_DOWN: 'AjnaAdjustRiskDown_6',
+    DEPOSIT_BORROW: 'AjnaDepositBorrow_6',
+    PAYBACK_WITHDRAW: 'AjnaPaybackWithdraw_6',
+    CLOSE_POSITION_TO_QUOTE: 'AjnaCloseToQuotePosition_6',
+    CLOSE_POSITION_TO_COLLATERAL: 'AjnaCloseToCollateralPosition_6',
   },
   morphoblue: {
-    OPEN_POSITION: 'MorphoBlueOpenPosition',
-    CLOSE_POSITION: 'MorphoBlueClosePosition_2',
-    ADJUST_RISK_UP: 'MorphoBlueAdjustRiskUp',
-    ADJUST_RISK_DOWN: 'MorphoBlueAdjustRiskDown_2',
-    DEPOSIT_BORROW: 'MorphoBlueDepositBorrow',
-    OPEN_DEPOSIT_BORROW: 'MorphoBlueOpenDepositBorrow',
-    DEPOSIT: 'MorphoBlueDeposit',
-    BORROW: 'MorphoBlueBorrow',
-    PAYBACK_WITHDRAW: 'MorphoBluePaybackWithdraw_2',
-    CLAIM_REWARDS: 'MorphoBlueClaimRewards',
+    OPEN_POSITION: 'MorphoBlueOpenPosition_2',
+    CLOSE_POSITION: 'MorphoBlueClosePosition_3',
+    ADJUST_RISK_UP: 'MorphoBlueAdjustRiskUp_2',
+    ADJUST_RISK_DOWN: 'MorphoBlueAdjustRiskDown_3',
+    DEPOSIT_BORROW: 'MorphoBlueDepositBorrow_2',
+    OPEN_DEPOSIT_BORROW: 'MorphoBlueOpenDepositBorrow_2',
+    DEPOSIT: 'MorphoBlueDeposit_2',
+    BORROW: 'MorphoBlueBorrow_2',
+    PAYBACK_WITHDRAW: 'MorphoBluePaybackWithdraw_3',
+    CLAIM_REWARDS: 'MorphoBlueClaimRewards_2',
   },
   common: {
-    CUSTOM_OPERATION: 'CustomOperation',
-    ERC4626_DEPOSIT: 'ERC4626Deposit',
-    ERC4626_WITHDRAW: 'ERC4626Withdraw',
+    CUSTOM_OPERATION: 'CustomOperation_2',
+    ERC4626_DEPOSIT: 'ERC4626Deposit_2',
+    ERC4626_WITHDRAW: 'ERC4626Withdraw_2',
   },
 } as const
 

@@ -13,14 +13,14 @@ export function loadContractNames(network: Network) {
     loadedConfig = require('./contract-names.base')
   } else if (network === Network.GOERLI) {
     loadedConfig = require('./contract-names.mainnet')
-  } else if (network === Network.SEPOLIA) {
-    loadedConfig = require('./contract-names.mainnet')
   } else if (network === Network.LOCAL) {
     loadedConfig = require('./contract-names.local')
   } else if (network === Network.TEST) {
     loadedConfig = require('./contract-names.test')
   } else if (network === Network.HARDHAT) {
     loadedConfig = require('./contract-names.test')
+  } else if (network === Network.TENDERLY) {
+    loadedConfig = require('./contract-names.mainnet')
   } else {
     throw new Error(`Invalid network: ${network}`)
   }

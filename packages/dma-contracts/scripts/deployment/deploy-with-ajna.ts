@@ -2,7 +2,7 @@ import { prepareEnv } from '@ajna-contracts/scripts'
 import { updateDmaConfigWithLocalAjnaDeploy } from '@dma-contracts/test/fixtures'
 import hre from 'hardhat'
 
-import { DeploymentSystem } from './deploy'
+import { DeploymentSystem } from '../utils/deploy'
 
 async function main() {
   const signer = hre.ethers.provider.getSigner(0)

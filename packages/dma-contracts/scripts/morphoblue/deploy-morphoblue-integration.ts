@@ -1,12 +1,13 @@
 import { Network } from '@deploy-configurations/types/network'
 import { WrapperOraclesConfig } from '@dma-contracts/../morpho-blue/scripts/types'
 import { deployWrapperOracles } from '@dma-contracts/../morpho-blue/scripts/utils/deploy-utils'
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import { deployMorphoBlueSystem } from '@dma-contracts/test/integration/morphoblue/utils'
 import { getMorphoDefaultMarketsConfig, MorphoTestDeployment, TokensDeployment } from '@morpho-blue'
 import { ERC20__factory } from '@typechain'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+
+import { DeploymentSystem } from '../utils/deploy'
 
 export async function deployMorphoBlue(
   hre: HardhatRuntimeEnvironment,

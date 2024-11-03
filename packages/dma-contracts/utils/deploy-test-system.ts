@@ -4,7 +4,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { OperationsRegistry as OperationRegistryWrapper } from '@deploy-configurations/utils/wrappers'
 import { showConsoleLogs } from '@dma-common/test-utils/console'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
+import { DeploymentSystem } from '@dma-contracts/scripts/utils/deploy'
 import {
   AccountFactory,
   AccountGuard,

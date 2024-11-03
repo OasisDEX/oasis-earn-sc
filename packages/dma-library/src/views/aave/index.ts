@@ -347,6 +347,7 @@ export const getCurrentPositionAaveV3Omni: AaveV3GetCurrentPositionOmni = async 
   let maxLoanToValue = new BigNumber(reserveDataForCollateral.ltv.toString()).div(BASE)
 
   if (eModeCategoryData !== undefined) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     liquidationThreshold = new BigNumber(eModeCategoryData.liquidationThreshold.toString()).div(
       BASE,
     )
@@ -359,10 +360,13 @@ export const getCurrentPositionAaveV3Omni: AaveV3GetCurrentPositionOmni = async 
   )
   const oracle = validatedCollateralPrice.div(validatedDebtPrice)
 
+  // W use liquidationThreshold in AaveLikePositionV2 class to calculate liquidationPrice (LP).
+  // Recently a new Aave version 3.2 was released and now maxLoanToValue should be used instead to calculate LP.
+  // Since Spark uses the same class but was not updated we make this custom overwrite here.
   const category = {
     dustLimit: new BigNumber(0),
     maxLoanToValue: maxLoanToValue,
-    liquidationThreshold: liquidationThreshold,
+    liquidationThreshold: maxLoanToValue,
   }
 
   const { collateral, debt } = calculateViewValuesForPosition({

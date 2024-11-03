@@ -1,6 +1,6 @@
 import { Network } from '@deploy-configurations/types/network'
 import { getForkedNetwork as getUnderlyingNetwork } from '@deploy-configurations/utils/network'
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
+import { DeploymentSystem } from '@dma-contracts/scripts/utils/deploy'
 import { task } from 'hardhat/config'
 
 task('deploy-ajna', 'Deploy the system to a local node.').setAction(
