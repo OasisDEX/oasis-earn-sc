@@ -1087,25 +1087,6 @@ export const config: SystemConfig = {
       },
     },
   },
-  spark: {
-    Oracle: {
-      name: 'Oracle',
-      address: '0x8105f69D9C41644c6A0803fDA7D03Aa70996cFD9',
-    },
-    LendingPool: {
-      name: 'LendingPool',
-      address: '0xC13e21B648A5Ee794902342038FF3aDAB66BE987',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.LENDING_POOL,
-    },
-    PoolDataProvider: {
-      name: 'PoolDataProvider',
-      address: '0xFc21d6d146E6086B8359705C8b28512a983db0cb',
-    },
-    RewardsController: {
-      name: 'RewardsController',
-      address: '0x4370D3b6C9588E02ce9D22e684387859c7Ff5b34',
-    },
-  },
   maker: {
     common: {
       FlashMintModule: {
