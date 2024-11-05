@@ -582,6 +582,10 @@ export const config: SystemConfig = {
       name: 'ETH',
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     },
+    EURC: {
+      name: 'EURC',
+      address: '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42',
+    },
     FRAX: {
       name: 'FRAX',
       address: '0x0000000000000000000000000000000000000000',

@@ -122,3 +122,4 @@ export type Tokens =
   | 'LBTC'
   | 'WSUPEROETHB'
   | 'CBBTC'
+  | 'EURC'
