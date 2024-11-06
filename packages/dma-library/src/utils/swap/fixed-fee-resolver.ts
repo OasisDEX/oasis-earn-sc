@@ -34,6 +34,9 @@ export const fixedFeeResolver = async (
       `Proxy address is zero so if you're trying to open a new position, you should set isOpeningPosition to true when calculating a fee`,
     )
   }
+  if (positionData.protocolId === undefined) {
+    throw new Error('Protocol ID is required for earn multiply fee calculation')
+  }
 
   return {
     feeType: SwapFeeType.Fixed,
