@@ -11,7 +11,7 @@ const getSubgraphName = (network: Network, protocolId: ProtocolId): string => {
   switch (protocolId) {
     case ProtocolId.AAVE:
     case ProtocolId.AAVE_V3:
-    case ProtocolId.SPARK:
+    case ProtocolId.Spark:
       return getAaveLikeSubgraphNameByChainId(network)
     case ProtocolId.AJNA:
       return getAjnaSubgraphNameByChainId(network)
@@ -35,7 +35,7 @@ const validateProtocolId = (protocolId: ProtocolId): void => {
   const supportedProtocols = [
     ProtocolId.AAVE,
     ProtocolId.AAVE_V3,
-    ProtocolId.SPARK,
+    ProtocolId.Spark,
     ProtocolId.AJNA,
     ProtocolId.MORPHO_BLUE,
   ]
@@ -63,7 +63,7 @@ export const createGraphQLClient = (
     switch (protocolId) {
       case ProtocolId.AAVE:
       case ProtocolId.AAVE_V3:
-      case ProtocolId.SPARK:
+      case ProtocolId.Spark:
         return getAaveLikePosition(client, `${proxyAddress}-${protocolId}`)
       case ProtocolId.AJNA:
         return getAjnaPosition(client, proxyAddress)
