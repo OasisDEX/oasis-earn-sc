@@ -24,8 +24,8 @@ yarn clean
 yarn build
 ```
 
-4. Compile contracts (optional)
-Contracts are automatically compiled when running `yarn build` but can also be compiled separately
+4. Compile contracts (optional) Contracts are automatically compiled when running `yarn build` but
+   can also be compiled separately
 
 ```shell
 yarn compile
@@ -67,8 +67,8 @@ yarn test:unit
 yarn test:e2e
 ```
 
-4. Run a specific test in the specific package (example)
-_Command should be run from a respective package folder_
+4. Run a specific test in the specific package (example) _Command should be run from a respective
+   package folder_
 
 ```shell
 yarn clean & yarn hardhat test <path-to-test>
@@ -87,18 +87,22 @@ yarn clean & yarn hardhat test <path-to-test>
 cd packages/dma-contracts && yarn hardhat createMultiplyPositions --serviceregistry <service-registry-address> --accountfactory <account-factory-address> --network <insert-network>
 ```
 
-**Note:** There's an issue with circular dependencies between packages. You'll need to ensure that tasks which causes circular dependencies are 
-not included in the hardhat.config.ts file in @oasisdex/dma-contracts. For more info see the [readme](./packages/dma-contracts/README.md) in the packages/dma-contracts folder
+**Note:** There's an issue with circular dependencies between packages. You'll need to ensure that
+tasks which causes circular dependencies are not included in the hardhat.config.ts file in
+@oasisdex/dma-contracts. For more info see the [readme](./packages/dma-contracts/README.md) in the
+packages/dma-contracts folder
 
 ## Deploy contracts
 
-Please see the [readme](./packages/dma-contracts/README.md) in the packages/dma-contracts folder for more information
+Please see the [readme](./packages/dma-contracts/README.md) in the packages/dma-contracts folder for
+more information
 
 ## Publishing
 
 From package folder:
 
 - checkout dev
-- rum `yarn publish`
- 
-> Prepublish will clean cache and build pkg, yarn will ask for a new version and create a new commit with a tag.
+- run `yarn publish`
+
+> Prepublish will clean cache and build pkg, yarn will ask for a new version and create a new commit
+> with a tag.
