@@ -7,7 +7,7 @@ import { migrate } from './migrate'
 
 export { getSwapDataForCloseToCollateral } from './close-to-coll-swap-data'
 export { getSwapDataForCloseToDebt } from './close-to-debt-swap-data'
-export { getGenericSwapData } from './generic-swap-data'
+export { getGenericSwapDataErc4626 } from './generic-swap-data-erc4626'
 
 export const common: {
   erc4626: {

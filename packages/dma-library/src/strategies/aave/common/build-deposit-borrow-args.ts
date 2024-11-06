@@ -1,25 +1,22 @@
 import { Address } from '@deploy-configurations/types/address'
-import type { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { DepositArgs } from '@dma-library/operations'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AaveLikeTokens, SwapData } from '@dma-library/types'
-import * as StrategyParams from '@dma-library/types/strategy-params'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
-export async function buildDepositArgs(
+import type { AaveLikeDepositBorrowDependencies } from '../../aave-like/borrow/deposit-borrow'
+import type { AaveLikeOpenDepositBorrowDependencies } from '../../aave-like/borrow/open-deposit-borrow'
+
+export async function buildDepositBorrowArgs(
   entryToken: { symbol: AaveLikeTokens },
   collateralToken: { symbol: AaveLikeTokens },
   collateralTokenAddress: Address,
   entryTokenAmount: BigNumber,
   slippage: BigNumber,
-  dependencies: {
-    user: Address
-    network: Network
-    addresses: AaveLikeStrategyAddresses
-  } & StrategyParams.WithOptionalGetSwap,
+  dependencies: AaveLikeDepositBorrowDependencies | AaveLikeOpenDepositBorrowDependencies,
   alwaysReturnArgs = false,
 ): Promise<{
   swap:
@@ -71,8 +68,9 @@ export async function buildDepositArgs(
     if (!dependencies.getSwapData) throw new Error('Swap data is required for swap to be performed')
 
     const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
-    const fee = SwapUtils.percentageFeeResolver(entryToken.symbol, collateralSymbol, {
+    const fee = await SwapUtils.feeResolver(entryToken.symbol, collateralSymbol, {
       isEntrySwap: true,
+      positionData: getPositionDataAaveLike(dependencies),
     })
 
     const { swapData } = await SwapUtils.getSwapDataHelper<

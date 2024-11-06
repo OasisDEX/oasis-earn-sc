@@ -1,8 +1,8 @@
-import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
+import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
-const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TENDERLY)
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export const config: SystemConfig = {
   mpa: {
@@ -87,9 +87,9 @@ export const config: SystemConfig = {
       Swap: {
         name: 'Swap',
         deploy: true,
-        address: '0xb779c4a8Df0054707F6E239159129bEd27b24878',
+        address: '0x826E9f2E79cEEA850dF4d4757e0D12115A720D74',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
-        history: ['0x826E9f2E79cEEA850dF4d4757e0D12115A720D74'],
+        history: [],
         constructorArgs: [
           '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
           '0xc7b548ad9cf38721810246c079b2d8083aba8909',
@@ -140,12 +140,9 @@ export const config: SystemConfig = {
       SwapAction: {
         name: 'SwapAction',
         deploy: true,
-        address: '0xab0b80b169D12A4De609C88E5069873b445c8227',
+        address: '0x313617D9CcBd96d66b2374c9bcB44b372D29b530',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
-        history: [
-          '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85',
-          '0x313617D9CcBd96d66b2374c9bcB44b372D29b530',
-        ],
+        history: ['0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       TakeFlashloan: {
@@ -1085,6 +1082,25 @@ export const config: SystemConfig = {
         name: 'RewardsController',
         address: '0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb',
       },
+    },
+  },
+  spark: {
+    Oracle: {
+      name: 'Oracle',
+      address: '0x8105f69D9C41644c6A0803fDA7D03Aa70996cFD9',
+    },
+    LendingPool: {
+      name: 'LendingPool',
+      address: '0xC13e21B648A5Ee794902342038FF3aDAB66BE987',
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.LENDING_POOL,
+    },
+    PoolDataProvider: {
+      name: 'PoolDataProvider',
+      address: '0xFc21d6d146E6086B8359705C8b28512a983db0cb',
+    },
+    RewardsController: {
+      name: 'RewardsController',
+      address: '0x4370D3b6C9588E02ce9D22e684387859c7Ff5b34',
     },
   },
   maker: {

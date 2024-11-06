@@ -21,7 +21,7 @@ interface GetGenericSwapDataArgs {
   getSwapData: GetSwapData
   __feeOverride?: BigNumber
 }
-export async function getGenericSwapData({
+export async function getGenericSwapDataErc4626({
   fromToken,
   toToken,
   slippage,

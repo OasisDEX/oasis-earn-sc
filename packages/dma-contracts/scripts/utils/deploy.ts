@@ -30,6 +30,7 @@ import {
   getMorphoBlueAdjustDownOperationDefinition,
   getMorphoBlueAdjustUpOperationDefinition,
   getMorphoBlueBorrowOperationDefinition,
+  getMorphoBlueClaimRewardsOperationDefinition,
   getMorphoBlueCloseOperationDefinition,
   getMorphoBlueDepositBorrowOperationDefinition,
   getMorphoBlueDepositOperationDefinition,
@@ -511,7 +512,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
             configItem.serviceRegistryName,
             contract.address,
             true,
-            { tenderly: this.isTenderly },
           )
         } catch (error: any) {
           console.log(
@@ -558,7 +558,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async addRegistryEntry(configItem: ConfigEntry, address: string) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
     if (configItem.serviceRegistryName) {
-      await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address)
+      await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address, true)
       await this.postRegistryEntry(configItem, address)
     }
   }
@@ -607,7 +607,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
 
       if (systemConfigEntry.name === 'ServiceRegistry') {
-        this.serviceRegistryHelper = new ServiceRegistry(systemConfigEntry.address, this.signer)
+        this.serviceRegistryHelper = new ServiceRegistry(systemConfigEntry.address, this.signer, {
+          isTenderly: this.isTenderly,
+        })
 
         if (this.isLocal) {
           if (!this.provider) throw new Error('No provider set')
@@ -712,7 +714,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       )
 
       if (systemConfigEntry.name === 'ServiceRegistry') {
-        this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer)
+        this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer, {
+          isTenderly: this.isTenderly,
+        })
       }
 
       this.deployedSystem[systemConfigEntry.name] = {
@@ -922,6 +926,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     const operationsRegistry = new OperationsRegistry(
       this.deployedSystem.OperationsRegistry.contract.address,
       this.signer,
+      { isTenderly: this.isTenderly, debug: true },
     )
 
     let network = this.network
@@ -1161,6 +1166,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       morphoblueAdjustDownOperationDefinition.actions,
     )
     this.logOp(morphoblueAdjustDownOperationDefinition)
+
+    const morphoblueClaimRewardsOperationDefinition =
+      getMorphoBlueClaimRewardsOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueClaimRewardsOperationDefinition.name,
+      morphoblueClaimRewardsOperationDefinition.actions,
+    )
+    this.logOp(morphoblueClaimRewardsOperationDefinition)
 
     const sparkMigrateOperationDefinition = getSparkMigrateOperationDefinition(network)
     await operationsRegistry.addOp(

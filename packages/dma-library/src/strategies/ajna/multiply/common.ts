@@ -20,6 +20,7 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies } from '@dma-library/types/ajna'
+import { getPositionDataAjna } from '@dma-library/utils/fee-service'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -40,10 +41,14 @@ export async function simulateAdjustment(
 
   const fromToken = buildFromToken(args, riskIsIncreasing)
   const toToken = buildToToken(args, riskIsIncreasing)
-  const feeResult = SwapUtils.percentageFeeResolver(fromToken.symbol, toToken.symbol, {
+  const feeResult = await SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     // Strategy is called open multiply (not open earn)
     isEarnPosition: positionType === 'Earn',
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
   const fee = __feeOverride || feeResult.feeToCharge
 
@@ -137,13 +142,17 @@ export async function getSwapData(
   __feeOverride?: BigNumber,
 ) {
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
-  const feeResult = SwapUtils.percentageFeeResolver(
+  const feeResult = await SwapUtils.feeResolver(
     simulatedAdjust.position.collateral.symbol,
     simulatedAdjust.position.debt.symbol,
     {
       isIncreasingRisk: riskIsIncreasing,
       // Strategy is called open multiply (not open earn)
       isEarnPosition: positionType === 'Earn',
+      positionData: getPositionDataAjna({
+        network: dependencies.network,
+        proxy: args.dpmProxyAddress,
+      }),
     },
   )
   const fee = __feeOverride || feeResult.feeToCharge
@@ -169,7 +178,7 @@ export async function getSwapData(
   return { swapData, collectFeeFrom, preSwapFee }
 }
 
-export function prepareAjnaMultiplyDMAPayload(
+export async function prepareAjnaMultiplyDMAPayload(
   args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
   simulatedAdjustment: Domain.ISimulationV2 & Domain.WithSwap,
@@ -213,9 +222,13 @@ export function prepareAjnaMultiplyDMAPayload(
   const txAmount = args.collateralAmount
   const fromTokenSymbol = riskIsIncreasing ? args.quoteTokenSymbol : args.collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? args.collateralTokenSymbol : args.quoteTokenSymbol
-  const fee = SwapUtils.percentageFeeResolver(fromTokenSymbol, toTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: false,
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
   const postSwapFee =
     collectFeeFrom === 'sourceToken'

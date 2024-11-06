@@ -1,8 +1,10 @@
 import { Address } from '@deploy-configurations/types/address'
+import type { Network } from '@deploy-configurations/types/network'
 import { FEE_BASE, ONE, TEN, ZERO } from '@dma-common/constants'
 import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { GetSwapData } from '@dma-library/types/common'
+import { ProtocolId } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -23,6 +25,11 @@ interface GetSwapDataToCloseToCollateralArgs {
   slippage: BigNumber
   getSwapData: GetSwapData
   __feeOverride?: BigNumber
+  positionData: {
+    network: Network
+    protocolId: ProtocolId
+    proxyAddress: string
+  }
 }
 
 export async function getSwapDataForCloseToCollateral({
@@ -34,6 +41,7 @@ export async function getSwapDataForCloseToCollateral({
   slippage,
   getSwapData,
   __feeOverride,
+  positionData,
 }: GetSwapDataToCloseToCollateralArgs) {
   // This covers off the situation where debt balances accrue interest
   const _outstandingDebt = outstandingDebt
@@ -43,6 +51,9 @@ export async function getSwapDataForCloseToCollateral({
   // We don't want to attempt a zero debt swap with 1inch as it'll fail
   const hasZeroDebt = outstandingDebt.isZero()
 
+  const resolvedFee = await SwapUtils.feeResolver(collateralToken.symbol, debtToken.symbol, {
+    positionData,
+  })
   // 1.Use offset amount which will be used in the swap as well.
   // The idea is that after the debt is paid, the remaining will be transferred to the beneficiary
   // Debt is a complex number and interest rate is constantly applied.
@@ -50,9 +61,8 @@ export async function getSwapDataForCloseToCollateral({
   // so instead of charging the user a fee, we add an offset ( equal to the fee ) to the
   // collateral amount. This means irrespective of whether the fee is collected before
   // or after the swap, there will always be sufficient debt token remaining to cover the outstanding position debt.
-  const fee =
-    __feeOverride ||
-    SwapUtils.percentageFeeResolver(collateralToken.symbol, debtToken.symbol).feeToCharge
+
+  const fee = __feeOverride || resolvedFee.feeToCharge
 
   // 2. Calculated the needed amount of collateral to payback the debt
   // This value is calculated based on oracle prices.

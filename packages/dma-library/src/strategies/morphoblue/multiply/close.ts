@@ -15,6 +15,7 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { StrategyError, StrategyWarning } from '@dma-library/types/ajna/ajna-validations'
+import { getPositionDataMorpho } from '@dma-library/utils/fee-service'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -81,9 +82,13 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
 
   const targetPosition = args.position.close()
 
-  const fee = SwapUtils.percentageFeeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
     isIncreasingRisk: false,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
 
   const postSwapFee =
@@ -144,6 +149,10 @@ async function getMorphoSwapDataToCloseToDebt(
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
 }
 
@@ -180,6 +189,10 @@ async function getMorphoSwapDataToCloseToCollateral(
     slippage: args.slippage,
     outstandingDebt,
     getSwapData: dependencies.getSwapData,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
 }
 
@@ -215,9 +228,13 @@ async function buildOperation(
     address: position.marketParams.loanToken,
   }
 
-  const fee = SwapUtils.percentageFeeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
     isIncreasingRisk: false,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
 
   const collateralAmountToBeSwapped = args.shouldCloseToCollateral

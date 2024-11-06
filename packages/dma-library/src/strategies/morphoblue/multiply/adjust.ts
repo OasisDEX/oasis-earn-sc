@@ -12,6 +12,7 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { SummerStrategy } from '@dma-library/types/ajna/ajna-strategy'
+import { getPositionDataMorpho } from '@dma-library/utils/fee-service/getPositionData'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
 import { isRiskIncreasing } from '@domain/utils'
@@ -221,9 +222,13 @@ async function buildOperation(
   const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
   const collateralTokenSymbol = simulatedAdjust.position.collateral.symbol.toUpperCase()
   const debtTokenSymbol = simulatedAdjust.position.debt.symbol.toUpperCase()
-  const fee = SwapUtils.percentageFeeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({

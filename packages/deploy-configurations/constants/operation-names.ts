@@ -27,15 +27,15 @@ export type SparkOperationNames =
 export const OPERATION_NAMES = {
   aave: {
     v2: {
-      OPEN_POSITION: 'OpenAAVEPosition',
-      CLOSE_POSITION: 'CloseAAVEPosition_3',
-      INCREASE_POSITION: 'IncreaseAAVEPosition',
-      DECREASE_POSITION: 'DecreaseAAVEPosition',
-      DEPOSIT_BORROW: 'AAVEDepositBorrow',
-      OPEN_DEPOSIT_BORROW: 'AAVEOpenDepositBorrow',
-      DEPOSIT: 'AAVEDeposit',
-      BORROW: 'AAVEBorrow',
-      PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw_2',
+      OPEN_POSITION: 'OpenAAVEPosition_v1',
+      CLOSE_POSITION: 'CloseAAVEPosition_v1',
+      INCREASE_POSITION: 'IncreaseAAVEPosition_v1',
+      DECREASE_POSITION: 'DecreaseAAVEPosition_v1',
+      DEPOSIT_BORROW: 'AAVEDepositBorrow_v1',
+      OPEN_DEPOSIT_BORROW: 'AAVEOpenDepositBorrow_v1',
+      DEPOSIT: 'AAVEDeposit_v1',
+      BORROW: 'AAVEBorrow_v1',
+      PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw_v1',
     },
     v3: {
       OPEN_POSITION: 'OpenAAVEV3Position_v3',

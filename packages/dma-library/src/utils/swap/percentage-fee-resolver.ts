@@ -11,6 +11,7 @@ export const percentageFeeResolver = <T extends string = string>(
     isIncreasingRisk?: boolean
     /** @deprecated Should rely on correlated asset matrix  */
     isEarnPosition?: boolean
+    /** if the swap is an entry swap */
     isEntrySwap?: boolean
   },
 ): {

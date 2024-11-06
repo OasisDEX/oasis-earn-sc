@@ -5,10 +5,12 @@ export class ServiceRegistry {
   address: string
   signer: Signer
   registry: Contract | undefined
+  isTenderly: boolean
 
-  constructor(address: string, signer: Signer) {
+  constructor(address: string, signer: Signer, { isTenderly }: { isTenderly?: boolean } = {}) {
     this.address = address
     this.signer = signer
+    this.isTenderly = isTenderly || false
   }
 
   private async _getRegistry(): Promise<Contract> {
@@ -24,16 +26,11 @@ export class ServiceRegistry {
     return this._getRegistry()
   }
 
-  async addEntry(
-    label: ContractNames,
-    address: string,
-    debug = false,
-    { tenderly }: { tenderly: boolean } = { tenderly: false },
-  ): Promise<string> {
+  async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await this._getRegistry()
 
-    if (tenderly) {
+    if (this.isTenderly) {
       const tx = await registry.populateTransaction.addNamedService(entryHash, address)
       const provider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_FORK_URL)
       const txHash = await provider

@@ -1,7 +1,6 @@
 import { amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AaveLikeTokens } from '@dma-library/types/aave-like'
-import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -14,7 +13,7 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
   const fee = await SwapUtils.feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: true,
     isEarnPosition: dependencies.positionType === 'Earn',
-    positionData: getPositionDataAaveLike(dependencies),
+    isOpeningPosition: true,
   })
 
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)

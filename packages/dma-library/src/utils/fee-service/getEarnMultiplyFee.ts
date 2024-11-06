@@ -27,7 +27,7 @@ export const getEarnMultiplyFee = async ({
     position = await subgraphClient.GetPosition(proxyAddress)
   } catch (error) {
     throw new Error(
-      `Error fetching position with proxyAddress (${proxyAddress}) and protocol ${protocolId}`,
+      `Error fetching position for getEarnMultiplyFee with proxyAddress (${proxyAddress}) and protocol ${protocolId}.`,
     )
   }
 

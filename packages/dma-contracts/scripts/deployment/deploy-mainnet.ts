@@ -13,8 +13,8 @@ async function main() {
   await ds.loadConfig()
   await ds.deployCore()
   await ds.deployActions()
-  await ds.saveConfig()
-  // await ds.addOperationEntries()
+  // await ds.saveConfig()
+  await ds.addOperationEntries()
   // await ds.addAaveV3Operations()
   // await ds.addSparkOperations()
 }

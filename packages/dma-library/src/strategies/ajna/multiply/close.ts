@@ -19,6 +19,7 @@ import {
   AjnaCloseMultiplyPayload,
   AjnaCommonDMADependencies,
 } from '@dma-library/types/ajna/ajna-dependencies'
+import { getPositionDataAjna } from '@dma-library/utils/fee-service'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -57,12 +58,16 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
 
   const targetPosition = args.position.close()
 
-  const fee = SwapUtils.percentageFeeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(
       args.collateralTokenSymbol,
       args.quoteTokenSymbol,
     ),
     isIncreasingRisk: false,
+    positionData: getPositionDataAjna({
+      proxy: args.dpmProxyAddress,
+      network: dependencies.network,
+    }),
   })
 
   const postSwapFee =
@@ -122,6 +127,10 @@ async function getAjnaSwapDataToCloseToDebt(
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
+    positionData: getPositionDataAjna({
+      proxy: args.dpmProxyAddress,
+      network: dependencies.network,
+    }),
   })
 }
 
@@ -156,6 +165,10 @@ async function getAjnaSwapDataToCloseToCollateral(
     slippage: args.slippage,
     outstandingDebt,
     getSwapData: dependencies.getSwapData,
+    positionData: getPositionDataAjna({
+      proxy: args.dpmProxyAddress,
+      network: dependencies.network,
+    }),
   })
 }
 
@@ -188,12 +201,16 @@ async function buildOperation(
     address: position.pool.quoteToken,
   }
 
-  const fee = SwapUtils.percentageFeeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(
       args.collateralTokenSymbol,
       args.quoteTokenSymbol,
     ),
     isIncreasingRisk: false,
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
 
   const collateralAmountToBeSwapped = args.shouldCloseToCollateral

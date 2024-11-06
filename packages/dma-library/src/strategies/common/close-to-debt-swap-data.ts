@@ -1,7 +1,9 @@
 import { Address } from '@deploy-configurations/types/address'
+import type { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { GetSwapData } from '@dma-library/types/common'
+import { ProtocolId } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -20,6 +22,11 @@ interface GetSwapDataForCloseToDebtArgs {
   swapAmountBeforeFees: BigNumber
   getSwapData: GetSwapData
   __feeOverride?: BigNumber
+  positionData: {
+    network: Network
+    protocolId: ProtocolId
+    proxyAddress: string
+  }
 }
 
 export async function getSwapDataForCloseToDebt({
@@ -29,14 +36,18 @@ export async function getSwapDataForCloseToDebt({
   swapAmountBeforeFees,
   getSwapData,
   __feeOverride,
+  positionData,
 }: GetSwapDataForCloseToDebtArgs) {
   const collectFeeFrom = SwapUtils.acceptedFeeTokenByAddress({
     fromTokenAddress: fromToken.address,
     toTokenAddress: toToken.address,
   })
 
-  const fee =
-    __feeOverride || SwapUtils.percentageFeeResolver(fromToken.symbol, toToken.symbol).feeToCharge
+  const resolvedFee = await SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
+    positionData,
+  })
+
+  const fee = __feeOverride || resolvedFee.feeToCharge
 
   const preSwapFee =
     collectFeeFrom === 'sourceToken'

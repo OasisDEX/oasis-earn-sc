@@ -16,3 +16,25 @@ export const getPositionDataAaveLike = (dependencies: {
     proxyAddress: dependencies.proxy,
   }
 }
+
+export const getPositionDataMorpho = (dependencies: {
+  proxy: Address
+  network: Network
+}): Parameters<typeof getEarnMultiplyFee>[0] => {
+  return {
+    network: dependencies.network,
+    protocolId: ProtocolId.MORPHO_BLUE,
+    proxyAddress: dependencies.proxy,
+  }
+}
+
+export const getPositionDataAjna = (dependencies: {
+  proxy: Address
+  network: Network
+}): Parameters<typeof getEarnMultiplyFee>[0] => {
+  return {
+    network: dependencies.network,
+    protocolId: ProtocolId.AJNA,
+    proxyAddress: dependencies.proxy,
+  }
+}

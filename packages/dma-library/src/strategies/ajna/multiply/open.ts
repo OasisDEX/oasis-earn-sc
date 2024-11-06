@@ -18,6 +18,7 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies, AjnaPosition, SummerStrategy } from '@dma-library/types/ajna'
+import { getPositionDataAjna } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import * as Domain from '@domain'
@@ -64,7 +65,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     riskIsIncreasing,
   )
 
-  return prepareAjnaMultiplyDMAPayload(
+  return await prepareAjnaMultiplyDMAPayload(
     { ...args, position },
     dependencies,
     simulatedAdjustment,
@@ -124,9 +125,13 @@ async function simulateAdjustment(
   const preFlightSwapAmount = amountToWei(ONE, args.quoteTokenPrecision)
   const fromToken = buildFromToken({ ...args, position }, riskIsIncreasing)
   const toToken = buildToToken({ ...args, position }, riskIsIncreasing)
-  const fee = SwapUtils.percentageFeeResolver(fromToken.symbol, toToken.symbol, {
+  const fee = await SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromToken.symbol, toToken.symbol),
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
@@ -213,9 +218,13 @@ async function buildOperation(
   const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
   const collateralTokenSymbol = simulatedAdjust.position.collateral.symbol.toUpperCase()
   const debtTokenSymbol = simulatedAdjust.position.debt.symbol.toUpperCase()
-  const fee = SwapUtils.percentageFeeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({

@@ -2,7 +2,7 @@ import { FlashloanDependencies, getFlashloanToken } from './get-flashloan-token'
 
 export { FlashloanDependencies, getFlashloanToken }
 export { buildBorrowArgs } from './build-borrow-args'
-export { buildDepositArgs } from './build-deposit-args'
+export { buildDepositBorrowArgs } from './build-deposit-borrow-args'
 export { buildSimulation } from './build-simulation'
 export { buildSwap } from './build-swap'
 export { buildTransaction } from './build-transaction'

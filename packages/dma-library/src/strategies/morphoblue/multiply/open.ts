@@ -31,6 +31,7 @@ import {
   SummerStrategy,
 } from '@dma-library/types/ajna'
 import { CommonDMADependencies, GetSwapData } from '@dma-library/types/common'
+import { getPositionDataMorpho } from '@dma-library/utils/fee-service/getPositionData'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { GetCumulativesData, views } from '@dma-library/views'
@@ -252,9 +253,13 @@ export async function simulateAdjustment(
     debtTokenSymbol,
   )
   const preFlightSwapAmount = amountToWei(ONE, fromToken.precision)
-  const fee = SwapUtils.percentageFeeResolver(fromToken.symbol, toToken.symbol, {
+  const fee = await SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromToken.symbol, toToken.symbol),
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
 
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
@@ -338,9 +343,13 @@ async function buildOperation(
   const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
   const collateralTokenSymbol = simulatedAdjust.position.collateral.symbol.toUpperCase()
   const debtTokenSymbol = simulatedAdjust.position.debt.symbol.toUpperCase()
-  const fee = SwapUtils.percentageFeeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
@@ -420,13 +429,17 @@ export async function getSwapData(
   __feeOverride?: BigNumber,
 ) {
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
-  const feeResult = SwapUtils.percentageFeeResolver(
+  const feeResult = await SwapUtils.feeResolver(
     simulatedAdjust.position.collateral.symbol,
     simulatedAdjust.position.debt.symbol,
     {
       isIncreasingRisk: riskIsIncreasing,
       // Strategy is called open multiply (not open earn)
       isEarnPosition: positionType === 'Earn',
+      positionData: getPositionDataMorpho({
+        network: dependencies.network,
+        proxy: args.dpmProxyAddress,
+      }),
     },
   )
   const fee = __feeOverride || feeResult.feeToCharge
@@ -509,7 +522,7 @@ export async function getTokenSymbol(
   }
 }
 
-export function prepareMorphoMultiplyDMAPayload(
+export async function prepareMorphoMultiplyDMAPayload(
   args: AdjustArgs,
   dependencies: MorphoMultiplyDependencies,
   simulatedAdjustment: Domain.ISimulationV2 & Domain.WithSwap,
@@ -551,9 +564,13 @@ export function prepareMorphoMultiplyDMAPayload(
   const txAmount = args.collateralAmount
   const fromTokenSymbol = riskIsIncreasing ? debtTokenSymbol : collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? collateralTokenSymbol : debtTokenSymbol
-  const fee = SwapUtils.percentageFeeResolver(fromTokenSymbol, toTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: false,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
   const postSwapFee =
     collectFeeFrom === 'sourceToken'

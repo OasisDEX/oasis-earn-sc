@@ -15,6 +15,7 @@ export const feeResolver = async <T extends string = string>(
     /** @deprecated Should rely on correlated asset matrix  */
     isEarnPosition?: boolean
     isEntrySwap?: boolean
+    isOpeningPosition?: boolean
     positionData?: {
       network: Network
       protocolId: ProtocolId
@@ -26,7 +27,7 @@ export const feeResolver = async <T extends string = string>(
   feeToCharge: BigNumber
 }> => {
   if (isCorrelatedPosition(fromToken, toToken) || options?.isEarnPosition) {
-    return fixedFeeResolver(options?.positionData)
+    return fixedFeeResolver(options?.positionData, options?.isOpeningPosition)
   } else {
     return percentageFeeResolver(fromToken, toToken, options)
   }
