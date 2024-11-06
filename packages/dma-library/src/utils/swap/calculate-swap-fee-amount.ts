@@ -1,5 +1,5 @@
 import { DEFAULT_FEE, FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
-import { calculateFixedFee, calculatePercentageFee } from '@dma-common/utils/swap'
+import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { SwapFeeType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
@@ -18,7 +18,7 @@ export function calculatePostSwapFeeAmount(
   }
 
   if (feeType === SwapFeeType.Fixed) {
-    return calculateFixedFee(toTokenAmount, fee.toString())
+    return fee
   } else {
     return calculatePercentageFee(toTokenAmount, fee.toNumber())
   }
@@ -39,7 +39,7 @@ export function calculatePreSwapFeeAmount(
   }
 
   if (feeType === SwapFeeType.Fixed) {
-    return calculateFixedFee(swapAmountBeforeFees, fee.toString())
+    return fee
   } else {
     return calculatePercentageFee(swapAmountBeforeFees, fee.toNumber())
   }

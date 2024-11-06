@@ -93,6 +93,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     oraclePrice,
     collateralTokenSymbol,
     debtTokenSymbol,
+    true,
   )
 
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
@@ -104,6 +105,8 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     positionType,
     collateralTokenSymbol,
     debtTokenSymbol,
+    undefined,
+    true,
   )
   const operation = await buildOperation(
     args,
@@ -112,6 +115,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     simulatedAdjustment,
     swapData,
     riskIsIncreasing,
+    true,
   )
 
   return prepareMorphoMultiplyDMAPayload(
@@ -126,6 +130,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     position,
     collateralTokenSymbol,
     debtTokenSymbol,
+    true,
   )
 }
 
@@ -237,6 +242,7 @@ export async function simulateAdjustment(
   oraclePrice: BigNumber,
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
+  isOpeningPosition = false,
 ) {
   const fromToken = buildFromToken(
     args,
@@ -260,6 +266,7 @@ export async function simulateAdjustment(
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
     }),
+    isOpeningPosition,
   })
 
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
@@ -337,6 +344,7 @@ async function buildOperation(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
   riskIsIncreasing: true,
+  isOpeningPosition = false,
 ): Promise<IOperation> {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
@@ -350,6 +358,7 @@ async function buildOperation(
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
     }),
+    isOpeningPosition,
   })
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
@@ -427,7 +436,9 @@ export async function getSwapData(
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
   __feeOverride?: BigNumber,
+  isOpeningPosition = false,
 ) {
+  console.log('positionType', positionType)
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const feeResult = await SwapUtils.feeResolver(
     simulatedAdjust.position.collateral.symbol,
@@ -440,6 +451,7 @@ export async function getSwapData(
         network: dependencies.network,
         proxy: args.dpmProxyAddress,
       }),
+      isOpeningPosition,
     },
   )
   const fee = __feeOverride || feeResult.feeToCharge
@@ -534,6 +546,7 @@ export async function prepareMorphoMultiplyDMAPayload(
   position: MorphoBluePosition,
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
+  isOpeningPosition = false,
 ) {
   const collateralAmount = amountFromWei(
     simulatedAdjustment.position.collateral.amount,
@@ -571,6 +584,7 @@ export async function prepareMorphoMultiplyDMAPayload(
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
     }),
+    isOpeningPosition,
   })
   const postSwapFee =
     collectFeeFrom === 'sourceToken'
