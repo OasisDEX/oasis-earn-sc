@@ -240,4 +240,8 @@ export const commonDefaults = {
     name: 'CBBTC',
     address: ADDRESS_ZERO,
   },
+  EURC: {
+    name: 'EURC',
+    address: ADDRESS_ZERO,
+  },
 } as const
