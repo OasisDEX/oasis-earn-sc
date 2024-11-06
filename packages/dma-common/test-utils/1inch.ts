@@ -106,7 +106,7 @@ export function formatOneInchSwapUrl({
   version = 'v4.1',
 }: OneInchSwapRequest) {
   const protocolsParam = !protocols?.length ? '' : `&protocols=${protocols.join(',')}`
-  return `${ONE_INCH_API_URL}/swap/${version}/${chainId}/swap?fromTokenAddress=${fromTokenAddress.toLowerCase()}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${recipient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
+  return `${ONE_INCH_API_URL}/${version}/${chainId}/swap?fromTokenAddress=${fromTokenAddress.toLowerCase()}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${recipient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
 }
 
 export async function exchangeTokens(request: OneInchSwapRequest): Promise<OneInchSwapResponse> {
