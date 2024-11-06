@@ -392,18 +392,19 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return undefined
   }
 
-  async saveConfig() {
+  async saveConfig(configFileName?: string) {
     if (!this.forkedNetwork) throw new Error('Forked network is not defined!')
 
     const { writeFileSync } = await import('fs')
     let configString = inspect(this.config, { depth: null })
     configString = this.replaceServiceRegistryName(configString, this.findStringPath)
 
-    const networkEnumString = this.getNetworkEnumString(this.network)
+    const networkName = configFileName || this.forkedNetwork
+    const networkNameEnum = this.getNetworkEnumString(networkName)
 
     writeFileSync(
-      `./../deploy-configurations/configs/${this.network}.conf.ts`,
-      `import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${networkEnumString})\n\nexport const config: SystemConfig = ${configString}`,
+      `./../deploy-configurations/configs/${networkName}.conf.ts`,
+      `import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${networkNameEnum})\n\nexport const config: SystemConfig = ${configString}`,
     )
   }
 
