@@ -2,7 +2,6 @@ import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { getNeutralPrice, prepareAjnaDMAPayload, resolveTxValue } from '@dma-library/protocols/ajna'
 import {
@@ -140,6 +139,7 @@ export async function getSwapData(
   riskIsIncreasing: boolean,
   positionType: PositionType,
   __feeOverride?: BigNumber,
+  isOpeningPosition = false,
 ) {
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const feeResult = await SwapUtils.feeResolver(
@@ -153,6 +153,7 @@ export async function getSwapData(
         network: dependencies.network,
         proxy: args.dpmProxyAddress,
       }),
+      isOpeningPosition,
     },
   )
   const fee = __feeOverride || feeResult.feeToCharge
@@ -187,6 +188,7 @@ export async function prepareAjnaMultiplyDMAPayload(
   collectFeeFrom: CollectFeeFrom,
   preSwapFee: BigNumber,
   riskIsIncreasing: boolean,
+  isOpeningPosition = false,
 ) {
   const collateralAmount = amountFromWei(
     simulatedAdjustment.position.collateral.amount,
@@ -229,11 +231,16 @@ export async function prepareAjnaMultiplyDMAPayload(
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
     }),
+    isOpeningPosition,
   })
-  const postSwapFee =
-    collectFeeFrom === 'sourceToken'
-      ? ZERO
-      : calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge.toNumber())
+
+  const postSwapFee = SwapUtils.calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee.feeToCharge,
+    fee.feeType,
+  )
+
   const tokenFee = preSwapFee.plus(postSwapFee)
 
   // Validation

@@ -22,6 +22,7 @@ export async function buildOperation(
   reserveEModeCategory: number | undefined,
   args: BuildOperationArgs,
   dependencies: AaveLikeOpenDependencies,
+  isOpeningPosition = false,
 ) {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
@@ -36,6 +37,7 @@ export async function buildOperation(
     isIncreasingRisk,
     isEarnPosition: dependencies.positionType === 'Earn',
     positionData: getPositionDataAaveLike(dependencies),
+    isOpeningPosition,
   })
 
   const positionType = dependencies.positionType

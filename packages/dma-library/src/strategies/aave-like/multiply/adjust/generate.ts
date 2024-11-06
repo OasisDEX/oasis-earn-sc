@@ -41,7 +41,6 @@ export async function generate({
   // And do not mislead the user
   const sourceTokenAmount = isIncreasingRisk ? simulation.delta.debt : simulation.delta.collateral
 
-  // TODO: extract this to a helper function like on the left side
   const preSwapFee = calculatePreSwapFeeAmount(collectFeeFrom, sourceTokenAmount, fee, feeType)
 
   const postSwapFee = calculatePostSwapFeeAmount(

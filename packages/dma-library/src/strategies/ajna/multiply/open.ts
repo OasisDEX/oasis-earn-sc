@@ -48,6 +48,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     position,
     riskIsIncreasing,
     oraclePrice,
+    true,
   )
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
     { ...mappedArgs, position },
@@ -55,6 +56,8 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     simulatedAdjustment,
     riskIsIncreasing,
     positionType,
+    undefined,
+    true,
   )
   const operation = await buildOperation(
     mappedArgs,
@@ -63,6 +66,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     simulatedAdjustment,
     swapData,
     riskIsIncreasing,
+    true,
   )
 
   return await prepareAjnaMultiplyDMAPayload(
@@ -74,6 +78,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     collectFeeFrom,
     preSwapFee,
     riskIsIncreasing,
+    true,
   )
 }
 
@@ -121,6 +126,7 @@ async function simulateAdjustment(
   position: AjnaPosition,
   riskIsIncreasing: true,
   oraclePrice: BigNumber,
+  isOpeningPosition = false,
 ) {
   const preFlightSwapAmount = amountToWei(ONE, args.quoteTokenPrecision)
   const fromToken = buildFromToken({ ...args, position }, riskIsIncreasing)
@@ -132,6 +138,7 @@ async function simulateAdjustment(
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
     }),
+    isOpeningPosition,
   })
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
@@ -212,6 +219,7 @@ async function buildOperation(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
   riskIsIncreasing: true,
+  isOpeningPosition = false,
 ) {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
@@ -225,6 +233,7 @@ async function buildOperation(
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
     }),
+    isOpeningPosition,
   })
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({

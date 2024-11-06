@@ -2,6 +2,7 @@ import { DEFAULT_FEE, LOW_CORRELATED_ASSET_FEE } from '@dma-common/constants'
 import { SwapFeeType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
+import type { ResolvedFee } from './fee-resolver'
 import { isCorrelatedPosition } from './isCorrelatedPosition'
 
 export const percentageFeeResolver = <T extends string = string>(
@@ -14,10 +15,7 @@ export const percentageFeeResolver = <T extends string = string>(
     /** if the swap is an entry swap */
     isEntrySwap?: boolean
   },
-): {
-  feeType: SwapFeeType
-  feeToCharge: BigNumber
-} => {
+): ResolvedFee => {
   let type = 'defaultMultiply'
   if (isCorrelatedPosition(fromToken, toToken) || options?.isEarnPosition) {
     type = 'earnMultiply'

@@ -74,6 +74,7 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
     reserveEModeCategory,
     { ...args, flashloanToken: flashloanTokenAddress },
     dependencies,
+    true,
   )
 
   if (operation === undefined) throw new Error('No operation built. Check your arguments.')
@@ -83,7 +84,7 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
     operation,
     args,
     collectFeeFrom,
-    fee: fee.feeToCharge,
+    fee: fee,
     dependencies,
     simulatedPositionTransition,
     quoteSwapData,

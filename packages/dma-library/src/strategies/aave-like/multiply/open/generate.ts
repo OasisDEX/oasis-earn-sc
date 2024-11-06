@@ -1,9 +1,11 @@
-import { ZERO } from '@dma-common/constants'
-import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { IOperation, SwapData } from '@dma-library/types'
-import { calculateInflatedTokenFee } from '@dma-library/utils/swap'
+import {
+  calculateInflatedTokenFee,
+  calculatePostSwapFeeAmount,
+  calculatePreSwapFeeAmount,
+} from '@dma-library/utils/swap'
+import type { ResolvedFee } from '@dma-library/utils/swap/fee-resolver'
 import { IBaseSimulatedTransition } from '@domain'
-import BigNumber from 'bignumber.js'
 
 import { AaveLikeOpenArgs, AaveLikeOpenDependencies, IOpenStrategy } from './types'
 
@@ -11,7 +13,7 @@ type GenerateTransitionArgs = {
   swapData: SwapData
   operation: IOperation
   collectFeeFrom: 'sourceToken' | 'targetToken'
-  fee: BigNumber
+  fee: ResolvedFee
   simulatedPositionTransition: IBaseSimulatedTransition
   args: AaveLikeOpenArgs
   dependencies: AaveLikeOpenDependencies
@@ -30,14 +32,20 @@ export async function generate({
   // When collecting fees from the target token (collateral here), we want to calculate the fee
   // Based on the toTokenAmount NOT minToTokenAmount so that we over estimate the fee where possible
   // And do not mislead the user
-  const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
 
-  const preSwapFee = shouldCollectFeeFromSourceToken
-    ? calculatePercentageFee(simulatedPositionTransition.delta.debt, fee.toNumber())
-    : ZERO
-  const postSwapFee = shouldCollectFeeFromSourceToken
-    ? ZERO
-    : calculatePercentageFee(swapData.toTokenAmount, fee.toNumber())
+  const preSwapFee = calculatePreSwapFeeAmount(
+    collectFeeFrom,
+    simulatedPositionTransition.delta.debt,
+    fee.feeToCharge,
+    fee.feeType,
+  )
+
+  const postSwapFee = calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee.feeToCharge,
+    fee.feeType,
+  )
 
   return {
     transaction: {

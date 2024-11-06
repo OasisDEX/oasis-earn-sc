@@ -62,6 +62,22 @@ export function calculateSwapFeeAmount(
 }
 
 /**
+ * Calculate fee amount for the swap, based on the fee type
+ *  and pre or post swap fees
+ */
+export function calculateSwapFeeAmountInflated(
+  collectFeeFrom: 'sourceToken' | 'targetToken' | undefined,
+  swapAmountBeforeFees: BigNumber,
+  toTokenAmount: BigNumber,
+  fee: BigNumber = new BigNumber(DEFAULT_FEE),
+  feeType: SwapFeeType,
+) {
+  const preSwapFee = calculatePreSwapFeeAmount(collectFeeFrom, swapAmountBeforeFees, fee, feeType)
+  const postSwapFee = calculatePostSwapFeeAmount(collectFeeFrom, toTokenAmount, fee, feeType)
+  return calculateInflatedTokenFee({ preSwapFee, postSwapFee })
+}
+
+/**
  * Calculate the inflated token fee amount
  */
 export function calculateInflatedTokenFee({

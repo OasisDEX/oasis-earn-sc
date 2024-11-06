@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js'
 
 import { getEarnMultiplyFee } from '../fee-service/getEarnMultiplyFee'
 import type { ProtocolId } from '../fee-service/ProtocolId'
+import type { ResolvedFee } from './fee-resolver'
 
 export const fixedFeeResolver = async (
   positionData:
@@ -15,10 +16,7 @@ export const fixedFeeResolver = async (
       }
     | undefined,
   isOpeningPosition?: boolean,
-): Promise<{
-  feeType: SwapFeeType
-  feeToCharge: BigNumber
-}> => {
+): Promise<ResolvedFee> => {
   if (isOpeningPosition) {
     return {
       feeType: SwapFeeType.Fixed,

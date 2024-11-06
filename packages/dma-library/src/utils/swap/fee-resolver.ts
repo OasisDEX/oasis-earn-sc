@@ -7,6 +7,11 @@ import { fixedFeeResolver } from './fixed-fee-resolver'
 import { isCorrelatedPosition } from './isCorrelatedPosition'
 import { percentageFeeResolver } from './percentage-fee-resolver'
 
+export type ResolvedFee = {
+  feeType: SwapFeeType
+  feeToCharge: BigNumber
+}
+
 export const feeResolver = async <T extends string = string>(
   fromToken: T,
   toToken: T,
@@ -22,10 +27,7 @@ export const feeResolver = async <T extends string = string>(
       proxyAddress: string
     }
   },
-): Promise<{
-  feeType: SwapFeeType
-  feeToCharge: BigNumber
-}> => {
+): Promise<ResolvedFee> => {
   if (isCorrelatedPosition(fromToken, toToken) || options?.isEarnPosition) {
     return fixedFeeResolver(options?.positionData, options?.isOpeningPosition)
   } else {
