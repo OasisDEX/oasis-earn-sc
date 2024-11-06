@@ -21,7 +21,7 @@
     "test": "yarn mocha -r ts-node/register -r tsconfig-paths/register 'test/**/*.ts'",
     "linked": "yarn link",
     "unlinked": "yarn unlink",
-    "generate": "DOTENV_CONFIG_PATH=../../.env graphql-codegen -r dotenv/config --config codegen_aave_like.yml && DOTENV_CONFIG_PATH=../../.env graphql-codegen -r dotenv/config --config codegen_ajna_v2.yml"
+    "generate": "DOTENV_CONFIG_PATH=../../.env graphql-codegen -r dotenv/config --config codegen_aave_like.yml && DOTENV_CONFIG_PATH=../../.env graphql-codegen -r dotenv/config --config codegen_ajna_v2.yml && DOTENV_CONFIG_PATH=../../.env graphql-codegen -r dotenv/config --config codegen_morpho.yml"
   },
   "license": "Apache-2.0",
   "dependencies": {

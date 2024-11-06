@@ -26,13 +26,13 @@ export const getEarnMultiplyFee = async ({
     const subgraphClient = createGraphQLClient(network, protocolId, subgraphBase)
     position = await subgraphClient.GetPosition(proxyAddress)
   } catch (error) {
-    throw new Error(
-      `Error fetching position for getEarnMultiplyFee with proxyAddress (${proxyAddress}) and protocol ${protocolId}.`,
-    )
+    console.error(error)
   }
 
   if (!position) {
-    throw Error(`Position with proxyAddress (${proxyAddress}) and protocol ${protocolId} not found`)
+    throw Error(
+      `Position with proxyAddress (${proxyAddress}) and protocol ${protocolId} not found in the graph, probably an empty proxy or your position is on a fork :)`,
+    )
   }
 
   const fee = calculateFee(position)

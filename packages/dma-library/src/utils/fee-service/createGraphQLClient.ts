@@ -3,6 +3,7 @@ import { GraphQLClient } from 'graphql-request'
 
 import { getAaveLikePosition, getAaveLikeSubgraphNameByChainId } from './clients/aave-like-client'
 import { getAjnaPosition, getAjnaSubgraphNameByChainId } from './clients/ajna-v2-client'
+import { getMorphoPosition, getMorphoSubgraphNameByChainId } from './clients/morpho-client'
 import type { IFeeManagerClient } from './interfaces'
 import { ProtocolId } from './ProtocolId'
 
@@ -14,6 +15,8 @@ const getSubgraphName = (network: Network, protocolId: ProtocolId): string => {
       return getAaveLikeSubgraphNameByChainId(network)
     case ProtocolId.AJNA:
       return getAjnaSubgraphNameByChainId(network)
+    case ProtocolId.MORPHO_BLUE:
+      return getMorphoSubgraphNameByChainId(network)
     default:
       throw new Error(`No subgraph assigned to Protocol ID ${protocolId}`)
   }
@@ -34,6 +37,7 @@ const validateProtocolId = (protocolId: ProtocolId): void => {
     ProtocolId.AAVE_V3,
     ProtocolId.SPARK,
     ProtocolId.AJNA,
+    ProtocolId.MORPHO_BLUE,
   ]
   if (!supportedProtocols.includes(protocolId)) {
     throw new Error(
@@ -63,6 +67,8 @@ export const createGraphQLClient = (
         return getAaveLikePosition(client, `${proxyAddress}-${protocolId}`)
       case ProtocolId.AJNA:
         return getAjnaPosition(client, proxyAddress)
+      case ProtocolId.MORPHO_BLUE:
+        return getMorphoPosition(client, proxyAddress)
       default:
         throw new Error(`No subgraph assigned to Protocol ID ${protocolId}`)
     }
