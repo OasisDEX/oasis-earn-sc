@@ -14,8 +14,6 @@ import { Network } from '@deploy-configurations/types/network'
 import * as tdly from '@tenderly/hardhat-tenderly'
 import * as process from 'process'
 
-tdly.setup({ automaticVerifications: true })
-
 import { ChainIdByNetwork } from '../deploy-configurations/utils/network'
 import { filterConsole, getForkConfigFromEnv } from './utils'
 

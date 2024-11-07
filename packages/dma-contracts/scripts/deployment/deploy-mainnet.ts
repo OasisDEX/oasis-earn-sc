@@ -18,7 +18,7 @@ async function main() {
   await ds.saveConfig()
   await ds.addOperationEntries()
   if (network === Network.TENDERLY) {
-    await tenderlyDeployInit()
+    await tenderlyDeployInit(signer)
   }
 }
 
