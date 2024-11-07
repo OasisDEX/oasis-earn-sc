@@ -12,7 +12,7 @@ export const tenderlyDeployInit = async provider => {
       process.env.TENDERLY_FORK_ACCOUNT,
       '0xDE0B6B3A7640000',
     ])
-    // console.log('sent txErc20', txErc20)
+    console.log('sent txErc20', txErc20)
     // const txSnapshot = await provider.send('evm_snapshot', [])
     // console.log('sent txSnapshot', txSnapshot)
 
