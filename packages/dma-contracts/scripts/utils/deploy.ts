@@ -64,6 +64,7 @@ import { EtherscanGasPrice } from '@deploy-configurations/types/etherscan'
 import { Network } from '@deploy-configurations/types/network'
 import { NetworkByChainId } from '@deploy-configurations/utils/network/index'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers/index'
+import { LOW_CORRELATED_ASSET_FEE, NO_FEE, REDUCED_FEE } from '@dma-common/constants'
 import {
   loadContractNames,
   OPERATION_NAMES,
@@ -1370,6 +1371,43 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       const [operationName, actions] = operationInRecord[name]
       await operationsRegistry.addOp(operationName, actions)
       this.logOp({ name: operationName, actions, log: true })
+    }
+  }
+
+  async addFeeTiersToNewSwapContract() {
+    if (!this.signer) throw new Error('No signer set')
+    const swap = this.getSystem().system.Swap
+    const authorizedAddress = (swap.config as any).constructorArgs[1]
+
+    const tx1 = await swap.contract.populateTransaction.addFeeTier(NO_FEE)
+    const tx2 = await swap.contract.populateTransaction.addFeeTier(REDUCED_FEE)
+    const tx3 = await swap.contract.populateTransaction.addFeeTier(LOW_CORRELATED_ASSET_FEE)
+
+    try {
+      if (this.isTenderly) {
+        await Promise.all(
+          [tx1, tx2, tx3].map(async (tx, index) => {
+            const _provider = new this.hre.ethers.providers.JsonRpcProvider(
+              process.env.TENDERLY_FORK_URL,
+            )
+
+            const hash = await _provider.send('eth_sendTransaction', [
+              {
+                ...tx,
+                from: authorizedAddress,
+              },
+            ])
+            await _provider.waitForTransaction(hash)
+            console.log('Transaction', index, 'completed:', hash)
+          }),
+        )
+      } else {
+        // Generate a calldata for the SAFE multisig wallet using their SDK
+
+        console.log('Fee tiers added')
+      }
+    } catch (e) {
+      console.error('Error in the transaction', e)
     }
   }
 

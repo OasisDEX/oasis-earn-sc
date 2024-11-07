@@ -17,6 +17,8 @@ async function main() {
   await ds.deployActions()
   await ds.saveConfig()
   await ds.addOperationEntries()
+  await ds.addFeeTiersToNewSwapContract()
+
   if (network === Network.TENDERLY) {
     await tenderlyDeployInit(signer.provider)
   }

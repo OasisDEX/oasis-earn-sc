@@ -1,9 +1,10 @@
-export const tenderlyDeployInit = async provider => {
+export const tenderlyDeployInit = async (provider, opts?: { addresses: string[] }) => {
   console.log('> Tenderly deploy init start...')
+  const extraAddresses = opts?.addresses || []
 
   try {
     const txBalance = await provider.send('tenderly_setBalance', [
-      [process.env.TENDERLY_FORK_ACCOUNT],
+      [process.env.TENDERLY_FORK_ACCOUNT, extraAddresses],
       '0xDE0B6B3A7640000',
     ])
     console.log('sent txBalance', txBalance)
