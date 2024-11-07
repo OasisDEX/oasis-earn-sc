@@ -14,6 +14,8 @@ import { Network } from '@deploy-configurations/types/network'
 import * as tdly from '@tenderly/hardhat-tenderly'
 import * as process from 'process'
 
+tdly.setup({ automaticVerifications: true })
+
 import { ChainIdByNetwork } from '../deploy-configurations/utils/network'
 import { filterConsole, getForkConfigFromEnv } from './utils'
 
@@ -284,7 +286,7 @@ const config = {
   tenderly: {
     username: 'oazoapps', // tenderly username (or organization name)
     project: process.env.TENDERLY_PROJECT ?? '', // project name
-    privateVerification: true, // if true, contracts will be verified privately, if false, contracts will be verified publicly
+    privateVerification: false, // if true, contracts will be verified privately, if false, contracts will be verified publicly
     deploymentsDir: 'artifacts',
   },
 }

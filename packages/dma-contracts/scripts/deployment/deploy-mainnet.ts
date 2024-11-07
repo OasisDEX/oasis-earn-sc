@@ -1,6 +1,8 @@
+import { Network } from '@dma-library'
 import hre from 'hardhat'
 
 import { DeploymentSystem } from '../utils/deploy'
+import { tenderlyDeployInit } from '../utils/tenderlyDeployInit'
 
 async function main() {
   const signer = hre.ethers.provider.getSigner(0)
@@ -15,6 +17,9 @@ async function main() {
   await ds.deployActions()
   await ds.saveConfig()
   await ds.addOperationEntries()
+  if (network === Network.TENDERLY) {
+    await tenderlyDeployInit()
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
