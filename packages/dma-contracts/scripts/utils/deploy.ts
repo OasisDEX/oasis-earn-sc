@@ -440,7 +440,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async postDeployment(configItem: any, contract: Contract, constructorArguments: any) {
+  async postDeployment(
+    configItem: SystemConfigEntry,
+    contract: Contract,
+    constructorArguments: (string | number)[],
+  ) {
     if (!this.provider) throw new Error('No provider set')
     if (!this.config) throw new Error('No config set')
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
@@ -530,7 +534,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     }
 
-    if (![Network.HARDHAT, Network.TENDERLY].includes(this.network)) {
+    if (Network.TENDERLY === this.network) {
+      await this.hre.tenderly.verify({
+        address: contract.address,
+        name: configItem.name,
+      })
+    } else if (![Network.HARDHAT].includes(this.network)) {
       await this.verifyContract(contract.address, constructorArguments)
     }
   }

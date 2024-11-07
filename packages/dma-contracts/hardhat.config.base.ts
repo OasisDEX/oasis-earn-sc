@@ -1,6 +1,6 @@
 import './bootstrap-env'
 import 'tsconfig-paths/register'
-import '@nomiclabs/hardhat-etherscan'
+import '@nomicfoundation/hardhat-verify'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
 import '@typechain/hardhat'
@@ -8,10 +8,9 @@ import 'solidity-coverage'
 import 'solidity-docgen'
 import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
+import '@tenderly/hardhat-tenderly'
 
 import { Network } from '@deploy-configurations/types/network'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports-ts
-import * as tdly from '@tenderly/hardhat-tenderly'
 import * as process from 'process'
 
 import { ChainIdByNetwork } from '../deploy-configurations/utils/network'
@@ -283,8 +282,8 @@ const config = {
   },
   tenderly: {
     username: 'oazoapps', // tenderly username (or organization name)
-    project: process.env.TENDERLY_PROJECT ?? '', // project name
-    privateVerification: false, // if true, contracts will be verified privately, if false, contracts will be verified publicly
+    project: process.env.TENDERLY_PROJECT, // project name
+    privateVerification: true, // if true, contracts will be verified privately, if false, contracts will be verified publicly
     deploymentsDir: 'artifacts',
   },
 }
