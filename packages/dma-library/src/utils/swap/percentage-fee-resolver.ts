@@ -55,7 +55,7 @@ export const percentageFeeResolver = <T extends string = string>(
       throw new Error('No fee could be resolved')
     }
   }
-  console.log('Percentage fee:', { feeType, feeToCharge, options })
+  console.log('Percentage fee:', { feeToCharge: feeToCharge.toString(), options })
 
   return { feeType, feeToCharge }
 }

@@ -40,7 +40,11 @@ export const fixedFeeResolver = async (
     feeType: SwapFeeType.Fixed,
     feeToCharge: new BigNumber(await getEarnMultiplyFee(positionData)),
   }
-  console.log('Fixed fee:', { ...resolvedFee, positionData, isOpeningPosition })
+  console.log('Fixed fee:', {
+    feeToCharge: resolvedFee.feeToCharge.toString(),
+    positionData,
+    isOpeningPosition,
+  })
 
   return resolvedFee
 }
