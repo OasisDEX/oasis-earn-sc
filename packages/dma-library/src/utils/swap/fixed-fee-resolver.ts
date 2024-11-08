@@ -18,6 +18,7 @@ export const fixedFeeResolver = async (
   isOpeningPosition?: boolean,
 ): Promise<ResolvedFee> => {
   if (isOpeningPosition) {
+    console.log('Fixed fee is zero for opening an earn position')
     return {
       feeType: SwapFeeType.Fixed,
       feeToCharge: new BigNumber(0),
