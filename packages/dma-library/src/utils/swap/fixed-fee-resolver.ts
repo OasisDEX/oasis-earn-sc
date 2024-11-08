@@ -36,8 +36,11 @@ export const fixedFeeResolver = async (
     throw new Error('Protocol ID is required for earn multiply fee calculation')
   }
 
-  return {
+  const resolvedFee = {
     feeType: SwapFeeType.Fixed,
     feeToCharge: new BigNumber(await getEarnMultiplyFee(positionData)),
   }
+  console.log('Fixed fee:', { ...resolvedFee, positionData, isOpeningPosition })
+
+  return resolvedFee
 }
