@@ -33,7 +33,6 @@ export type SystemContracts =
   | SparkActions
   | MorphoBlueActions
   | TestContractNames
-  | Wrapper
 
 export type Contracts = SystemContracts | ExternalContracts
 
