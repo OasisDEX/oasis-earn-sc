@@ -41,6 +41,6 @@ export type SystemConfig = {
   spark: OptionalSparkProtocolContracts
   automation: AutomationContracts
   ajna: AjnaProtocolContracts
-  morphoblue: MorphoBlueProtocolContracts 
+  morphoblue: MorphoBlueProtocolContracts
   test?: TestContracts
 }
