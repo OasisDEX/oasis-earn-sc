@@ -1082,5 +1082,9 @@ export const config: SystemConfig = {
       name: 'AdaptiveCurveIrm',
       address: '0x0000000000000000000000000000000000000000',
     },
+    Wrapper: {
+      name: 'Wrapper',
+      address: ADDRESS_ZERO,
+    },
   },
 }

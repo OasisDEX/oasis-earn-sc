@@ -8,7 +8,7 @@ import { Automation } from './automation'
 import { Common } from './common'
 import { Core, CoreMainnetOnly, USwapContract } from './core'
 import { MakerProtocol, MakerProtocolJoins, MakerProtocolPips } from './maker-protocol'
-import { MorphoBlueProtocol, Wrapper } from './morpho-blue'
+import { MorphoBlueProtocol } from './morpho-blue'
 import { SparkProtocol } from './spark-protocol'
 import { TestContractNames } from './test'
 
