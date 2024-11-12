@@ -33,6 +33,7 @@ export type Tokens =
   | 'MATIC'
   | 'MKR'
   | 'MORPHO'
+  | 'MORPHO_LEGACY'
   | 'MEVETH'
   | 'MPETH'
   | 'OP'

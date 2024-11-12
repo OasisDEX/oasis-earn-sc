@@ -449,6 +449,10 @@ export const config: SystemConfig = {
       name: 'MORPHO',
       address: '0x9994e35db50125e0df82e4c2dde62496ce330999',
     },
+    MORPHO_LEGACY: {
+      name: 'MORPHO_LEGACY',
+      address: ADDRESS_ZERO,
+    },
     OSETH: {
       name: 'OSETH',
       address: ADDRESS_ZERO,

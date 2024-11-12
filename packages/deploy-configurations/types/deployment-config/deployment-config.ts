@@ -15,7 +15,7 @@ import {
   MakerProtocolJoinContracts,
   MakerProtocolPipContracts,
 } from './maker-protocol'
-import { MorphoBlueProtocolContracts } from './morpho-blue'
+import { MorphoBlueProtocolContracts, OptionalBlueProtocolContracts } from './morpho-blue'
 import { OptionalSparkProtocolContracts } from './spark-protocol'
 import { TestContracts } from './test'
 
@@ -41,6 +41,6 @@ export type SystemConfig = {
   spark: OptionalSparkProtocolContracts
   automation: AutomationContracts
   ajna: AjnaProtocolContracts
-  morphoblue: MorphoBlueProtocolContracts
+  morphoblue: MorphoBlueProtocolContracts & OptionalBlueProtocolContracts
   test?: TestContracts
 }

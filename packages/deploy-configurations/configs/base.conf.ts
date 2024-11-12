@@ -97,13 +97,13 @@ export const config: SystemConfig = {
       ERC20ProxyActions: {
         name: 'ERC20ProxyActions',
         deploy: false,
-        address: '0xfcf904440a91905DcEFa9C89d044A83608D2472E',
-        history: [],
+        address: '0xF55228CEDC8bEdF62E71eF207B0dEC1B46BA8338',
+        history: ['0xfcf904440a91905DcEFa9C89d044A83608D2472E'],
         constructorArgs: [],
       },
       AaveRewardsProxyActions: {
         name: 'AaveRewardsProxyActions',
-        deploy: true,
+        deploy: false,
         address: '0x2b1c1925987009Fd39ced009a1b11Db21BE3c2AC',
         history: [],
         constructorArgs: [],
@@ -640,6 +640,10 @@ export const config: SystemConfig = {
     },
     MORPHO: {
       name: 'MORPHO',
+      address: '0xBAa5CC21fd487B8Fcc2F632f3F4E8D37262a0842',
+    },
+    MORPHO_LEGACY: {
+      name: 'MORPHO_LEGACY',
       address: ADDRESS_ZERO,
     },
     OSETH: {
