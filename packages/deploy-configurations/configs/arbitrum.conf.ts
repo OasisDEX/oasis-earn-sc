@@ -482,6 +482,10 @@ export const config: SystemConfig = {
       name: 'MORPHO',
       address: ADDRESS_ZERO,
     },
+    MORPHO_LEGACY: {
+      name: 'MORPHO_LEGACY',
+      address: ADDRESS_ZERO,
+    },
     OSETH: {
       name: 'OSETH',
       address: '0x0000000000000000000000000000000000000000',
@@ -1077,6 +1081,10 @@ export const config: SystemConfig = {
     AdaptiveCurveIrm: {
       name: 'AdaptiveCurveIrm',
       address: '0x0000000000000000000000000000000000000000',
+    },
+    Wrapper: {
+      name: 'Wrapper',
+      address: ADDRESS_ZERO,
     },
   },
 }

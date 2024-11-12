@@ -2,8 +2,6 @@ import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
-import { commonDefaults } from './shared/common-defaults'
-
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export const config: SystemConfig = {
@@ -96,14 +94,14 @@ export const config: SystemConfig = {
       },
       ERC20ProxyActions: {
         name: 'ERC20ProxyActions',
-        deploy: false,
-        address: '0x50A9ceC5AB2E2e0D350dACeb10bA769EbCbc49F3',
-        history: [],
+        deploy: true,
+        address: '0x4e42C2366a8C35D6Db276056AB75823aB9f16B54',
+        history: ['0x50A9ceC5AB2E2e0D350dACeb10bA769EbCbc49F3'],
         constructorArgs: [],
       },
       AaveRewardsProxyActions: {
         name: 'AaveRewardsProxyActions',
-        deploy: true,
+        deploy: false,
         address: '0x1498fEb3731b3ED60443F67dB323f0807d887a4a',
         history: ['0x8aD75eFF83EbcB2E343b1b8d76eFBC796Cf38594'],
         constructorArgs: [],
@@ -412,7 +410,6 @@ export const config: SystemConfig = {
     },
   },
   common: {
-    ...commonDefaults,
     ARB: {
       name: 'ARB',
       address: '0x0000000000000000000000000000000000000000',
@@ -645,6 +642,14 @@ export const config: SystemConfig = {
       name: 'WSUPEROETHB',
       address: '0x0000000000000000000000000000000000000000',
     },
+    CBBTC: {
+      name: 'CBBTC',
+      address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+    },
+    EURC: {
+      name: 'EURC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -790,10 +795,6 @@ export const config: SystemConfig = {
       name: 'CBETH',
       address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704',
     },
-    CBBTC: {
-      name: 'CBBTC',
-      address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
-    },
     COMP: {
       name: 'COMP',
       address: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
@@ -865,6 +866,10 @@ export const config: SystemConfig = {
     },
     MORPHO: {
       name: 'MORPHO',
+      address: '0x58D97B57BB95320F9a05dC918Aef65434969c2B2',
+    },
+    MORPHO_LEGACY: {
+      name: 'MORPHO_LEGACY',
       address: '0x9994e35db50125e0df82e4c2dde62496ce330999',
     },
     OSETH: {
@@ -1865,6 +1870,10 @@ export const config: SystemConfig = {
     AdaptiveCurveIrm: {
       name: 'AdaptiveCurveIrm',
       address: '0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC',
+    },
+    Wrapper: {
+      name: 'Wrapper',
+      address: '0x9D03bb2092270648d7480049d0E58d2FcF0E5123',
     },
   },
 }
