@@ -1,4 +1,4 @@
-import { loadContractNames } from '@deploy-configurations/constants'
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
