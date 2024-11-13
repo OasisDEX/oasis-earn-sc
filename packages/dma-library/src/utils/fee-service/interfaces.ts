@@ -1,5 +1,8 @@
 import type { OasisPosition } from './types'
 
 export interface IFeeManagerClient {
-  GetPosition(proxyAddress: string): Promise<OasisPosition | undefined>
+  GetPosition(params: {
+    proxyAddress: string
+    marketId?: string
+  }): Promise<OasisPosition | undefined>
 }

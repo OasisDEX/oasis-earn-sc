@@ -94,6 +94,7 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
     oraclePrice,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.position.marketParams.id,
   )
 
   // Get swap data
@@ -106,6 +107,7 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
     positionType,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.position.marketParams.id,
   )
 
   // Build operation
@@ -130,6 +132,7 @@ const adjustRiskUp: MorphoAdjustRiskStrategy = async (args, dependencies) => {
     args.position,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.position.marketParams.id,
   )
 }
 
@@ -171,6 +174,7 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
     oraclePrice,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.position.marketParams.id,
   )
 
   // Get swap data
@@ -183,6 +187,7 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
     positionType,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.position.marketParams.id,
   )
 
   // Build operation
@@ -207,6 +212,7 @@ const adjustRiskDown: MorphoAdjustRiskStrategy = async (args, dependencies) => {
     args.position,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.position.marketParams.id,
   )
 }
 
@@ -228,6 +234,7 @@ async function buildOperation(
     positionData: getPositionDataMorpho({
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
+      marketId: args.position.marketParams.id,
     }),
   })
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount

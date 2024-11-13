@@ -9,10 +9,12 @@ export const getEarnMultiplyFee = async ({
   network: network,
   protocolId,
   proxyAddress,
+  params,
 }: {
   network: Network
   protocolId: ProtocolId
   proxyAddress: string
+  params?: { marketId?: string }
 }) => {
   //set envs
   const { SUBGRAPH_BASE: subgraphBase = process.env.SUBGRAPH_BASE } = process.env || {}
@@ -24,7 +26,7 @@ export const getEarnMultiplyFee = async ({
   let position: OasisPosition | undefined
   try {
     const subgraphClient = createGraphQLClient(network, protocolId, subgraphBase)
-    position = await subgraphClient.GetPosition(proxyAddress)
+    position = await subgraphClient.GetPosition({ proxyAddress, marketId: params?.marketId })
   } catch (error) {
     console.error(error)
   }

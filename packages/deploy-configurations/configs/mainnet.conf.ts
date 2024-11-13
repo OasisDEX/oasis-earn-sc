@@ -1,8 +1,6 @@
-import { loadContractNames } from '@deploy-configurations/constants'
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
-
-import { commonDefaults } from './shared/common-defaults'
 
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
@@ -88,10 +86,10 @@ export const config: SystemConfig = {
       },
       Swap: {
         name: 'Swap',
-        deploy: true,
-        address: '0x826E9f2E79cEEA850dF4d4757e0D12115A720D74',
+        deploy: false,
+        address: '0x3AEDBfDDdc8cE95eC0025ba8422db342B161011E',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
-        history: [],
+        history: ['0x826E9f2E79cEEA850dF4d4757e0D12115A720D74'],
         constructorArgs: [
           '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
           '0xc7b548ad9cf38721810246c079b2d8083aba8909',
@@ -141,10 +139,13 @@ export const config: SystemConfig = {
       },
       SwapAction: {
         name: 'SwapAction',
-        deploy: true,
-        address: '0x313617D9CcBd96d66b2374c9bcB44b372D29b530',
+        deploy: false,
+        address: '0xec42C6AD4C59e0613E98AC477932600b2a5ACe75',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
-        history: ['0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85'],
+        history: [
+          '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85',
+          '0x313617D9CcBd96d66b2374c9bcB44b372D29b530',
+        ],
         constructorArgs: ['address:ServiceRegistry'],
       },
       TakeFlashloan: {
@@ -417,7 +418,6 @@ export const config: SystemConfig = {
     },
   },
   common: {
-    ...commonDefaults,
     ARB: {
       name: 'ARB',
       address: '0x0000000000000000000000000000000000000000',
@@ -650,6 +650,14 @@ export const config: SystemConfig = {
       name: 'WSUPEROETHB',
       address: '0x0000000000000000000000000000000000000000',
     },
+    CBBTC: {
+      name: 'CBBTC',
+      address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+    },
+    EURC: {
+      name: 'EURC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -794,10 +802,6 @@ export const config: SystemConfig = {
     CBETH: {
       name: 'CBETH',
       address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704',
-    },
-    CBBTC: {
-      name: 'CBBTC',
-      address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
     },
     COMP: {
       name: 'COMP',

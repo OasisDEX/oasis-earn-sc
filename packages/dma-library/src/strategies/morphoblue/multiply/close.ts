@@ -88,6 +88,7 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
     positionData: getPositionDataMorpho({
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
+      marketId: args.position.marketParams.id,
     }),
   })
 
@@ -152,6 +153,7 @@ async function getMorphoSwapDataToCloseToDebt(
     positionData: getPositionDataMorpho({
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
+      marketId: args.position.marketParams.id,
     }),
   })
 }
@@ -192,6 +194,7 @@ async function getMorphoSwapDataToCloseToCollateral(
     positionData: getPositionDataMorpho({
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
+      marketId: args.position.marketParams.id,
     }),
   })
 }
@@ -234,6 +237,7 @@ async function buildOperation(
     positionData: getPositionDataMorpho({
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
+      marketId: args.position.marketParams.id,
     }),
   })
 

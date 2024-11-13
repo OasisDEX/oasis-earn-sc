@@ -59,7 +59,13 @@ export const createGraphQLClient = (
   const url = `${baseUrl}/${subgraphName}`
   const client = new GraphQLClient(url)
 
-  const GetPosition = async (proxyAddress: string) => {
+  const GetPosition = async ({
+    marketId,
+    proxyAddress,
+  }: {
+    proxyAddress: string
+    marketId?: string
+  }) => {
     switch (protocolId) {
       case ProtocolId.AAVE:
       case ProtocolId.AAVE_V3:
@@ -68,7 +74,10 @@ export const createGraphQLClient = (
       case ProtocolId.AJNA:
         return getAjnaPosition(client, proxyAddress)
       case ProtocolId.MORPHO_BLUE:
-        return getMorphoPosition(client, proxyAddress)
+        if (!marketId) {
+          throw new Error('Market ID is required for Morpho')
+        }
+        return getMorphoPosition(client, `${marketId}-${proxyAddress}`)
       default:
         throw new Error(`No subgraph assigned to Protocol ID ${protocolId}`)
     }

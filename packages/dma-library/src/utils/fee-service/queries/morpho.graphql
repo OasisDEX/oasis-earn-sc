@@ -1,5 +1,5 @@
 query GetPosition($id: ID!) {
-  earnPosition(id: $id) {
+  borrowPosition(id: $id) {
     oasisEvents(first: 10000, orderBy: blockNumber, orderDirection: desc) {
       kind
       blockNumber

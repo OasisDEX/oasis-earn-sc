@@ -93,6 +93,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     oraclePrice,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.marketId,
     true,
   )
 
@@ -105,6 +106,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     positionType,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.marketId,
     undefined,
     true,
   )
@@ -116,6 +118,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     swapData,
     riskIsIncreasing,
     true,
+    args.marketId,
   )
 
   return prepareMorphoMultiplyDMAPayload(
@@ -130,6 +133,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     position,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.marketId,
     true,
   )
 }
@@ -242,6 +246,7 @@ export async function simulateAdjustment(
   oraclePrice: BigNumber,
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
+  marketId: string,
   isOpeningPosition = false,
 ) {
   const fromToken = buildFromToken(
@@ -265,6 +270,7 @@ export async function simulateAdjustment(
     positionData: getPositionDataMorpho({
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
+      marketId,
     }),
     isOpeningPosition,
   })
@@ -345,6 +351,7 @@ async function buildOperation(
   swapData: SwapData,
   riskIsIncreasing: true,
   isOpeningPosition = false,
+  marketId: string,
 ): Promise<IOperation> {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
@@ -357,6 +364,7 @@ async function buildOperation(
     positionData: getPositionDataMorpho({
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
+      marketId,
     }),
     isOpeningPosition,
   })
@@ -435,6 +443,7 @@ export async function getSwapData(
   positionType: PositionType,
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
+  marketId: string,
   __feeOverride?: BigNumber,
   isOpeningPosition = false,
 ) {
@@ -450,6 +459,7 @@ export async function getSwapData(
       positionData: getPositionDataMorpho({
         network: dependencies.network,
         proxy: args.dpmProxyAddress,
+        marketId,
       }),
       isOpeningPosition,
     },
@@ -546,6 +556,7 @@ export async function prepareMorphoMultiplyDMAPayload(
   position: MorphoBluePosition,
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
+  marketId: string,
   isOpeningPosition = false,
 ) {
   const collateralAmount = amountFromWei(
@@ -583,6 +594,7 @@ export async function prepareMorphoMultiplyDMAPayload(
     positionData: getPositionDataMorpho({
       network: dependencies.network,
       proxy: args.dpmProxyAddress,
+      marketId,
     }),
     isOpeningPosition,
   })
