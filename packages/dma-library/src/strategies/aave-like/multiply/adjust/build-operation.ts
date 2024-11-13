@@ -147,7 +147,7 @@ export async function buildAdjustFlashloan(
     collateralToken: args.collateralToken.symbol,
   })
   // We dont use the  if Spark condition since on L2s non Maker FLS are used for multiply operations
-  if (flashloanProvider !== FlashloanProvider.DssFlash) {
+  if (dependencies.protocolType === 'Spark' || flashloanProvider !== FlashloanProvider.DssFlash) {
     // Need to add fees to the swap amount
     const fromSwapAmountBeforeFees = swap.fromTokenAmount.plus(preSwapFee)
     const receivedAmountAfterSwap = swap.minToTokenAmount
