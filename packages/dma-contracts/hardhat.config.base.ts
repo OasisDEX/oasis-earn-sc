@@ -1,6 +1,7 @@
+// eslint-disable-next-line simple-import-sort/imports
 import './bootstrap-env'
 import 'tsconfig-paths/register'
-import '@nomicfoundation/hardhat-verify'
+import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
 import '@typechain/hardhat'
@@ -10,6 +11,7 @@ import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
 
 // import '@tenderly/hardhat-tenderly'
+
 import { Network } from '@deploy-configurations/types/network'
 import * as process from 'process'
 
