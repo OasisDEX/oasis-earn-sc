@@ -1,7 +1,6 @@
 import { ONE, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
-import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveTxValue } from '@dma-library/protocols/ajna'
@@ -70,10 +69,12 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
     }),
   })
 
-  const postSwapFee =
-    collectFeeFrom === 'targetToken'
-      ? calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge)
-      : ZERO
+  const postSwapFee = SwapUtils.calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee.feeToCharge,
+    fee.feeType,
+  )
 
   const tokenFee = SwapUtils.calculateInflatedTokenFee({ postSwapFee, preSwapFee })
 

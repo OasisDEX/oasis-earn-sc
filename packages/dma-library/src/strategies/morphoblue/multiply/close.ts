@@ -2,7 +2,6 @@ import { TEN, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { amountToWei } from '@dma-common/utils/common'
-import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { operations } from '@dma-library/operations'
 import { resolveTxValue } from '@dma-library/protocols/ajna'
 import * as StrategiesCommon from '@dma-library/strategies/common'
@@ -92,10 +91,12 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
     }),
   })
 
-  const postSwapFee =
-    collectFeeFrom === 'targetToken'
-      ? calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge)
-      : ZERO
+  const postSwapFee = SwapUtils.calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee.feeToCharge,
+    fee.feeType,
+  )
 
   const tokenFee = SwapUtils.calculateInflatedTokenFee({ postSwapFee, preSwapFee })
 

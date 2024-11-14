@@ -4,7 +4,6 @@ import { ONE, TEN, ZERO } from '@dma-common/constants'
 import { Address, CollectFeeFrom } from '@dma-common/types'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
 import { TokenAddresses } from '@dma-library/operations/morphoblue/addresses'
@@ -598,10 +597,12 @@ export async function prepareMorphoMultiplyDMAPayload(
     }),
     isOpeningPosition,
   })
-  const postSwapFee =
-    collectFeeFrom === 'sourceToken'
-      ? ZERO
-      : calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge)
+  const postSwapFee = SwapUtils.calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee.feeToCharge,
+    fee.feeType,
+  )
   const tokenFee = preSwapFee.plus(postSwapFee)
 
   const withdrawUndercollateralized = !riskIsIncreasing

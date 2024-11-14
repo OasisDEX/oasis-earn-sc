@@ -1,7 +1,6 @@
 import { Address } from '@deploy-configurations/types/address'
 import type { Network } from '@deploy-configurations/types/network'
 import { FEE_BASE, ONE, TEN, ZERO } from '@dma-common/constants'
-import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { GetSwapData } from '@dma-library/types/common'
 import { ProtocolId } from '@dma-library/utils/fee-service'
@@ -118,10 +117,12 @@ export async function getSwapDataForCloseToCollateral({
     toTokenAddress: debtToken.address,
   })
 
-  const preSwapFee =
-    collectFeeFrom === 'sourceToken'
-      ? calculatePercentageFee(amountNeededToEnsureRemainingDebtIsRepaid, fee)
-      : ZERO
+  const preSwapFee = SwapUtils.calculatePreSwapFeeAmount(
+    collectFeeFrom,
+    amountNeededToEnsureRemainingDebtIsRepaid,
+    fee,
+    resolvedFee.feeType,
+  )
 
   // 5. Get Swap Data
   // The swap amount needs to be the collateral needed minus the preSwapFee
