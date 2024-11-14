@@ -38,9 +38,7 @@ export async function getGenericSwapDataErc4626({
     __feeOverride || SwapUtils.percentageFeeResolver(fromToken.symbol, toToken.symbol).feeToCharge
 
   const preSwapFee =
-    collectFeeFrom === 'sourceToken'
-      ? calculatePercentageFee(swapAmountBeforeFees, fee.toNumber())
-      : ZERO
+    collectFeeFrom === 'sourceToken' ? calculatePercentageFee(swapAmountBeforeFees, fee) : ZERO
 
   const swapAmountAfterFees = swapAmountBeforeFees
     .minus(preSwapFee)
@@ -53,10 +51,8 @@ export async function getGenericSwapDataErc4626({
     slippage,
   )
   const postSwapFee =
-    collectFeeFrom === 'targetToken'
-      ? calculatePercentageFee(swapData.toTokenAmount, fee.toNumber())
-      : ZERO
+    collectFeeFrom === 'targetToken' ? calculatePercentageFee(swapData.toTokenAmount, fee) : ZERO
 
   const tokenFee = SwapUtils.calculateInflatedTokenFee({ postSwapFee, preSwapFee })
-  return { swapData, collectFeeFrom, fee: fee.toNumber(), tokenFee }
+  return { swapData, collectFeeFrom, fee: fee, tokenFee }
 }

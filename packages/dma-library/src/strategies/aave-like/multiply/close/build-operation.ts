@@ -65,7 +65,7 @@ export async function buildOperation(
       isEth: args.debtToken.symbol === 'ETH',
     },
     swap: {
-      fee: fee.feeToCharge.toNumber(),
+      fee: fee.feeToCharge,
       data: swapData.exchangeCalldata,
       amount: collateralAmountToBeSwapped,
       collectFeeFrom,

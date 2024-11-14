@@ -77,7 +77,7 @@ export function swap(
     toAsset: string
     amount: BigNumber
     receiveAtLeast: BigNumber
-    fee: number
+    fee: BigNumber
     withData: string | number
     collectFeeInFromToken: boolean
     feeType: SwapFeeType
@@ -94,7 +94,7 @@ export function swap(
         toAsset: args.toAsset,
         amount: args.amount.toFixed(0),
         receiveAtLeast: args.receiveAtLeast.toFixed(0),
-        fee: args.fee,
+        fee: args.fee.toString(),
         withData: args.withData,
         collectFeeInFromToken: args.collectFeeInFromToken,
         feeType: args.feeType ?? SwapFeeType.Percentage,

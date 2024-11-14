@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import type { SwapFeeType } from '../../types'
 
 export type DepositSwapArgs = {
-  fee: number
+  fee: BigNumber
   feeType?: SwapFeeType
   receiveAtLeast: BigNumber
   calldata: string

@@ -95,7 +95,7 @@ export async function buildDepositBorrowArgs(
     const swapArgs = {
       calldata: swapData.exchangeCalldata.toString(),
       collectFeeInFromToken,
-      fee: fee.feeToCharge.toNumber(),
+      fee: fee.feeToCharge,
       receiveAtLeast: swapData.minToTokenAmount,
     }
 

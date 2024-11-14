@@ -51,7 +51,7 @@ export const withdraw: Erc4626WithdrawOperation = async (
       toAsset: swap ? returnToken : ADDRESS_ZERO,
       amount: swap ? swap.amount : ZERO,
       receiveAtLeast: swap ? swap.receiveAtLeast : ZERO,
-      fee: swap ? swap.fee : 0,
+      fee: swap ? swap.fee : ZERO,
       withData: swap ? swap.data : '0x00',
       collectFeeInFromToken: swap ? swap.collectFeeFrom === 'sourceToken' : false,
       feeType: swap?.feeType !== undefined ? swap.feeType : SwapFeeType.Percentage,

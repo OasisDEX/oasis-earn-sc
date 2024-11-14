@@ -136,7 +136,7 @@ describe('Swap | Unit', async () => {
 
     it('should allow to use different tiers', async () => {
       const amountInWei = amountToWei(10)
-      const fee = 50
+      const fee = new BigNumber(50)
       const feeAmount = calculatePercentageFeeOnInputAmount(amountInWei, fee)
       const amountInWeiWithFee = amountInWei.plus(feeAmount)
       await system.Swap.contract.connect(authorizedSigner).addFeeTier(fee)
@@ -189,7 +189,7 @@ describe('Swap | Unit', async () => {
 
     it('should throw an error when fee tier does not exist', async () => {
       const amountInWei = amountToWei(10)
-      const fee = 99
+      const fee = new BigNumber(99)
       const feeAmount = calculatePercentageFeeOnInputAmount(amountInWei, fee)
       const amountInWeiWithFee = amountInWei.plus(feeAmount)
 

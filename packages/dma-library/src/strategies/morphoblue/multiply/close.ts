@@ -94,7 +94,7 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
 
   const postSwapFee =
     collectFeeFrom === 'targetToken'
-      ? calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge.toNumber())
+      ? calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge)
       : ZERO
 
   const tokenFee = SwapUtils.calculateInflatedTokenFee({ postSwapFee, preSwapFee })
@@ -258,7 +258,7 @@ async function buildOperation(
       isEth: areAddressesEqual(debtToken.address, dependencies.addresses.WETH),
     },
     swap: {
-      fee: fee.feeToCharge.toNumber(),
+      fee: fee.feeToCharge,
       data: swapData.exchangeCalldata,
       amount: collateralAmountToBeSwapped,
       collectFeeFrom,

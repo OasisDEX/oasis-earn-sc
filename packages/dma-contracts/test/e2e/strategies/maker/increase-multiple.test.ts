@@ -4,7 +4,7 @@ import { ADDRESSES } from '@deploy-configurations/addresses'
 import { CONTRACT_NAMES } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
 import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
-import { OPERATION_NAMES } from '@dma-common/constants'
+import { OPERATION_NAMES, ZERO } from '@dma-common/constants'
 import {
   calculateParamsIncreaseMP,
   DeployedSystemInfo,
@@ -203,7 +203,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       // Add daiTopup amount to swap
       amount: swapAmount,
       receiveAtLeast: exchangeData.minToTokenAmount,
-      fee: 0,
+      fee: ZERO,
       withData: exchangeData._exchangeCalldata,
       collectFeeInFromToken: true,
     }
@@ -371,7 +371,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       // Add daiTopup amount to swap
       amount: swapAmount,
       receiveAtLeast: exchangeData.minToTokenAmount,
-      fee: 0,
+      fee: ZERO,
       withData: exchangeData._exchangeCalldata,
       collectFeeInFromToken: true,
     }
@@ -612,7 +612,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       // Add daiTopup amount to swap
       amount: swapAmount,
       receiveAtLeast: exchangeData.minToTokenAmount,
-      fee: 0,
+      fee: ZERO,
       withData: exchangeData._exchangeCalldata,
       collectFeeInFromToken: true,
     }
@@ -831,7 +831,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       // Add daiTopup amount to swap
       amount: swapAmount,
       receiveAtLeast: exchangeData.minToTokenAmount,
-      fee: 0,
+      fee: ZERO,
       withData: exchangeData._exchangeCalldata,
       collectFeeInFromToken: true,
     }
@@ -1028,7 +1028,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       // Add daiTopup amount to swap
       amount: swapAmount,
       receiveAtLeast: exchangeData.minToTokenAmount,
-      fee: 0,
+      fee: ZERO,
       withData: exchangeData._exchangeCalldata,
       collectFeeInFromToken: true,
     }
@@ -1235,7 +1235,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       // Add daiTopup amount to swap
       amount: swapAmount,
       receiveAtLeast: exchangeData.minToTokenAmount,
-      fee: 0,
+      fee: ZERO,
       withData: exchangeData._exchangeCalldata,
       collectFeeInFromToken: true,
     }

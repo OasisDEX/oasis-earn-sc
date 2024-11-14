@@ -402,7 +402,7 @@ async function buildOperation(
       amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)).integerValue(),
     },
     swap: {
-      fee: fee.feeToCharge.toNumber(),
+      fee: fee.feeToCharge,
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,
@@ -601,7 +601,7 @@ export async function prepareMorphoMultiplyDMAPayload(
   const postSwapFee =
     collectFeeFrom === 'sourceToken'
       ? ZERO
-      : calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge.toNumber())
+      : calculatePercentageFee(swapData.toTokenAmount, fee.feeToCharge)
   const tokenFee = preSwapFee.plus(postSwapFee)
 
   const withdrawUndercollateralized = !riskIsIncreasing

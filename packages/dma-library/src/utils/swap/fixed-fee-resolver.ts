@@ -13,7 +13,7 @@ export const fixedFeeResolver = async (
   isOpeningPosition?: boolean,
 ): Promise<ResolvedFee> => {
   if (isOpeningPosition) {
-    console.log('Fixed fee is zero for opening an earn position')
+    console.log('Fixed fee is zero when opening a new earn position')
     return {
       feeType: SwapFeeType.Fixed,
       feeToCharge: new BigNumber(0),
@@ -31,10 +31,10 @@ export const fixedFeeResolver = async (
   if (positionData.protocolId === undefined) {
     throw new Error('Protocol ID is required for earn multiply fee calculation')
   }
-
+  const fixedFee = await getFixedFeeForPosition(positionData)
   const resolvedFee = {
     feeType: SwapFeeType.Fixed,
-    feeToCharge: new BigNumber(await getFixedFeeForPosition(positionData)),
+    feeToCharge: new BigNumber(fixedFee),
   }
   console.log('Fixed fee:', {
     feeToCharge: resolvedFee.feeToCharge.toString(),

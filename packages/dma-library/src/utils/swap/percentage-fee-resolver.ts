@@ -45,12 +45,13 @@ export const percentageFeeResolver = <T extends string = string>(
 
   const feeType = SwapFeeType.Percentage
 
-  let feeToCharge
+  let feeToCharge: BigNumber | undefined
   if (type === 'earnMultiply') {
     // new AUM type fee for yield loops
     throw new Error('AUM fee is required for earn multiply correlated assets')
   } else {
-    feeToCharge = feesConfig[type][options?.isIncreasingRisk ? 'onIncrease' : 'onDecrease']
+    const key = options?.isIncreasingRisk ? 'onIncrease' : 'onDecrease'
+    feeToCharge = feesConfig[type][key]
     if (!feeToCharge) {
       throw new Error('No fee could be resolved')
     }

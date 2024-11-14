@@ -189,7 +189,7 @@ async function buildOperation(
       amount: args.collateralAmount,
     },
     swap: {
-      fee: fee.feeToCharge.toNumber(),
+      fee: fee.feeToCharge,
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,

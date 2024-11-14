@@ -273,7 +273,7 @@ async function buildOperation(
   }
 
   const swap = {
-    fee: fee.feeToCharge.toNumber(),
+    fee: fee.feeToCharge,
     data: swapData.exchangeCalldata,
     amount: swapAmountBeforeFees,
     collectFeeFrom,

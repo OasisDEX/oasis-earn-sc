@@ -50,9 +50,7 @@ export async function getSwapDataForCloseToDebt({
   const fee = __feeOverride || resolvedFee.feeToCharge
 
   const preSwapFee =
-    collectFeeFrom === 'sourceToken'
-      ? calculatePercentageFee(swapAmountBeforeFees, fee.toNumber())
-      : ZERO
+    collectFeeFrom === 'sourceToken' ? calculatePercentageFee(swapAmountBeforeFees, fee) : ZERO
 
   const swapAmountAfterFees = swapAmountBeforeFees
     .minus(preSwapFee)

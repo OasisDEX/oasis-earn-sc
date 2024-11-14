@@ -64,7 +64,7 @@ export type WithOptionalDeposit = Partial<{
 
 export type WithSwapParameters = {
   swap: {
-    fee: number
+    fee: BigNumber
     feeType?: SwapFeeType
     data: string | number
     collectFeeFrom: 'sourceToken' | 'targetToken'

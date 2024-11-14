@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 
 import { AUM_FEE_RATE } from './constants'
 import { isCloseEvent } from './isCloseEvent'
@@ -30,9 +31,10 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
     throw 'Position is closed, not possible to calculate fee'
   }
 
+  // calculations are in wei unit
   const eventsToCalculate = position.events
     .slice(startEventIndex)
-    .filter(event => new BigNumber(getEventSwapAmount(event)).gt(0))
+    .filter(event => new BigNumber(getEventDebtSwapAmount(event)).gt(0))
   const [totalFee] = eventsToCalculate.reduce(
     ([accumulatedFee, accumulatedSwapAmount], event, index, arr) => {
       const nextEvent = arr[index + 1]
@@ -42,7 +44,7 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
         ? endTimestampInSeconds
         : new BigNumber(nextEvent.timestamp.toString()).toNumber()
 
-      const eventSwapAmount = getEventSwapAmount(event)
+      const eventSwapAmount = getEventDebtSwapAmount(event)
       const newAccumulatedSwapAmount =
         isWithdrawEvent(event) || isDeriskEvent(event)
           ? accumulatedSwapAmount.minus(eventSwapAmount)
@@ -53,9 +55,12 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
         event.timestamp, // in seconds
         nextTimestampOrEnd,
       )
-      console.log({
+      const fractions = 10 ** Number(event.debtToken?.decimals)
+      console.log(event.kind, {
         daysPassed: calculateDaysBetweenTimestamps(event.timestamp, nextTimestampOrEnd),
-        swapAmount: newAccumulatedSwapAmount.toString() + event.debtToken?.symbol,
+        debtAssetsUnderManagement:
+          newAccumulatedSwapAmount.div(fractions).toString() + ' ' + event.debtToken?.symbol,
+        eventFee: new BigNumber(eventFee).div(fractions).toString() + ' ' + event.debtToken?.symbol,
       })
 
       // if event is derisk, it means fee was paid so we should drop prev fee
@@ -75,7 +80,7 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
   return totalFee.toString()
 }
 
-const getEventSwapAmount = (event: OasisEvent) => {
+const getEventDebtSwapAmount = (event: OasisEvent) => {
   let swapAmount = '0'
   if (event.debtToken?.address === event.swapToToken && event.swapToAmount) {
     swapAmount = event.swapToAmount
@@ -83,7 +88,12 @@ const getEventSwapAmount = (event: OasisEvent) => {
     swapAmount = event.swapFromAmount
   }
   // if swap amount is zero there is nothing to calculate fee on
-  return swapAmount
+  if (event.debtToken?.decimals === undefined) {
+    throw 'Decimals are missing for debt token' + event.debtToken?.symbol
+  }
+
+  const parsed = safeParseUnits(swapAmount, Number(event.debtToken.decimals))
+  return new BigNumber(parsed).toFixed(0)
 }
 
 const calculateFeeBetweenTimestamps = (
@@ -97,7 +107,7 @@ const calculateFeeBetweenTimestamps = (
 
   const feeValue = new BigNumber(AUM_FEE_RATE).times(daysPassed / 365).times(amountInCollateral)
 
-  return feeValue.toString()
+  return feeValue.toFixed(0)
 }
 
 function calculateDaysBetweenTimestamps(startTimestamp: bigint, endTimestamp: number) {
@@ -111,3 +121,6 @@ function calculateDaysBetweenTimestamps(startTimestamp: bigint, endTimestamp: nu
     .div(60 * 60 * 24) // seconds per day
     .toNumber()
 }
+
+export const safeParseUnits = (value: string, decimals: number) =>
+  ethers.utils.parseUnits(new BigNumber(value).toFixed(decimals), decimals).toString()

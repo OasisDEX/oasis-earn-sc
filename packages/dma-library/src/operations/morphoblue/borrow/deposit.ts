@@ -74,7 +74,7 @@ function getSwapCalls(
       toAsset: NULL_ADDRESS,
       amount: ZERO,
       receiveAtLeast: ZERO,
-      fee: 0,
+      fee: ZERO,
       withData: 0,
       collectFeeInFromToken: false,
       feeType: SwapFeeType.Percentage,

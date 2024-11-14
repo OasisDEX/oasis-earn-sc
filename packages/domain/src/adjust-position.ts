@@ -278,7 +278,7 @@ function determineFee(
   isIncreasingRisk: boolean,
   debtDelta,
   collateralDelta,
-  oazoFee,
+  oazoFee: BigNumber,
   fromToken,
   toToken,
   collectSwapFeeFrom,
@@ -291,13 +291,13 @@ function determineFee(
 
   const normalisedSourceFee = (
     isIncreasingRisk
-      ? calculatePercentageFee(debtDelta, oazoFee.toNumber())
-      : calculatePercentageFee(collateralDelta, oazoFee.toNumber())
+      ? calculatePercentageFee(debtDelta, oazoFee)
+      : calculatePercentageFee(collateralDelta, oazoFee)
   ).integerValue(BigNumber.ROUND_DOWN)
   const normalisedTargetFee = (
     isIncreasingRisk
-      ? calculatePercentageFee(collateralDelta, oazoFee.toNumber())
-      : calculatePercentageFee(debtDelta, oazoFee.toNumber())
+      ? calculatePercentageFee(collateralDelta, oazoFee)
+      : calculatePercentageFee(debtDelta, oazoFee)
   ).integerValue(BigNumber.ROUND_DOWN)
   const sourceFee = revertToTokenSpecificPrecision(
     normalisedSourceFee,

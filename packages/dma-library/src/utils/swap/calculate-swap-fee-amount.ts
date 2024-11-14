@@ -20,7 +20,7 @@ export function calculatePostSwapFeeAmount(
   if (feeType === SwapFeeType.Fixed) {
     return fee
   } else {
-    return calculatePercentageFee(toTokenAmount, fee.toNumber())
+    return calculatePercentageFee(toTokenAmount, fee)
   }
 }
 
@@ -41,7 +41,7 @@ export function calculatePreSwapFeeAmount(
   if (feeType === SwapFeeType.Fixed) {
     return fee
   } else {
-    return calculatePercentageFee(swapAmountBeforeFees, fee.toNumber())
+    return calculatePercentageFee(swapAmountBeforeFees, fee)
   }
 }
 

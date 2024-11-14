@@ -52,7 +52,7 @@ function getSwapCalls(
       toAsset: depositTokenAddress,
       amount: ZERO,
       receiveAtLeast: ZERO,
-      fee: 0,
+      fee: ZERO,
       withData: 0,
       collectFeeInFromToken: true,
       feeType: SwapFeeType.Percentage,

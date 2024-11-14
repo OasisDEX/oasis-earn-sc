@@ -120,7 +120,7 @@ export async function getSwapDataForCloseToCollateral({
 
   const preSwapFee =
     collectFeeFrom === 'sourceToken'
-      ? calculatePercentageFee(amountNeededToEnsureRemainingDebtIsRepaid, fee.toNumber())
+      ? calculatePercentageFee(amountNeededToEnsureRemainingDebtIsRepaid, fee)
       : ZERO
 
   // 5. Get Swap Data
