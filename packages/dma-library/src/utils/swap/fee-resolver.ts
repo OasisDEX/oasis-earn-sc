@@ -1,8 +1,7 @@
-import type { Network } from '@deploy-configurations/types/network'
 import { SwapFeeType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
-import { ProtocolId } from '../fee-service/ProtocolId'
+import type { FixedFeePositionData } from '../fee-service/getFixedFeeForPosition'
 import { fixedFeeResolver } from './fixed-fee-resolver'
 import { isCorrelatedPosition } from './isCorrelatedPosition'
 import { percentageFeeResolver } from './percentage-fee-resolver'
@@ -21,11 +20,7 @@ export const feeResolver = async <T extends string = string>(
     isEarnPosition?: boolean
     isEntrySwap?: boolean
     isOpeningPosition?: boolean
-    positionData?: {
-      network: Network
-      protocolId: ProtocolId
-      proxyAddress: string
-    }
+    positionData?: FixedFeePositionData
   },
 ): Promise<ResolvedFee> => {
   if (isCorrelatedPosition(fromToken, toToken) || options?.isEarnPosition) {

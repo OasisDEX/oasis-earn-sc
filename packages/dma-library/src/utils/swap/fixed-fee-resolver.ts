@@ -1,20 +1,15 @@
-import type { Network } from '@deploy-configurations/types/network'
 import { NULL_ADDRESS } from '@dma-common/constants'
 import { SwapFeeType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
-import { getEarnMultiplyFee } from '../fee-service/getEarnMultiplyFee'
-import type { ProtocolId } from '../fee-service/ProtocolId'
+import {
+  type FixedFeePositionData,
+  getFixedFeeForPosition,
+} from '../fee-service/getFixedFeeForPosition'
 import type { ResolvedFee } from './fee-resolver'
 
 export const fixedFeeResolver = async (
-  positionData:
-    | {
-        network: Network
-        protocolId: ProtocolId
-        proxyAddress: string
-      }
-    | undefined,
+  positionData: FixedFeePositionData | undefined,
   isOpeningPosition?: boolean,
 ): Promise<ResolvedFee> => {
   if (isOpeningPosition) {
@@ -39,7 +34,7 @@ export const fixedFeeResolver = async (
 
   const resolvedFee = {
     feeType: SwapFeeType.Fixed,
-    feeToCharge: new BigNumber(await getEarnMultiplyFee(positionData)),
+    feeToCharge: new BigNumber(await getFixedFeeForPosition(positionData)),
   }
   console.log('Fixed fee:', {
     feeToCharge: resolvedFee.feeToCharge.toString(),

@@ -5,17 +5,21 @@ import { createGraphQLClient } from './createGraphQLClient'
 import { ProtocolId } from './ProtocolId'
 import type { OasisPosition } from './types'
 
-export const getEarnMultiplyFee = async ({
+export type FixedFeePositionData = {
+  network: Network
+  protocolId: ProtocolId
+  proxyAddress: string
+  params?: {
+    marketId?: string
+  }
+}
+
+export const getFixedFeeForPosition = async ({
   network: network,
   protocolId,
   proxyAddress,
   params,
-}: {
-  network: Network
-  protocolId: ProtocolId
-  proxyAddress: string
-  params?: { marketId?: string }
-}) => {
+}: FixedFeePositionData) => {
   //set envs
   const { SUBGRAPH_BASE: subgraphBase = process.env.SUBGRAPH_BASE } = process.env || {}
 
