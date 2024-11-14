@@ -106,7 +106,7 @@ export async function buildCloseFlashloan(
     collateralToken: args.collateralToken.symbol,
   })
   // We dont use the  if Spark condition since on L2s non Maker FLS are used for multiply operations
-  if (flashloanProvider !== FlashloanProvider.DssFlash) {
+  if (dependencies.protocolType === 'Spark' || flashloanProvider !== FlashloanProvider.DssFlash) {
     // This covers off the situation where debt balances accrue interest
     const amountToFlashloan = dependencies.currentPosition.debt.amount.times(
       ONE.plus(SAFETY_MARGIN),
