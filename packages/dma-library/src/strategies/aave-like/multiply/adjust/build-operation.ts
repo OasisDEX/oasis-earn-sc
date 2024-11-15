@@ -4,7 +4,7 @@ import { AdjustRiskDownArgs } from '@dma-library/operations/aave/multiply/v3/adj
 import { AdjustRiskUpArgs } from '@dma-library/operations/aave/multiply/v3/adjust-risk-up'
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
-import { FlashloanProvider, IOperation, SwapData } from '@dma-library/types'
+import { IOperation, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -146,8 +146,8 @@ export async function buildAdjustFlashloan(
     debtToken: args.debtToken.symbol,
     collateralToken: args.collateralToken.symbol,
   })
-  // We dont use the  if Spark condition since on L2s non Maker FLS are used for multiply operations
-  if (dependencies.protocolType === 'Spark' || flashloanProvider !== FlashloanProvider.DssFlash) {
+
+  if (dependencies.protocolType === 'Spark') {
     // Need to add fees to the swap amount
     const fromSwapAmountBeforeFees = swap.fromTokenAmount.plus(preSwapFee)
     const receivedAmountAfterSwap = swap.minToTokenAmount

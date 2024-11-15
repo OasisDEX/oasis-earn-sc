@@ -3,7 +3,7 @@ import { FEE_BASE, ONE, TYPICAL_PRECISION } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
-import { FlashloanProvider, IOperation, SwapData } from '@dma-library/types'
+import { IOperation, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -105,8 +105,8 @@ export async function buildCloseFlashloan(
     debtToken: args.debtToken.symbol,
     collateralToken: args.collateralToken.symbol,
   })
-  // We dont use the  if Spark condition since on L2s non Maker FLS are used for multiply operations
-  if (dependencies.protocolType === 'Spark' || flashloanProvider !== FlashloanProvider.DssFlash) {
+
+  if (dependencies.protocolType === 'Spark') {
     // This covers off the situation where debt balances accrue interest
     const amountToFlashloan = dependencies.currentPosition.debt.amount.times(
       ONE.plus(SAFETY_MARGIN),
