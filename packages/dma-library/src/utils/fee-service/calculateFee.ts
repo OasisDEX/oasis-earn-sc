@@ -8,35 +8,48 @@ import { isOpenEvent } from './isOpenEvent'
 import { isWithdrawEvent } from './isWithdrawEvent'
 import type { OasisEvent, OasisPosition } from './types'
 
+const DEBUG = true
+const log = (...args: any[]) => {
+  if (DEBUG) {
+    console.log(...args)
+  }
+}
+
 export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: number) => {
   const endTimestampInSeconds = toTimestampInSeconds ?? Math.floor(Date.now() / 1000)
 
-  // find open event
-  const openEventIndex = position.events.findIndex(isOpenEvent)
+  // sorted by timestamp - oldest first
+  const eventsAscending = position.events
+
+  // find newest open event
+  const openEventIndex = eventsAscending.findLastIndex(isOpenEvent)
+  log('Open event', openEventIndex)
   // there is no open events
   if (openEventIndex === -1) {
     throw 'Position is missing open event, not possible to calculate fee'
   }
 
   let startEventIndex: number
-  // there is no closed events
-  const closeEventIndex = position.events.findIndex(isCloseEvent)
+  // find newest close event
+  const closeEventIndex = eventsAscending.findLastIndex(isCloseEvent)
   if (closeEventIndex === -1) {
     startEventIndex = openEventIndex
+    log('No close event, calculating fee from open event', startEventIndex)
   }
-  // there is closed event but position was reopened
-  else if (closeEventIndex !== position.events.length - 1) {
+  // close event is not the last event
+  else if (closeEventIndex !== eventsAscending.length - 1) {
     startEventIndex = closeEventIndex + 1
+    log('Position reopened, calculating fee from last close event', startEventIndex)
   } else {
-    throw 'Position is closed, not possible to calculate fee'
+    throw 'Position is closed, not possible to calculate fee for closed positions'
   }
 
-  // calculations are in wei unit
-  const eventsToCalculate = position.events
-    .slice(startEventIndex)
+  const eventsToCalculate = eventsAscending // traverse starting from oldest
+    .slice(startEventIndex) // slice events before the start event
     .filter(event => new BigNumber(getEventDebtSwapAmount(event)).gt(0))
   const [totalFee] = eventsToCalculate.reduce(
     ([accumulatedFee, accumulatedSwapAmount], event, index, arr) => {
+      // calculations are in wei unit
       const nextEvent = arr[index + 1]
       const isThisLastEvent = nextEvent === undefined
       // calc fee for the current event period only
@@ -56,7 +69,7 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
         nextTimestampOrEnd,
       )
       const fractions = 10 ** Number(event.debtToken?.decimals)
-      console.log(event.kind, {
+      log(index, event.kind, {
         daysPassed: calculateDaysBetweenTimestamps(event.timestamp, nextTimestampOrEnd),
         debtAssetsUnderManagement:
           newAccumulatedSwapAmount.div(fractions).toString() + ' ' + event.debtToken?.symbol,

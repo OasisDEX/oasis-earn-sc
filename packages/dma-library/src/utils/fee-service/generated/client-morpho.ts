@@ -7459,7 +7459,7 @@ export type GetPositionQuery = { __typename?: 'Query', borrowPosition?: { __type
 export const GetPositionDocument = gql`
     query GetPosition($id: ID!) {
   borrowPosition(id: $id) {
-    oasisEvents(first: 10000, orderBy: blockNumber, orderDirection: desc) {
+    oasisEvents(first: 10000, orderBy: blockNumber, orderDirection: asc) {
       kind
       blockNumber
       timestamp

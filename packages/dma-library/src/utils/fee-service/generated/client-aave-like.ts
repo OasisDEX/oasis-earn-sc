@@ -4103,7 +4103,7 @@ export type GetPositionQuery = { __typename?: 'Query', position?: { __typename?:
 export const GetPositionDocument = gql`
     query GetPosition($id: ID!) {
   position(id: $id) {
-    events(first: 10000, orderBy: blockNumber, orderDirection: desc) {
+    events(first: 10000, orderBy: blockNumber, orderDirection: asc) {
       kind
       blockNumber
       timestamp

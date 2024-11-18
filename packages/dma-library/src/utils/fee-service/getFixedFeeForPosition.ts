@@ -36,9 +36,10 @@ export const getFixedFeeForPosition = async ({
   }
 
   if (!position) {
-    throw Error(
+    console.error(
       `Position with proxyAddress (${proxyAddress}) and protocol ${protocolId} not found in the graph, probably an empty proxy or your position is on a fork :)`,
     )
+    return '0'
   }
 
   const fee = calculateFee(position)
