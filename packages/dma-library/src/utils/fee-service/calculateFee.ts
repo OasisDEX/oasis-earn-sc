@@ -23,7 +23,6 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
 
   // find newest open event
   const openEventIndex = eventsAscending.findLastIndex(isOpenEvent)
-  log('Open event', openEventIndex)
   // there is no open events
   if (openEventIndex === -1) {
     throw 'Position is missing open event, not possible to calculate fee'
@@ -46,7 +45,7 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
 
   const eventsToCalculate = eventsAscending // traverse starting from oldest
     .slice(startEventIndex) // slice events before the start event
-    .filter(event => new BigNumber(getEventDebtSwapAmount(event)).gt(0))
+
   const [totalFee] = eventsToCalculate.reduce(
     ([accumulatedFee, accumulatedSwapAmount], event, index, arr) => {
       // calculations are in wei unit
@@ -70,10 +69,11 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
       )
       const fractions = 10 ** Number(event.debtToken?.decimals)
       log(index, event.kind, {
-        daysPassed: calculateDaysBetweenTimestamps(event.timestamp, nextTimestampOrEnd),
-        debtAssetsUnderManagement:
+        periodDays: calculateDaysBetweenTimestamps(event.timestamp, nextTimestampOrEnd),
+        periodAssetsUnderManagement:
           newAccumulatedSwapAmount.div(fractions).toString() + ' ' + event.debtToken?.symbol,
-        eventFee: new BigNumber(eventFee).div(fractions).toString() + ' ' + event.debtToken?.symbol,
+        periodFee:
+          new BigNumber(eventFee).div(fractions).toString() + ' ' + event.debtToken?.symbol,
       })
 
       // if event is derisk, it means fee was paid so we should drop prev fee

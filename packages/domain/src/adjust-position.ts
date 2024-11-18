@@ -196,7 +196,6 @@ export function adjustToTargetRiskRatio(
     debtDeltaPreFlashloanFee.times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO)),
     position.debt.precision,
   ).integerValue(BigNumber.ROUND_DOWN)
-  debugger
 
   return {
     position: buildAdjustedPosition(

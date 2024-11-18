@@ -2,6 +2,9 @@ import type BigNumber from 'bignumber.js'
 
 import { FEE_BASE, SwapFeeType } from '../../constants'
 
+/**
+ * Calculate the fee percentage of the swap amount based on the fee type
+ */
 export const calculateFeePercentageOfSwapAmount = ({
   collectFeeFromSourceToken,
   oazoFee,
