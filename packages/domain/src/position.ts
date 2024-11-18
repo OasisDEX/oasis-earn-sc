@@ -1,4 +1,4 @@
-import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { type SwapFeeType, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { Optional } from '@dma-common/types/optional'
 import { amountFromWei } from '@dma-common/utils/common'
 import { adjustToTargetRiskRatio, WithFlags } from '@domain/adjust-position'
@@ -100,6 +100,7 @@ export interface IPositionTransitionParams {
   }
   fees: {
     oazo: BigNumber
+    feeType: SwapFeeType
     flashLoan: BigNumber
   }
   prices: {

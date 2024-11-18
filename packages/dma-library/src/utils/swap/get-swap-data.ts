@@ -1,9 +1,9 @@
 import { Address } from '@deploy-configurations/types/address'
+import { calculatePreSwapFeeAmount } from '@dma-common/utils/swap'
 import { SwapData, SwapFeeType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { acceptedFeeTokenByAddress } from './accepted-fee-token'
-import { calculatePreSwapFeeAmount } from './calculate-swap-fee-amount'
 
 type GetSwapDataArgs<Tokens> = {
   swapAmountBeforeFees: BigNumber

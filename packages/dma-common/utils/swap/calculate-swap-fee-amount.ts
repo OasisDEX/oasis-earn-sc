@@ -1,6 +1,5 @@
-import { DEFAULT_FEE, FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
+import { DEFAULT_FEE, FEE_ESTIMATE_INFLATOR, ONE, SwapFeeType, ZERO } from '@dma-common/constants'
 import { calculatePercentageFee } from '@dma-common/utils/swap'
-import { SwapFeeType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 /**
@@ -8,7 +7,7 @@ import BigNumber from 'bignumber.js'
  */
 export function calculatePostSwapFeeAmount(
   collectFeeFrom: 'sourceToken' | 'targetToken' | undefined,
-  toTokenAmount: BigNumber,
+  swapAmount: BigNumber,
   fee: BigNumber = new BigNumber(DEFAULT_FEE),
   feeType: SwapFeeType,
 ) {
@@ -20,7 +19,7 @@ export function calculatePostSwapFeeAmount(
   if (feeType === SwapFeeType.Fixed) {
     return fee
   } else {
-    return calculatePercentageFee(toTokenAmount, fee)
+    return calculatePercentageFee(swapAmount, fee)
   }
 }
 
@@ -29,7 +28,7 @@ export function calculatePostSwapFeeAmount(
  */
 export function calculatePreSwapFeeAmount(
   collectFeeFrom: 'sourceToken' | 'targetToken' | undefined,
-  swapAmountBeforeFees: BigNumber,
+  swapAmount: BigNumber,
   fee: BigNumber = new BigNumber(DEFAULT_FEE),
   feeType: SwapFeeType,
 ) {
@@ -41,7 +40,7 @@ export function calculatePreSwapFeeAmount(
   if (feeType === SwapFeeType.Fixed) {
     return fee
   } else {
-    return calculatePercentageFee(swapAmountBeforeFees, fee)
+    return calculatePercentageFee(swapAmount, fee)
   }
 }
 

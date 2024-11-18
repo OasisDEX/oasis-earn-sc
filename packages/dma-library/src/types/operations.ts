@@ -1,6 +1,6 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
-import { OperationNames } from '@dma-common/constants'
+import { OperationNames, SwapFeeType } from '@dma-common/constants'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
 import { BigNumber } from 'bignumber.js'
@@ -11,7 +11,6 @@ import { ActionCall } from './action-call'
 import { FlashloanProvider } from './common'
 import { MorphoBlueMarket } from './morphoblue'
 import { PositionType } from './position-type'
-import type { SwapFeeType } from './swap-fee-type'
 
 export interface IOperation {
   calls: ActionCall[]

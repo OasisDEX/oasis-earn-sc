@@ -180,6 +180,7 @@ async function simulateAdjustment(
     },
     fees: {
       oazo: fee.feeToCharge,
+      feeType: fee.feeType,
       flashLoan: BALANCER_FEE,
     },
     prices: {

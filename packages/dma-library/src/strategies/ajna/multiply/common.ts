@@ -98,6 +98,7 @@ export async function simulateAdjustment(
     },
     fees: {
       oazo: fee,
+      feeType: feeResult.feeType,
       flashLoan: BALANCER_FEE,
     },
     prices: {

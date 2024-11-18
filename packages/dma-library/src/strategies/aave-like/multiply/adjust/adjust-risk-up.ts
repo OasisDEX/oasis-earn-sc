@@ -43,7 +43,7 @@ export const adjustRiskUp: AaveLikeAdjustUp = async (args, dependencies) => {
   const { simulatedPositionTransition: simulatedAdjustUp } = await simulate(
     isAdjustUp,
     quoteSwapData,
-    { ...args, fee: fee.feeToCharge },
+    { ...args, fee: fee.feeToCharge, feeType: fee.feeType },
     dependencies,
     true,
     dependencies.debug,

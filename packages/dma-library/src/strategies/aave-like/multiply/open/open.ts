@@ -43,6 +43,7 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
       {
         ...args,
         fee: fee.feeToCharge,
+        feeType: fee.feeType,
       },
       dependencies,
       true,

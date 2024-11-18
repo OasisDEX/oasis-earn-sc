@@ -1,6 +1,6 @@
 import { Address } from '@deploy-configurations/types/address'
 import type { Network } from '@deploy-configurations/types/network'
-import { FEE_BASE, ONE, TEN, ZERO } from '@dma-common/constants'
+import { FEE_BASE, ONE, TEN } from '@dma-common/constants'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { GetSwapData } from '@dma-library/types/common'
 import { ProtocolId } from '@dma-library/utils/fee-service'
