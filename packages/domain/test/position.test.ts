@@ -2,6 +2,7 @@ import { ONE, ZERO } from '@dma-common/constants'
 import { expect } from '@dma-common/test-utils'
 import BigNumber from 'bignumber.js'
 
+import { SwapFeeType } from '../../dma-library/lib'
 import { Position } from '../src/position'
 import { RiskRatio } from '../src/risk-ratio'
 import { testDataSources } from './scenarios/generateTestData'
@@ -115,7 +116,11 @@ describe('Calculate Position Helper', async () => {
               precision: 18,
             },
           },
-          fees: { flashLoan: flashloanFees, oazo: oazoFees.times(oazoFeeBase) },
+          fees: {
+            flashLoan: flashloanFees,
+            oazo: oazoFees.times(oazoFeeBase),
+            feeType: SwapFeeType.Percentage,
+          },
           prices: {
             market: marketPrice,
             oracle: oraclePrice,
