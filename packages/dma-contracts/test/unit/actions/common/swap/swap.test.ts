@@ -166,7 +166,7 @@ describe('Swap | Unit', async () => {
           DAI.address,
           amountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          fee,
+          fee.toFixed(),
           response.tx.data,
           true,
           SwapFeeType.Percentage,
