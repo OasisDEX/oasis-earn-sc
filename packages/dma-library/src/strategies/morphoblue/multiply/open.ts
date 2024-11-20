@@ -447,7 +447,6 @@ export async function getSwapData(
   __feeOverride?: BigNumber,
   isOpeningPosition = false,
 ) {
-  console.log('positionType', positionType)
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const feeResult = await SwapUtils.feeResolver(
     simulatedAdjust.position.collateral.symbol,

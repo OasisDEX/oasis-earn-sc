@@ -8,9 +8,9 @@ import { isOpenEvent } from './isOpenEvent'
 import { isWithdrawEvent } from './isWithdrawEvent'
 import type { OasisEvent, OasisPosition } from './types'
 
-const DEBUG = true
+const debugEnabled = process.env.DEBUG === 'true'
 const log = (...args: any[]) => {
-  if (DEBUG) {
+  if (debugEnabled) {
     console.log(...args)
   }
 }

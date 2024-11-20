@@ -37,7 +37,9 @@ export const getFixedFeeForPosition = async ({
 
   if (!position) {
     console.error(
-      `Position with proxyAddress (${proxyAddress}) and protocol ${protocolId} not found in the graph, probably an empty proxy or your position is on a fork :)`,
+      `Position with proxyAddress (${proxyAddress}) ${
+        params?.marketId ? 'and marketId (' + params.marketId + ')' : ''
+      }) and protocol ${protocolId} not found in the graph, probably an empty proxy or your position is on a fork so fee is set to zero.`,
     )
     return '0'
   }
