@@ -8,12 +8,28 @@ import {
 } from '../fee-service/getFixedFeeForPosition'
 import type { ResolvedFee } from './fee-resolver'
 
+const debugEnabled = process.env.DEBUG === 'true'
+const log = (...args: any[]) => {
+  if (debugEnabled) {
+    console.log(...args)
+  }
+}
+
 export const fixedFeeResolver = async (
   positionData: FixedFeePositionData | undefined,
   isOpeningPosition?: boolean,
+  isIncreasingRisk?: boolean,
 ): Promise<ResolvedFee> => {
   if (isOpeningPosition) {
-    console.log('Fixed fee is zero when opening a new earn position')
+    log('Fixed fee is zero when opening a new earn position')
+    return {
+      feeType: SwapFeeType.Fixed,
+      feeToCharge: new BigNumber(0),
+    }
+  }
+
+  if (isIncreasingRisk) {
+    log('Fixed fee is zero when increasing risk')
     return {
       feeType: SwapFeeType.Fixed,
       feeToCharge: new BigNumber(0),
@@ -36,7 +52,7 @@ export const fixedFeeResolver = async (
     feeType: SwapFeeType.Fixed,
     feeToCharge: new BigNumber(fixedFee),
   }
-  console.log('Fixed fee:', {
+  log('Fixed fee:', {
     feeToCharge: resolvedFee.feeToCharge.toString(),
     positionData,
     isOpeningPosition,

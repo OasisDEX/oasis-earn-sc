@@ -24,7 +24,11 @@ export const feeResolver = async <T extends string = string>(
   },
 ): Promise<ResolvedFee> => {
   if (isCorrelatedPosition(fromToken, toToken) || options?.isEarnPosition) {
-    return fixedFeeResolver(options?.positionData, options?.isOpeningPosition)
+    return fixedFeeResolver(
+      options?.positionData,
+      options?.isOpeningPosition,
+      options?.isIncreasingRisk,
+    )
   } else {
     return percentageFeeResolver(fromToken, toToken, options)
   }
