@@ -139,7 +139,7 @@ describe('Swap | Unit', async () => {
       const fee = new BigNumber(50)
       const feeAmount = calculatePercentageFeeOnInputAmount(amountInWei, fee)
       const amountInWeiWithFee = amountInWei.plus(feeAmount)
-      await system.Swap.contract.connect(authorizedSigner).addFeeTier(fee)
+      await system.Swap.contract.connect(authorizedSigner).addFeeTier(fee.toFixed())
 
       const response = await swapOneInchTokens(
         WETH.address,
@@ -214,7 +214,7 @@ describe('Swap | Unit', async () => {
           DAI.address,
           amountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          fee,
+          fee.toFixed(0),
           response.tx.data,
           true,
           SwapFeeType.Percentage,
