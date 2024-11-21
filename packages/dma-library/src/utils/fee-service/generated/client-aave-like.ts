@@ -4097,12 +4097,13 @@ export type GetPositionQueryVariables = Exact<{
 }>;
 
 
-export type GetPositionQuery = { __typename?: 'Query', position?: { __typename?: 'Position', events: Array<{ __typename?: 'PositionEvent', kind: string, blockNumber: bigint, timestamp: bigint, swapToToken?: string | null, swapToAmount?: string | null, swapFromToken?: string | null, swapFromAmount?: string | null, collateralBefore: string, collateralAfter: string, collateralDelta: string, debtBefore: string, debtAfter: string, debtDelta: string, collateralToken?: { __typename?: 'Token', address: string, symbol: string, decimals: bigint } | null, debtToken?: { __typename?: 'Token', address: string, symbol: string, decimals: bigint } | null }> } | null };
+export type GetPositionQuery = { __typename?: 'Query', position?: { __typename?: 'Position', debt: string, events: Array<{ __typename?: 'PositionEvent', kind: string, blockNumber: bigint, timestamp: bigint, swapToToken?: string | null, swapToAmount?: string | null, swapFromToken?: string | null, swapFromAmount?: string | null, collateralBefore: string, collateralAfter: string, collateralDelta: string, debtBefore: string, debtAfter: string, debtDelta: string, collateralToken?: { __typename?: 'Token', address: string, symbol: string, decimals: bigint } | null, debtToken?: { __typename?: 'Token', address: string, symbol: string, decimals: bigint } | null }> } | null };
 
 
 export const GetPositionDocument = gql`
     query GetPosition($id: ID!) {
   position(id: $id) {
+    debt
     events(first: 10000, orderBy: blockNumber, orderDirection: asc) {
       kind
       blockNumber

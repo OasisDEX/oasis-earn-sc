@@ -1,6 +1,7 @@
 import { SwapFeeType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
+import { ProtocolId } from '../fee-service'
 import type { FixedFeePositionData } from '../fee-service/getFixedFeeForPosition'
 import { fixedFeeResolver } from './fixed-fee-resolver'
 import { isCorrelatedPosition } from './isCorrelatedPosition'
@@ -23,7 +24,10 @@ export const feeResolver = async <T extends string = string>(
     positionData?: FixedFeePositionData
   },
 ): Promise<ResolvedFee> => {
-  if (isCorrelatedPosition(fromToken, toToken) || options?.isEarnPosition) {
+  // currently ajna is not supported for fixed fee
+  const isNotAjnaPosition = options?.positionData?.protocolId !== ProtocolId.AJNA
+
+  if (isCorrelatedPosition(fromToken, toToken) && isNotAjnaPosition) {
     return fixedFeeResolver(
       options?.positionData,
       options?.isOpeningPosition,

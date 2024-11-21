@@ -22,6 +22,12 @@ export const getAaveLikePosition = async (
   client: GraphQLClient,
   positionId: string,
 ): Promise<OasisPosition | undefined> => {
-  const events = (await getSdk(client).GetPosition({ id: positionId })).position?.events
-  return events ? { events } : undefined
+  const position = (await getSdk(client).GetPosition({ id: positionId })).position
+  if (!position?.events) {
+    return undefined
+  }
+
+  const events = position.events
+  const debt = position.debt.toString()
+  return { events, debt }
 }

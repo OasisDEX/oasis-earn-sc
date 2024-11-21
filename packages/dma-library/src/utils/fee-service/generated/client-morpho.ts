@@ -7453,12 +7453,13 @@ export type GetPositionQueryVariables = Exact<{
 }>;
 
 
-export type GetPositionQuery = { __typename?: 'Query', borrowPosition?: { __typename?: 'BorrowPosition', oasisEvents?: Array<{ __typename?: 'OasisEvent', kind: string, blockNumber: bigint, timestamp: bigint, swapToToken?: string | null, swapToAmount?: string | null, swapFromToken?: string | null, swapFromAmount?: string | null, collateralBefore: string, collateralAfter: string, collateralDelta: string, debtBefore: string, debtAfter: string, debtDelta: string, collateralToken?: { __typename?: 'Token', address: string, symbol: string, decimals: bigint } | null, debtToken?: { __typename?: 'Token', address: string, symbol: string, decimals: bigint } | null }> | null } | null };
+export type GetPositionQuery = { __typename?: 'Query', borrowPosition?: { __typename?: 'BorrowPosition', debt: bigint, oasisEvents?: Array<{ __typename?: 'OasisEvent', kind: string, blockNumber: bigint, timestamp: bigint, swapToToken?: string | null, swapToAmount?: string | null, swapFromToken?: string | null, swapFromAmount?: string | null, collateralBefore: string, collateralAfter: string, collateralDelta: string, debtBefore: string, debtAfter: string, debtDelta: string, collateralToken?: { __typename?: 'Token', address: string, symbol: string, decimals: bigint } | null, debtToken?: { __typename?: 'Token', address: string, symbol: string, decimals: bigint } | null }> | null } | null };
 
 
 export const GetPositionDocument = gql`
     query GetPosition($id: ID!) {
   borrowPosition(id: $id) {
+    debt
     oasisEvents(first: 10000, orderBy: blockNumber, orderDirection: asc) {
       kind
       blockNumber

@@ -47,7 +47,7 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
     .slice(startEventIndex) // slice events before the start event
 
   const [totalFee] = eventsToCalculate.reduce(
-    ([accumulatedFee, accumulatedSwapAmount], event, index, arr) => {
+    ([accumulatedFee, accumulatedDebtSwapAmount], event, index, arr) => {
       // calculations are in wei unit
       const nextEvent = arr[index + 1]
       const isThisLastEvent = nextEvent === undefined
@@ -57,13 +57,13 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
         : new BigNumber(nextEvent.timestamp.toString()).toNumber()
 
       const eventSwapAmount = getEventDebtSwapAmount(event)
-      const newAccumulatedSwapAmount =
+      const newAccumulatedDebtSwapAmount =
         isWithdrawEvent(event) || isDeriskEvent(event)
-          ? accumulatedSwapAmount.minus(eventSwapAmount)
-          : accumulatedSwapAmount.plus(eventSwapAmount)
+          ? accumulatedDebtSwapAmount.minus(eventSwapAmount)
+          : accumulatedDebtSwapAmount.plus(eventSwapAmount)
 
       const eventFee = calculateFeeBetweenTimestamps(
-        newAccumulatedSwapAmount.toString(),
+        newAccumulatedDebtSwapAmount.toString(),
         event.timestamp, // in seconds
         nextTimestampOrEnd,
       )
@@ -71,7 +71,7 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
       log(index, event.kind, {
         periodDays: calculateDaysBetweenTimestamps(event.timestamp, nextTimestampOrEnd),
         periodAssetsUnderManagement:
-          newAccumulatedSwapAmount.div(fractions).toString() + ' ' + event.debtToken?.symbol,
+          newAccumulatedDebtSwapAmount.div(fractions).toString() + ' ' + event.debtToken?.symbol,
         periodFee:
           new BigNumber(eventFee).div(fractions).toString() + ' ' + event.debtToken?.symbol,
       })
@@ -80,15 +80,25 @@ export const calculateFee = (position: OasisPosition, toTimestampInSeconds?: num
       // and start accumulating again from this point but keep the accumulated swap
       // as we are calculating fee on assets that are accumulated in the position
       if (isDeriskEvent(event)) {
-        return [new BigNumber(eventFee), newAccumulatedSwapAmount]
+        return [new BigNumber(eventFee), newAccumulatedDebtSwapAmount]
       }
 
       // accumulate fee and swap amount and go to next event
       const newAccumulatedFee = accumulatedFee.plus(eventFee)
-      return [newAccumulatedFee, newAccumulatedSwapAmount]
+      return [newAccumulatedFee, newAccumulatedDebtSwapAmount]
     },
     [new BigNumber(0), new BigNumber(0)],
   )
+
+  // apply the fee limit - cannot be higher than 1 year of the current debt
+  const totalFeeLimit = new BigNumber(position.debt).times(AUM_FEE_RATE).toFixed(0)
+  if (totalFee.isGreaterThan(totalFeeLimit)) {
+    log(
+      'Fee limit based on position debt reached (' + totalFeeLimit.toString() + ' / ',
+      totalFee.toString() + '). Applying the fee limit.',
+    )
+    return totalFeeLimit.toString()
+  }
 
   return totalFee.toString()
 }
@@ -110,7 +120,7 @@ const getEventDebtSwapAmount = (event: OasisEvent) => {
 }
 
 const calculateFeeBetweenTimestamps = (
-  amountInCollateral: string,
+  cumulativeDebtSwapAmount: string,
   fromTimestamp: bigint,
   toTimestamp: number,
 ) => {
@@ -118,7 +128,9 @@ const calculateFeeBetweenTimestamps = (
   const endTimestamp = toTimestamp
   const daysPassed = calculateDaysBetweenTimestamps(startTimestamp, endTimestamp)
 
-  const feeValue = new BigNumber(AUM_FEE_RATE).times(daysPassed / 365).times(amountInCollateral)
+  const feeValue = new BigNumber(AUM_FEE_RATE)
+    .times(daysPassed / 365)
+    .times(cumulativeDebtSwapAmount)
 
   return feeValue.toFixed(0)
 }

@@ -1,5 +1,6 @@
 query GetPosition($id: ID!) {
   borrowPosition(id: $id) {
+    debt
     oasisEvents(first: 10000, orderBy: blockNumber, orderDirection: asc) {
       kind
       blockNumber

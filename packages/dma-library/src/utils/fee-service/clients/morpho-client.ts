@@ -20,6 +20,11 @@ export const getMorphoPosition = async (
   client: GraphQLClient,
   positionId: string,
 ): Promise<OasisPosition | undefined> => {
-  const events = (await getSdk(client).GetPosition({ id: positionId })).borrowPosition?.oasisEvents
-  return events ? { events } : undefined
+  const position = (await getSdk(client).GetPosition({ id: positionId })).borrowPosition
+  if (!position?.oasisEvents) {
+    return undefined
+  }
+  const events = position.oasisEvents
+  const debt = position.debt.toString()
+  return { events, debt }
 }
