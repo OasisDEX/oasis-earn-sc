@@ -21,5 +21,5 @@ export const getAjnaPosition = async (
   positionId: string,
 ): Promise<OasisPosition | undefined> => {
   const events = (await getSdk(client).GetPosition({ id: positionId })).earnPosition?.oasisEvents
-  return events ? { events } : undefined
+  return events ? { events, debt: '0' } : undefined
 }
