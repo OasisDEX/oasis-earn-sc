@@ -8,12 +8,12 @@ import { asPercentageValue, expect } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
-import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { swapTokens } from '@dma-contracts/test/utils/swap'
 import { restoreSnapshot, TestDeploymentSystem, TestHelpers } from '@dma-contracts/utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { ERC20, ERC20__factory, WETH, WETH__factory } from '@typechain'
+import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
 
@@ -40,6 +40,7 @@ describe('Swap | 1Inch | E2E', async () => {
       hre,
       blockNumber: testBlockNumber,
       useFallbackSwap: false,
+      debug: false,
     })
 
     signer = await SignerWithAddress.create(
@@ -57,44 +58,42 @@ describe('Swap | 1Inch | E2E', async () => {
     DAI = ERC20__factory.connect(ADDRESSES[network].common.DAI, config.signer)
   })
 
-  it('should exchange ETH for WETH', async () => {
-    const amountInWei = amountToWei(1)
+  it('should wrap ETH and not swap when swapping from ETH for WETH', async () => {
+    const swapInput = amountToWei(1)
 
     const wethBalanceBefore = amountToWei(
       await balanceOf(WETH.address, signer.address, { config, isFormatted: true }),
     )
 
-    await swapTokens(testSystem, config, ETHAddress, WETH.address, amountInWei, slippage, signer)
+    await swapTokens(testSystem, config, ETHAddress, WETH.address, swapInput, slippage, signer)
 
     const wethBalanceAfter = amountToWei(
       await balanceOf(WETH.address, signer.address, { config, isFormatted: true }),
     )
 
-    const wethReceived = wethBalanceAfter.minus(wethBalanceBefore)
+    const swapReceived = wethBalanceAfter.minus(wethBalanceBefore)
 
-    expect.toBeEqual(wethReceived, amountInWei)
+    expect.toBeEqual(swapReceived, swapInput)
   })
 
-  it.skip('should exchange WETH for DAI', async () => {
-    const amountInWei = amountToWei(10)
-    const amountWithFeeInWei = calculateFeeOnInputAmount(amountInWei).plus(amountInWei)
-
-    await swapTokens(
-      testSystem,
-      config,
-      ETHAddress,
-      WETH.address,
-      amountWithFeeInWei,
-      slippage,
-      signer,
-    )
+  it.skip('should swap WETH for DAI', async () => {
+    const swapInput = amountToWei(1)
+    await swapTokens(testSystem, config, ETHAddress, WETH.address, swapInput, slippage, signer)
 
     const daiBalanceBefore = amountToWei(
       await balanceOf(DAI.address, signer.address, { config, isFormatted: true }),
     )
 
     await WETH.approve(system.Swap.contract.address, MAX_UINT)
-    await swapTokens(testSystem, config, WETH.address, DAI.address, amountInWei, slippage, signer)
+    await swapTokens(
+      testSystem,
+      config,
+      WETH.address,
+      DAI.address,
+      new BigNumber(100),
+      slippage,
+      signer,
+    )
 
     const daiBalanceAfter = amountToWei(
       await balanceOf(DAI.address, signer.address, { config, isFormatted: true }),

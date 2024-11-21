@@ -1,5 +1,5 @@
 import { NULL_ADDRESS, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { SwapData } from '@dma-library/types/swap-data'
+import { SwapData } from '@dma-library/types'
 import { Swap } from '@domain'
 
 export function getZeroSwap(sourceToken: string, targetToken: string): SwapData & Swap {

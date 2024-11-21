@@ -1,7 +1,9 @@
-import { FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
 import { amountFromWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
-import BigNumber from 'bignumber.js'
+import {
+  calculateInflatedTokenFee,
+  calculatePostSwapFeeAmount,
+  calculatePreSwapFeeAmount,
+} from '@dma-library/utils/swap'
 
 import { GenerateArgs, IAdjustStrategy } from './types'
 
@@ -11,6 +13,7 @@ export async function generate({
   operation,
   collectFeeFrom,
   fee,
+  feeType,
   simulation,
   args,
 }: GenerateArgs): Promise<IAdjustStrategy> {
@@ -36,15 +39,16 @@ export async function generate({
   // When collecting fees from the target token (collateral here), we want to calculate the fee
   // Based on the toTokenAmount NOT minToTokenAmount so that we overestimate the fee where possible
   // And do not mislead the user
-  const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
   const sourceTokenAmount = isIncreasingRisk ? simulation.delta.debt : simulation.delta.collateral
 
-  const preSwapFee = shouldCollectFeeFromSourceToken
-    ? calculateFee(sourceTokenAmount, fee.toNumber())
-    : ZERO
-  const postSwapFee = shouldCollectFeeFromSourceToken
-    ? ZERO
-    : calculateFee(swapData.toTokenAmount, fee.toNumber())
+  const preSwapFee = calculatePreSwapFeeAmount(collectFeeFrom, sourceTokenAmount, fee, feeType)
+
+  const postSwapFee = calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee,
+    feeType,
+  )
 
   return {
     transaction: {
@@ -57,9 +61,7 @@ export async function generate({
         ...simulation.swap,
         ...swapData,
         collectFeeFrom,
-        tokenFee: preSwapFee.plus(
-          postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
-        ),
+        tokenFee: calculateInflatedTokenFee({ postSwapFee, preSwapFee }),
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(

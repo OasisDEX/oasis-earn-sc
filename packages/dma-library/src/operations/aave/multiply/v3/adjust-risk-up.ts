@@ -1,7 +1,7 @@
 import { getAaveAdjustUpV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { IOperation } from '@dma-library/types'
+import { IOperation, SwapFeeType } from '@dma-library/types'
 import {
   WithAaveLikeStrategyAddresses,
   WithCollateral,
@@ -85,6 +85,7 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const depositIsCollateral = depositAddress === collateral.address

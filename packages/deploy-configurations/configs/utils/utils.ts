@@ -4,6 +4,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { config as arbitrumConfig } from '../arbitrum.conf'
 import { config as baseConfig } from '../base.conf'
 import { config as goerliConfig } from '../goerli.conf'
+import { config as hardhatConfig } from '../hardhat.conf'
 import { config as localConfig } from '../local.conf'
 import { config as mainnetConfig } from '../mainnet.conf'
 import { config as optimismConfig } from '../optimism.conf'
@@ -24,6 +25,8 @@ export function getConfigByNetwork(network: Network): SystemConfig {
     return localConfig
   } else if (network === Network.TENDERLY) {
     return tenderlyConfig
+  } else if (network === Network.HARDHAT) {
+    return hardhatConfig
   } else {
     throw new Error(`Unknown network ${network}`)
   }

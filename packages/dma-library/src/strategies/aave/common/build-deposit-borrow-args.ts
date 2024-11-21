@@ -1,23 +1,22 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { DepositArgs } from '@dma-library/operations'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AaveLikeTokens, SwapData } from '@dma-library/types'
-import * as StrategyParams from '@dma-library/types/strategy-params'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
-export async function buildDepositArgs(
+import type { AaveLikeDepositBorrowDependencies } from '../../aave-like/borrow/deposit-borrow'
+import type { AaveLikeOpenDepositBorrowDependencies } from '../../aave-like/borrow/open-deposit-borrow'
+
+export async function buildDepositBorrowArgs(
   entryToken: { symbol: AaveLikeTokens },
   collateralToken: { symbol: AaveLikeTokens },
   collateralTokenAddress: Address,
   entryTokenAmount: BigNumber,
   slippage: BigNumber,
-  dependencies: {
-    user: Address
-    addresses: AaveLikeStrategyAddresses
-  } & StrategyParams.WithOptionalGetSwap,
+  dependencies: AaveLikeDepositBorrowDependencies | AaveLikeOpenDepositBorrowDependencies,
   alwaysReturnArgs = false,
 ): Promise<{
   swap:
@@ -47,6 +46,7 @@ export async function buildDepositArgs(
     dependencies.addresses.tokens.ETH,
     dependencies.addresses.tokens.WETH,
   )
+
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: entryToken.symbol,
     toTokenSymbol: collateralSymbol,
@@ -68,8 +68,9 @@ export async function buildDepositArgs(
     if (!dependencies.getSwapData) throw new Error('Swap data is required for swap to be performed')
 
     const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
-    const fee = SwapUtils.feeResolver(entryToken.symbol, collateralSymbol, {
+    const fee = await SwapUtils.feeResolver(entryToken.symbol, collateralSymbol, {
       isEntrySwap: true,
+      positionData: getPositionDataAaveLike(dependencies),
     })
 
     const { swapData } = await SwapUtils.getSwapDataHelper<
@@ -80,7 +81,8 @@ export async function buildDepositArgs(
         fromToken: entryToken,
         toToken: collateralToken,
         slippage,
-        fee,
+        fee: fee.feeToCharge,
+        feeType: fee.feeType,
         swapAmountBeforeFees: entryTokenAmount,
       },
       addresses: dependencies.addresses,
@@ -93,11 +95,11 @@ export async function buildDepositArgs(
     const swapArgs = {
       calldata: swapData.exchangeCalldata.toString(),
       collectFeeInFromToken,
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge,
       receiveAtLeast: swapData.minToTokenAmount,
     }
 
-    // If a swap is needed, the collateral delta is to token amount (amount of collateral received)
+    // If a swap is needed, the collateral delta is min to token amount (amount of collateral received)
     const collateralDelta = swapData.minToTokenAmount
 
     // Estimated fee collected from Swap
@@ -105,7 +107,8 @@ export async function buildDepositArgs(
       collectFeeFrom,
       entryTokenAmount,
       swapData.toTokenAmount,
-      fee,
+      fee.feeToCharge,
+      fee.feeType,
     )
 
     return {
@@ -121,6 +124,7 @@ export async function buildDepositArgs(
       },
     }
   }
+
   if (!isSwapNeeded) {
     // If no swap is needed, the collateral delta is the same as the entry token amount (deposit amount)
     const collateralDelta = entryTokenAmount

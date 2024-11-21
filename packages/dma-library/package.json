@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.6.79",
+  "version": "0.7.0-rc6",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -21,12 +21,14 @@
     "test": "yarn mocha -r ts-node/register -r tsconfig-paths/register 'test/**/*.ts'",
     "linked": "yarn link",
     "unlinked": "yarn unlink",
-    "prepublish": "rm -rf ../../.parcel-cache && yarn build"
+    "generate": "DOTENV_CONFIG_PATH=../../.env graphql-codegen -r dotenv/config --config codegen_aave_like.yml && DOTENV_CONFIG_PATH=../../.env graphql-codegen -r dotenv/config --config codegen_ajna_v2.yml && DOTENV_CONFIG_PATH=../../.env graphql-codegen -r dotenv/config --config codegen_morpho.yml"
   },
   "license": "Apache-2.0",
   "dependencies": {
     "bignumber.js": "9.0.1",
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "graphql-request": "6",
+    "graphql-tag": "^2.12.6"
   },
   "nx": {
     "implicitDependencies": [
@@ -34,9 +36,12 @@
     ]
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.3",
+    "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.4.1",
     "chai": "^4.3.7",
+    "graphql": "^16.0.0",
     "mocha": "^10.2.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",

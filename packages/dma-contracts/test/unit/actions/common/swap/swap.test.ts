@@ -6,9 +6,10 @@ import { asPercentageValue, expect, swapOneInchTokens } from '@dma-common/test-u
 import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
-import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
+import { calculatePercentageFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
+import { SwapFeeType } from '@dma-library/types'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { MockExchange } from '@typechain'
@@ -33,61 +34,61 @@ describe('Swap | Unit', async () => {
   let helpers: TestHelpers
   let fakeRequestEnv: FakeRequestEnv
 
-  before(async () => {
-    authorizedAddress = ADDRESSES[Network.TEST].common.AuthorizedCaller
-    feeBeneficiaryAddress = ADDRESSES[Network.TEST].common.FeeRecipient
-    slippage = asPercentageValue(8, 100)
-  })
-
-  beforeEach(async () => {
-    const { snapshot } = await restoreSnapshot({
-      hre,
-      blockNumber: testBlockNumber,
+  describe('Fee', async () => {
+    before(async () => {
+      authorizedAddress = ADDRESSES[Network.TEST].common.AuthorizedCaller
+      feeBeneficiaryAddress = ADDRESSES[Network.TEST].common.FeeRecipient
+      slippage = asPercentageValue(8, 100)
     })
 
-    provider = snapshot.config.provider
-    signer = snapshot.config.signer
-    config = snapshot.config
-    system = snapshot.testSystem.deployment.system
-    helpers = snapshot.testSystem.helpers
+    beforeEach(async () => {
+      const { snapshot } = await restoreSnapshot({
+        hre,
+        blockNumber: testBlockNumber,
+      })
 
-    fakeRequestEnv = {
-      mockExchange: system.MockExchange.contract as MockExchange,
-      fakeWETH: helpers.fakeWETH,
-      fakeDAI: helpers.fakeDAI,
-    }
+      provider = snapshot.config.provider
+      signer = snapshot.config.signer
+      config = snapshot.config
+      system = snapshot.testSystem.deployment.system
+      helpers = snapshot.testSystem.helpers
 
-    WETH = helpers.fakeWETH.connect(signer)
-    DAI = helpers.fakeDAI.connect(signer)
+      fakeRequestEnv = {
+        mockExchange: system.MockExchange.contract as MockExchange,
+        fakeWETH: helpers.fakeWETH,
+        fakeDAI: helpers.fakeDAI,
+      }
 
-    // Transfer funds to beneficiary and authorized caller
-    const toTransferAmount = ethers.utils.parseEther('100')
+      WETH = helpers.fakeWETH.connect(signer)
+      DAI = helpers.fakeDAI.connect(signer)
 
-    const sendToBeneficiaryTx = await signer.populateTransaction({
-      to: feeBeneficiaryAddress,
-      value: toTransferAmount,
+      // Transfer funds to beneficiary and authorized caller
+      const toTransferAmount = ethers.utils.parseEther('100')
+
+      const sendToBeneficiaryTx = await signer.populateTransaction({
+        to: feeBeneficiaryAddress,
+        value: toTransferAmount,
+      })
+      await signer.sendTransaction(sendToBeneficiaryTx)
+
+      const sendToAuthorizedTx = await signer.populateTransaction({
+        to: authorizedAddress,
+        value: toTransferAmount,
+      })
+      await signer.sendTransaction(sendToAuthorizedTx)
+
+      // Impersonate authorized caller and beneficiary
+      await provider.send('hardhat_impersonateAccount', [feeBeneficiaryAddress])
+      feeBeneficiarySigner = provider.getSigner(feeBeneficiaryAddress)
+
+      await provider.send('hardhat_impersonateAccount', [authorizedAddress])
+      authorizedSigner = provider.getSigner(authorizedAddress)
     })
-    await signer.sendTransaction(sendToBeneficiaryTx)
 
-    const sendToAuthorizedTx = await signer.populateTransaction({
-      to: authorizedAddress,
-      value: toTransferAmount,
-    })
-    await signer.sendTransaction(sendToAuthorizedTx)
+    // afterEach(async () => {
+    //   await restoreSnapshot({ hre, blockNumber: testBlockNumber })
+    // })
 
-    // Impersonate authorized caller and beneficiary
-    await provider.send('hardhat_impersonateAccount', [feeBeneficiaryAddress])
-    feeBeneficiarySigner = provider.getSigner(feeBeneficiaryAddress)
-
-    await provider.send('hardhat_impersonateAccount', [authorizedAddress])
-    authorizedSigner = provider.getSigner(authorizedAddress)
-  })
-
-  afterEach(async () => {
-    await restoreSnapshot({ hre, blockNumber: testBlockNumber })
-  })
-
-  describe('Fee tiers', async () => {
     it('should have fee beneficiary address set', async () => {
       const exchangeFeeBeneficiary = await system.Swap.contract.feeBeneficiaryAddress()
       expect.toBeEqual(exchangeFeeBeneficiary, feeBeneficiaryAddress)
@@ -135,10 +136,10 @@ describe('Swap | Unit', async () => {
 
     it('should allow to use different tiers', async () => {
       const amountInWei = amountToWei(10)
-      const fee = 50
-      const feeAmount = calculateFeeOnInputAmount(amountInWei, fee)
+      const fee = new BigNumber(50)
+      const feeAmount = calculatePercentageFeeOnInputAmount(amountInWei, fee)
       const amountInWeiWithFee = amountInWei.plus(feeAmount)
-      await system.Swap.contract.connect(authorizedSigner).addFeeTier(fee)
+      await system.Swap.contract.connect(authorizedSigner).addFeeTier(fee.toNumber())
 
       const response = await swapOneInchTokens(
         WETH.address,
@@ -165,9 +166,10 @@ describe('Swap | Unit', async () => {
           DAI.address,
           amountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          fee,
+          fee.toFixed(),
           response.tx.data,
           true,
+          SwapFeeType.Percentage,
         ],
         {
           value: 0,
@@ -187,8 +189,8 @@ describe('Swap | Unit', async () => {
 
     it('should throw an error when fee tier does not exist', async () => {
       const amountInWei = amountToWei(10)
-      const fee = 99
-      const feeAmount = calculateFeeOnInputAmount(amountInWei, fee)
+      const fee = new BigNumber(99)
+      const feeAmount = calculatePercentageFeeOnInputAmount(amountInWei, fee)
       const amountInWeiWithFee = amountInWei.plus(feeAmount)
 
       const response = await swapOneInchTokens(
@@ -212,9 +214,10 @@ describe('Swap | Unit', async () => {
           DAI.address,
           amountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          fee,
+          fee.toFixed(0),
           response.tx.data,
           true,
+          SwapFeeType.Percentage,
         ],
         {
           value: 0,
@@ -223,6 +226,115 @@ describe('Swap | Unit', async () => {
       )
 
       await expect(tx).to.be.revertedWith(`FeeTierDoesNotExist(${fee})`)
+    })
+
+    // allow to use a fixed fee
+    it('should allow to use a fixed fee', async () => {
+      const amountInWei = amountToWei(10)
+      const fee = 100000
+      const feeAmount = fee
+      const amountInWeiWithFee = amountInWei.plus(feeAmount)
+
+      const response = await swapOneInchTokens(
+        WETH.address,
+        DAI.address,
+        amountInWei.toFixed(0),
+        system.Swap.contract.address,
+        slippage.value.toFixed(),
+        ALLOWED_PROTOCOLS,
+        fakeRequestEnv,
+      )
+
+      const receiveAtLeastInWei = new BigNumber(response.toTokenAmount).times(
+        ONE.minus(slippage.asDecimal),
+      )
+
+      const feeBeneficiaryBalanceBefore = await balanceOf(WETH.address, feeBeneficiaryAddress, {
+        config,
+        isFormatted: true,
+      })
+
+      await WETH.deposit({ value: amountInWeiWithFee.toFixed() })
+      await WETH.approve(system.Swap.contract.address, amountInWeiWithFee.toFixed())
+      await system.Swap.contract.swapTokens(
+        [
+          WETH.address,
+          DAI.address,
+          amountInWeiWithFee.toFixed(0),
+          receiveAtLeastInWei.toFixed(0),
+          fee,
+          response.tx.data,
+          true,
+          SwapFeeType.Fixed,
+        ],
+        {
+          value: 0,
+          gasLimit: 2500000,
+        },
+      )
+
+      const feeBeneficiaryBalanceAfter = await balanceOf(WETH.address, feeBeneficiaryAddress, {
+        config,
+        isFormatted: true,
+      })
+      const feeBeneficiaryBalanceChange = feeBeneficiaryBalanceAfter.minus(
+        feeBeneficiaryBalanceBefore,
+      )
+      expect.toBeEqual(amountToWei(feeBeneficiaryBalanceChange), feeAmount)
+    })
+
+    it('should take max fee even when the swap amount is lower but account have balance', async () => {
+      const amountInWei = amountToWei(1)
+      const fee = amountToWei(10).toString()
+      const feeAmount = fee
+      const amountInWeiWithFee = amountInWei.plus(feeAmount)
+
+      const response = await swapOneInchTokens(
+        WETH.address,
+        DAI.address,
+        amountInWei.toFixed(0),
+        system.Swap.contract.address,
+        slippage.value.toFixed(),
+        ALLOWED_PROTOCOLS,
+        fakeRequestEnv,
+      )
+
+      const receiveAtLeastInWei = new BigNumber(response.toTokenAmount).times(
+        ONE.minus(slippage.asDecimal),
+      )
+
+      const feeBeneficiaryBalanceBefore = await balanceOf(WETH.address, feeBeneficiaryAddress, {
+        config,
+        isFormatted: true,
+      })
+
+      await WETH.deposit({ value: amountInWeiWithFee.toFixed() })
+      await WETH.approve(system.Swap.contract.address, amountInWeiWithFee.toFixed())
+      await system.Swap.contract.swapTokens(
+        [
+          WETH.address,
+          DAI.address,
+          amountInWeiWithFee.toFixed(0),
+          receiveAtLeastInWei.toFixed(0),
+          fee,
+          response.tx.data,
+          true,
+          SwapFeeType.Fixed,
+        ],
+        {
+          value: 0,
+          gasLimit: 2500000,
+        },
+      )
+
+      const feeBeneficiaryBalanceAfter = await balanceOf(WETH.address, feeBeneficiaryAddress, {
+        config,
+        isFormatted: true,
+      })
+      const feeBeneficiaryBalanceChange = feeBeneficiaryBalanceAfter.minus(
+        feeBeneficiaryBalanceBefore,
+      )
+      expect.toBeEqual(amountToWei(feeBeneficiaryBalanceChange), feeAmount)
     })
   })
 })

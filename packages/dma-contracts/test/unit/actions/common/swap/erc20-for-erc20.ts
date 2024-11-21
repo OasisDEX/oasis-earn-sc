@@ -6,9 +6,10 @@ import { asPercentageValue, expect, swapOneInchTokens } from '@dma-common/test-u
 import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
+import { calculatePercentageFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
+import { SwapFeeType } from '@dma-library/types'
 import { Contract } from '@ethersproject/contracts'
 import { MockExchange } from '@typechain'
 import BigNumber from 'bignumber.js'
@@ -75,7 +76,7 @@ describe('Swap | Unit', async () => {
       fromToken = WETH.address
       toToken = WBTC.address
 
-      amountWithFeeInWei = calculateFeeOnInputAmount(amountInWei).plus(amountInWei)
+      amountWithFeeInWei = calculatePercentageFeeOnInputAmount(amountInWei).plus(amountInWei)
 
       const response = await swapOneInchTokens(
         fromToken,
@@ -111,6 +112,7 @@ describe('Swap | Unit', async () => {
           FEE,
           data,
           true,
+          SwapFeeType.Percentage,
         ],
         {
           value: 0,
@@ -144,7 +146,7 @@ describe('Swap | Unit', async () => {
       const feeWalletBalanceWeiAfter = await balanceOf(fromToken, feeBeneficiaryAddress, { config })
       const feeWalletBalanceWeiChange = feeWalletBalanceWeiAfter.minus(feeWalletBalanceWeiBefore)
 
-      expect.toBeEqual(feeWalletBalanceWeiChange, calculateFeeOnInputAmount(amountInWei))
+      expect.toBeEqual(feeWalletBalanceWeiChange, calculatePercentageFeeOnInputAmount(amountInWei))
     })
 
     it('should not leave any fromToken in Swap contract', async () => {

@@ -1,11 +1,9 @@
 import { Address } from '@deploy-configurations/types/address'
-import { FEE_ESTIMATE_INFLATOR } from '@dma-common/constants'
-import { calculateFee } from '@dma-common/utils/swap'
+import { ZERO } from '@dma-common/constants'
+import { calculatePercentageFee } from '@dma-common/utils/swap'
 import { GetSwapData } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
-
-import { ONE, ZERO } from '../../../../dma-common/constants/numbers'
 
 interface GetGenericSwapDataArgs {
   fromToken: {
@@ -23,8 +21,7 @@ interface GetGenericSwapDataArgs {
   getSwapData: GetSwapData
   __feeOverride?: BigNumber
 }
-
-export async function getGenericSwapData({
+export async function getGenericSwapDataErc4626({
   fromToken,
   toToken,
   slippage,
@@ -37,10 +34,11 @@ export async function getGenericSwapData({
     toTokenAddress: toToken.address,
   })
 
-  const fee = __feeOverride || SwapUtils.feeResolver(fromToken.symbol, toToken.symbol)
+  const fee =
+    __feeOverride || SwapUtils.percentageFeeResolver(fromToken.symbol, toToken.symbol).feeToCharge
 
   const preSwapFee =
-    collectFeeFrom === 'sourceToken' ? calculateFee(swapAmountBeforeFees, fee.toNumber()) : ZERO
+    collectFeeFrom === 'sourceToken' ? calculatePercentageFee(swapAmountBeforeFees, fee) : ZERO
 
   const swapAmountAfterFees = swapAmountBeforeFees
     .minus(preSwapFee)
@@ -53,10 +51,8 @@ export async function getGenericSwapData({
     slippage,
   )
   const postSwapFee =
-    collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
+    collectFeeFrom === 'targetToken' ? calculatePercentageFee(swapData.toTokenAmount, fee) : ZERO
 
-  const tokenFee = preSwapFee.plus(
-    postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
-  )
-  return { swapData, collectFeeFrom, fee: fee.toString(), tokenFee }
+  const tokenFee = SwapUtils.calculateInflatedTokenFee({ postSwapFee, preSwapFee })
+  return { swapData, collectFeeFrom, fee: fee, tokenFee }
 }

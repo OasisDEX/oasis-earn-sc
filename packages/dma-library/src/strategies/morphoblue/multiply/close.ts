@@ -1,8 +1,7 @@
-import { FEE_ESTIMATE_INFLATOR, ONE, TEN, ZERO } from '@dma-common/constants'
+import { TEN, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { amountToWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
 import { operations } from '@dma-library/operations'
 import { resolveTxValue } from '@dma-library/protocols/ajna'
 import * as StrategiesCommon from '@dma-library/strategies/common'
@@ -15,6 +14,7 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { StrategyError, StrategyWarning } from '@dma-library/types/ajna/ajna-validations'
+import { getPositionDataMorpho } from '@dma-library/utils/fee-service'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -81,17 +81,24 @@ export const closeMultiply: MorphoCloseStrategy = async (args, dependencies) => 
 
   const targetPosition = args.position.close()
 
-  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
     isIncreasingRisk: false,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+      marketId: args.position.marketParams.id,
+    }),
   })
 
-  const postSwapFee =
-    collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
-
-  const tokenFee = preSwapFee.plus(
-    postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+  const postSwapFee = SwapUtils.calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee.feeToCharge,
+    fee.feeType,
   )
+
+  const tokenFee = SwapUtils.calculateInflatedTokenFee({ postSwapFee, preSwapFee })
 
   // Validation
   const errors = [
@@ -144,6 +151,11 @@ async function getMorphoSwapDataToCloseToDebt(
     slippage: args.slippage,
     swapAmountBeforeFees: swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+      marketId: args.position.marketParams.id,
+    }),
   })
 }
 
@@ -180,6 +192,11 @@ async function getMorphoSwapDataToCloseToCollateral(
     slippage: args.slippage,
     outstandingDebt,
     getSwapData: dependencies.getSwapData,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+      marketId: args.position.marketParams.id,
+    }),
   })
 }
 
@@ -215,9 +232,14 @@ async function buildOperation(
     address: position.marketParams.loanToken,
   }
 
-  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
     isIncreasingRisk: false,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+      marketId: args.position.marketParams.id,
+    }),
   })
 
   const collateralAmountToBeSwapped = args.shouldCloseToCollateral
@@ -237,7 +259,7 @@ async function buildOperation(
       isEth: areAddressesEqual(debtToken.address, dependencies.addresses.WETH),
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge,
       data: swapData.exchangeCalldata,
       amount: collateralAmountToBeSwapped,
       collectFeeFrom,

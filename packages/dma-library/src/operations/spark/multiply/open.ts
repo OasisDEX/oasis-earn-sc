@@ -4,6 +4,7 @@ import { actions } from '@dma-library/actions'
 import {
   IOperation,
   Protocol,
+  SwapFeeType,
   WithCollateral,
   WithDebtAndBorrow,
   WithEMode,
@@ -85,6 +86,7 @@ export const open: SparkOpenOperation = async ({
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
+    feeType: swap.feeType ?? SwapFeeType.Percentage,
   })
 
   const setCollateralApproval = actions.common.setApproval(

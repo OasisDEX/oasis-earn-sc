@@ -6,6 +6,7 @@ import {
 } from '@dma-library/strategies/aave/common'
 import { resolveProtocolData } from '@dma-library/strategies/aave-like/common'
 import * as StrategiesCommon from '@dma-library/strategies/common'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 
 import { buildOperation } from './build-operation'
 import { generate } from './generate'
@@ -112,6 +113,7 @@ async function getAaveSwapDataToCloseToCollateral(
     outstandingDebt: dependencies.currentPosition.debt.amount,
     slippage,
     getSwapData: dependencies.getSwapData,
+    positionData: getPositionDataAaveLike(dependencies),
   })
 }
 
@@ -144,5 +146,6 @@ async function getAaveSwapDataToCloseToDebt(
     slippage,
     swapAmountBeforeFees,
     getSwapData: dependencies.getSwapData,
+    positionData: getPositionDataAaveLike(dependencies),
   })
 }

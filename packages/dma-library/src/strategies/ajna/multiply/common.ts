@@ -2,7 +2,6 @@ import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { getNeutralPrice, prepareAjnaDMAPayload, resolveTxValue } from '@dma-library/protocols/ajna'
 import {
@@ -20,6 +19,7 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies } from '@dma-library/types/ajna'
+import { getPositionDataAjna } from '@dma-library/utils/fee-service'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -40,13 +40,17 @@ export async function simulateAdjustment(
 
   const fromToken = buildFromToken(args, riskIsIncreasing)
   const toToken = buildToToken(args, riskIsIncreasing)
-  const fee =
-    __feeOverride ||
-    SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
-      isIncreasingRisk: riskIsIncreasing,
-      // Strategy is called open multiply (not open earn)
-      isEarnPosition: positionType === 'Earn',
-    })
+  const feeResult = await SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
+    isIncreasingRisk: riskIsIncreasing,
+    // Strategy is called open multiply (not open earn)
+    isEarnPosition: positionType === 'Earn',
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
+  })
+  const fee = __feeOverride || feeResult.feeToCharge
+
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string
@@ -56,6 +60,7 @@ export async function simulateAdjustment(
       toToken,
       slippage: args.slippage,
       fee,
+      feeType: feeResult.feeType,
       swapAmountBeforeFees: preFlightSwapAmount,
     },
     addresses: dependencies.addresses,
@@ -93,6 +98,7 @@ export async function simulateAdjustment(
     },
     fees: {
       oazo: fee,
+      feeType: feeResult.feeType,
       flashLoan: BALANCER_FEE,
     },
     prices: {
@@ -134,19 +140,25 @@ export async function getSwapData(
   riskIsIncreasing: boolean,
   positionType: PositionType,
   __feeOverride?: BigNumber,
+  isOpeningPosition = false,
 ) {
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
-  const fee =
-    __feeOverride ||
-    SwapUtils.feeResolver(
-      simulatedAdjust.position.collateral.symbol,
-      simulatedAdjust.position.debt.symbol,
-      {
-        isIncreasingRisk: riskIsIncreasing,
-        // Strategy is called open multiply (not open earn)
-        isEarnPosition: positionType === 'Earn',
-      },
-    )
+  const feeResult = await SwapUtils.feeResolver(
+    simulatedAdjust.position.collateral.symbol,
+    simulatedAdjust.position.debt.symbol,
+    {
+      isIncreasingRisk: riskIsIncreasing,
+      // Strategy is called open multiply (not open earn)
+      isEarnPosition: positionType === 'Earn',
+      positionData: getPositionDataAjna({
+        network: dependencies.network,
+        proxy: args.dpmProxyAddress,
+      }),
+      isOpeningPosition,
+    },
+  )
+  const fee = __feeOverride || feeResult.feeToCharge
+
   const { swapData, collectFeeFrom, preSwapFee } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string
@@ -156,6 +168,7 @@ export async function getSwapData(
       toToken: buildToToken(args, riskIsIncreasing),
       slippage: args.slippage,
       fee,
+      feeType: feeResult.feeType,
       swapAmountBeforeFees: swapAmountBeforeFees,
     },
     addresses: dependencies.addresses,
@@ -167,7 +180,7 @@ export async function getSwapData(
   return { swapData, collectFeeFrom, preSwapFee }
 }
 
-export function prepareAjnaMultiplyDMAPayload(
+export async function prepareAjnaMultiplyDMAPayload(
   args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
   simulatedAdjustment: Domain.ISimulationV2 & Domain.WithSwap,
@@ -176,6 +189,7 @@ export function prepareAjnaMultiplyDMAPayload(
   collectFeeFrom: CollectFeeFrom,
   preSwapFee: BigNumber,
   riskIsIncreasing: boolean,
+  isOpeningPosition = false,
 ) {
   const collateralAmount = amountFromWei(
     simulatedAdjustment.position.collateral.amount,
@@ -211,12 +225,23 @@ export function prepareAjnaMultiplyDMAPayload(
   const txAmount = args.collateralAmount
   const fromTokenSymbol = riskIsIncreasing ? args.quoteTokenSymbol : args.collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? args.collateralTokenSymbol : args.quoteTokenSymbol
-  const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: false,
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
+    isOpeningPosition,
   })
-  const postSwapFee =
-    collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
+
+  const postSwapFee = SwapUtils.calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee.feeToCharge,
+    fee.feeType,
+  )
+
   const tokenFee = preSwapFee.plus(postSwapFee)
 
   // Validation

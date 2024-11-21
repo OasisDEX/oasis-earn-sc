@@ -6,9 +6,10 @@ import { asPercentageValue, exchangeFromDAI, expect } from '@dma-common/test-uti
 import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
+import { calculatePercentageFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
+import { SwapFeeType } from '@dma-library/types'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { MockExchange } from '@typechain'
@@ -35,7 +36,7 @@ describe('Swap | Unit', async () => {
   let data: string
 
   const amountInWei = amountToWei(1000)
-  const feeAmount = calculateFeeOnInputAmount(amountInWei)
+  const feeAmount = calculatePercentageFeeOnInputAmount(amountInWei)
   const amountWithFeeInWei = amountInWei.plus(feeAmount)
 
   before(async () => {
@@ -117,6 +118,7 @@ describe('Swap | Unit', async () => {
           FEE,
           data,
           true,
+          SwapFeeType.Percentage,
         ])
       })
 
@@ -183,7 +185,7 @@ describe('Swap | Unit', async () => {
         surplusAmount = new BigNumber(10)
 
         moreThanTheTransferAmountWei = amountInWei.plus(amountToWei(surplusAmount))
-        moreThanTheTransferAmountWithFee = calculateFeeOnInputAmount(
+        moreThanTheTransferAmountWithFee = calculatePercentageFeeOnInputAmount(
           moreThanTheTransferAmountWei,
         ).plus(moreThanTheTransferAmountWei)
 
@@ -208,6 +210,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,
@@ -234,7 +237,7 @@ describe('Swap | Unit', async () => {
           ),
         )
 
-        const collectedFeeWei = calculateFeeOnInputAmount(moreThanTheTransferAmountWei)
+        const collectedFeeWei = calculatePercentageFeeOnInputAmount(moreThanTheTransferAmountWei)
 
         expect.toBeEqual(
           daiBalanceWei,
@@ -325,6 +328,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,
@@ -399,6 +403,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,
@@ -438,6 +443,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,
@@ -503,6 +509,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,

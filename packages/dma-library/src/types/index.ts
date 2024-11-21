@@ -118,6 +118,7 @@ export type {
   WithWithdrawCollateral,
 }
 export type { SwapData }
+export { SwapFeeType } from '@dma-common/constants'
 export type { Swap }
 
 export { MorphoBluePosition }

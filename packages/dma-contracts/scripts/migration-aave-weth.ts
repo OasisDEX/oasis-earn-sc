@@ -14,7 +14,7 @@ import { getCurrentPositionAaveV3 } from '@dma-library/views/aave'
 import { BigNumber as BN } from 'ethers'
 import hre from 'hardhat'
 
-import { DeploymentSystem } from './deployment/deploy'
+import { DeploymentSystem } from './utils/deploy'
 
 async function main() {
   const signer = hre.ethers.provider.getSigner(0)

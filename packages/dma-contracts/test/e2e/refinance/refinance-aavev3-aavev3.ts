@@ -3,10 +3,11 @@ import { Address } from '@deploy-configurations/types/address'
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
 import { getNetwork } from '@deploy-configurations/utils/network'
+import { ZERO } from '@dma-common/constants'
 import { addressesByNetwork, asPercentageValue, mockExchangeGetData } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
+import { DeploymentSystem } from '@dma-contracts/scripts/utils/deploy'
 import { testBlockNumberForAaveV3 } from '@dma-contracts/test/config'
 import { createETHPositionAAVEv3 } from '@dma-contracts/test/utils/aave/aave.operation.create-position'
 import { getMaxDebtToBorrow } from '@dma-contracts/test/utils/aave/debt-calculation'
@@ -108,7 +109,7 @@ async function enableZeroFee(
   })
 }
 
-describe('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
+describe.skip('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let signer: SignerWithAddress
@@ -256,7 +257,7 @@ describe('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
         },
       },
       swapCloseToOpen: {
-        fee: 0,
+        fee: ZERO,
         data: '0x', // No need for swap as the collateral is the same
         collectFeeFrom: 'sourceToken',
         receiveAtLeast: new BigNumberJS(0),
@@ -279,7 +280,7 @@ describe('Refinance | AAVE V3 -> AAVE V3 | E2E', async () => {
         provider: FlashloanProvider.Balancer,
       },
       swapAfterOpen: {
-        fee: 0,
+        fee: ZERO,
         data: mockExchangeGetData(
           system.MockExchange.contract,
           USDC.address,

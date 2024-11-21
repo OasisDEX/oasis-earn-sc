@@ -6,9 +6,9 @@ import * as dotenv from 'dotenv'
 import { getOneInchProtocols } from './one-inch-providers'
 
 dotenv.config({ path: '../../.env' })
-const ONE_INCH_API_ENDPOINT = process.env.ONE_INCH_API_ENDPOINT || 'https://api.1inch.dev/swap'
-if (!ONE_INCH_API_ENDPOINT) {
-  throw new Error('ONE_INCH_API_ENDPOINT environment variable is not set')
+const ONE_INCH_API_URL = process.env.ONE_INCH_API_URL || 'https://api.1inch.dev/swap'
+if (!ONE_INCH_API_URL) {
+  throw new Error('ONE_INCH_API_URL environment variable is not set')
 }
 // TODO: disposable dev key - get rid when it's set up in the env
 const ONE_INCH_API_KEY = process.env.ONE_INCH_API_KEY || '1jeGrvvfK39r35Bl09zXVTyS5tZ4S24y'
@@ -103,7 +103,7 @@ export function formatOneInchSwapUrl(
 ) {
   const protocolsParam = `&protocols=${getOneInchProtocols(chainId)}`
 
-  return `${ONE_INCH_API_ENDPOINT}/v5.2/${chainId}/swap?src=${fromToken.toLowerCase()}&dst=${toToken}&amount=${amount}&from=${recepient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false&includeTokensInfo=true`
+  return `${ONE_INCH_API_URL}/v5.2/${chainId}/swap?src=${fromToken.toLowerCase()}&dst=${toToken}&amount=${amount}&from=${recepient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false&includeTokensInfo=true`
 }
 
 export async function exchangeTokens(url: string): Promise<OneInchSwapResponse> {

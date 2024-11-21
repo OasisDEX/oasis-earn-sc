@@ -28,7 +28,7 @@ export const depositBorrow: AaveLikeDepositBorrow = async (args, dependencies) =
     dependencies.addresses.tokens.WETH,
   )
 
-  const deposit = await AaveCommon.buildDepositArgs(
+  const deposit = await AaveCommon.buildDepositBorrowArgs(
     entryToken,
     collateralToken,
     collateralTokenAddress,

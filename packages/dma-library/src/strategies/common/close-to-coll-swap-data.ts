@@ -1,8 +1,9 @@
 import { Address } from '@deploy-configurations/types/address'
-import { FEE_BASE, ONE, TEN, ZERO } from '@dma-common/constants'
-import { calculateFee } from '@dma-common/utils/swap'
+import type { Network } from '@deploy-configurations/types/network'
+import { FEE_BASE, ONE, SwapFeeType, TEN } from '@dma-common/constants'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { GetSwapData } from '@dma-library/types/common'
+import { ProtocolId } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -23,6 +24,11 @@ interface GetSwapDataToCloseToCollateralArgs {
   slippage: BigNumber
   getSwapData: GetSwapData
   __feeOverride?: BigNumber
+  positionData: {
+    network: Network
+    protocolId: ProtocolId
+    proxyAddress: string
+  }
 }
 
 export async function getSwapDataForCloseToCollateral({
@@ -34,6 +40,7 @@ export async function getSwapDataForCloseToCollateral({
   slippage,
   getSwapData,
   __feeOverride,
+  positionData,
 }: GetSwapDataToCloseToCollateralArgs) {
   // This covers off the situation where debt balances accrue interest
   const _outstandingDebt = outstandingDebt
@@ -43,6 +50,9 @@ export async function getSwapDataForCloseToCollateral({
   // We don't want to attempt a zero debt swap with 1inch as it'll fail
   const hasZeroDebt = outstandingDebt.isZero()
 
+  const resolvedFee = await SwapUtils.feeResolver(collateralToken.symbol, debtToken.symbol, {
+    positionData,
+  })
   // 1.Use offset amount which will be used in the swap as well.
   // The idea is that after the debt is paid, the remaining will be transferred to the beneficiary
   // Debt is a complex number and interest rate is constantly applied.
@@ -50,7 +60,9 @@ export async function getSwapDataForCloseToCollateral({
   // so instead of charging the user a fee, we add an offset ( equal to the fee ) to the
   // collateral amount. This means irrespective of whether the fee is collected before
   // or after the swap, there will always be sufficient debt token remaining to cover the outstanding position debt.
-  const fee = __feeOverride || SwapUtils.feeResolver(collateralToken.symbol, debtToken.symbol)
+
+  const fee = __feeOverride || resolvedFee.feeToCharge
+  const feeType = resolvedFee.feeType
 
   // 2. Calculated the needed amount of collateral to payback the debt
   // This value is calculated based on oracle prices.
@@ -62,7 +74,8 @@ export async function getSwapDataForCloseToCollateral({
     colPrice,
     collateralTokenPrecision,
     _outstandingDebt,
-    fee.div(new BigNumber(FEE_BASE).plus(fee)),
+    fee,
+    feeType,
     slippage,
   )
 
@@ -91,13 +104,15 @@ export async function getSwapDataForCloseToCollateral({
   // This is the actual swap data that will be used in the transaction.
   // We're inflating the needed collateral by the fee amount
   // This is for when fees is collected on the other end of the swap
+
   const amountNeededToEnsureRemainingDebtIsRepaid = calculateNeededCollateralToPaybackDebt(
     debtPrice,
     debtTokenPrecision,
     colPrice,
     collateralTokenPrecision,
     _outstandingDebt,
-    fee.div(new BigNumber(FEE_BASE).plus(fee)),
+    fee,
+    feeType,
     slippage,
   )
 
@@ -106,10 +121,12 @@ export async function getSwapDataForCloseToCollateral({
     toTokenAddress: debtToken.address,
   })
 
-  const preSwapFee =
-    collectFeeFrom === 'sourceToken'
-      ? calculateFee(amountNeededToEnsureRemainingDebtIsRepaid, fee.toNumber())
-      : ZERO
+  const preSwapFee = SwapUtils.calculatePreSwapFeeAmount(
+    collectFeeFrom,
+    amountNeededToEnsureRemainingDebtIsRepaid,
+    fee,
+    resolvedFee.feeType,
+  )
 
   // 5. Get Swap Data
   // The swap amount needs to be the collateral needed minus the preSwapFee
@@ -137,6 +154,7 @@ function calculateNeededCollateralToPaybackDebt(
   colPrecision: number,
   debtAmount: BigNumber,
   fee: BigNumber,
+  feeType: SwapFeeType,
   slippage: BigNumber,
 ) {
   // Depending on the protocol the price  could be anything.
@@ -144,14 +162,15 @@ function calculateNeededCollateralToPaybackDebt(
   //     AAVEv2 returns the prices in ETH
   // @paybackAmount - the amount denominated in the protocol base currency ( i.e. AAVEv2 - It will be in ETH, AAVEv3 - USDC)
   const paybackAmount = debtPrice.times(debtAmount)
-  const paybackAmountInclFee = paybackAmount.times(ONE.plus(fee))
+  const weirdPercentageFeeCalcCopiedFromOtherFile = fee.div(new BigNumber(FEE_BASE).plus(fee))
+  const paybackAmountInclFee =
+    feeType === SwapFeeType.Percentage
+      ? paybackAmount.times(ONE.plus(weirdPercentageFeeCalcCopiedFromOtherFile))
+      : paybackAmount.plus(fee)
   // Same rule applies for @collateralAmountNeeded. @colPrice is either in USDC ( AAVEv3 ) or ETH ( AAVEv2 )
   // or could be anything eles in the following versions.
   const collateralAmountNeeded = new BigNumber(
-    paybackAmount
-      .plus(paybackAmount.times(fee))
-      .plus(paybackAmountInclFee.times(slippage))
-      .div(colPrice),
+    paybackAmountInclFee.plus(paybackAmountInclFee.times(slippage)).div(colPrice),
   ).integerValue(BigNumber.ROUND_DOWN)
   return collateralAmountNeeded
     .times(TEN.pow(colPrecision - debtPrecision))

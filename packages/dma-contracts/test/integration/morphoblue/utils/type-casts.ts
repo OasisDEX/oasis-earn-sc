@@ -1,4 +1,5 @@
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
+import { ZERO } from '@dma-common/constants'
 import { Network } from '@dma-library'
 import {
   MorphoBlueStrategyAddresses,
@@ -143,7 +144,7 @@ export function toMorphoBlueMultiplyOpenArgs(
       amount: new BN(0), // deprecated
     },
     swap: {
-      fee: 0,
+      fee: ZERO,
       data: swapCalldata,
       amount: new BN(flashloanAmount.toString()),
       collectFeeFrom: 'sourceToken',

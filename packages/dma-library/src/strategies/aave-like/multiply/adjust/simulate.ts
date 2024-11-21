@@ -101,6 +101,7 @@ export async function simulate(
       fees: {
         flashLoan: flashloanFee,
         oazo: args.fee,
+        feeType: args.feeType,
       },
       prices: {
         market: quoteMarketPrice,

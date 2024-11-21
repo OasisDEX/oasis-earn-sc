@@ -30,6 +30,7 @@ import {
   getMorphoBlueAdjustDownOperationDefinition,
   getMorphoBlueAdjustUpOperationDefinition,
   getMorphoBlueBorrowOperationDefinition,
+  getMorphoBlueClaimRewardsOperationDefinition,
   getMorphoBlueCloseOperationDefinition,
   getMorphoBlueDepositBorrowOperationDefinition,
   getMorphoBlueDepositOperationDefinition,
@@ -63,6 +64,7 @@ import { EtherscanGasPrice } from '@deploy-configurations/types/etherscan'
 import { Network } from '@deploy-configurations/types/network'
 import { NetworkByChainId } from '@deploy-configurations/utils/network/index'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers/index'
+import { LOW_CORRELATED_ASSET_FEE, NO_FEE, REDUCED_FEE } from '@dma-common/constants'
 import {
   loadContractNames,
   OPERATION_NAMES,
@@ -95,19 +97,13 @@ import * as path from 'path'
 import prompts from 'prompts'
 import { inspect } from 'util'
 
-const restrictedNetworks = [Network.MAINNET, Network.OPTIMISM, Network.GOERLI]
+import { getImpersonationSigner, impersonationEnabled } from './getImpersonateSigner'
 
-const rpcUrls: any = {
-  [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
-  [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
-  [Network.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
-  [Network.BASE]: 'https://base-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
-  [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
-}
+// comment would be helpful for this
+const restrictedNetworks = [Network.MAINNET, Network.OPTIMISM, Network.ARBITRUM, Network.BASE]
 
 const gnosisSafeServiceUrl: Record<Network, string> = {
   [Network.MAINNET]: '',
-  [Network.SEPOLIA]: '',
   [Network.HARDHAT]: '',
   [Network.LOCAL]: '',
   [Network.OPTIMISM]: '',
@@ -123,7 +119,7 @@ abstract class DeployedSystemHelpers {
   public chainId = 0
   public network: Network = Network.LOCAL
   public forkedNetwork: Network | undefined = undefined
-  public rpcUrl = ''
+  public rpcUrl: string | undefined = undefined
   public isRestrictedNetwork = false
   public hre: HardhatRuntimeEnvironment | undefined
   public ethers: any
@@ -138,8 +134,6 @@ abstract class DeployedSystemHelpers {
   async getForkedNetworkChainId(provider: providers.JsonRpcProvider) {
     try {
       return (await provider.getNetwork()).chainId
-      const metadata = await provider.send('hardhat_metadata', [])
-      return metadata.forkedNetwork.chainId
     } catch (e) {
       console.log('\x1b[33m[ WARN ] Current network is not a fork! \x1b[0m')
     }
@@ -151,8 +145,28 @@ abstract class DeployedSystemHelpers {
     return NetworkByChainId[chainId]
   }
 
-  getRpcUrl(network: Network): string {
+  getMaybeRpcUrlForForking(network?: Network): string | undefined {
+    if (!network) return undefined
+
+    const rpcUrls: any = {
+      [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
+      [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+      [Network.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+      [Network.BASE]: 'https://base-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+      [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
+    }
+
     return rpcUrls[network]
+  }
+
+  async getSigner(): Promise<Signer> {
+    if (!this.hre) throw new Error('HardhatRuntimeEnvironment is not defined!')
+
+    if (impersonationEnabled()) {
+      return getImpersonationSigner(this.hre)
+    }
+
+    return this.hre.ethers.provider.getSigner()
   }
 
   log(...args: any[]) {
@@ -180,28 +194,22 @@ abstract class DeployedSystemHelpers {
     this.hideLogging = hideLogging
     this.ethers = this.hre.ethers
     this.provider = this.hre.ethers.provider
-    this.signer = this.provider.getSigner()
-
+    this.signer = await this.getSigner()
     this.signerAddress = await this.signer.getAddress()
     this.isRestrictedNetwork = restrictedNetworks.includes(this.network)
+
     this.chainId = await this.getForkedNetworkChainId(this.provider)
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
-    this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
-    this.log(
-      'NETWORK',
-      this.network,
-      '/ FORKED NETWORK',
-      this.forkedNetwork,
-      '/ ChainID',
-      this.chainId,
-    )
+    this.rpcUrl = this.getMaybeRpcUrlForForking(this.forkedNetwork)
+    this.log('NETWORK', this.network, '/ ChainID', this.chainId)
 
     if (this.forkedNetwork) {
-      console.log('Loading ServiceRegistryNames for', this.forkedNetwork)
+      console.log('Loading ServiceRegistryNames for the forked network: ', this.forkedNetwork)
+      console.log('FORKED NETWORK', this.forkedNetwork)
       this.serviceRegistryNames = loadContractNames(this.forkedNetwork)
     } else {
-      console.log('Loading ServiceRegistryNames for', this.network)
+      console.log('Loading ServiceRegistryNames for the network', this.network)
       this.serviceRegistryNames = loadContractNames(this.network)
     }
 
@@ -287,6 +295,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   public signer: Signer
   private readonly _cache = new NodeCache()
   private readonly isLocal: boolean
+  private readonly isTenderly: boolean
 
   private readonly multiSigNetwork = [Network.ARBITRUM, Network.MAINNET, Network.OPTIMISM]
 
@@ -297,6 +306,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     this.provider = hre.ethers.provider
     this.signer = this.provider.getSigner()
     this.isLocal = this.network === Network.LOCAL
+    this.isTenderly = this.network === Network.TENDERLY
   }
 
   async loadConfig(configFileName?: string) {
@@ -337,7 +347,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     this.config = _.merge(this.config, configOverrides)
   }
 
-  findPath = (obj, target, parentPath) => {
+  /**
+   * Recursively search for a target string in an object and return the path in a string format
+   */
+  findPath = (obj: Record<string, string>, target: string, parentPath: string) => {
     for (const key in obj) {
       const path = `${parentPath}.${key}`
       if (typeof obj[key] === 'string' && obj[key] === target) {
@@ -358,6 +371,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return this.findPath(this.serviceRegistryNames, target, rootPath)
   }
 
+  /**
+   * Replace the serviceRegistry name in the config object with a string object path
+   */
   replaceServiceRegistryName(inputString, transformFunction) {
     return inputString.replace(/(serviceRegistryName:\s')([^']*)(')/g, function (match, p1, p2) {
       const newValue = transformFunction(p2)
@@ -377,26 +393,19 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return undefined
   }
 
-  async saveConfig() {
+  async saveConfig(configFileName?: string) {
     if (!this.forkedNetwork) throw new Error('Forked network is not defined!')
 
-    const { writeFile } = await import('fs')
+    const { writeFileSync } = await import('fs')
     let configString = inspect(this.config, { depth: null })
     configString = this.replaceServiceRegistryName(configString, this.findStringPath)
 
-    const networkEnumString =
-      this.network === Network.TENDERLY
-        ? this.getNetworkEnumString(Network.MAINNET)
-        : this.getNetworkEnumString(this.network)
+    const networkName = configFileName || this.forkedNetwork
+    const networkNameEnum = this.getNetworkEnumString(networkName)
 
-    writeFile(
-      `./../deploy-configurations/configs/${this.network}.conf.ts`,
-      `import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${networkEnumString})\n\nexport const config: SystemConfig = ${configString}`,
-      (error: any) => {
-        if (error) {
-          console.log('ERROR: ', error)
-        }
-      },
+    writeFileSync(
+      `./../deploy-configurations/configs/${networkName}.conf.ts`,
+      `import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${networkNameEnum})\n\nexport const config: SystemConfig = ${configString}`,
     )
   }
 
@@ -407,7 +416,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return configPath
   }
 
-  async postInstantiation(configItem: ConfigEntry, contract: Contract) {
+  async logPostInstantiationMessage(configItem: ConfigEntry, contract: Contract) {
     this.log('POST INITIALIZATION', configItem.name, contract.address)
   }
 
@@ -432,7 +441,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async postDeployment(configItem: any, contract: Contract, constructorArguments: any) {
+  async postDeployment(
+    configItem: SystemConfigEntry,
+    contract: Contract,
+    constructorArguments: (string | number)[],
+  ) {
     if (!this.provider) throw new Error('No provider set')
     if (!this.config) throw new Error('No config set')
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
@@ -504,6 +517,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           await this.serviceRegistryHelper.addEntry(
             configItem.serviceRegistryName,
             contract.address,
+            true,
           )
         } catch (error: any) {
           console.log(
@@ -521,7 +535,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     }
 
-    if (this.network != Network.HARDHAT) {
+    if (Network.TENDERLY === this.network) {
+      await this.hre.tenderly.verify({
+        address: contract.address,
+        name: configItem.name,
+      })
+    } else if (![Network.HARDHAT].includes(this.network)) {
       await this.verifyContract(contract.address, constructorArguments)
     }
   }
@@ -550,7 +569,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async addRegistryEntry(configItem: ConfigEntry, address: string) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
     if (configItem.serviceRegistryName) {
-      await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address)
+      await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address, true)
       await this.postRegistryEntry(configItem, address)
     }
   }
@@ -583,28 +602,25 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async instantiateContracts(addressesConfig: SystemConfigEntry[]) {
+  async instantiateContracts(systemConfig: SystemConfigEntry[]) {
     if (!this.signer) throw new Error('Signer not initialized')
-    for (const configItem of addressesConfig) {
-      this.log('INSTANTIATING ', configItem.name, configItem.address)
-      const contractInstance = await this.ethers.getContractAt(configItem.name, configItem.address)
+    for (const systemConfigEntry of systemConfig) {
+      this.log('INSTANTIATING ', systemConfigEntry.name, systemConfigEntry.address)
+      const contractInstance = await this.ethers.getContractAt(
+        systemConfigEntry.name,
+        systemConfigEntry.address,
+      )
 
-      this.deployedSystem[configItem.name] = {
+      this.deployedSystem[systemConfigEntry.name] = {
         contract: contractInstance,
-        config: configItem,
-        hash: this.getRegistryEntryHash(configItem.serviceRegistryName || ''),
+        config: systemConfigEntry,
+        hash: this.getRegistryEntryHash(systemConfigEntry.serviceRegistryName || ''),
       }
-      const isServiceRegistry = configItem.name === 'ServiceRegistry'
-      !configItem.serviceRegistryName &&
-        !isServiceRegistry &&
-        this.log(
-          'No Service Registry name for: ',
-          configItem.name,
-          configItem.serviceRegistryName || '',
-        )
 
-      if (configItem.name === 'ServiceRegistry') {
-        this.serviceRegistryHelper = new ServiceRegistry(configItem.address, this.signer)
+      if (systemConfigEntry.name === 'ServiceRegistry') {
+        this.serviceRegistryHelper = new ServiceRegistry(systemConfigEntry.address, this.signer, {
+          isTenderly: this.isTenderly,
+        })
 
         if (this.isLocal) {
           if (!this.provider) throw new Error('No provider set')
@@ -618,9 +634,17 @@ export class DeploymentSystem extends DeployedSystemHelpers {
             paddedOwnerAddress,
           ])
         }
+      } else {
+        // check if service registry name is set for the contract
+        !systemConfigEntry.serviceRegistryName &&
+          this.log(
+            'No Service Registry name for: ',
+            systemConfigEntry.name,
+            systemConfigEntry.serviceRegistryName || '',
+          )
       }
 
-      if (configItem.name === 'AccountGuard') {
+      if (systemConfigEntry.name === 'AccountGuard') {
         if (!this.provider) throw new Error('No provider set')
         if (!this.signerAddress) throw new Error('No signerAddress set')
 
@@ -634,7 +658,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           ])
         }
       }
-      if (configItem.name === 'OperationsRegistry') {
+
+      if (systemConfigEntry.name === 'OperationsRegistry') {
         if (!this.provider) throw new Error('No provider set')
         if (!this.signerAddress) throw new Error('No signerAddress set')
 
@@ -649,7 +674,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         }
       }
 
-      await this.postInstantiation(configItem, contractInstance)
+      await this.logPostInstantiationMessage(systemConfigEntry, contractInstance)
     }
   }
 
@@ -668,17 +693,17 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async deployContracts(addressesConfig: SystemConfigEntry[]) {
+  async deployContracts(systemConfig: SystemConfigEntry[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     if (this.isRestrictedNetwork) {
       await this.promptBeforeDeployment()
     }
-    for (const configItem of addressesConfig) {
-      this.log('DEPLOYING ', configItem.name, configItem.address)
+    for (const systemConfigEntry of systemConfig) {
+      this.log('DEPLOYING ', systemConfigEntry.name, systemConfigEntry.address)
       let constructorParams: Array<string | number> = []
 
-      if (configItem.constructorArgs && configItem.constructorArgs?.length !== 0) {
-        constructorParams = configItem.constructorArgs.map((param: string | number) => {
+      if (systemConfigEntry.constructorArgs && systemConfigEntry.constructorArgs?.length !== 0) {
+        constructorParams = systemConfigEntry.constructorArgs.map((param: string | number) => {
           if (typeof param === 'string' && param.indexOf('address:') >= 0) {
             const contractName = (param as string).replace('address:', '') as SystemContracts
 
@@ -692,38 +717,43 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         })
       }
 
-      const contractInstance = await this.deployContract(
-        this.ethers.getContractFactory(configItem.name as string, this.signer),
+      const deployContractCall = this.isTenderly ? this.deployContractTenderly : this.deployContract
+      const contractInstance = await deployContractCall.call(
+        this,
+        this.ethers.getContractFactory(systemConfigEntry.name as string, this.signer),
         constructorParams,
       )
 
-      if (configItem.name === 'ServiceRegistry') {
-        this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer)
+      if (systemConfigEntry.name === 'ServiceRegistry') {
+        this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer, {
+          isTenderly: this.isTenderly,
+        })
       }
 
-      this.deployedSystem[configItem.name] = {
+      this.deployedSystem[systemConfigEntry.name] = {
         contract: contractInstance,
-        config: configItem,
-        hash: this.getRegistryEntryHash(configItem.serviceRegistryName || ''),
+        config: systemConfigEntry,
+        hash: this.getRegistryEntryHash(systemConfigEntry.serviceRegistryName || ''),
       }
 
-      const isServiceRegistry = configItem.name === 'ServiceRegistry'
-      !configItem.serviceRegistryName &&
+      const isServiceRegistry = systemConfigEntry.name === 'ServiceRegistry'
+      !systemConfigEntry.serviceRegistryName &&
         !isServiceRegistry &&
         this.log(
           'No Service Registry name for: ',
-          configItem.name,
-          configItem.serviceRegistryName || '',
+          systemConfigEntry.name,
+          systemConfigEntry.serviceRegistryName || '',
         )
 
-      if (configItem.history && configItem.address !== '') {
-        configItem.history.push(configItem.address)
+      if (systemConfigEntry.history && systemConfigEntry.address !== '') {
+        systemConfigEntry.history.push(systemConfigEntry.address)
       }
-      configItem.address = contractInstance.address
+      systemConfigEntry.address = contractInstance.address
 
-      await this.postDeployment(configItem, contractInstance, constructorParams)
+      await this.postDeployment(systemConfigEntry, contractInstance, constructorParams)
     }
   }
+
   public async deployContractByName<C extends Contract>(
     contractName: string,
     params: any[],
@@ -739,6 +769,27 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     const factory = await _factory
     const deployment = await factory.deploy(...params, await this.getGasSettings())
     return (await deployment.deployed()) as C
+  }
+
+  public async deployContractTenderly<F extends ContractFactory, C extends Contract>(
+    _factory: F | Promise<F>,
+    params: Parameters<F['deploy']>,
+  ): Promise<C> {
+    const factory = await _factory
+    const tx = await factory.getDeployTransaction(...params, await this.getGasSettings())
+    const provider = new ethers.providers.JsonRpcProvider(process.env.TENDERLY_FORK_URL)
+    const txHash = await provider
+      .send('eth_sendTransaction', [
+        {
+          ...tx,
+          from: process.env.IMPERSONATE_ADDRESS,
+        },
+      ])
+      .catch(e => {
+        console.log('Error in the transaction', e)
+      })
+    const receipt = await this.hre.ethers.provider.waitForTransaction(txHash)
+    return factory.attach(receipt.contractAddress) as C
   }
 
   public async getGasSettings() {
@@ -886,6 +937,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     const operationsRegistry = new OperationsRegistry(
       this.deployedSystem.OperationsRegistry.contract.address,
       this.signer,
+      { isTenderly: this.isTenderly, debug: true },
     )
 
     let network = this.network
@@ -1126,6 +1178,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
     this.logOp(morphoblueAdjustDownOperationDefinition)
 
+    const morphoblueClaimRewardsOperationDefinition =
+      getMorphoBlueClaimRewardsOperationDefinition(network)
+    await operationsRegistry.addOp(
+      morphoblueClaimRewardsOperationDefinition.name,
+      morphoblueClaimRewardsOperationDefinition.actions,
+    )
+    this.logOp(morphoblueClaimRewardsOperationDefinition)
+
     const sparkMigrateOperationDefinition = getSparkMigrateOperationDefinition(network)
     await operationsRegistry.addOp(
       sparkMigrateOperationDefinition.name,
@@ -1311,6 +1371,43 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       const [operationName, actions] = operationInRecord[name]
       await operationsRegistry.addOp(operationName, actions)
       this.logOp({ name: operationName, actions, log: true })
+    }
+  }
+
+  async addFeeTiersToNewSwapContract() {
+    if (!this.signer) throw new Error('No signer set')
+    const swap = this.getSystem().system.Swap
+    const authorizedAddress = (swap.config as any).constructorArgs[1]
+
+    const tx1 = await swap.contract.populateTransaction.addFeeTier(NO_FEE)
+    const tx2 = await swap.contract.populateTransaction.addFeeTier(REDUCED_FEE)
+    const tx3 = await swap.contract.populateTransaction.addFeeTier(LOW_CORRELATED_ASSET_FEE)
+
+    try {
+      if (this.isTenderly) {
+        await Promise.all(
+          [tx1, tx2, tx3].map(async (tx, index) => {
+            const _provider = new this.hre.ethers.providers.JsonRpcProvider(
+              process.env.TENDERLY_FORK_URL,
+            )
+
+            const hash = await _provider.send('eth_sendTransaction', [
+              {
+                ...tx,
+                from: authorizedAddress,
+              },
+            ])
+            await _provider.waitForTransaction(hash)
+            console.log('Transaction', index, 'completed:', hash)
+          }),
+        )
+      } else {
+        // Generate a calldata for the SAFE multisig wallet using their SDK
+
+        console.log('Fee tiers added')
+      }
+    } catch (e) {
+      console.error('Error in the transaction', e)
     }
   }
 

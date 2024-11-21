@@ -1,7 +1,11 @@
-import { FEE_ESTIMATE_INFLATOR, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { calculateFee } from '@dma-common/utils/swap'
+import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { IOperation, SwapData } from '@dma-library/types'
-import { feeResolver } from '@dma-library/utils/swap'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
+import {
+  calculateInflatedTokenFee,
+  calculatePostSwapFeeAmount,
+  feeResolver,
+} from '@dma-library/utils/swap'
 import { Position } from '@domain'
 import BigNumber from 'bignumber.js'
 
@@ -45,10 +49,16 @@ export async function generate(
     currentPosition.category,
   )
 
-  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
+  const fee = await feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    positionData: getPositionDataAaveLike(dependencies),
+  })
 
-  const postSwapFee =
-    collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
+  const postSwapFee = calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee.feeToCharge,
+    fee.feeType,
+  )
 
   return {
     transaction: {
@@ -62,9 +72,7 @@ export async function generate(
       },
       swap: {
         ...swapData,
-        tokenFee: preSwapFee.plus(
-          postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
-        ),
+        tokenFee: calculateInflatedTokenFee({ postSwapFee, preSwapFee }),
         collectFeeFrom,
         sourceToken: {
           symbol: args.collateralToken.symbol,

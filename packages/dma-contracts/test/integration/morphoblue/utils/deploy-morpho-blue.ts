@@ -1,6 +1,6 @@
 import { loadContractNames } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
+import { DeploymentSystem } from '@dma-contracts/scripts/utils/deploy'
 import { TestHelpers } from '@dma-contracts/utils'
 import {
   deployMockOracles,

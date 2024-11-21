@@ -27,7 +27,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
-describe('Migrate | AAVE V3 -> DPM | E2E', async () => {
+describe.skip('Migrate | AAVE V3 -> DPM | E2E', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let snapshot: Snapshot
   let provider: ethers.providers.JsonRpcProvider

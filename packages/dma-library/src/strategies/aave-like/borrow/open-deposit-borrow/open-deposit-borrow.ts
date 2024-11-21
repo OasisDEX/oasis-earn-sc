@@ -32,7 +32,7 @@ export const openDepositBorrow: AaveLikeOpenDepositBorrow = async (args, depende
   )
 
   const alwaysReturnDepositArgs = true
-  const deposit = await AaveCommon.buildDepositArgs(
+  const deposit = await AaveCommon.buildDepositBorrowArgs(
     entryToken,
     collateralToken,
     collateralTokenAddress,

@@ -6,6 +6,7 @@ import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
+import { SwapFeeType } from '@dma-library/types'
 import { Contract } from '@ethersproject/contracts'
 import { MockExchange } from '@typechain'
 import BigNumber from 'bignumber.js'
@@ -98,6 +99,7 @@ describe('Swap | Unit', async () => {
           FEE,
           data,
           true,
+          SwapFeeType.Percentage,
         ],
         {
           value: 0,
@@ -123,6 +125,7 @@ describe('Swap | Unit', async () => {
           FEE,
           data,
           true,
+          SwapFeeType.Percentage,
         ],
         {
           value: 0,
@@ -154,6 +157,7 @@ describe('Swap | Unit', async () => {
         FEE,
         response.tx.data,
         true,
+        SwapFeeType.Percentage,
       ])
 
       const expectedRevert = /ReceivedLess\(100000000000000000000000, \d+\)/

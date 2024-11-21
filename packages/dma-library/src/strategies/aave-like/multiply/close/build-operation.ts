@@ -4,6 +4,7 @@ import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { IOperation, SwapData } from '@dma-library/types'
+import { getPositionDataAaveLike } from '@dma-library/utils/fee-service'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -25,7 +26,9 @@ export async function buildOperation(
     debtToken: { address: debtTokenAddress },
   } = args
 
-  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
+  const fee = await feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    positionData: getPositionDataAaveLike(dependencies),
+  })
   const collateralAmountToBeSwapped = args.shouldCloseToCollateral
     ? swapData.fromTokenAmount.plus(swapData.preSwapFee)
     : dependencies.currentPosition.collateral.amount.minus(1)
@@ -62,7 +65,7 @@ export async function buildOperation(
       isEth: args.debtToken.symbol === 'ETH',
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge,
       data: swapData.exchangeCalldata,
       amount: collateralAmountToBeSwapped,
       collectFeeFrom,

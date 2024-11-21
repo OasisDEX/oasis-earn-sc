@@ -6,9 +6,10 @@ import { asPercentageValue, exchangeToDAI, expect } from '@dma-common/test-utils
 import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
+import { calculatePercentageFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
+import { SwapFeeType } from '@dma-library/types'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { MockExchange } from '@typechain'
@@ -34,7 +35,7 @@ describe('Swap | Unit', async () => {
   describe('Asset for DAI', async () => {
     const assetAmount = new BigNumber(10)
     const assetAmountInWei = amountToWei(assetAmount)
-    const feeAmount = calculateFeeOnInputAmount(assetAmountInWei)
+    const feeAmount = calculatePercentageFeeOnInputAmount(assetAmountInWei)
     const assetAmountInWeiWithFee = assetAmountInWei.plus(feeAmount)
     let receiveAtLeastInWei: BigNumber
     let data: string
@@ -119,6 +120,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,
@@ -204,6 +206,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             false,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,
@@ -300,6 +303,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,
@@ -404,6 +408,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,
@@ -494,6 +499,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,
@@ -547,6 +553,7 @@ describe('Swap | Unit', async () => {
             FEE,
             data,
             true,
+            SwapFeeType.Percentage,
           ],
           {
             value: 0,

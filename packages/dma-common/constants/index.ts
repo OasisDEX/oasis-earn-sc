@@ -26,4 +26,5 @@ export {
 import type { OperationNames } from '@deploy-configurations/constants'
 
 export { OperationNames }
+export { SwapFeeType } from './swap-fee-type'
 export { OPERATION_NAMES } from '@deploy-configurations/constants'

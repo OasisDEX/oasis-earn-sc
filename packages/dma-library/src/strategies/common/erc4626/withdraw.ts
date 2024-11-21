@@ -1,7 +1,7 @@
 import { ADDRESSES, SystemKeys } from '@deploy-configurations/addresses'
 import { amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
-import { getGenericSwapData } from '@dma-library/strategies/common'
+import { getGenericSwapDataErc4626 } from '@dma-library/strategies/common'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { views } from '@dma-library/views'
 import BigNumber from 'bignumber.js'
@@ -172,7 +172,7 @@ async function getSwapData(args: Erc4626WithdrawPayload, dependencies: Erc4626Co
     address: args.returnTokenAddress,
   }
 
-  return getGenericSwapData({
+  return getGenericSwapDataErc4626({
     fromToken,
     toToken,
     slippage: args.slippage,

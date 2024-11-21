@@ -8,5 +8,4 @@ export enum Network {
   LOCAL = 'local',
   TENDERLY = 'tenderly',
   TEST = 'test',
-  SEPOLIA = 'sepolia',
 }

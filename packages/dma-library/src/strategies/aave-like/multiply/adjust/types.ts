@@ -1,5 +1,11 @@
 import { Network } from '@deploy-configurations/types/network'
-import { AaveLikePositionV2, IOperation, SummerStrategy, SwapData } from '@dma-library/types'
+import {
+  type SwapFeeType,
+  AaveLikePositionV2,
+  IOperation,
+  SummerStrategy,
+  SwapData,
+} from '@dma-library/types'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 import { IBaseSimulatedTransition } from '@domain'
@@ -51,6 +57,7 @@ export type GenerateArgs = {
   operation: IOperation
   collectFeeFrom: 'sourceToken' | 'targetToken'
   fee: BigNumber
+  feeType: SwapFeeType
   simulation: IBaseSimulatedTransition
   args: AaveLikeAdjustArgs
   dependencies: AaveLikeAdjustDependencies

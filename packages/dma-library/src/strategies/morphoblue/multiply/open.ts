@@ -4,7 +4,6 @@ import { ONE, TEN, ZERO } from '@dma-common/constants'
 import { Address, CollectFeeFrom } from '@dma-common/types'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
 import { TokenAddresses } from '@dma-library/operations/morphoblue/addresses'
@@ -31,6 +30,7 @@ import {
   SummerStrategy,
 } from '@dma-library/types/ajna'
 import { CommonDMADependencies, GetSwapData } from '@dma-library/types/common'
+import { getPositionDataMorpho } from '@dma-library/utils/fee-service/getPositionData'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { GetCumulativesData, views } from '@dma-library/views'
@@ -92,6 +92,8 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     oraclePrice,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.marketId,
+    true,
   )
 
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
@@ -103,6 +105,9 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     positionType,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.marketId,
+    undefined,
+    true,
   )
   const operation = await buildOperation(
     args,
@@ -111,6 +116,8 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     simulatedAdjustment,
     swapData,
     riskIsIncreasing,
+    true,
+    args.marketId,
   )
 
   return prepareMorphoMultiplyDMAPayload(
@@ -125,6 +132,8 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     position,
     collateralTokenSymbol,
     debtTokenSymbol,
+    args.marketId,
+    true,
   )
 }
 
@@ -236,6 +245,8 @@ export async function simulateAdjustment(
   oraclePrice: BigNumber,
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
+  marketId: string,
+  isOpeningPosition = false,
 ) {
   const fromToken = buildFromToken(
     args,
@@ -252,9 +263,15 @@ export async function simulateAdjustment(
     debtTokenSymbol,
   )
   const preFlightSwapAmount = amountToWei(ONE, fromToken.precision)
-  const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
+  const fee = await SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromToken.symbol, toToken.symbol),
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+      marketId,
+    }),
+    isOpeningPosition,
   })
 
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
@@ -265,7 +282,8 @@ export async function simulateAdjustment(
       fromToken,
       toToken,
       slippage: args.slippage,
-      fee,
+      fee: fee.feeToCharge,
+      feeType: fee.feeType,
       swapAmountBeforeFees: preFlightSwapAmount,
     },
     addresses: dependencies.addresses,
@@ -292,7 +310,8 @@ export async function simulateAdjustment(
       debt: ZERO,
     },
     fees: {
-      oazo: fee,
+      oazo: fee.feeToCharge,
+      feeType: fee.feeType,
       flashLoan: BALANCER_FEE,
     },
     prices: {
@@ -331,15 +350,23 @@ async function buildOperation(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
   riskIsIncreasing: true,
+  isOpeningPosition = false,
+  marketId: string,
 ): Promise<IOperation> {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
   const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
   const collateralTokenSymbol = simulatedAdjust.position.collateral.symbol.toUpperCase()
   const debtTokenSymbol = simulatedAdjust.position.debt.symbol.toUpperCase()
-  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+      marketId,
+    }),
+    isOpeningPosition,
   })
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
@@ -375,7 +402,7 @@ async function buildOperation(
       amount: args.collateralAmount.times(TEN.pow(args.collateralTokenPrecision)).integerValue(),
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge,
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,
@@ -416,20 +443,28 @@ export async function getSwapData(
   positionType: PositionType,
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
+  marketId: string,
   __feeOverride?: BigNumber,
+  isOpeningPosition = false,
 ) {
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
-  const fee =
-    __feeOverride ||
-    SwapUtils.feeResolver(
-      simulatedAdjust.position.collateral.symbol,
-      simulatedAdjust.position.debt.symbol,
-      {
-        isIncreasingRisk: riskIsIncreasing,
-        // Strategy is called open multiply (not open earn)
-        isEarnPosition: positionType === 'Earn',
-      },
-    )
+  const feeResult = await SwapUtils.feeResolver(
+    simulatedAdjust.position.collateral.symbol,
+    simulatedAdjust.position.debt.symbol,
+    {
+      isIncreasingRisk: riskIsIncreasing,
+      // Strategy is called open multiply (not open earn)
+      isEarnPosition: positionType === 'Earn',
+      positionData: getPositionDataMorpho({
+        network: dependencies.network,
+        proxy: args.dpmProxyAddress,
+        marketId,
+      }),
+      isOpeningPosition,
+    },
+  )
+  const fee = __feeOverride || feeResult.feeToCharge
+
   const { swapData, collectFeeFrom, preSwapFee } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string
@@ -450,7 +485,8 @@ export async function getSwapData(
         debtTokenSymbol,
       ),
       slippage: args.slippage,
-      fee,
+      fee: fee,
+      feeType: feeResult.feeType,
       swapAmountBeforeFees: swapAmountBeforeFees,
     },
     addresses: dependencies.addresses,
@@ -507,7 +543,7 @@ export async function getTokenSymbol(
   }
 }
 
-export function prepareMorphoMultiplyDMAPayload(
+export async function prepareMorphoMultiplyDMAPayload(
   args: AdjustArgs,
   dependencies: MorphoMultiplyDependencies,
   simulatedAdjustment: Domain.ISimulationV2 & Domain.WithSwap,
@@ -519,6 +555,8 @@ export function prepareMorphoMultiplyDMAPayload(
   position: MorphoBluePosition,
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
+  marketId: string,
+  isOpeningPosition = false,
 ) {
   const collateralAmount = amountFromWei(
     simulatedAdjustment.position.collateral.amount,
@@ -549,12 +587,22 @@ export function prepareMorphoMultiplyDMAPayload(
   const txAmount = args.collateralAmount
   const fromTokenSymbol = riskIsIncreasing ? debtTokenSymbol : collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? collateralTokenSymbol : debtTokenSymbol
-  const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: false,
+    positionData: getPositionDataMorpho({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+      marketId,
+    }),
+    isOpeningPosition,
   })
-  const postSwapFee =
-    collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
+  const postSwapFee = SwapUtils.calculatePostSwapFeeAmount(
+    collectFeeFrom,
+    swapData.toTokenAmount,
+    fee.feeToCharge,
+    fee.feeType,
+  )
   const tokenFee = preSwapFee.plus(postSwapFee)
 
   const withdrawUndercollateralized = !riskIsIncreasing

@@ -18,6 +18,7 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies, AjnaPosition, SummerStrategy } from '@dma-library/types/ajna'
+import { getPositionDataAjna } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import * as Domain from '@domain'
@@ -47,6 +48,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     position,
     riskIsIncreasing,
     oraclePrice,
+    true,
   )
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
     { ...mappedArgs, position },
@@ -54,6 +56,8 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     simulatedAdjustment,
     riskIsIncreasing,
     positionType,
+    undefined,
+    true,
   )
   const operation = await buildOperation(
     mappedArgs,
@@ -62,9 +66,10 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     simulatedAdjustment,
     swapData,
     riskIsIncreasing,
+    true,
   )
 
-  return prepareAjnaMultiplyDMAPayload(
+  return await prepareAjnaMultiplyDMAPayload(
     { ...args, position },
     dependencies,
     simulatedAdjustment,
@@ -73,6 +78,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     collectFeeFrom,
     preSwapFee,
     riskIsIncreasing,
+    true,
   )
 }
 
@@ -120,13 +126,19 @@ async function simulateAdjustment(
   position: AjnaPosition,
   riskIsIncreasing: true,
   oraclePrice: BigNumber,
+  isOpeningPosition = false,
 ) {
   const preFlightSwapAmount = amountToWei(ONE, args.quoteTokenPrecision)
   const fromToken = buildFromToken({ ...args, position }, riskIsIncreasing)
   const toToken = buildToToken({ ...args, position }, riskIsIncreasing)
-  const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
+  const fee = await SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromToken.symbol, toToken.symbol),
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
+    isOpeningPosition,
   })
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
@@ -136,7 +148,8 @@ async function simulateAdjustment(
       fromToken,
       toToken,
       slippage: args.slippage,
-      fee,
+      fee: fee.feeToCharge,
+      feeType: fee.feeType,
       swapAmountBeforeFees: preFlightSwapAmount,
     },
     addresses: dependencies.addresses,
@@ -166,7 +179,8 @@ async function simulateAdjustment(
       debt: ZERO,
     },
     fees: {
-      oazo: fee,
+      oazo: fee.feeToCharge,
+      feeType: fee.feeType,
       flashLoan: BALANCER_FEE,
     },
     prices: {
@@ -206,15 +220,21 @@ async function buildOperation(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
   riskIsIncreasing: true,
+  isOpeningPosition = false,
 ) {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
   const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
   const collateralTokenSymbol = simulatedAdjust.position.collateral.symbol.toUpperCase()
   const debtTokenSymbol = simulatedAdjust.position.debt.symbol.toUpperCase()
-  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
+    isOpeningPosition,
   })
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
@@ -242,7 +262,7 @@ async function buildOperation(
       amount: args.collateralAmount,
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge,
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,

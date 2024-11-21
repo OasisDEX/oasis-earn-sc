@@ -23,6 +23,6 @@ bytes32 constant NULL = "";
 string constant POSITION_CREATED_ACTION = "PositionCreated";
 
 string constant UNISWAP_ROUTER = "UniswapRouter";
-string constant SWAP = "Swap";
+string constant SWAP = "Swap_3";
 
 address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;

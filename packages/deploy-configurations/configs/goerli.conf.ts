@@ -137,7 +137,7 @@ export const config: SystemConfig = {
         name: 'SwapAction',
         deploy: true,
         address: '',
-        serviceRegistryName: 'SwapAction_3',
+        serviceRegistryName: 'SwapAction_6',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },

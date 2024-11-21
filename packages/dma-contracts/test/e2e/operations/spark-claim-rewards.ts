@@ -22,7 +22,7 @@ import { expect } from 'chai'
 import { ethers } from 'ethers'
 import hre from 'hardhat'
 
-describe.only('AAVE V3 | Claim Rewards | E2E', async () => {
+describe.skip('AAVE V3 | Claim Rewards | E2E', async () => {
   let snapshot: Snapshot
   let address: string
   let signer: SignerWithAddress

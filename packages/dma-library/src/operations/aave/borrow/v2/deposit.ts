@@ -8,7 +8,7 @@ import {
   DepositArgs,
   DepositSwapArgs,
 } from '@dma-library/operations/aave-like'
-import { ActionCall, IOperation } from '@dma-library/types'
+import { ActionCall, IOperation, SwapFeeType } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import BigNumber from 'bignumber.js'
 
@@ -43,6 +43,7 @@ function getSwapCalls(
         fee: swapArgs.fee,
         withData: swapArgs.calldata,
         collectFeeInFromToken: swapArgs.collectFeeInFromToken,
+        feeType: swapArgs.feeType ?? SwapFeeType.Percentage,
       }),
     ]
   } else {
@@ -51,9 +52,10 @@ function getSwapCalls(
       toAsset: depositTokenAddress,
       amount: ZERO,
       receiveAtLeast: ZERO,
-      fee: 0,
+      fee: ZERO,
       withData: 0,
       collectFeeInFromToken: true,
+      feeType: SwapFeeType.Percentage,
     })
     skippedCall.skipped = true
 

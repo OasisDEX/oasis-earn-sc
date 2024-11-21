@@ -4,9 +4,10 @@ import { asPercentageValue, exchangeFromDAI, expect } from '@dma-common/test-uti
 import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
+import { calculatePercentageFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
+import { SwapFeeType } from '@dma-library/types'
 import { Contract } from '@ethersproject/contracts'
 import { MockExchange } from '@typechain'
 import BigNumber from 'bignumber.js'
@@ -65,7 +66,7 @@ describe('Swap | Unit', async () => {
 
     before(async () => {
       amountInWei = amountToWei(1000)
-      amountWithFeeInWei = calculateFeeOnInputAmount(amountInWei).plus(amountInWei)
+      amountWithFeeInWei = calculatePercentageFeeOnInputAmount(amountInWei).plus(amountInWei)
     })
 
     beforeEach(async () => {
@@ -106,6 +107,7 @@ describe('Swap | Unit', async () => {
           FEE,
           data,
           true,
+          SwapFeeType.Percentage,
         ],
         {
           value: 0,

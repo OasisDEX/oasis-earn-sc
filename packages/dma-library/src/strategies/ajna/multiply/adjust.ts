@@ -17,6 +17,7 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies } from '@dma-library/types/ajna'
+import { getPositionDataAjna } from '@dma-library/utils/fee-service'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
 import { isRiskIncreasing } from '@domain/utils'
@@ -72,7 +73,7 @@ const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
   )
 
   // Prepare payload
-  return prepareAjnaMultiplyDMAPayload(
+  return await prepareAjnaMultiplyDMAPayload(
     args,
     dependencies,
     simulatedAdjustment,
@@ -116,7 +117,7 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
   )
 
   // Prepare payload
-  return prepareAjnaMultiplyDMAPayload(
+  return await prepareAjnaMultiplyDMAPayload(
     args,
     dependencies,
     simulatedAdjustment,
@@ -143,9 +144,13 @@ async function buildOperation(
   const fromTokenSymbol = riskIsIncreasing ? args.quoteTokenSymbol : args.collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? args.collateralTokenSymbol : args.quoteTokenSymbol
 
-  const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
+  const fee = await SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: SwapUtils.isCorrelatedPosition(fromTokenSymbol, toTokenSymbol),
+    positionData: getPositionDataAjna({
+      network: dependencies.network,
+      proxy: args.dpmProxyAddress,
+    }),
   })
   // When adjusting risk up we need to flashloan the swap amount before deducting fees
   // Assuming an ETH/USDC position, we'd be Flashloaning USDC to swap for ETH
@@ -184,7 +189,7 @@ async function buildOperation(
       amount: args.collateralAmount,
     },
     swap: {
-      fee: fee.toNumber(),
+      fee: fee.feeToCharge,
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,

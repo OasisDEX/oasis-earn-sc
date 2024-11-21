@@ -1,0 +1,30 @@
+query GetPosition($id: ID!) {
+  borrowPosition(id: $id) {
+    debt
+    oasisEvents(first: 10000, orderBy: blockNumber, orderDirection: asc) {
+      kind
+      blockNumber
+      timestamp
+      collateralToken {
+        address
+        symbol
+        decimals
+      }
+      debtToken {
+        address
+        symbol
+        decimals
+      }
+      swapToToken
+      swapToAmount
+      swapFromToken
+      swapFromAmount
+      collateralBefore
+      collateralAfter
+      collateralDelta
+      debtBefore
+      debtAfter
+      debtDelta
+    }
+  }
+}

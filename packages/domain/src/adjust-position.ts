@@ -1,5 +1,9 @@
-import { FEE_BASE, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { calculateFee } from '@dma-common/utils/swap'
+import { ONE, SwapFeeType, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import {
+  calculateFeePercentageOfSwapAmount,
+  calculatePostSwapFeeAmount,
+  calculatePreSwapFeeAmount,
+} from '@dma-common/utils/swap'
 import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
 import { isRiskIncreasing } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
@@ -16,6 +20,7 @@ interface AdjustToParams {
   fees: {
     /** Typically the fee paid to Oazo when swapping */
     oazo: BigNumber
+    feeType: SwapFeeType
     /** Fee charged by flashloan provider */
     flashLoan: BigNumber
   }
@@ -132,7 +137,16 @@ export function adjustToTargetRiskRatio(
    * F_F Flashloan Fee
    * */
   const oazoFee = fees.oazo
+  const feeType = fees.feeType
   const flashloanFee = fees.flashLoan
+
+  const feePercentageOfSwapAmount = calculateFeePercentageOfSwapAmount({
+    collectFeeFromSourceToken,
+    oazoFee,
+    feeType: params.fees.feeType,
+    collateral: normalisedCurrentCollateral,
+    debt: normalisedCurrentDebt,
+  })
 
   /**
    * Unknown Variable X
@@ -149,7 +163,7 @@ export function adjustToTargetRiskRatio(
     )
     .div(
       targetLTV
-        .times(ONE.minus(oazoFee.div(FEE_BASE)))
+        .times(ONE.minus(feePercentageOfSwapAmount))
         .times(oraclePrice)
         .minus(ONE.plus(flashloanFee).times(marketPriceAdjustedForSlippage)),
     )
@@ -166,16 +180,18 @@ export function adjustToTargetRiskRatio(
    * */
   const shouldIncreaseDebtDeltaToAccountForFees = riskIsIncreasing && collectFeeFromSourceToken
   const debtDeltaPreFlashloanFee = unknownVarX.div(
-    shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(FEE_BASE)) : ONE,
+    shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(feePercentageOfSwapAmount) : ONE,
   )
 
+  //
   const collateralDelta = revertToTokenSpecificPrecision(
     unknownVarX
       .div(marketPriceAdjustedForSlippage)
-      .div(riskIsIncreasing ? ONE : ONE.minus(oazoFee.div(FEE_BASE))),
+      .div(riskIsIncreasing ? ONE : ONE.minus(feePercentageOfSwapAmount)),
     position.collateral.precision,
   ).integerValue(BigNumber.ROUND_DOWN)
 
+  //
   const debtDelta = revertToTokenSpecificPrecision(
     debtDeltaPreFlashloanFee.times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO)),
     position.debt.precision,
@@ -194,10 +210,17 @@ export function adjustToTargetRiskRatio(
       debt: debtDelta,
       collateral: collateralDelta,
     },
-    swap: buildSwapSimulation(position, debtDelta, collateralDelta, oazoFee, {
-      isIncreasingRisk: riskIsIncreasing,
-      collectSwapFeeFrom,
-    }),
+    swap: buildSwapSimulation(
+      position,
+      debtDelta,
+      collateralDelta,
+      oazoFee,
+      {
+        isIncreasingRisk: riskIsIncreasing,
+        collectSwapFeeFrom,
+      },
+      feeType,
+    ),
   }
 }
 
@@ -243,6 +266,7 @@ function buildSwapSimulation(
     isIncreasingRisk: boolean
     collectSwapFeeFrom: 'sourceToken' | 'targetToken'
   },
+  feeType: SwapFeeType,
 ) {
   const { isIncreasingRisk, collectSwapFeeFrom } = options
 
@@ -263,6 +287,7 @@ function buildSwapSimulation(
       fromToken,
       toToken,
       collectSwapFeeFrom,
+      feeType,
     ),
     collectFeeFrom: collectSwapFeeFrom,
     sourceToken: isIncreasingRisk
@@ -278,27 +303,28 @@ function determineFee(
   isIncreasingRisk: boolean,
   debtDelta,
   collateralDelta,
-  oazoFee,
+  oazoFee: BigNumber,
   fromToken,
   toToken,
   collectSwapFeeFrom,
+  feeType: SwapFeeType,
 ) {
-  /*
-   * Account for fees being collected from either
-   * The sourceToken or targetToken in the swap
-   */
-  const collectFeeFromSourceToken = collectSwapFeeFrom === 'sourceToken'
+  const preSwapAmount = isIncreasingRisk ? debtDelta : collateralDelta
+  const postSwapAmount = isIncreasingRisk ? collateralDelta : debtDelta
 
-  const normalisedSourceFee = (
-    isIncreasingRisk
-      ? calculateFee(debtDelta, oazoFee.toNumber())
-      : calculateFee(collateralDelta, oazoFee.toNumber())
+  const normalisedSourceFee = calculatePreSwapFeeAmount(
+    collectSwapFeeFrom,
+    preSwapAmount,
+    oazoFee,
+    feeType,
   ).integerValue(BigNumber.ROUND_DOWN)
-  const normalisedTargetFee = (
-    isIncreasingRisk
-      ? calculateFee(collateralDelta, oazoFee.toNumber())
-      : calculateFee(debtDelta, oazoFee.toNumber())
+  const normalisedTargetFee = calculatePostSwapFeeAmount(
+    collectSwapFeeFrom,
+    postSwapAmount,
+    oazoFee,
+    feeType,
   ).integerValue(BigNumber.ROUND_DOWN)
+
   const sourceFee = revertToTokenSpecificPrecision(
     normalisedSourceFee,
     fromToken.precision,
@@ -308,5 +334,10 @@ function determineFee(
     toToken.precision,
   ).integerValue(BigNumber.ROUND_DOWN)
 
+  /*
+   * Account for fees being collected from either
+   * The sourceToken or targetToken in the swap
+   */
+  const collectFeeFromSourceToken = collectSwapFeeFrom === 'sourceToken'
   return collectFeeFromSourceToken ? sourceFee : targetFee
 }

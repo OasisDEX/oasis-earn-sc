@@ -1,0 +1,33 @@
+overwrite: true
+schema: '${SUBGRAPH_BASE}/summer-ajna-v2'
+documents: './src/utils/fee-service/queries/ajna-v2.graphql'
+generates:
+  src/utils/fee-service/generated/client-ajna-v2.ts:
+    plugins:
+      - add:
+          content:
+            - '// This file was automatically generated and should not be edited.'
+            - '// @ts-nocheck'
+            - '/* eslint-disable */'
+      - add:
+          content: 'import type { DocumentNode } from "graphql/language/ast";'
+      - typescript
+      - typescript-operations:
+          strictScalars: true
+          scalars:
+            BigDecimal: string
+            BigInt: bigint
+            Int8: number
+            BooleanType: boolean
+            CustomData: Record<string, unknown>
+            Date: string
+            DateTime: string
+            FloatType: number
+            IntType: number
+            ItemId: string
+            JsonField: unknown
+            Bytes: string
+            MetaTagAttributes: Record<string, string>
+            UploadId: string
+            Timestamp: number
+      - typescript-graphql-request
