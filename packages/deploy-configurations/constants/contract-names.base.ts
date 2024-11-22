@@ -91,6 +91,7 @@ export const SERVICE_REGISTRY_NAMES = {
     WITHDRAW: 'MorphoBlueWithdraw',
     BORROW: 'MorphoBlueBorrow',
     PAYBACK: 'MorphoBluePayback',
+    CLAIM_REWARDS: 'MorphoBlueClaimRewards',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
