@@ -10,7 +10,7 @@ import 'solidity-docgen'
 import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
 
-// import '@tenderly/hardhat-tenderly'
+import '@tenderly/hardhat-tenderly'
 
 import { Network } from '@deploy-configurations/types/network'
 import * as process from 'process'

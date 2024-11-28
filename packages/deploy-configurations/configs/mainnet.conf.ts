@@ -86,10 +86,10 @@ export const config: SystemConfig = {
       },
       Swap: {
         name: 'Swap',
-        deploy: false,
-        address: '0x3AEDBfDDdc8cE95eC0025ba8422db342B161011E',
+        deploy: true,
+        address: '0x826E9f2E79cEEA850dF4d4757e0D12115A720D74',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
-        history: ['0x826E9f2E79cEEA850dF4d4757e0D12115A720D74'],
+        history: [],
         constructorArgs: [
           '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
           '0xc7b548ad9cf38721810246c079b2d8083aba8909',
@@ -99,7 +99,7 @@ export const config: SystemConfig = {
       },
       ERC20ProxyActions: {
         name: 'ERC20ProxyActions',
-        deploy: true,
+        deploy: false,
         address: '0x4e42C2366a8C35D6Db276056AB75823aB9f16B54',
         history: ['0x50A9ceC5AB2E2e0D350dACeb10bA769EbCbc49F3'],
         constructorArgs: [],
@@ -139,13 +139,10 @@ export const config: SystemConfig = {
       },
       SwapAction: {
         name: 'SwapAction',
-        deploy: false,
-        address: '0xec42C6AD4C59e0613E98AC477932600b2a5ACe75',
+        deploy: true,
+        address: '0x313617D9CcBd96d66b2374c9bcB44b372D29b530',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
-        history: [
-          '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85',
-          '0x313617D9CcBd96d66b2374c9bcB44b372D29b530',
-        ],
+        history: ['0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85'],
         constructorArgs: ['address:ServiceRegistry'],
       },
       TakeFlashloan: {
