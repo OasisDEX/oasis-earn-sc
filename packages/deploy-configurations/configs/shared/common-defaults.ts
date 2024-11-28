@@ -244,4 +244,8 @@ export const commonDefaults = {
     name: 'EURC',
     address: ADDRESS_ZERO,
   },
+  WUSDL: {
+    name: 'WUSDL',
+    address: ADDRESS_ZERO,
+  },
 } as const
