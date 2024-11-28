@@ -1002,6 +1002,10 @@ export const config: SystemConfig = {
       name: 'USDT',
       address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     },
+    WUSDL: {
+      name: 'WUSDL',
+      address: '0x7751E2F4b8ae93EF6B79d86419d42FE3295A4559',
+    },
     WBTC: {
       name: 'WBTC',
       address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',

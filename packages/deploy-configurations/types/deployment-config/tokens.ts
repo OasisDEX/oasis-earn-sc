@@ -124,3 +124,4 @@ export type Tokens =
   | 'WSUPEROETHB'
   | 'CBBTC'
   | 'EURC'
+  | 'WUSDL'
