@@ -9,7 +9,7 @@ export function getMorphoBlueBorrowOperationDefinition(network: Network) {
     name: OPERATION_NAMES.morphoblue.BORROW,
     actions: [
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE_TO),
         optional: true,
       },
       {

@@ -144,7 +144,7 @@ export function morphoBlueReallocate(network: Network, args: { data: string[] })
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return createAction(
-    getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE),
+    getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE_TO),
     [calldataTypes.morphoblue.Reallocate],
     [
       {

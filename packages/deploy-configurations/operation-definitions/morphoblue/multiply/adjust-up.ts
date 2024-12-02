@@ -9,7 +9,7 @@ export function getMorphoBlueAdjustUpOperationDefinition(network: Network) {
     name: OPERATION_NAMES.morphoblue.ADJUST_RISK_UP,
     actions: [
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE_TO),
         optional: true,
       },
       {

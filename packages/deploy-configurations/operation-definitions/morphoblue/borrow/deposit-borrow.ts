@@ -29,7 +29,7 @@ export function getMorphoBlueDepositBorrowOperationDefinition(network: Network) 
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE_TO),
         optional: true,
       },
       {
