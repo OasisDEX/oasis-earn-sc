@@ -1,6 +1,7 @@
 import { getMorphoBlueAdjustUpOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { getReallocateToAction } from '../helpers/reallocate'
+import { ZERO } from '@dma-common/constants'
 import { IOperation } from '@dma-library/types'
 import {
   WithCollateral,
@@ -76,9 +77,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
   })
   wrapEth.skipped = !collateral.isEth
 
-  const reallocate = actions.morphoblue.reallocate(network, {
-    data: reallocateData,
-  })
+  const reallocate = getReallocateToAction(network, reallocateData)
   // No previous actions store values with OpStorage
   const swapActionStorageIndex = 1
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
@@ -143,7 +142,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
   })
 
   return {
-    calls: [{ ...reallocate, skipped: reallocateData.length === 0 }, takeAFlashLoan],
+    calls: [reallocate, takeAFlashLoan,],
     operationName: getMorphoBlueAdjustUpOperationDefinition(network).name,
   }
 }

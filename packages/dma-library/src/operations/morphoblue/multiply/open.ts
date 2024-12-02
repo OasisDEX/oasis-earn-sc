@@ -19,6 +19,7 @@ import {
 } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
+import { getReallocateToAction } from '../helpers/reallocate'
 
 export type MorphoBlueOpenOperationArgs = WithMorphoBlueMarket &
   WithCollateral &
@@ -86,9 +87,7 @@ export const open: MorphoBlueOpenOperation = async ({
   const hasAmountToDeposit = depositAmount.gt(ZERO)
   pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
   wrapEth.skipped = !debt.isEth && !collateral.isEth
-  const reallocate = actions.morphoblue.reallocate(network, {
-    data: reallocateData,
-  })
+  const reallocate = getReallocateToAction(network, reallocateData)
   // No previous actions store values with OpStorage
   const swapActionStorageIndex = 1
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
@@ -163,7 +162,7 @@ export const open: MorphoBlueOpenOperation = async ({
   })
 
   return {
-    calls: [{ ...reallocate, skipped: reallocateData.length === 0 }, takeAFlashLoan],
+    calls: [reallocate, takeAFlashLoan],
     operationName: getMorphoBlueOpenOperationDefinition(network).name,
   }
 }

@@ -5,6 +5,7 @@ import { ActionCall, IOperation, MorphoBlueMarket } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { MorphoBlueStrategyAddresses } from '../addresses'
+import { getReallocateToAction } from '../helpers/reallocate'
 
 export type MorphoBlueBorrowArgs = {
   morphoBlueMarket: MorphoBlueMarket
@@ -24,11 +25,10 @@ export const borrow: MorphoBlueBorrowOperation = async (
   addresses,
   network,
 ) => {
+  const reallocate = getReallocateToAction(network, reallocateData)
   // Import ActionCall as it assists type generation
   const calls: ActionCall[] = [
-    actions.morphoblue.reallocate(network, {
-      data: reallocateData,
-    }),
+    reallocate,
     actions.morphoblue.borrow(network, {
       morphoBlueMarket: morphoBlueMarket,
       amount: amountToBorrow,
@@ -40,7 +40,6 @@ export const borrow: MorphoBlueBorrowOperation = async (
       asset: isEthToken ? addresses.tokens.ETH : morphoBlueMarket.loanToken,
     }),
   ]
-  calls[0].skipped = reallocateData.length === 0
   calls[2].skipped = !isEthToken
 
   return {
