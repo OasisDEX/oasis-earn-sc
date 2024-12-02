@@ -2,29 +2,22 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
-import { UseStore, Write, Read } from "../common/UseStore.sol";
-import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ReallocateToData } from "../../core/types/MorphoBlue.sol";
-import { IMorpho, MarketParams } from "../../interfaces/morpho-blue/IMorpho.sol";
-import { MarketParamsLib } from "../../libs/morpho-blue/MarketParamsLib.sol";
-import { MorphoLib } from "../../libs/morpho-blue/MorphoLib.sol";
-import { SharesMathLib } from "../../libs/morpho-blue/SharesMathLib.sol";
 import { IBundler } from "../../interfaces/morpho-blue/IBundler.sol";
+import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 
 /**
  * @title ReallocateTo | MorphoBlue Action contract
  * @notice Reallocates liquidity to a specified market
  */
-contract MorphoBlueReallocateTo is Executable, UseStore {
-  using Write for OperationStorage;
-  using Read for OperationStorage;
-  using MarketParamsLib for MarketParams;
-  using MorphoLib for IMorpho;
-  using SharesMathLib for uint256;
+contract MorphoBlueReallocateTo is Executable {
   bytes4 public constant REALLOCATE_TO_SELECTOR = bytes4(hex"ef653419");
   address public immutable BUNDLER;
+  ServiceRegistry public immutable registry;
 
-  constructor(address _registry) UseStore(_registry) {
+  constructor(address _registry) {
+    require(_registry != address(0), "MorphoBlueReallocateTo: registry cannot be the zero address");
+    registry = ServiceRegistry(_registry);
     address _bundler = registry.getRegisteredService("MorphoBlueBundler");
     require(_bundler != address(0), "MorphoBlueBundler: bundler cannot be the zero address");
     BUNDLER = _bundler;
