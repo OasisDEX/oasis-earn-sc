@@ -5,6 +5,7 @@ import { operations } from '@dma-library/operations'
 import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
 import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validation/closeToMaxLtv'
 import { MorphoBluePosition, SummerStrategy } from '@dma-library/types'
+import { getReallocateToData } from '@dma-library/utils/morpho/reallocate'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { GetCumulativesData, views } from '@dma-library/views'
 import { MorphoCumulativesData } from '@dma-library/views/morpho'
@@ -65,6 +66,11 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
     position.marketParams.loanToken.toLowerCase() ===
     dependencies.addresses.tokens.WETH.toLowerCase()
 
+  const reallocateData = await getReallocateToData(
+    position.marketParams,
+    dependencies.network,
+    args.quoteAmount,
+  )
   const operation = await operations.morphoblue.borrow.depositBorrow(
     args.collateralAmount.gt(0)
       ? {
@@ -93,6 +99,7 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
           },
           amountToBorrow: amountToWei(args.quoteAmount, args.quotePrecision),
           isEthToken: isBorrowingEth,
+          reallocateData,
         }
       : undefined,
     dependencies.addresses,

@@ -9,6 +9,10 @@ export function getMorphoBlueAdjustUpOperationDefinition(network: Network) {
     name: OPERATION_NAMES.morphoblue.ADJUST_RISK_UP,
     actions: [
       {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE),
+        optional: true,
+      },
+      {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN),
         optional: false,
       },

@@ -10,6 +10,7 @@ export type MorphoBlueBorrowArgs = {
   morphoBlueMarket: MorphoBlueMarket
   amountToBorrow: BigNumber
   isEthToken: boolean
+  reallocateData: string[]
 }
 
 export type MorphoBlueBorrowOperation = (
@@ -19,12 +20,15 @@ export type MorphoBlueBorrowOperation = (
 ) => Promise<IOperation>
 
 export const borrow: MorphoBlueBorrowOperation = async (
-  { morphoBlueMarket, amountToBorrow, isEthToken },
+  { morphoBlueMarket, amountToBorrow, isEthToken, reallocateData },
   addresses,
   network,
 ) => {
   // Import ActionCall as it assists type generation
   const calls: ActionCall[] = [
+    actions.morphoblue.reallocate(network, {
+      data: reallocateData,
+    }),
     actions.morphoblue.borrow(network, {
       morphoBlueMarket: morphoBlueMarket,
       amount: amountToBorrow,
@@ -36,8 +40,8 @@ export const borrow: MorphoBlueBorrowOperation = async (
       asset: isEthToken ? addresses.tokens.ETH : morphoBlueMarket.loanToken,
     }),
   ]
-
-  calls[1].skipped = !isEthToken
+  calls[0].skipped = reallocateData.length === 0
+  calls[2].skipped = !isEthToken
 
   return {
     calls,

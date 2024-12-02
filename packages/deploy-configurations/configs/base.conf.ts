@@ -330,6 +330,14 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      MorphoBlueReallocateTo: {
+        name: 'MorphoBlueReallocateTo',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE_TO,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
     },
   },
   common: {
@@ -1606,6 +1614,10 @@ export const config: SystemConfig = {
     Wrapper: {
       name: 'Wrapper',
       address: ADDRESS_ZERO,
+    },
+    Bundler: {
+      name: 'Bundler',
+      address: '0x23055618898e202386e6c13955a58D3C68200BFB',
     },
   },
 }

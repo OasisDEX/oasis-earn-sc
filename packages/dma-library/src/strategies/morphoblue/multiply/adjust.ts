@@ -12,6 +12,7 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { SummerStrategy } from '@dma-library/types/ajna/ajna-strategy'
+import { getReallocateToData } from '@dma-library/utils/morpho/reallocate'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
 import { isRiskIncreasing } from '@domain/utils'
@@ -279,6 +280,14 @@ async function buildOperation(
     isDPMProxy: true,
     owner: args.user,
   }
+  let reallocateData: string[] = []
+  if (riskIsIncreasing) {
+    reallocateData = await getReallocateToData(
+      args.position.marketParams,
+      dependencies.network,
+      borrowAmount,
+    )
+  }
 
   if (riskIsIncreasing) {
     const riskUpMultiplyArgs: MorphoBlueAdjustRiskUpArgs = {
@@ -306,6 +315,7 @@ async function buildOperation(
         amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
         provider: isDai ? FlashloanProvider.DssFlash : FlashloanProvider.Balancer,
       },
+      reallocateData,
     }
 
     return await operations.morphoblue.multiply.adjustRiskUp(riskUpMultiplyArgs)

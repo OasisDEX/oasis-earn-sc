@@ -87,11 +87,13 @@ export const SERVICE_REGISTRY_NAMES = {
   },
   morphoblue: {
     MORPHO_BLUE: 'MorphoBlue',
+    BUNDLER: 'MorphoBlueBundler',
     DEPOSIT: 'MorphoBlueDeposit',
     WITHDRAW: 'MorphoBlueWithdraw',
     BORROW: 'MorphoBlueBorrow',
     PAYBACK: 'MorphoBluePayback',
     CLAIM_REWARDS: 'MorphoBlueClaimRewards',
+    REALLOCATE_TO: 'MorphoBlueReallocate',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',

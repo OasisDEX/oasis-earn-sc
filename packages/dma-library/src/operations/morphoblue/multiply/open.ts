@@ -29,7 +29,9 @@ export type MorphoBlueOpenOperationArgs = WithMorphoBlueMarket &
   WithProxy &
   WithPosition &
   WithMorphpBlueStrategyAddresses &
-  WithNetwork
+  WithNetwork & {
+    reallocateData: string[]
+  }
 
 export type MorphoBlueOpenOperation = ({
   morphoBlueMarket,
@@ -42,6 +44,7 @@ export type MorphoBlueOpenOperation = ({
   position,
   addresses,
   network,
+  reallocateData,
 }: MorphoBlueOpenOperationArgs) => Promise<IOperation>
 
 export const open: MorphoBlueOpenOperation = async ({
@@ -55,6 +58,7 @@ export const open: MorphoBlueOpenOperation = async ({
   position,
   addresses,
   network,
+  reallocateData,
 }) => {
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
@@ -82,7 +86,9 @@ export const open: MorphoBlueOpenOperation = async ({
   const hasAmountToDeposit = depositAmount.gt(ZERO)
   pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
   wrapEth.skipped = !debt.isEth && !collateral.isEth
-
+  const reallocate = actions.morphoblue.reallocate(network, {
+    data: reallocateData,
+  })
   // No previous actions store values with OpStorage
   const swapActionStorageIndex = 1
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
@@ -157,7 +163,7 @@ export const open: MorphoBlueOpenOperation = async ({
   })
 
   return {
-    calls: [takeAFlashLoan],
+    calls: [{ ...reallocate, skipped: reallocateData.length === 0 }, takeAFlashLoan],
     operationName: getMorphoBlueOpenOperationDefinition(network).name,
   }
 }

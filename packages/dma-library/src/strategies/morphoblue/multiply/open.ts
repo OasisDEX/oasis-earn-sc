@@ -31,6 +31,7 @@ import {
   SummerStrategy,
 } from '@dma-library/types/ajna'
 import { CommonDMADependencies, GetSwapData } from '@dma-library/types/common'
+import { getReallocateToData } from '@dma-library/utils/morpho/reallocate'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { GetCumulativesData, views } from '@dma-library/views'
@@ -351,6 +352,12 @@ async function buildOperation(
   const isDai =
     position.marketParams.loanToken.toLowerCase() === dependencies.addresses.DAI.toLowerCase()
 
+  const reallocateData = await getReallocateToData(
+    position.marketParams,
+    dependencies.network,
+    borrowAmount,
+  )
+
   const openMultiplyArgs: MorphoBlueOpenOperationArgs = {
     morphoBlueMarket: {
       loanToken: position.marketParams.loanToken,
@@ -403,6 +410,7 @@ async function buildOperation(
       owner: args.user,
     },
     network,
+    reallocateData,
   }
   return await operations.morphoblue.multiply.open(openMultiplyArgs)
 }

@@ -938,5 +938,9 @@ export const config: SystemConfig = {
       name: 'Wrapper',
       address: ADDRESS_ZERO,
     },
+    Bundler: {
+      name: 'Bundler',
+      address: '0x0000000000000000000000000000000000000000',
+    },
   },
 }

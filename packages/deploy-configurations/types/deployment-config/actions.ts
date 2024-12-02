@@ -38,6 +38,7 @@ export type MorphoBlueActions =
   | `MorphoBlueWithdraw`
   | `MorphoBluePayback`
   | 'MorphoBlueClaimRewards'
+  | 'MorphoBlueReallocateTo'
 
 export type Actions = CommonActions | AaveV3Actions | AjnaActions
 
