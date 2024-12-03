@@ -1,4 +1,4 @@
-import { SwapData } from '@oasisdex/dma-library';
+import { SwapData } from '@oasisdex/dma-library/src/types';
 import { BigNumber } from 'bignumber.js';
 
 function formatOneInchSwapUrl(

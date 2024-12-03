@@ -1,4 +1,4 @@
-import { views } from '@oasisdex/dma-library';
+import { views } from '@oasisdex/dma-library/src/views';
 import { BigNumber } from 'bignumber.js';
 import * as yup from 'yup';
 

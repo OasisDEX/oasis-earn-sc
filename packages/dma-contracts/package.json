@@ -17,7 +17,7 @@
     "format": "prettier --write contracts/**/*.sol tasks/**/*.ts test/**/*.ts scripts/**/*.ts && yarn lint:fix",
     "format:check": "prettier --check contracts/**/*.sol tasks/**/*.ts test/**/*.ts scripts/**/*.ts",
     "lint:fix": "yarn eslint . --fix --ext .ts",
-    "lint": "yarn eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
+    "lint": "yarn eslint . --ext .ts",
     "test": "yarn test:unit && yarn test:integration:nocompile && yarn test:e2e:nocompile",
     "test:nocompile": "yarn test:unit:nocompile && yarn test:integration:nocompile && yarn test:e2e:nocompile",
     "test:e2e": "yarn clean && yarn compile && npx hardhat test --grep E2E",

@@ -1,7 +1,6 @@
 import { getMorphoBlueAdjustUpOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { actions } from '@dma-library/actions'
-import { getReallocateToAction } from '../helpers/reallocate'
 import { ZERO } from '@dma-common/constants'
+import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import {
   WithCollateral,
@@ -16,6 +15,8 @@ import {
 } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
+
+import { getReallocateToAction } from '../helpers/reallocate'
 
 export type MorphoBlueAdjustRiskUpArgs = WithMorphoBlueMarket &
   WithCollateral &
@@ -142,7 +143,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
   })
 
   return {
-    calls: [reallocate, takeAFlashLoan,],
+    calls: [reallocate, takeAFlashLoan],
     operationName: getMorphoBlueAdjustUpOperationDefinition(network).name,
   }
 }
