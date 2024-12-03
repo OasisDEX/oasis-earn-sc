@@ -3,9 +3,7 @@
   "compilerOptions": {
     "outDir": "./lib",
     "types": ["node", "mocha"],
-    "typeRoots": [
-      "../../node_modules/@types"
-    ],
+    "typeRoots": ["../../node_modules/@types"],
     "paths": {
       "@abis/external/*": ["../abis/external/*"],
       "@abis/system/*": ["../abis/system/*"],
@@ -26,8 +24,10 @@
       "@domain": ["../domain/src/index.ts"],
       "@deploy-configurations/*": ["../deploy-configurations/*"],
       "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
-      "@deploy-configurations/operation-definitions": ["../deploy-configurations/operation-definitions/index.ts"],
-    },
+      "@deploy-configurations/operation-definitions": [
+        "../deploy-configurations/operation-definitions/index.ts"
+      ]
+    }
   },
   "references": [
     {
@@ -51,6 +51,6 @@
     "./src/strategies/ajna/earn/buckets.json",
     "test",
     "../abis/types",
-    "../dma-contracts/typechain",
+    "../dma-contracts/typechain"
   ]
 }

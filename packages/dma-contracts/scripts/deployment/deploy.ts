@@ -172,6 +172,7 @@ abstract class DeployedSystemHelpers {
   }
 
   useGnosisSafeServiceClient() {
+    console.log('Attempting to use Gnosis Safe Service Client')
     return gnosisSafeServiceUrl[this.network] !== ''
   }
 
@@ -289,14 +290,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   private readonly isLocal: boolean
 
   private readonly multiSigNetwork = [Network.ARBITRUM, Network.MAINNET, Network.OPTIMISM]
+  private readonly testNetMode: boolean
 
-  constructor(public readonly hre: HardhatRuntimeEnvironment) {
+  constructor(public readonly hre: HardhatRuntimeEnvironment, testNetMode = false) {
     super()
     this.hre = hre
     this.network = hre.network.name as Network
     this.provider = hre.ethers.provider
     this.signer = this.provider.getSigner()
     this.isLocal = this.network === Network.LOCAL
+    this.testNetMode = testNetMode
   }
 
   async loadConfig(configFileName?: string) {
@@ -504,6 +507,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           await this.serviceRegistryHelper.addEntry(
             configItem.serviceRegistryName,
             contract.address,
+            this.testNetMode,
           )
         } catch (error: any) {
           console.log(
@@ -521,7 +525,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     }
 
-    if (this.network != Network.HARDHAT) {
+    const isHardhat = this.network == Network.HARDHAT
+    const shouldVerify = !isHardhat && !this.testNetMode
+    if (shouldVerify) {
+      console.log(`Verifying contract ${contract.address}`)
       await this.verifyContract(contract.address, constructorArguments)
     }
   }
@@ -550,7 +557,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async addRegistryEntry(configItem: ConfigEntry, address: string) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
     if (configItem.serviceRegistryName) {
-      await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address)
+      await this.serviceRegistryHelper.addEntry(
+        configItem.serviceRegistryName,
+        address,
+        this.testNetMode,
+      )
       await this.postRegistryEntry(configItem, address)
     }
   }

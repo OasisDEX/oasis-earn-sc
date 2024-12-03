@@ -410,7 +410,7 @@ export const config: SystemConfig = {
       MorphoBlueReallocateTo: {
         name: 'MorphoBlueReallocateTo',
         deploy: true,
-        address: '',
+        address: '0xd9261350974569527be51d1e39e72828b7dc514a',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE_TO,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
