@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.6.81-0.6.81-dev-testnet-only.0",
+  "version": "0.6.81-dev-testnet-only.2",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -41,5 +41,6 @@
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.6"
-  }
+  },
+  "gitHead": "34e72e10dd17a1108334675b9b68afeb341c8fa0"
 }
