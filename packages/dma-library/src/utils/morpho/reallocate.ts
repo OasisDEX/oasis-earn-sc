@@ -233,8 +233,10 @@ const extractDataForReallocation = (
       const withdrawal: Withdrawal = {
         marketParams: {
           loanToken: item.allocationMarket.loanAsset.address,
-          collateralToken: item.allocationMarket.collateralAsset.address,
-          oracle: item.allocationMarket.oracle.address,
+          collateralToken: item.allocationMarket.collateralAsset?.address ||
+            "0x0000000000000000000000000000000000000000",
+          oracle: item.allocationMarket.oracle?.address ||
+            "0x0000000000000000000000000000000000000000",
           irm: item.allocationMarket.irmAddress,
           lltv: item.allocationMarket.lltv.toString(),
         },
