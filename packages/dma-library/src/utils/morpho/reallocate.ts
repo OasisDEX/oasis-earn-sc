@@ -282,11 +282,17 @@ const extractDataForReallocation = (
  */
 export const getMarketId = (market: MarketParams | ParsedMarketParams) => {
   const abiCoder = new ethers.utils.AbiCoder()
+  // Convert lltv to a BigNumber and then to a string to ensure it's an integer
+  // https://docs.morpho.org/morpho/contracts/morpho/
+  const lltvBigNumber = ethers.utils.parseUnits(market.lltv.toString(), 18)
+  console.log(`lltvBigNumber: ${lltvBigNumber.toString()}`)
   const encodedMarket = abiCoder.encode(
     ['address', 'address', 'address', 'address', 'uint256'],
-    [market.loanToken, market.collateralToken, market.oracle, market.irm, market.lltv.toString()],
+    [market.loanToken, market.collateralToken, market.oracle, market.irm, lltvBigNumber.toString()],
   )
-  return ethers.utils.keccak256(encodedMarket)
+  const keccak256EncodedMarket = ethers.utils.keccak256(encodedMarket)
+  console.log(`keccak256EncodedMarket: ${keccak256EncodedMarket}`)
+  return keccak256EncodedMarket
 }
 
 /**
@@ -303,11 +309,16 @@ export const getReallocateToData = async (
   console.log(`
     Starting reallocation process...`)
   const chainId = ChainIdByNetwork[network]
+  console.log(`Chain ID: ${chainId}`)
   const marketId = getMarketId(market)
+  console.log(`Market ID: ${marketId}`)
   const publicAllocatorAddress = await queryPublicAllocatorAddress(chainId)
+  console.log(`Public Allocator Address: ${publicAllocatorAddress}`)
   if (!publicAllocatorAddress) throw new Error(`Public Allocator Address not found.`)
 
   const marketData = await queryMarketData(marketId, chainId)
+  console.log(`Market Data: ${JSON.stringify(marketData)}`)
+
   if (!marketData) throw new Error('Market data not found.')
 
   const { withdrawalsPerVault, supplyMarketParams } = extractDataForReallocation(
@@ -328,5 +339,10 @@ export const getReallocateToData = async (
     return data
   })
 
-  return reallocateData
+  console.log(`Reallocate data length: ${reallocateData.length}`)
+
+  return {
+    reallocateData,
+    reallocatableLiquidityAssets: new BigNumber(marketData.reallocatableLiquidityAssets),
+  }
 }

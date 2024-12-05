@@ -66,7 +66,7 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
     position.marketParams.loanToken.toLowerCase() ===
     dependencies.addresses.tokens.WETH.toLowerCase()
 
-  const reallocateData = await getReallocateToData(
+  const { reallocateData, reallocatableLiquidityAssets } = await getReallocateToData(
     position.marketParams,
     dependencies.network,
     args.quoteAmount,
@@ -111,7 +111,7 @@ export const depositBorrow: MorphoDepositBorrowStrategy = async (args, dependenc
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, position)]
 
   const errors = [
-    ...validateLiquidity(position, targetPosition, args.quoteAmount),
+    ...validateLiquidity(position, targetPosition, args.quoteAmount, reallocatableLiquidityAssets),
     ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 

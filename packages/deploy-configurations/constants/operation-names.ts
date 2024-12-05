@@ -88,7 +88,7 @@ export const OPERATION_NAMES = {
     ADJUST_RISK_UP: 'MorphoBlueAdjustRiskUp_2',
     ADJUST_RISK_DOWN: 'MorphoBlueAdjustRiskDown_2',
     DEPOSIT_BORROW: 'MorphoBlueDepositBorrow_2',
-    OPEN_DEPOSIT_BORROW: 'MorphoBlueOpenDepositBorrow_2',
+    OPEN_DEPOSIT_BORROW: 'MorphoBlueOpenDepositBorrow_3', // Change back after testing
     DEPOSIT: 'MorphoBlueDeposit',
     BORROW: 'MorphoBlueBorrow_2',
     PAYBACK_WITHDRAW: 'MorphoBluePaybackWithdraw_2',
