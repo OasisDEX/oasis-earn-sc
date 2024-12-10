@@ -7,7 +7,9 @@ interface IBundler {
   function multicall(bytes[] calldata data) external payable;
 
   function reallocateTo(
+    address publicAllocator,
     address vault,
+    uint256 value,
     Withdrawal[] calldata withdrawals,
     MarketParams calldata supplyMarketParams
   ) external payable;

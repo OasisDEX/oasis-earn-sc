@@ -6,29 +6,37 @@ export type ForkConfig = {
   chainID: number
 }
 
-export type ForkConfigMaybe = ForkConfig | undefined
-
-function _validateForkNetwork(networkFork: Network | undefined) {
+function _validateForkNetwork(networkFork: string | undefined) {
   if (
-    networkFork &&
-    (networkFork as string) !== '' &&
-    !(
-      networkFork == Network.MAINNET ||
-      networkFork == Network.OPTIMISM ||
-      networkFork == Network.ARBITRUM ||
-      networkFork == Network.BASE ||
-      networkFork == Network.LOCAL
-    )
+    typeof networkFork !== 'string' ||
+    Object.values(Network).every(networkName => networkName !== networkFork)
   ) {
     throw new Error(
-      `NETWORK_FORK value not valid. Specify ${Network.MAINNET}, ${Network.OPTIMISM}, ${Network.ARBITRUM} or ${Network.BASE} or ${Network.LOCAL}`,
+      `NETWORK_FORK value not supported. Specify one of ${Object.values(Network).join(', ')}`,
     )
   }
+  return networkFork as Network
 }
 
-function _getForkedConfig(networkFork: Network | undefined): ForkConfigMaybe {
-  _validateForkNetwork(networkFork)
+export function getForkConfigFromEnv(): ForkConfig {
+  if (!process.env.NETWORK_FORK) {
+    throw new Error(`NETWORK_FORK env variable not set`)
+  }
 
+  const networkFork = _validateForkNetwork(process.env.NETWORK_FORK)
+
+  const forkConfig: ForkConfig = _getForkedConfig(networkFork)
+
+  if (forkConfig) {
+    console.log(`Forking on ${networkFork}`)
+    console.log(`Forking from block number: ${forkConfig && forkConfig.blockNumber}`)
+    console.log(`Forking with ChainID ${forkConfig && forkConfig.chainID}`)
+  }
+
+  return forkConfig
+}
+
+function _getForkedConfig(networkFork: Network): ForkConfig {
   let forkConfig: ForkConfig | undefined = undefined
 
   switch (networkFork) {
@@ -97,29 +105,11 @@ function _getForkedConfig(networkFork: Network | undefined): ForkConfigMaybe {
       }
       break
     default:
-      break
+      throw new Error(`NETWORK_FORK value not supported: ${networkFork}`)
   }
 
   if (forkConfig && !/^\d+$/.test(forkConfig.blockNumber)) {
     throw new Error(`Provide a valid block number. Provided value is ${forkConfig.blockNumber}`)
-  }
-
-  return forkConfig
-}
-
-export function getForkedNetworkConfig(): ForkConfigMaybe {
-  if (!process.env.NETWORK_FORK || process.env.NETWORK_FORK === '') {
-    return undefined
-  }
-
-  const networkFork = process.env.NETWORK_FORK as Network | undefined
-
-  const forkConfig: ForkConfigMaybe = _getForkedConfig(networkFork)
-
-  if (forkConfig) {
-    console.log(`Forking on ${networkFork}`)
-    console.log(`Forking from block number: ${forkConfig && forkConfig.blockNumber}`)
-    console.log(`Forking with ChainID ${forkConfig && forkConfig.chainID}`)
   }
 
   return forkConfig

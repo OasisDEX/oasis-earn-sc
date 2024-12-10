@@ -193,9 +193,9 @@ const extractDataForReallocation = (
   const withdrawalsPerVault: { [vaultAddress: string]: Withdrawal[] } = {}
   const availableLiquidity = new BigNumber(marketData.state.liquidityAssets)
   // Subtract the liquidity available in the market from the total liquidity required
-  let remainingLiquidity = liquidity.minus(availableLiquidity)
+  let requiredLiquidity = liquidity.minus(availableLiquidity)
   // Add a buffer factor to the remaining liquidity ( account for constatnt interest accrual, stale calldata etc )
-  remainingLiquidity = remainingLiquidity.times(BUFFER_FACTOR)
+  requiredLiquidity = requiredLiquidity.times(BUFFER_FACTOR)
 
   // First, group and sum assets by vault
   const vaultTotalAssets = marketData.publicAllocatorSharedLiquidity.reduce(
@@ -214,7 +214,7 @@ const extractDataForReallocation = (
 
   // Process each vault's allocations
   for (const [vaultAddress] of sortedVaults) {
-    if (remainingLiquidity.lte(0)) break
+    if (requiredLiquidity.lte(0)) break
 
     const vaultAllocations = marketData.publicAllocatorSharedLiquidity.filter(
       (item: any) => item.vault.address === vaultAddress,
@@ -224,11 +224,11 @@ const extractDataForReallocation = (
       const itemAmount = new BigNumber(item.assets)
 
       // Skip if we've already collected enough liquidity
-      if (remainingLiquidity.lte(0)) break
+      if (requiredLiquidity.lte(0)) break
 
       // Calculate how much we can take from this allocation
-      const amountToTake = BigNumber.minimum(itemAmount, remainingLiquidity)
-      remainingLiquidity = remainingLiquidity.minus(amountToTake)
+      const amountToTake = BigNumber.minimum(itemAmount, requiredLiquidity)
+      requiredLiquidity = requiredLiquidity.minus(amountToTake)
 
       const withdrawal: Withdrawal = {
         marketParams: {
@@ -330,7 +330,9 @@ export const getReallocateToData = async (
 
   const reallocateData = Object.keys(withdrawalsPerVault).map(vaultAddress => {
     const data = bundlerInterface.encodeFunctionData('reallocateTo', [
+      publicAllocatorAddress,
       vaultAddress,
+      '0',
       withdrawalsPerVault[vaultAddress].sort((a, b) =>
         getMarketId(a.marketParams).localeCompare(getMarketId(b.marketParams)),
       ),
