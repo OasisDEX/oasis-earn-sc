@@ -56,6 +56,7 @@ export function toMorphoBlueBorrowArgs(
     morphoBlueMarket: toMorphoBlueMarket(morphoSystem, market),
     amountToBorrow: new BN(borrowAmount.toString()),
     isEthToken,
+    reallocateData: [],
   }
   return borrowArgs
 }
@@ -159,6 +160,7 @@ export function toMorphoBlueMultiplyOpenArgs(
     },
     addresses,
     network,
+    reallocateData: [],
   }
   return multiplyOpenArgs
 }

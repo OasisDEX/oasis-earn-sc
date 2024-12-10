@@ -29,6 +29,10 @@ export function getMorphoBlueOpenDepositBorrowOperationDefinition(network: Netwo
         optional: false,
       },
       {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE_TO),
+        optional: true,
+      },
+      {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.BORROW),
         optional: true,
       },

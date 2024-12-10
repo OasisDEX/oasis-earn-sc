@@ -31,6 +31,7 @@ import {
   SummerStrategy,
 } from '@dma-library/types/ajna'
 import { CommonDMADependencies, GetSwapData } from '@dma-library/types/common'
+import { getReallocateToData } from '@dma-library/utils/morpho/reallocate'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { GetCumulativesData, views } from '@dma-library/views'
@@ -39,6 +40,11 @@ import * as Domain from '@domain'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
+
+type ReallocationData = {
+  reallocateData: string[]
+  reallocatableLiquidityAssets: BigNumber
+}
 
 interface MorphoOpenMultiplyPayload {
   collateralPriceUSD: BigNumber
@@ -84,6 +90,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     ...args,
     collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
   }
+
   const simulatedAdjustment = await simulateAdjustment(
     mappedArgs,
     dependencies,
@@ -92,6 +99,13 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     oraclePrice,
     collateralTokenSymbol,
     debtTokenSymbol,
+  )
+
+  const borrowAmount = simulatedAdjustment.delta.debt
+  const { reallocateData, reallocatableLiquidityAssets } = await getReallocateToData(
+    position.marketParams,
+    dependencies.network,
+    borrowAmount,
   )
 
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
@@ -111,6 +125,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     simulatedAdjustment,
     swapData,
     riskIsIncreasing,
+    { reallocateData, reallocatableLiquidityAssets },
   )
 
   return prepareMorphoMultiplyDMAPayload(
@@ -125,6 +140,7 @@ export const openMultiply: MorphoOpenMultiplyStrategy = async (args, dependencie
     position,
     collateralTokenSymbol,
     debtTokenSymbol,
+    { reallocateData, reallocatableLiquidityAssets },
   )
 }
 
@@ -331,6 +347,7 @@ async function buildOperation(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
   riskIsIncreasing: true,
+  reallocationData: ReallocationData,
 ): Promise<IOperation> {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
@@ -403,6 +420,7 @@ async function buildOperation(
       owner: args.user,
     },
     network,
+    reallocateData: reallocationData.reallocateData,
   }
   return await operations.morphoblue.multiply.open(openMultiplyArgs)
 }
@@ -519,6 +537,7 @@ export function prepareMorphoMultiplyDMAPayload(
   position: MorphoBluePosition,
   collateralTokenSymbol: string,
   debtTokenSymbol: string,
+  reallocationData: ReallocationData,
 ) {
   const collateralAmount = amountFromWei(
     simulatedAdjustment.position.collateral.amount,
@@ -567,7 +586,12 @@ export function prepareMorphoMultiplyDMAPayload(
     : []
 
   const errors = [
-    ...validateLiquidity(position, targetPosition, position.debtAmount.minus(debtAmount).abs()),
+    ...validateLiquidity(
+      position,
+      targetPosition,
+      position.debtAmount.minus(debtAmount).abs(),
+      reallocationData.reallocatableLiquidityAssets,
+    ),
     ...validateBorrowUndercollateralized(
       targetPosition,
       position,

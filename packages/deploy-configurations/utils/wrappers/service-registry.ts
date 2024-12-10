@@ -27,10 +27,16 @@ export class ServiceRegistry {
   async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await this._getRegistry()
-    await registry.addNamedService(entryHash, address)
-
     if (debug) {
-      console.log(`DEBUG: Service '${label}' has been added with hash: ${entryHash}`)
+      console.log(
+        `DEBUG: Service '${label}' is about to be added with hash: ${entryHash} and address: ${address}`,
+      )
+    }
+    try {
+      await registry.addNamedService(entryHash, address)
+    } catch (error) {
+      console.error(`Error adding service '${label}' to registry: ${error}`)
+      return ''
     }
 
     return entryHash

@@ -39,7 +39,7 @@ export interface LendingPosition {
   payback(amount: BigNumber): LendingPosition
 }
 
-interface MarketParams {
+export interface MarketParams {
   id: string
   loanToken: Address
   collateralToken: Address

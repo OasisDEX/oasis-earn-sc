@@ -49,11 +49,20 @@ export class OperationsDatabase {
       return undefined
     }
 
-    return JSON.stringify([
-      op.actions.map(op => op.hash),
-      op.actions.map(op => op.optional),
-      op.name,
+    const tuple = [op.actions.map(op => op.hash), op.actions.map(op => op.optional), op.name]
+
+    // Get contract interface
+    const iface = new ethers.utils.Interface([
+      'function addOperation(tuple(bytes32[],bool[],string) operation)',
     ])
+
+    // Encode the function call with parameters
+    const encodedData = iface.encodeFunctionData('addOperation', [tuple])
+
+    console.log('Raw calldata:', encodedData)
+    console.log('\n--------------------------------\n')
+
+    return JSON.stringify(tuple)
   }
 
   public getCalldataTuple(opName: string): any[] | undefined {

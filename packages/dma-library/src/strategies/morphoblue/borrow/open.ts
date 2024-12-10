@@ -10,6 +10,7 @@ import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/validatio
 //   validateLiquidity,
 // } from '../../validation'
 import { MorphoBluePosition, SummerStrategy } from '@dma-library/types'
+import { getReallocateToData } from '@dma-library/utils/morpho/reallocate'
 import { encodeOperation } from '@dma-library/utils/operation'
 import { GetCumulativesData, views } from '@dma-library/views'
 import { MorphoCumulativesData } from '@dma-library/views/morpho'
@@ -73,7 +74,11 @@ export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
   const isBorrowingEth =
     position.marketParams.loanToken.toLowerCase() ===
     dependencies.addresses.tokens.WETH.toLowerCase()
-
+  const { reallocateData, reallocatableLiquidityAssets } = await getReallocateToData(
+    position.marketParams,
+    dependencies.network,
+    args.quoteAmount,
+  )
   const operation = await operations.morphoblue.borrow.openDepositBorrow(
     {
       userFundsTokenAddress: isDepositingEth
@@ -99,6 +104,7 @@ export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
       },
       amountToBorrow: amountToWei(args.quoteAmount, args.quotePrecision),
       isEthToken: isBorrowingEth,
+      reallocateData,
     },
     {
       protocol: 'MorphoBlue',
@@ -113,7 +119,7 @@ export const open: MorphoOpenBorrowStrategy = async (args, dependencies) => {
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, position)]
 
   const errors = [
-    ...validateLiquidity(position, targetPosition, args.quoteAmount),
+    ...validateLiquidity(position, targetPosition, args.quoteAmount, reallocatableLiquidityAssets),
     ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 

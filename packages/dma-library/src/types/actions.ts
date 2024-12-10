@@ -57,6 +57,7 @@ export const calldataTypes = {
     Borrow: `tuple(${morphoBlueMarketParams}, uint256 amount)`,
     Payback: `tuple(${morphoBlueMarketParams}, uint256 amount, address onBehalf, bool paybackAll)`,
     ClaimRewards: `tuple(address[] urd, address[] rewards, uint256[] claimable, bytes32[][] proofs)`,
+    Reallocate: `tuple(bytes[] data)`,
   },
   ajna: {
     DepositBorrow: `tuple(address quoteToken, address collateralToken, uint256 depositAmount, uint256 borrowAmount, bool sumDepositAmounts, uint256 price)`,

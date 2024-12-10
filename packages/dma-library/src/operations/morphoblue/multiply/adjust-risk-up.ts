@@ -16,6 +16,8 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
+import { getReallocateToAction } from '../helpers/reallocate'
+
 export type MorphoBlueAdjustRiskUpArgs = WithMorphoBlueMarket &
   WithCollateral &
   WithDebtAndBorrow &
@@ -24,7 +26,9 @@ export type MorphoBlueAdjustRiskUpArgs = WithMorphoBlueMarket &
   WithFlashloan &
   WithProxy &
   WithMorphpBlueStrategyAddresses &
-  WithNetwork
+  WithNetwork & {
+    reallocateData: string[]
+  }
 
 export type MorphoBlueAdjustUpOperation = ({
   morphoBlueMarket,
@@ -36,6 +40,7 @@ export type MorphoBlueAdjustUpOperation = ({
   proxy,
   addresses,
   network,
+  reallocateData,
 }: MorphoBlueAdjustRiskUpArgs) => Promise<IOperation>
 
 export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
@@ -48,6 +53,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
   proxy,
   addresses,
   network,
+  reallocateData,
 }) => {
   if (collateral.address !== morphoBlueMarket.collateralToken) {
     throw new Error('Collateral token must be the same as MorphoBlue market collateral token')
@@ -72,6 +78,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
   })
   wrapEth.skipped = !collateral.isEth
 
+  const reallocate = getReallocateToAction(network, reallocateData)
   // No previous actions store values with OpStorage
   const swapActionStorageIndex = 1
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
@@ -136,7 +143,7 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
   })
 
   return {
-    calls: [takeAFlashLoan],
+    calls: [reallocate, takeAFlashLoan],
     operationName: getMorphoBlueAdjustUpOperationDefinition(network).name,
   }
 }

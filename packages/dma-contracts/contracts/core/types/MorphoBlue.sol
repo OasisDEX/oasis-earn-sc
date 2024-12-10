@@ -33,3 +33,7 @@ struct ClaimMultipleRewardsData {
   uint256[] claimable;
   bytes32[][] proofs;
 }
+
+struct ReallocateToData {
+  bytes[] data;
+}

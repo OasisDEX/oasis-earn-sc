@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/cli",
-  "version": "0.0.0",
+  "version": "0.0.1-0.0.1-dev-testnet-only.0",
   "packageManager": "yarn@1.22.1",
   "description": "Minimalistic boilerplate to quick-start Node.js development in TypeScript.",
   "devDependencies": {
@@ -25,10 +25,11 @@
   "author": "Summer.fi",
   "license": "Apache-2.0",
   "dependencies": {
-    "@oasisdex/addresses": "*",
+    "@oasisdex/addresses": "^0.1.92-0.1.92-dev-testnet-only.0",
     "@oasisdex/dma-library": "0.5.40-rc.3",
     "dotenv": "^16.3.1",
     "ethers": "5.7.2",
     "yup": "^1.3.2"
-  }
+  },
+  "gitHead": "34e72e10dd17a1108334675b9b68afeb341c8fa0"
 }

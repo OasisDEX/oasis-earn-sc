@@ -9,6 +9,10 @@ export function getMorphoBlueOpenOperationDefinition(network: Network) {
     name: OPERATION_NAMES.morphoblue.OPEN_POSITION,
     actions: [
       {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE_TO),
+        optional: true,
+      },
+      {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN),
         optional: false,
       },

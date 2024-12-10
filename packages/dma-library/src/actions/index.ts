@@ -37,7 +37,7 @@ import {
   morphoBluePayback,
   morphoBlueWithdraw,
 } from './morphoblue'
-import { morphoBlueClaimRewards } from './morphoblue/morphoblue'
+import { morphoBlueClaimRewards, morphoBlueReallocate } from './morphoblue/morphoblue'
 import { sparkBorrow, sparkDeposit, sparkPayback, sparkSetEMode, sparkWithdraw } from './spark'
 
 const aave = {
@@ -95,6 +95,7 @@ const morphoblue = {
   withdraw: morphoBlueWithdraw,
   payback: morphoBluePayback,
   claim: morphoBlueClaimRewards,
+  reallocate: morphoBlueReallocate,
 }
 
 const actions = { aave, ajna, common, spark, morphoblue }

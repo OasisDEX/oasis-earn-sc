@@ -1,3 +1,4 @@
+import { ZERO } from '@dma-common/constants'
 import { formatCryptoBalance } from '@dma-common/utils/common'
 import { AjnaError, MorphoBluePosition } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
@@ -9,7 +10,7 @@ export function validateBorrowUndercollateralized(
   position: MorphoBluePosition,
   borrowAmount: BigNumber,
 ): AjnaError[] {
-  if (validateLiquidity(position, targetPosition, borrowAmount).length > 0) {
+  if (validateLiquidity(position, targetPosition, borrowAmount, ZERO).length > 0) {
     return []
   }
 

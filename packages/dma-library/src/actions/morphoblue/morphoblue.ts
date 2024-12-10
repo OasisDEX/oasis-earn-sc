@@ -139,3 +139,17 @@ export function morphoBlueClaimRewards(
     ],
   )
 }
+
+export function morphoBlueReallocate(network: Network, args: { data: string[] }): ActionCall {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
+  return createAction(
+    getActionHash(SERVICE_REGISTRY_NAMES.morphoblue.REALLOCATE_TO),
+    [calldataTypes.morphoblue.Reallocate],
+    [
+      {
+        data: args.data,
+      },
+    ],
+  )
+}

@@ -2794,6 +2794,21 @@
   resolved "https://registry.npmjs.org/@nomicfoundation/hardhat-toolbox/-/hardhat-toolbox-2.0.2.tgz"
   integrity sha512-vnN1AzxbvpSx9pfdRHbUzTRIXpMLPXnUlkW855VaDk6N1pwRaQ2gNzEmFAABk4lWf11E00PKwFd/q27HuwYrYg==
 
+"@nomicfoundation/hardhat-verify@^2.0.0":
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/@nomicfoundation/hardhat-verify/-/hardhat-verify-2.0.12.tgz#480819a245a2db0b127e473c62079f7b4f16daa8"
+  integrity sha512-Lg3Nu7DCXASQRVI/YysjuAX2z8jwOCbS0w5tz2HalWGSTZThqA0v9N0v0psHbKNqzPJa8bNOeapIVSziyJTnAg==
+  dependencies:
+    "@ethersproject/abi" "^5.1.2"
+    "@ethersproject/address" "^5.0.2"
+    cbor "^8.1.0"
+    debug "^4.1.1"
+    lodash.clonedeep "^4.5.0"
+    picocolors "^1.1.0"
+    semver "^6.3.0"
+    table "^6.8.0"
+    undici "^5.14.0"
+
 "@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.1":
   version "0.1.1"
   resolved "https://registry.npmjs.org/@nomicfoundation/solidity-analyzer-darwin-arm64/-/solidity-analyzer-darwin-arm64-0.1.1.tgz"
@@ -4287,6 +4302,35 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
+"@tenderly/api-client@^1.0.1":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@tenderly/api-client/-/api-client-1.1.0.tgz#fa06adf17ecc1ef83c5fb8536b71b542e7023228"
+  integrity sha512-kyye7TQ+RbDbJ7bSUjNf/O9fTtRYNUDIEUZQSrmNonowMw5/EpNi664eWaOoC00NEzxgttVrtme/GHvIOu7rNg==
+  dependencies:
+    axios "^0.27.2"
+    cli-table3 "^0.6.2"
+    commander "^9.4.0"
+    dotenv "^16.4.5"
+    js-yaml "^4.1.0"
+    open "^8.4.0"
+    prompts "^2.4.2"
+    tslog "^4.4.0"
+
+"@tenderly/hardhat-tenderly@1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@tenderly/hardhat-tenderly/-/hardhat-tenderly-1.8.0.tgz#3c77f3a8bba4d801cd3d6a98dfec2abc9359fbc2"
+  integrity sha512-HzyYsFZEXVALz+vDn1XesvaqrSDr3vYqlMd/A+r6pi6er1dFRlbUPW5mdalPQsbPOsBIO+PXjOlrM7mGgBdYEQ==
+  dependencies:
+    "@ethersproject/bignumber" "^5.7.0"
+    "@nomiclabs/hardhat-ethers" "^2.1.1"
+    axios "^0.27.2"
+    ethers "^5.7.0"
+    fs-extra "^10.1.0"
+    hardhat-deploy "^0.11.14"
+    js-yaml "^4.1.0"
+    tenderly "^0.6.0"
+    tslog "^4.3.1"
+
 "@tenderly/hardhat-tenderly@^1.5.3", "@tenderly/hardhat-tenderly@^1.6.1":
   version "1.7.2"
   resolved "https://registry.npmjs.org/@tenderly/hardhat-tenderly/-/hardhat-tenderly-1.7.2.tgz"
@@ -4300,21 +4344,6 @@
     hardhat-deploy "^0.11.14"
     js-yaml "^4.1.0"
     tenderly "^0.5.1"
-    tslog "^4.3.1"
-
-"@tenderly/hardhat-tenderly@^1.7.7":
-  version "1.7.7"
-  resolved "https://registry.yarnpkg.com/@tenderly/hardhat-tenderly/-/hardhat-tenderly-1.7.7.tgz#b320ee6bea3779e4781eb0299a3a816cbdc83def"
-  integrity sha512-p/jLzRPpoD7J0LGvUFEQjgniDzmP5AzfTgy41qqzyjhOsW0voe7wZI8lXjadl5MEr7rAXN1iH3VncT13qG6+Zw==
-  dependencies:
-    "@ethersproject/bignumber" "^5.7.0"
-    "@nomiclabs/hardhat-ethers" "^2.1.1"
-    axios "^0.27.2"
-    ethers "^5.7.0"
-    fs-extra "^10.1.0"
-    hardhat-deploy "^0.11.14"
-    js-yaml "^4.1.0"
-    tenderly "^0.5.3"
     tslog "^4.3.1"
 
 "@tootallnate/once@2":
@@ -8330,6 +8359,11 @@ dotenv@^16.3.1:
   version "16.3.1"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.3.1.tgz#369034de7d7e5b120972693352a3bf112172cc3e"
   integrity sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==
+
+dotenv@^16.4.5:
+  version "16.4.7"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.4.7.tgz#0e20c5b82950140aa99be360a8a5f52335f53c26"
+  integrity sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==
 
 dotenv@^7.0.0:
   version "7.0.0"
@@ -13263,6 +13297,11 @@ lodash.camelcase@^4.3.0:
   resolved "https://registry.npmjs.org/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz"
   integrity sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==
 
+lodash.clonedeep@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+  integrity sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
+
 lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.npmjs.org/lodash.debounce/-/lodash.debounce-4.0.8.tgz"
@@ -15504,6 +15543,11 @@ picocolors@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/picocolors/-/picocolors-1.0.0.tgz"
   integrity sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==
+
+picocolors@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.1.1.tgz#3d321af3eab939b083c8f929a1d12cda81c26b6b"
+  integrity sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==
 
 picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.3, picomatch@^2.3.1:
   version "2.3.1"
@@ -17947,10 +17991,10 @@ tenderly@^0.5.1:
     prompts "^2.4.2"
     tslog "^4.4.0"
 
-tenderly@^0.5.3:
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/tenderly/-/tenderly-0.5.3.tgz#115653ff33fc33e3be41ab7dd669fdbe0f28a6fb"
-  integrity sha512-sR+sbZKZzt3b2+moXJsrkBvbava1/4mGulIfuZw8bwr2OpCH8N00dME1t89JC8RjVnQjy4VewVFHyWANdn5zYQ==
+tenderly@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/tenderly/-/tenderly-0.6.0.tgz#fb74e672a3b6dcfe66c8fd44c79ab91a9233f3eb"
+  integrity sha512-uPnR5ujR1j0Aay4nuqymTY2nu3e0yDjl6dHBqkTTIYEDzyzaDLx2+PkVxjT5RWseAbWORsa6GYetletATf1zmQ==
   dependencies:
     axios "^0.27.2"
     cli-table3 "^0.6.2"

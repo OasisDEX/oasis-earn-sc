@@ -1,5 +1,5 @@
 import { ADDRESSES } from '@oasisdex/addresses';
-import { strategies, views } from '@oasisdex/dma-library';
+import { strategies, views } from '@oasisdex/dma-library/src';
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
 import * as yup from 'yup';

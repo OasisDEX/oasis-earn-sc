@@ -46,6 +46,13 @@ struct Signature {
   bytes32 s;
 }
 
+struct Withdrawal {
+  /// @notice The market from which to withdraw.
+  MarketParams marketParams;
+  /// @notice The amount to withdraw.
+  uint128 amount;
+}
+
 /// @dev This interface is used for factorizing IMorphoStaticTyping and IMorpho.
 /// @dev Consider using the IMorpho interface instead of this one.
 interface IMorphoBase {

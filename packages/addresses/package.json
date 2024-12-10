@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/addresses",
-  "version": "0.1.91",
+  "version": "0.1.92-0.1.92-dev-testnet-only.0",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -23,5 +23,6 @@
     "implicitDependencies": [
       "@oasisdex/deploy-configurations"
     ]
-  }
+  },
+  "gitHead": "34e72e10dd17a1108334675b9b68afeb341c8fa0"
 }
