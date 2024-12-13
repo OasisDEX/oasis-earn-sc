@@ -860,6 +860,10 @@ export const config: SystemConfig = {
       name: 'MANA',
       address: '0x0F5D2fB29fb7d3CFeE444a200298f468908cC942',
     },
+    MBASIS: {
+      name: 'MBASIS',
+      address: '0x2a8c22E3b10036f3AEF5875d04f8441d4188b656',
+    },
     MATIC: {
       name: 'MATIC',
       address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
@@ -1833,6 +1837,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_SYRUPUSDCUSDC: {
       name: 'AjnaPoolPairs_SYRUPUSDCUSDC',
       address: '0xbcda8ee352778071fc7f09b8bfbcd832aa09cee9',
+    },
+    AjnaPoolPairs_MBASISUSDC: {
+      name: 'AjnaPoolPairs_MBASISUSDC',
+      address: '0x5503364c38505c68612a4d85e952f33cd17e24af',
     },
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',

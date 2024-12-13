@@ -16,6 +16,10 @@ export const commonDefaults = {
     name: 'MKR',
     address: ADDRESS_ZERO,
   },
+  MBASIS: {
+    name: 'MBASIS',
+    address: ADDRESS_ZERO,
+  },
   OP: {
     name: 'OP',
     address: ADDRESS_ZERO,

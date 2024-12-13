@@ -31,6 +31,7 @@ export type Tokens =
   | 'LUSD'
   | 'MANA'
   | 'MATIC'
+  | 'MBASIS'
   | 'MKR'
   | 'MORPHO'
   | 'MORPHO_LEGACY'
