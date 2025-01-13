@@ -30,7 +30,8 @@ export function resolveFlashloanProvider({
       }
       if (
         lendingProtocol === 'AAVE_V3' &&
-        aaveIsolatedCollateralTokens.includes(collateralToken.toUpperCase())
+        aaveIsolatedCollateralTokens.includes(collateralToken.toUpperCase()) &&
+        debtToken !== 'DAI'
       ) {
         return FlashloanProvider.Balancer
       }
