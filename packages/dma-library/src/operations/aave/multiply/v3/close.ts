@@ -104,7 +104,11 @@ export const close: AaveV3CloseOperation = async ({
 
   const withdrawFlashLoan = actions.aave.v3.aaveV3Withdraw(network, {
     asset: flashloan.token.address,
-    amount: flashloan.token.amount,
+    // Aave V3 changed how they round numbers in one of their contracts
+    // They effect is that we can no longer immediately withdraw the full amount of the flashloan
+    // This is a workaround to ensure we can repay the flashloan in full
+    // https://github.com/aave-dao/aave-v3-origin/commit/070cd23d949d828ad78d098ef481c2049f5eabb6#diff-b7654541d4083b2f7a8e06e4359f5082eca09c6d890e7b5af914395e15fb04b5
+    amount: flashloan.token.amount.minus(1),
     to: addresses.operationExecutor,
   })
 
