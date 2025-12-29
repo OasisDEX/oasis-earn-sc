@@ -145,6 +145,7 @@ export async function buildAdjustFlashloan(
     lendingProtocol,
     debtToken: args.debtToken.symbol,
     collateralToken: args.collateralToken.symbol,
+    flashloanToken: args.flashloan?.token.symbol,
   })
 
   if (dependencies.protocolType === 'Spark') {

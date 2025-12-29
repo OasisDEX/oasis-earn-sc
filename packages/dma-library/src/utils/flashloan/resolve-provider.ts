@@ -11,12 +11,17 @@ export function resolveFlashloanProvider({
   lendingProtocol,
   collateralToken,
   debtToken,
+  flashloanToken,
 }: {
   network: Network
   lendingProtocol: Protocol
   debtToken: string
   collateralToken: string
+  flashloanToken?: string
 }): FlashloanProvider {
+  if (flashloanToken && flashloanToken !== 'DAI') {
+    return FlashloanProvider.Balancer
+  }
   switch (network) {
     case Network.MAINNET:
       if (lendingProtocol === 'Ajna') {

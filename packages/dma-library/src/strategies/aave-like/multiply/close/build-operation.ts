@@ -104,6 +104,7 @@ export async function buildCloseFlashloan(
     lendingProtocol,
     debtToken: args.debtToken.symbol,
     collateralToken: args.collateralToken.symbol,
+    flashloanToken: args.flashloan?.token.symbol,
   })
 
   if (dependencies.protocolType === 'Spark') {
@@ -130,16 +131,34 @@ export async function buildCloseFlashloan(
   const maxLoanToValueForFL = new BigNumber(
     args.protocolData.reserveDataForFlashloan.ltv.toString(),
   ).div(FEE_BASE)
+  console.log('DMA Library Debug - dependencies', dependencies)
+  console.log('DMA Library Debug - args', args)
+  console.log(
+    'DMA Library Debug - args.protocolData.reserveDataForFlashloan.ltv',
+    args.protocolData.reserveDataForFlashloan.ltv.toString(),
+  )
+  console.log('DMA Library Debug - maxLoanToValueForFL', maxLoanToValueForFL.toString())
   const flashloanTokenPrice = args.protocolData.flashloanAssetPriceInEth
+  console.log('DMA Library Debug - flashloanTokenPrice', flashloanTokenPrice?.toString())
   const collateralTokenPrice = args.protocolData.collateralTokenPriceInEth
+  console.log('DMA Library Debug - collateralTokenPrice', collateralTokenPrice?.toString())
   if (!flashloanTokenPrice || !collateralTokenPrice) {
     throw new Error('Missing price data')
   }
   const baseCurrencyPerFlashLoan = new BigNumber(flashloanTokenPrice.toString())
+  console.log('DMA Library Debug - baseCurrencyPerFlashLoan', baseCurrencyPerFlashLoan?.toString())
   const baseCurrencyPerCollateralToken = new BigNumber(collateralTokenPrice.toString())
+  console.log(
+    'DMA Library Debug - baseCurrencyPerCollateralToken',
+    baseCurrencyPerCollateralToken?.toString(),
+  )
 
   // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
   const oracleFLtoCollateralToken = baseCurrencyPerCollateralToken.div(baseCurrencyPerFlashLoan)
+  console.log(
+    'DMA Library Debug - oracleFLtoCollateralToken',
+    oracleFLtoCollateralToken?.toString(),
+  )
   const amountToFlashloanInWei = amountToWei(
     amountFromWei(
       dependencies.currentPosition.collateral.amount,
@@ -149,6 +168,7 @@ export async function buildCloseFlashloan(
   )
     .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
     .integerValue(BigNumber.ROUND_DOWN)
+  console.log('DMA Library Debug - amountToFlashloanInWei', amountToFlashloanInWei?.toString())
 
   return {
     token: {
