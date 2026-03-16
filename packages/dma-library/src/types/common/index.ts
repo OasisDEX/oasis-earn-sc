@@ -10,6 +10,7 @@ export type {
 } from './erc4626-strategies'
 export type { IErc4626Position } from './erc4626-view'
 export { Erc4626Position, FeeType } from './erc4626-view'
+export type { LendingPosition } from './lending-position'
 
 export type Strategy<Position> = {
   simulation: {

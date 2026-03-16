@@ -9,45 +9,13 @@ import {
   simulatePool,
 } from '@dma-library/protocols/ajna'
 import { AjnaWarning } from '@dma-library/types/ajna'
+import { LendingPosition } from '@dma-library/types/common'
 import { AjnaCumulativesData } from '@dma-library/views/ajna'
 import { getBuyingPower } from '@dma-library/views/common'
-import { IRiskRatio, RiskRatio } from '@domain'
+import { RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
 import { AjnaPool } from './ajna-pool'
-
-export interface LendingPosition {
-  owner: Address
-  collateralAmount: BigNumber
-  debtAmount: BigNumber
-
-  marketPrice: BigNumber
-  liquidationPrice: BigNumber
-  liquidationToMarketPrice: BigNumber
-
-  collateralAvailable: BigNumber
-  riskRatio: IRiskRatio
-  maxRiskRatio: IRiskRatio
-  minRiskRatio: IRiskRatio
-
-  borrowRate: BigNumber
-  netValue: BigNumber
-  buyingPower: BigNumber
-  pnl: {
-    withFees: BigNumber
-    withoutFees: BigNumber
-  }
-
-  debtAvailable(collateralAmount?: BigNumber): BigNumber
-
-  deposit(amount: BigNumber): LendingPosition
-
-  withdraw(amount: BigNumber): LendingPosition
-
-  borrow(amount: BigNumber): LendingPosition
-
-  payback(amount: BigNumber): LendingPosition
-}
 
 export class AjnaPosition implements LendingPosition {
   warnings: AjnaWarning[] = []
