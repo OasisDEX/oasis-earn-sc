@@ -1,4 +1,5 @@
 import { AaveVersion } from '@dma-library/types/aave'
+import { getMakerPosition } from '@dma-library/views/maker'
 
 import {
   AaveView,
@@ -53,6 +54,10 @@ const ajna = {
 const morpho = {
   getPosition: getMorphoPosition,
 }
+
+const maker = {
+  getPosition: getMakerPosition,
+}
 const common = {
   getErc4626Position: getErc4626Position,
 }
@@ -61,6 +66,7 @@ const views = {
   aave,
   spark,
   sparkOmni,
+  maker,
   morpho,
   common,
 }

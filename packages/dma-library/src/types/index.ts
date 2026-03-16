@@ -16,6 +16,7 @@ import {
 } from './ajna'
 import type { Strategy } from './common'
 import { FlashloanProvider } from './common'
+import { MakerPosition } from './maker'
 import { MorphoBlueMarket, MorphoBluePosition } from './morphoblue'
 import type {
   IOperation,
@@ -122,6 +123,8 @@ export type { Swap }
 
 export { MorphoBluePosition }
 export type { MorphoBlueMarket }
+
+export { MakerPosition }
 
 export type {
   Erc4626CommonDependencies,
